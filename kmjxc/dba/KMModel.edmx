@@ -1,0 +1,1152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityContainer Name="KMJXCDBAModelStoreContainer">
+          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Store.Access_Token" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Store.Back_Sale" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Sale_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Store.Back_Stock" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Buy" EntityType="KM.JXC.DBA.Model.Store.Buy" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Store.Customer_Shop" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Store.Mall_Type" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Store.Product" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Store.Product_Class" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Store.Product_Supplier" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Store.Product_Unit" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Sale_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Store.Stock_Pile" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Store.Supplier" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Store.Supplier_Shop" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.Store.User" store:Type="Tables" Schema="kuanmai" />
+        </EntityContainer>
+        <EntityType Name="Access_Token">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_ID" Type="uint" Nullable="false" />
+          <Property Name="Access_Token" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Expirse_In" Type="uint" Nullable="false" />
+          <Property Name="Refresh_Token" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="RExpirse_In" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Sale">
+          <Key>
+            <PropertyRef Name="Back_Sale_ID" />
+          </Key>
+          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
+          <Property Name="Sale_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Sale_Detail">
+          <Key>
+            <PropertyRef Name="Back_Sale_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+        </EntityType>
+        <EntityType Name="Back_Stock">
+          <Key>
+            <PropertyRef Name="Back_Sock_ID" />
+          </Key>
+          <Property Name="Back_Sock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="varchar" Nullable="false" MaxLength="200" />
+          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Stock_Detail">
+          <Key>
+            <PropertyRef Name="Back_Stock_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Back_Stock_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+        </EntityType>
+        <EntityType Name="Buy">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Come_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_Date" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Detail">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Create_Date" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Order">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Write_Date" Type="uint" />
+          <Property Name="Insure_Date" Type="uint" />
+          <Property Name="End_Date" Type="uint" />
+          <Property Name="Create_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Order_User_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Order_Detail">
+          <Key>
+            <PropertyRef Name="Buy_Order_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+        </EntityType>
+        <EntityType Name="Common_District">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Level" Type="utinyint" Nullable="false" />
+          <Property Name="UPID" Type="uint" Nullable="false" />
+          <Property Name="Order" Type="utinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Customer_ID" />
+          </Key>
+          <Property Name="Customer_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Email" Type="varchar" MaxLength="45" />
+          <Property Name="Phone" Type="varchar" MaxLength="45" />
+          <Property Name="Address" Type="varchar" MaxLength="200" />
+          <Property Name="City_ID" Type="uint" />
+          <Property Name="Province_ID" Type="uint" />
+        </EntityType>
+        <EntityType Name="Customer_Shop">
+          <Key>
+            <PropertyRef Name="Customer_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Customer_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Employee_ID" />
+          </Key>
+          <Property Name="Employee_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Department" Type="varchar" MaxLength="45" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Duty" Type="varchar" MaxLength="45" />
+          <Property Name="Gendar" Type="char" MaxLength="1" />
+          <Property Name="BirthDate" Type="uint" />
+          <Property Name="HireDate" Type="uint" />
+          <Property Name="MatureDate" Type="uint" />
+          <Property Name="IdentityCard" Type="varchar" MaxLength="18" />
+          <Property Name="Address" Type="varchar" MaxLength="45" />
+          <Property Name="Phone" Type="varchar" MaxLength="15" />
+          <Property Name="Email" Type="varchar" MaxLength="45" />
+          <Property Name="User_ID" Type="uint" />
+        </EntityType>
+        <EntityType Name="Enter_Stock">
+          <Key>
+            <PropertyRef Name="Enter_Stock_ID" />
+          </Key>
+          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Enter_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Enter_Stock_Detail">
+          <Key>
+            <PropertyRef Name="Enter_Stock_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Have_Invoice" Type="bool" />
+          <Property Name="Invoice_Num" Type="varchar" MaxLength="45" />
+          <Property Name="Invoice_Amount" Type="decimal" Scale="2" />
+        </EntityType>
+        <EntityType Name="Leave_Stock">
+          <Key>
+            <PropertyRef Name="Leave_Stock_ID" />
+          </Key>
+          <Property Name="Leave_Stock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Leave_Date" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="To_StoreHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="Sale_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Mall_Type">
+          <Key>
+            <PropertyRef Name="Mall_Type_ID" />
+          </Key>
+          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Product_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_Class_ID" Type="uint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="Price" Type="decimal" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+          <Property Name="Product_Unit_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Parent_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Class">
+          <Key>
+            <PropertyRef Name="Product_Class_ID" />
+          </Key>
+          <Property Name="Product_Class_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Parent_ID" Type="uint" />
+          <Property Name="Order" Type="utinyint" />
+          <Property Name="Create_Time" Type="uint" />
+          <Property Name="Create_User_ID" Type="uint" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Supplier">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Supplier_ID" />
+          </Key>
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Unit">
+          <Key>
+            <PropertyRef Name="Product_Unit_ID" />
+          </Key>
+          <Property Name="Product_Unit_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="100" />
+          <Property Name="Shop_ID" Type="uint" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale">
+          <Key>
+            <PropertyRef Name="Sale_ID" />
+          </Key>
+          <Property Name="Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Sale_Time" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" />
+          <Property Name="Mall_Trade_ID" Type="varchar" MaxLength="30" />
+          <Property Name="Amount" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Express_Cop" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="Province_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale_Detail">
+          <Key>
+            <PropertyRef Name="Sale_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Mall_Order_ID" Type="varchar" MaxLength="30" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Discount" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Status" Type="bool" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Shop">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Shop_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Main_Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
+          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Shop_User">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_Time" Type="uint" />
+          <Property Name="Description" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="Stock_Pile">
+          <Key>
+            <PropertyRef Name="StockPile_ID" />
+          </Key>
+          <Property Name="StockPile_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="StockHouse_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="First_Enter_Time" Type="uint" />
+          <Property Name="LastLeave_Time" Type="uint" />
+          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+        </EntityType>
+        <EntityType Name="Store_House">
+          <Key>
+            <PropertyRef Name="StoreHouse_ID" />
+          </Key>
+          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Address" Type="varchar" MaxLength="200" />
+          <Property Name="Phone" Type="varchar" MaxLength="45" />
+          <Property Name="Employee_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Supplier">
+          <Key>
+            <PropertyRef Name="Supplier_ID" />
+          </Key>
+          <Property Name="Supplier_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="Address" Type="varchar" MaxLength="200" />
+          <Property Name="Fax" Type="varchar" MaxLength="20" />
+          <Property Name="Phone" Type="varchar" MaxLength="20" />
+          <Property Name="PostalCode" Type="varchar" MaxLength="10" />
+          <Property Name="Province_ID" Type="uint" />
+          <Property Name="City_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Contact_Person" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Supplier_Shop">
+          <Key>
+            <PropertyRef Name="Supplier_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Mall_Type" Type="uint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Password" Type="varchar" Nullable="false" MaxLength="45" />
+        </EntityType>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="KM.JXC.DBA.Model" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="KuanMaiEntities" p1:LazyLoadingEnabled="true">
+          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Access_Token" />
+          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Back_Sale" />
+          <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Back_Sale_Detail" />
+          <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Back_Stock" />
+          <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" />
+          <EntitySet Name="Buy" EntityType="KM.JXC.DBA.Model.Buy" />
+          <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Buy_Detail" />
+          <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Buy_Order" />
+          <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Buy_Order_Detail" />
+          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
+          <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Customer" />
+          <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Customer_Shop" />
+          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Employee" />
+          <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Enter_Stock" />
+          <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Enter_Stock_Detail" />
+          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Leave_Stock" />
+          <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Mall_Type" />
+          <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Product" />
+          <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Product_Class" />
+          <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Product_Supplier" />
+          <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Product_Unit" />
+          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Sale" />
+          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Sale_Detail" />
+          <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Shop" />
+          <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Shop_User" />
+          <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Stock_Pile" />
+          <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store_House" />
+          <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Supplier" />
+          <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Supplier_Shop" />
+          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
+        </EntityContainer>
+        <EntityType Name="Access_Token">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_ID" Type="Int64" Nullable="false" />
+          <Property Name="Access_Token1" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Expirse_In" Type="Int64" Nullable="false" />
+          <Property Name="Refresh_Token" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="RExpirse_In" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Sale">
+          <Key>
+            <PropertyRef Name="Back_Sale_ID" />
+          </Key>
+          <Property Name="Back_Sale_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="500" Unicode="false" FixedLength="false" />
+          <Property Name="Sale_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Sale_Detail">
+          <Key>
+            <PropertyRef Name="Back_Sale_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Back_Sale_ID" Type="Int64" Nullable="false" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Back_Stock">
+          <Key>
+            <PropertyRef Name="Back_Sock_ID" />
+          </Key>
+          <Property Name="Back_Sock_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="200" Unicode="false" FixedLength="false" />
+          <Property Name="Back_Sale_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Back_Stock_Detail">
+          <Key>
+            <PropertyRef Name="Back_Stock_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Back_Stock_ID" Type="Int64" Nullable="false" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Buy">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Come_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Create_Date" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Detail">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Buy_Order_ID" Type="Int64" Nullable="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="Create_Date" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Order">
+          <Key>
+            <PropertyRef Name="Buy_ID" />
+          </Key>
+          <Property Name="Buy_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Supplier_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Write_Date" Type="Int64" />
+          <Property Name="Insure_Date" Type="Int64" />
+          <Property Name="End_Date" Type="Int64" />
+          <Property Name="Create_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="Order_User_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Order_Detail">
+          <Key>
+            <PropertyRef Name="Buy_Order_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Buy_Order_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Common_District">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Level" Type="Byte" Nullable="false" />
+          <Property Name="UPID" Type="Int64" Nullable="false" />
+          <Property Name="Order" Type="Byte" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Customer_ID" />
+          </Key>
+          <Property Name="Customer_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Email" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Phone" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Address" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
+          <Property Name="City_ID" Type="Int64" />
+          <Property Name="Province_ID" Type="Int64" />
+        </EntityType>
+        <EntityType Name="Customer_Shop">
+          <Key>
+            <PropertyRef Name="Customer_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Customer_ID" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Employee_ID" />
+          </Key>
+          <Property Name="Employee_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Department" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Duty" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Gendar" Type="String" MaxLength="1" Unicode="false" FixedLength="true" />
+          <Property Name="BirthDate" Type="Int64" />
+          <Property Name="HireDate" Type="Int64" />
+          <Property Name="MatureDate" Type="Int64" />
+          <Property Name="IdentityCard" Type="String" MaxLength="18" Unicode="false" FixedLength="false" />
+          <Property Name="Address" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Phone" Type="String" MaxLength="15" Unicode="false" FixedLength="false" />
+          <Property Name="Email" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="User_ID" Type="Int64" />
+        </EntityType>
+        <EntityType Name="Enter_Stock">
+          <Key>
+            <PropertyRef Name="Enter_Stock_ID" />
+          </Key>
+          <Property Name="Enter_Stock_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Enter_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Enter_Stock_Detail">
+          <Key>
+            <PropertyRef Name="Enter_Stock_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Enter_Stock_ID" Type="Int64" Nullable="false" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="Have_Invoice" Type="Boolean" />
+          <Property Name="Invoice_Num" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Invoice_Amount" Type="Decimal" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Leave_Stock">
+          <Key>
+            <PropertyRef Name="Leave_Stock_ID" />
+          </Key>
+          <Property Name="Leave_Stock_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Leave_Date" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="To_StoreHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="Sale_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Mall_Type">
+          <Key>
+            <PropertyRef Name="Mall_Type_ID" />
+          </Key>
+          <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Product_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Product_Class_ID" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="0" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+          <Property Name="Product_Unit_ID" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="Parent_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Class">
+          <Key>
+            <PropertyRef Name="Product_Class_ID" />
+          </Key>
+          <Property Name="Product_Class_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Name="Parent_ID" Type="Int64" />
+          <Property Name="Order" Type="Byte" />
+          <Property Name="Create_Time" Type="Int64" />
+          <Property Name="Create_User_ID" Type="Int64" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Supplier">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Supplier_ID" />
+          </Key>
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Supplier_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Unit">
+          <Key>
+            <PropertyRef Name="Product_Unit_ID" />
+          </Key>
+          <Property Name="Product_Unit_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
+          <Property Name="Shop_ID" Type="Int64" />
+          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale">
+          <Key>
+            <PropertyRef Name="Sale_ID" />
+          </Key>
+          <Property Name="Sale_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Sale_Time" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" />
+          <Property Name="Mall_Trade_ID" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="Amount" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="Express_Cop" Type="String" Nullable="false" MaxLength="20" Unicode="false" FixedLength="false" />
+          <Property Name="Province_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale_Detail">
+          <Key>
+            <PropertyRef Name="Sale_ID" />
+            <PropertyRef Name="Product_ID" />
+          </Key>
+          <Property Name="Sale_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="Mall_Order_ID" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="Discount" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="Status" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Shop">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Main_Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="500" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" />
+          <Property Name="Mall_Shop_ID" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Shop_User">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Create_Time" Type="Int64" />
+          <Property Name="Description" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Stock_Pile">
+          <Key>
+            <PropertyRef Name="StockPile_ID" />
+          </Key>
+          <Property Name="StockPile_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+          <Property Name="StockHouse_ID" Type="Int64" Nullable="false" />
+          <Property Name="Product_ID" Type="Int64" Nullable="false" />
+          <Property Name="First_Enter_Time" Type="Int64" />
+          <Property Name="LastLeave_Time" Type="Int64" />
+          <Property Name="Quantity" Type="Int64" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Store_House">
+          <Key>
+            <PropertyRef Name="StoreHouse_ID" />
+          </Key>
+          <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Address" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
+          <Property Name="Phone" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Employee_ID" Type="Int64" Nullable="false" />
+          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Supplier">
+          <Key>
+            <PropertyRef Name="Supplier_ID" />
+          </Key>
+          <Property Name="Supplier_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
+          <Property Name="Address" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
+          <Property Name="Fax" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
+          <Property Name="Phone" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
+          <Property Name="PostalCode" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
+          <Property Name="Province_ID" Type="Int64" />
+          <Property Name="City_ID" Type="Int64" Nullable="false" />
+          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+          <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Contact_Person" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Supplier_Shop">
+          <Key>
+            <PropertyRef Name="Supplier_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Supplier_ID" Type="Int64" Nullable="false" />
+          <Property Name="Shop_ID" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_ID" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Type" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="KMJXCDBAModelStoreContainer" CdmEntityContainer="KuanMaiEntities">
+          <EntitySetMapping Name="Access_Token">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Access_Token">
+              <MappingFragment StoreEntitySet="Access_Token">
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
+                <ScalarProperty Name="Access_Token1" ColumnName="Access_Token" />
+                <ScalarProperty Name="Expirse_In" ColumnName="Expirse_In" />
+                <ScalarProperty Name="Refresh_Token" ColumnName="Refresh_Token" />
+                <ScalarProperty Name="RExpirse_In" ColumnName="RExpirse_In" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Back_Sale">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale">
+              <MappingFragment StoreEntitySet="Back_Sale">
+                <ScalarProperty Name="Back_Sale_ID" ColumnName="Back_Sale_ID" />
+                <ScalarProperty Name="Back_Date" ColumnName="Back_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Back_Sale_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale_Detail">
+              <MappingFragment StoreEntitySet="Back_Sale_Detail">
+                <ScalarProperty Name="Back_Sale_ID" ColumnName="Back_Sale_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Back_Stock">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Stock">
+              <MappingFragment StoreEntitySet="Back_Stock">
+                <ScalarProperty Name="Back_Sock_ID" ColumnName="Back_Sock_ID" />
+                <ScalarProperty Name="Back_Date" ColumnName="Back_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Back_Sale_ID" ColumnName="Back_Sale_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Back_Stock_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Stock_Detail">
+              <MappingFragment StoreEntitySet="Back_Stock_Detail">
+                <ScalarProperty Name="Back_Stock_ID" ColumnName="Back_Stock_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Buy">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy">
+              <MappingFragment StoreEntitySet="Buy">
+                <ScalarProperty Name="Buy_ID" ColumnName="Buy_ID" />
+                <ScalarProperty Name="Come_Date" ColumnName="Come_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Buy_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Detail">
+              <MappingFragment StoreEntitySet="Buy_Detail">
+                <ScalarProperty Name="Buy_ID" ColumnName="Buy_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Buy_Order_ID" ColumnName="Buy_Order_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Buy_Order">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Order">
+              <MappingFragment StoreEntitySet="Buy_Order">
+                <ScalarProperty Name="Buy_ID" ColumnName="Buy_ID" />
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Write_Date" ColumnName="Write_Date" />
+                <ScalarProperty Name="Insure_Date" ColumnName="Insure_Date" />
+                <ScalarProperty Name="End_Date" ColumnName="End_Date" />
+                <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Order_User_ID" ColumnName="Order_User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Buy_Order_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Order_Detail">
+              <MappingFragment StoreEntitySet="Buy_Order_Detail">
+                <ScalarProperty Name="Buy_Order_ID" ColumnName="Buy_Order_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Common_District">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Common_District">
+              <MappingFragment StoreEntitySet="Common_District">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Level" ColumnName="Level" />
+                <ScalarProperty Name="UPID" ColumnName="UPID" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customer">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="Customer_ID" ColumnName="Customer_ID" />
+                <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City_ID" ColumnName="City_ID" />
+                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customer_Shop">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Customer_Shop">
+              <MappingFragment StoreEntitySet="Customer_Shop">
+                <ScalarProperty Name="Customer_ID" ColumnName="Customer_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employee">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="Employee_ID" ColumnName="Employee_ID" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Duty" ColumnName="Duty" />
+                <ScalarProperty Name="Gendar" ColumnName="Gendar" />
+                <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
+                <ScalarProperty Name="HireDate" ColumnName="HireDate" />
+                <ScalarProperty Name="MatureDate" ColumnName="MatureDate" />
+                <ScalarProperty Name="IdentityCard" ColumnName="IdentityCard" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Enter_Stock">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock">
+              <MappingFragment StoreEntitySet="Enter_Stock">
+                <ScalarProperty Name="Enter_Stock_ID" ColumnName="Enter_Stock_ID" />
+                <ScalarProperty Name="Enter_Date" ColumnName="Enter_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Enter_Stock_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock_Detail">
+              <MappingFragment StoreEntitySet="Enter_Stock_Detail">
+                <ScalarProperty Name="Enter_Stock_ID" ColumnName="Enter_Stock_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Have_Invoice" ColumnName="Have_Invoice" />
+                <ScalarProperty Name="Invoice_Num" ColumnName="Invoice_Num" />
+                <ScalarProperty Name="Invoice_Amount" ColumnName="Invoice_Amount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Leave_Stock">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock">
+              <MappingFragment StoreEntitySet="Leave_Stock">
+                <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
+                <ScalarProperty Name="Leave_Date" ColumnName="Leave_Date" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="To_StoreHouse_ID" ColumnName="To_StoreHouse_ID" />
+                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mall_Type">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Type">
+              <MappingFragment StoreEntitySet="Mall_Type">
+                <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product">
+              <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Product_Class_ID" ColumnName="Product_Class_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+                <ScalarProperty Name="Product_Unit_ID" ColumnName="Product_Unit_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Parent_ID" ColumnName="Parent_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Class">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Class">
+              <MappingFragment StoreEntitySet="Product_Class">
+                <ScalarProperty Name="Product_Class_ID" ColumnName="Product_Class_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Parent_ID" ColumnName="Parent_ID" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+                <ScalarProperty Name="Create_User_ID" ColumnName="Create_User_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Supplier">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Supplier">
+              <MappingFragment StoreEntitySet="Product_Supplier">
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Unit">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Unit">
+              <MappingFragment StoreEntitySet="Product_Unit">
+                <ScalarProperty Name="Product_Unit_ID" ColumnName="Product_Unit_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sale">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
+              <MappingFragment StoreEntitySet="Sale">
+                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
+                <ScalarProperty Name="Sale_Time" ColumnName="Sale_Time" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Mall_Trade_ID" ColumnName="Mall_Trade_ID" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Express_Cop" ColumnName="Express_Cop" />
+                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sale_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
+              <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Mall_Order_ID" ColumnName="Mall_Order_ID" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Shop">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop">
+              <MappingFragment StoreEntitySet="Shop">
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Main_Shop_ID" ColumnName="Main_Shop_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
+                <ScalarProperty Name="Mall_Shop_ID" ColumnName="Mall_Shop_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Shop_User">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_User">
+              <MappingFragment StoreEntitySet="Shop_User">
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Stock_Pile">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Pile">
+              <MappingFragment StoreEntitySet="Stock_Pile">
+                <ScalarProperty Name="StockPile_ID" ColumnName="StockPile_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="StockHouse_ID" ColumnName="StockHouse_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="First_Enter_Time" ColumnName="First_Enter_Time" />
+                <ScalarProperty Name="LastLeave_Time" ColumnName="LastLeave_Time" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Store_House">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Store_House">
+              <MappingFragment StoreEntitySet="Store_House">
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Employee_ID" ColumnName="Employee_ID" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Supplier">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Supplier">
+              <MappingFragment StoreEntitySet="Supplier">
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Fax" ColumnName="Fax" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="PostalCode" ColumnName="PostalCode" />
+                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
+                <ScalarProperty Name="City_ID" ColumnName="City_ID" />
+                <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Contact_Person" ColumnName="Contact_Person" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Supplier_Shop">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Supplier_Shop">
+              <MappingFragment StoreEntitySet="Supplier_Shop">
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
+                <ScalarProperty Name="Mall_Name" ColumnName="Mall_Name" />
+                <ScalarProperty Name="Mall_Type" ColumnName="Mall_Type" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

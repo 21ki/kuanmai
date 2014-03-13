@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E0B21136-B482-4D3F-ACB1-05B04FDC96B7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KM.JXC.DBA</RootNamespace>
+    <AssemblyName>kmjxc.dba</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Access_Token.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Back_Sale.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Back_Sale_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Back_Stock.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Back_Stock_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Buy.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Buy_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Buy_Order.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Buy_Order_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Common_District.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Customer.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Customer_Shop.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Employee.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Enter_Stock.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Enter_Stock_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="KMModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KMModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="KMModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="KMModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KMModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Leave_Stock.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Mall_Type.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Class.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Supplier.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Unit.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sale.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Sale_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Shop.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Shop_User.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Stock_Pile.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Store_House.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Supplier.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Supplier_Shop.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <EntityDeploy Include="KMModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>KMModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="KMModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>KMModel.edmx</DependentUpon>
+      <LastGenOutput>KMModel.Context.cs</LastGenOutput>
+    </None>
+    <None Include="KMModel.edmx.diagram">
+      <DependentUpon>KMModel.edmx</DependentUpon>
+    </None>
+    <None Include="KMModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>KMModel.edmx</DependentUpon>
+      <LastGenOutput>KMModel.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
