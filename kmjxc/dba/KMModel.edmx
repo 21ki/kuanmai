@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityContainer Name="KMJXCDBAModelStoreContainer">
           <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Store.Access_Token" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Store.Back_Sale" store:Type="Tables" Schema="kuanmai" />
@@ -307,9 +307,9 @@
           <Property Name="Shop_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="User_ID" Type="uint" Nullable="false" />
-          <Property Name="Main_Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
-          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="Main_Shop_ID" Type="uint" />
+          <Property Name="Description" Type="varchar" MaxLength="500" />
+          <Property Name="Mall_Type_ID" Type="uint" />
           <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
         </EntityType>
         <EntityType Name="Shop_User">
@@ -374,13 +374,12 @@
           </Key>
           <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Mall_Name" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Type" Type="uint" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="Password" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Password" Type="varchar" MaxLength="45" />
         </EntityType>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="KM.JXC.DBA.Model" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -686,9 +685,9 @@
           <Property Name="Shop_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="User_ID" Type="Int64" Nullable="false" />
-          <Property Name="Main_Shop_ID" Type="Int64" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" MaxLength="500" Unicode="false" FixedLength="false" />
-          <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" />
+          <Property Name="Main_Shop_ID" Type="Int64" />
+          <Property Name="Description" Type="String" MaxLength="500" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Type_ID" Type="Int64" />
           <Property Name="Mall_Shop_ID" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
         </EntityType>
         <EntityType Name="Shop_User">
@@ -753,10 +752,10 @@
           </Key>
           <Property Name="User_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="Mall_Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Mall_Type" Type="Int64" Nullable="false" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="Password" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Password" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>

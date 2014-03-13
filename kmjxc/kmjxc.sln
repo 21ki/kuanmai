@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dba", "dba\dba.csproj", "{E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web", "web\web.csproj", "{694BD3E9-70BF-4745-9074-64184F1FA9B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bean", "bean\bean.csproj", "{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "open", "open\open.csproj", "{603932BD-27A6-45C6-BEDC-79F853701E7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,14 @@ Global
 		{694BD3E9-70BF-4745-9074-64184F1FA9B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{694BD3E9-70BF-4745-9074-64184F1FA9B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{694BD3E9-70BF-4745-9074-64184F1FA9B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{603932BD-27A6-45C6-BEDC-79F853701E7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{603932BD-27A6-45C6-BEDC-79F853701E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{603932BD-27A6-45C6-BEDC-79F853701E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{603932BD-27A6-45C6-BEDC-79F853701E7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

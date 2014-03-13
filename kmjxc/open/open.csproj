@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{526512AD-F7AF-4519-B51E-34EF82A9EBEC}</ProjectGuid>
+    <ProjectGuid>{603932BD-27A6-45C6-BEDC-79F853701E7D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KM.JXC.BL</RootNamespace>
-    <AssemblyName>kmjxc.bl</AssemblyName>
+    <RootNamespace>KM.JXC.Open</RootNamespace>
+    <AssemblyName>kmjxc.open</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,21 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interface\IOpen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserManager.cs" />
+    <Compile Include="TaoBao\TaoBaoOpen.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bean\bean.csproj">
-      <Project>{d91ac8c1-2030-4cf8-9b43-9ee6b2cd9edd}</Project>
-      <Name>bean</Name>
-    </ProjectReference>
     <ProjectReference Include="..\dba\dba.csproj">
       <Project>{e0b21136-b482-4d3f-acb1-05b04fdc96b7}</Project>
       <Name>dba</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Open\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
