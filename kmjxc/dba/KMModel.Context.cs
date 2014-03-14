@@ -25,7 +25,6 @@ namespace KM.JXC.DBA
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<Access_Token> Access_Token { get; set; }
         public DbSet<Back_Sale> Back_Sale { get; set; }
         public DbSet<Back_Sale_Detail> Back_Sale_Detail { get; set; }
         public DbSet<Back_Stock> Back_Stock { get; set; }
@@ -55,5 +54,7 @@ namespace KM.JXC.DBA
         public DbSet<Supplier> Supplier { get; set; }
         public DbSet<Supplier_Shop> Supplier_Shop { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Access_Token> Access_Token { get; set; }
+        public DbSet<Open_Key> Open_Key { get; set; }
     }
 }

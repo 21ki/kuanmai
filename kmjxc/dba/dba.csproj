@@ -112,6 +112,9 @@
     <Compile Include="Mall_Type.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Open_Key.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Product.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KM.JXC.Bean
+namespace KM.JXC.Common.KMException
 {
     public class UserException:Exception
     {

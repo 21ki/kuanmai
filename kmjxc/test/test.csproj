@@ -51,6 +51,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\bean\common.csproj">
+      <Project>{d91ac8c1-2030-4cf8-9b43-9ee6b2cd9edd}</Project>
+      <Name>common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\bl\bl.csproj">
       <Project>{526512ad-f7af-4519-b51e-34ef82a9ebec}</Project>
       <Name>bl</Name>

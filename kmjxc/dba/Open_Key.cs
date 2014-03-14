@@ -12,16 +12,14 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Access_Token
+    public partial class Open_Key
     {
-        public long User_ID { get; set; }
-        public long Mall_Type_ID { get; set; }
-        public string Access_Token1 { get; set; }
-        public long Expirse_In { get; set; }
-        public string Refresh_Token { get; set; }
-        public long RExpirse_In { get; set; }
-        public Nullable<int> Request_Time { get; set; }
-        public string Mall_User_ID { get; set; }
-        public string Mall_User_Name { get; set; }
+        public int ID { get; set; }
+        public int Mall_Type_ID { get; set; }
+        public string AppKey { get; set; }
+        public string AppSecret { get; set; }
+        public string Auth_Main_Url { get; set; }
+        public string API_Main_Url { get; set; }
+        public string CallBack_Url { get; set; }
     }
 }

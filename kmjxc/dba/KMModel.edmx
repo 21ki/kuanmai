@@ -23,6 +23,7 @@
           <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Store.Mall_Type" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Store.Open_Key" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Store.Product" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Store.Product_Class" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Store.Product_Supplier" store:Type="Tables" Schema="kuanmai" />
@@ -42,11 +43,14 @@
             <PropertyRef Name="User_ID" />
           </Key>
           <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Mall_ID" Type="uint" Nullable="false" />
+          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
           <Property Name="Access_Token" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Expirse_In" Type="uint" Nullable="false" />
           <Property Name="Refresh_Token" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="RExpirse_In" Type="uint" Nullable="false" />
+          <Property Name="Request_Time" Type="int" />
+          <Property Name="Mall_User_ID" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Mall_User_Name" Type="varchar" Nullable="false" MaxLength="100" />
         </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
@@ -229,6 +233,18 @@
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
         </EntityType>
+        <EntityType Name="Open_Key">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Mall_Type_ID" Type="int" Nullable="false" />
+          <Property Name="AppKey" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="AppSecret" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Auth_Main_Url" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="API_Main_Url" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="CallBack_Url" Type="varchar" MaxLength="100" />
+        </EntityType>
         <EntityType Name="Product">
           <Key>
             <PropertyRef Name="Product_ID" />
@@ -384,7 +400,6 @@
     <edmx:ConceptualModels>
       <Schema Namespace="KM.JXC.DBA.Model" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="KuanMaiEntities" p1:LazyLoadingEnabled="true">
-          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Access_Token" />
           <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Back_Sale" />
           <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Back_Sale_Detail" />
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Back_Stock" />
@@ -414,18 +429,9 @@
           <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Supplier" />
           <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Supplier_Shop" />
           <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
+          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Access_Token" />
+          <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Open_Key" />
         </EntityContainer>
-        <EntityType Name="Access_Token">
-          <Key>
-            <PropertyRef Name="User_ID" />
-          </Key>
-          <Property Name="User_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Name="Mall_ID" Type="Int64" Nullable="false" />
-          <Property Name="Access_Token1" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="Expirse_In" Type="Int64" Nullable="false" />
-          <Property Name="Refresh_Token" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="RExpirse_In" Type="Int64" Nullable="false" />
-        </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
@@ -757,24 +763,38 @@
           <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Password" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
         </EntityType>
+        <EntityType Name="Access_Token">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Type="Int64" Name="User_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int64" Name="Mall_Type_ID" Nullable="false" />
+          <Property Type="String" Name="Access_Token1" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Expirse_In" Nullable="false" />
+          <Property Type="String" Name="Refresh_Token" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="RExpirse_In" Nullable="false" />
+          <Property Type="Int32" Name="Request_Time" />
+          <Property Type="String" Name="Mall_User_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_User_Name" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Open_Key">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
+          <Property Type="String" Name="AppKey" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="AppSecret" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Auth_Main_Url" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="API_Main_Url" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="CallBack_Url" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="KMJXCDBAModelStoreContainer" CdmEntityContainer="KuanMaiEntities">
-          <EntitySetMapping Name="Access_Token">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Access_Token">
-              <MappingFragment StoreEntitySet="Access_Token">
-                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
-                <ScalarProperty Name="Access_Token1" ColumnName="Access_Token" />
-                <ScalarProperty Name="Expirse_In" ColumnName="Expirse_In" />
-                <ScalarProperty Name="Refresh_Token" ColumnName="Refresh_Token" />
-                <ScalarProperty Name="RExpirse_In" ColumnName="RExpirse_In" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Back_Sale">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale">
               <MappingFragment StoreEntitySet="Back_Sale">
@@ -1123,6 +1143,34 @@
                 <ScalarProperty Name="Mall_Type" ColumnName="Mall_Type" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Access_Token">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Access_Token">
+              <MappingFragment StoreEntitySet="Access_Token">
+                <ScalarProperty Name="Mall_User_Name" ColumnName="Mall_User_Name" />
+                <ScalarProperty Name="Mall_User_ID" ColumnName="Mall_User_ID" />
+                <ScalarProperty Name="Request_Time" ColumnName="Request_Time" />
+                <ScalarProperty Name="RExpirse_In" ColumnName="RExpirse_In" />
+                <ScalarProperty Name="Refresh_Token" ColumnName="Refresh_Token" />
+                <ScalarProperty Name="Expirse_In" ColumnName="Expirse_In" />
+                <ScalarProperty Name="Access_Token1" ColumnName="Access_Token" />
+                <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Open_Key">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Open_Key">
+              <MappingFragment StoreEntitySet="Open_Key">
+                <ScalarProperty Name="CallBack_Url" ColumnName="CallBack_Url" />
+                <ScalarProperty Name="API_Main_Url" ColumnName="API_Main_Url" />
+                <ScalarProperty Name="Auth_Main_Url" ColumnName="Auth_Main_Url" />
+                <ScalarProperty Name="AppSecret" ColumnName="AppSecret" />
+                <ScalarProperty Name="AppKey" ColumnName="AppKey" />
+                <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

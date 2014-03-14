@@ -3,20 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 using KM.JXC.DBA;
-using KM.JXC.Bean;
+using KM.JXC.Common.KMException;
+using KM.JXC.Open.Interface;
+using KM.JXC.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class UserManager
     {
-        public void Login(User user)
-        { 
+        public User CurrentUser { get; set; }
+
+        public Access_Token CurrentToken { get; set; }
+
+        IAccessToken tokenUtil = null;
+
+        public UserManager(User user,Access_Token token)
+        {
+            this.CurrentUser = user;
+            this.CurrentToken = token;
+        }
+
+        public UserManager()
+        {
             
         }
 
-        public bool UserExists(User user) {
-            bool result = false;
+        public void AuthorizationCallBack(string code, int mall_type_id)
+        {
+            IAccessToken tokenUtil = new TaoBaoAccessToken((long)mall_type_id);
+                        
+            Access_Token request_token = tokenUtil.RequestAccessToken(code);
+
+            User user = new User();
+            this.CurrentUser=this.CreateNewUser(user);
+        }
+
+        public User GetUser(User user) {           
 
             KuanMaiEntities dba = new KuanMaiEntities();
 
@@ -24,15 +48,14 @@ namespace KM.JXC.BL
 
             if (obj != null && obj.ToList<User>().Count > 0)
             {
-                result = true;
+                return obj.ToList<User>()[0];
             }
 
-            return result;
+            return null;
         }
 
-        public bool CreateNewUser(User user) {
-            bool result = false;
-
+        public User CreateNewUser(User user) {
+           
             if (user == null) {
                 throw new UserException("用户实体不能为空引用");
             }
@@ -45,21 +68,25 @@ namespace KM.JXC.BL
             {
                 KuanMaiEntities dba = new KuanMaiEntities();
 
-                if(this.UserExists(user))
-                throw new UserException("用户名已经存在");
+                if (GetUser(user) != null)
+                    throw new UserException("用户名已经存在");
 
                 dba.User.Add(user);
-                int row = dba.SaveChanges();
-                if (row == 1)
-                {
-                    result = true;
-                }
+                dba.SaveChanges();
+                return GetUser(user);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            return result;
+            finally
+            {
+            }            
+        }
+
+        public void UpdateAccessToken()
+        {
+
         }
     }
 }
