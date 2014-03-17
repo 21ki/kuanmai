@@ -9,7 +9,7 @@ using KM.JXC.BL;
 namespace KM.JXC.Web.Controllers
 {   
     [HandleError]
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
         //
         // GET: /Home/
@@ -22,25 +22,23 @@ namespace KM.JXC.Web.Controllers
 
         [AllowAnonymous]
         public ActionResult CallBack()
-        {
-            UserManager userMgr = new UserManager();
+        {           
             string code = Request["code"];
-            string mall_id=Request["mall"];
+            string mall_type_id=Request["mall"];
 
             int mall=0;
-            if (int.TryParse(mall_id,out mall))
-            {
-                if (!string.IsNullOrEmpty(code))
-                {
-                    userMgr.AuthorizationCallBack(code, mall);
-                    FormsAuthentication.RedirectFromLoginPage(userMgr.CurrentUser.User_ID.ToString(), false);
-                    RedirectToAction("Index");
-                }
-                else
-                {
-                    RedirectToAction("Login");
-                }
+
+            if (!int.TryParse(mall_type_id, out mall)) {
+                RedirectToAction("Login");
             }
+
+            if (string.IsNullOrEmpty(code))
+            {
+                RedirectToAction("Login");
+            }
+            
+            FormsAuthentication.RedirectFromLoginPage("TTTEE", false);
+            RedirectToAction("Index");
 
             return View();
         }

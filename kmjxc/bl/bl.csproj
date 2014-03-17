@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogInLogOut.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="Open\Interface\IAccessToken.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />

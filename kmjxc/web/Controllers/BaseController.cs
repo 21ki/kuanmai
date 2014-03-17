@@ -23,7 +23,7 @@ namespace KM.JXC.Web.Controllers
 
         public BaseController()
         {
-            //CheckAuthorization();
+            string user = HttpContext.User.Identity.Name;
         }
 
         protected void CheckAuthorization()

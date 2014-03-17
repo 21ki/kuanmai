@@ -231,7 +231,7 @@
           </Key>
           <Property Name="Mall_Type_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="Create_Time" Type="uint" Nullable="false" />
+          <Property Name="Create_Time" Type="uint" />
         </EntityType>
         <EntityType Name="Open_Key">
           <Key>
@@ -392,7 +392,7 @@
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Type" Type="uint" Nullable="false" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
         </EntityType>
       </Schema></edmx:StorageModels>
@@ -611,7 +611,7 @@
           </Key>
           <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="Create_Time" Type="Int64" Nullable="false" />
+          <Property Name="Create_Time" Type="Int64" />
         </EntityType>
         <EntityType Name="Product">
           <Key>
@@ -760,7 +760,7 @@
           <Property Name="Mall_ID" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Mall_Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Mall_Type" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Password" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
         </EntityType>
         <EntityType Name="Access_Token">

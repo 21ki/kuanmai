@@ -16,9 +16,7 @@ namespace KM.JXC.BL
         public User CurrentUser { get; set; }
 
         public Access_Token CurrentToken { get; set; }
-
-        IAccessToken tokenUtil = null;
-
+        
         public UserManager(User user,Access_Token token)
         {
             this.CurrentUser = user;
@@ -30,14 +28,9 @@ namespace KM.JXC.BL
             
         }
 
-        public void AuthorizationCallBack(string code, int mall_type_id)
+        public User GetUser(int user_Id)
         {
-            IAccessToken tokenUtil = new TaoBaoAccessToken((long)mall_type_id);
-                        
-            Access_Token request_token = tokenUtil.RequestAccessToken(code);
-
-            User user = new User();
-            this.CurrentUser=this.CreateNewUser(user);
+            return GetUser(new User() { User_ID=user_Id});
         }
 
         public User GetUser(User user) {           
@@ -82,11 +75,6 @@ namespace KM.JXC.BL
             finally
             {
             }            
-        }
-
-        public void UpdateAccessToken()
-        {
-
-        }
+        }       
     }
 }
