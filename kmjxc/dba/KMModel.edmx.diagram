@@ -36,6 +36,12 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.User" Width="1.5" PointX="2.75" PointY="14.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Access_Token" Width="1.5" PointX="0.75" PointY="0.75" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Open_Key" Width="1.5" PointX="5.2601287165936679" PointY="5.0567861818972908" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Action" Width="1.5" PointX="6.5017758135226433" PointY="16.65485405207372" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role" Width="1.5" PointX="10.364193258045331" PointY="31.127059235762367" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role_Action" Width="1.5" PointX="9.125" PointY="2.625" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Super" Width="1.5" PointX="3.1556618843021162" PointY="6.9065032484505808" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_User_Action" Width="1.5" PointX="0.30114478259400684" PointY="23.159124191458861" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_User_Role" Width="1.5" PointX="0.35626644098957372" PointY="16.343286790113563" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

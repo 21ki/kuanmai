@@ -17,19 +17,13 @@ namespace KM.JXC.Web.Filters
             base.OnActionExecuting(filterContext);
             string user_id = filterContext.HttpContext.User.Identity.Name;
 
-            //Verify cookie
-            if (string.IsNullOrEmpty(user_id))
-            {
-                filterContext.HttpContext.Response.Redirect("Home/Login");
-            }
-
             //Verify if the cookie user is a valid user
             UserManager userMgr = new UserManager();
             KM.JXC.DBA.User user = userMgr.GetUser(int.Parse(user_id));
 
             if (user == null)
             {
-                filterContext.HttpContext.Response.Redirect("Home/Login");
+                //filterContext.HttpContext.Response.Redirect("Login");
             }
 
             //Verify if logon user already has access token in db
@@ -37,7 +31,7 @@ namespace KM.JXC.Web.Filters
             var token = from t in db.Access_Token where t.User_ID == user.User_ID && t.Mall_Type_ID == user.Mall_Type select t;
 
             if (token == null) {
-                filterContext.HttpContext.Response.Redirect("Home/Login");
+                //filterContext.HttpContext.Response.Redirect("Login");
             }
 
             //Verify if the existed access token is expired
@@ -46,7 +40,7 @@ namespace KM.JXC.Web.Filters
             int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             if (timeNow >= access_token.Request_Time+access_token.Expirse_In)
             {
-                filterContext.HttpContext.Response.Redirect("Home/Login");
+                //filterContext.HttpContext.Response.Redirect("Login");
             }
         }
     }

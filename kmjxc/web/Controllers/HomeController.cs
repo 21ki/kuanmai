@@ -5,15 +5,14 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using KM.JXC.BL;
-
+using KM.JXC.DBA;
+using KM.JXC.Web.Filters;
 namespace KM.JXC.Web.Controllers
 {   
     [HandleError]
     public class HomeController : Controller
     {
-        //
-        // GET: /Home/
-
+        [AccessTokenValidation]
         public ActionResult Index()
         {
             string user = HttpContext.User.Identity.Name;
@@ -36,10 +35,11 @@ namespace KM.JXC.Web.Controllers
             {
                 RedirectToAction("Login");
             }
-            
-            FormsAuthentication.RedirectFromLoginPage("TTTEE", false);
-            RedirectToAction("Index");
 
+            AccessTokenManager tokenManager = new AccessTokenManager(mall);
+            Access_Token token = tokenManager.AuthorizationCallBack(code);
+            FormsAuthentication.RedirectFromLoginPage(token.User_ID.ToString(), false);
+            RedirectToAction("Index");
             return View();
         }
 

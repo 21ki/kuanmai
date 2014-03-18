@@ -56,5 +56,11 @@ namespace KM.JXC.DBA
         public DbSet<User> User { get; set; }
         public DbSet<Access_Token> Access_Token { get; set; }
         public DbSet<Open_Key> Open_Key { get; set; }
+        public DbSet<Admin_Action> Admin_Action { get; set; }
+        public DbSet<Admin_Role> Admin_Role { get; set; }
+        public DbSet<Admin_Role_Action> Admin_Role_Action { get; set; }
+        public DbSet<Admin_Super> Admin_Super { get; set; }
+        public DbSet<Admin_User_Action> Admin_User_Action { get; set; }
+        public DbSet<Admin_User_Role> Admin_User_Role { get; set; }
     }
 }

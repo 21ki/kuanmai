@@ -7,6 +7,12 @@
     <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityContainer Name="KMJXCDBAModelStoreContainer">
           <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Store.Access_Token" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Action" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_Role" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_Role_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Role_Action" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Store.Admin_Super" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Action" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Role" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Store.Back_Sale" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Sale_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Store.Back_Stock" store:Type="Tables" Schema="kuanmai" />
@@ -51,6 +57,56 @@
           <Property Name="Request_Time" Type="int" />
           <Property Name="Mall_User_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Mall_User_Name" Type="varchar" Nullable="false" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="Admin_Action">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="umediumint" Nullable="false" />
+          <Property Name="action_name" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="action_description" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="enable" Type="bool" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Role">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="role_name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="create_uid" Type="umediumint" Nullable="false" />
+          <Property Name="create_date" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Role_Action">
+          <Key>
+            <PropertyRef Name="role_id" />
+            <PropertyRef Name="action_id" />
+          </Key>
+          <Property Name="role_id" Type="umediumint" Nullable="false" />
+          <Property Name="action_id" Type="umediumint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Super">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="umediumint" Nullable="false" />
+          <Property Name="site_admin" Type="utinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_User_Action">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="action_id" />
+          </Key>
+          <Property Name="user_id" Type="umediumint" Nullable="false" />
+          <Property Name="action_id" Type="umediumint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_User_Role">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="role_id" />
+          </Key>
+          <Property Name="user_id" Type="umediumint" Nullable="false" />
+          <Property Name="role_id" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
@@ -120,9 +176,9 @@
         </EntityType>
         <EntityType Name="Buy_Order">
           <Key>
-            <PropertyRef Name="Buy_ID" />
+            <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Supplier_ID" Type="uint" Nullable="false" />
           <Property Name="User_ID" Type="uint" Nullable="false" />
           <Property Name="Write_Date" Type="uint" />
@@ -130,7 +186,7 @@
           <Property Name="End_Date" Type="uint" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
           <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="Order_User_ID" Type="uint" Nullable="false" />
+          <Property Name="Order_User_ID" Type="uint" />
         </EntityType>
         <EntityType Name="Buy_Order_Detail">
           <Key>
@@ -200,6 +256,7 @@
           <Property Name="Shop_ID" Type="uint" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
           <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Buy_ID" Type="int" />
         </EntityType>
         <EntityType Name="Enter_Stock_Detail">
           <Key>
@@ -231,6 +288,7 @@
           </Key>
           <Property Name="Mall_Type_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Description" Type="varchar" MaxLength="200" />
           <Property Name="Create_Time" Type="uint" />
         </EntityType>
         <EntityType Name="Open_Key">
@@ -336,6 +394,7 @@
           <Property Name="User_ID" Type="uint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
+          <Property Name="Parent_User_ID" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Stock_Pile">
           <Key>
@@ -431,6 +490,12 @@
           <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
           <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Access_Token" />
           <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Open_Key" />
+          <EntitySet Name="Admin_Action" EntityType="KM.JXC.DBA.Model.Admin_Action" />
+          <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Admin_Role" />
+          <EntitySet Name="Admin_Role_Action" EntityType="KM.JXC.DBA.Model.Admin_Role_Action" />
+          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Admin_Super" />
+          <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Admin_User_Action" />
+          <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Admin_User_Role" />
         </EntityContainer>
         <EntityType Name="Back_Sale">
           <Key>
@@ -500,9 +565,8 @@
         </EntityType>
         <EntityType Name="Buy_Order">
           <Key>
-            <PropertyRef Name="Buy_ID" />
+            <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Name="Buy_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Supplier_ID" Type="Int64" Nullable="false" />
           <Property Name="User_ID" Type="Int64" Nullable="false" />
           <Property Name="Write_Date" Type="Int64" />
@@ -510,7 +574,8 @@
           <Property Name="End_Date" Type="Int64" />
           <Property Name="Create_Date" Type="Int64" Nullable="false" />
           <Property Name="Shop_ID" Type="Int64" Nullable="false" />
-          <Property Name="Order_User_ID" Type="Int64" Nullable="false" />
+          <Property Name="Order_User_ID" Type="Int64" />
+          <Property Type="Int64" Name="Buy_Order_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
         </EntityType>
         <EntityType Name="Buy_Order_Detail">
           <Key>
@@ -580,6 +645,7 @@
           <Property Name="Shop_ID" Type="Int64" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="Int64" Nullable="false" />
           <Property Name="User_ID" Type="Int64" Nullable="false" />
+          <Property Type="Int32" Name="Buy_ID" />
         </EntityType>
         <EntityType Name="Enter_Stock_Detail">
           <Key>
@@ -612,6 +678,7 @@
           <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Create_Time" Type="Int64" />
+          <Property Type="String" Name="Description" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Product">
           <Key>
@@ -704,6 +771,7 @@
           <Property Name="User_ID" Type="Int64" Nullable="false" />
           <Property Name="Create_Time" Type="Int64" />
           <Property Name="Description" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
+          <Property Type="Int32" Name="Parent_User_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Stock_Pile">
           <Key>
@@ -789,6 +857,56 @@
           <Property Type="String" Name="API_Main_Url" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="CallBack_Url" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="Admin_Action">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="action_name" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="Boolean" Name="enable" Nullable="false" />
+          <Property Type="String" Name="action_description" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Admin_Role">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="role_name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="create_uid" Nullable="false" />
+          <Property Type="Int64" Name="create_date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Role_Action">
+          <Key>
+            <PropertyRef Name="role_id" />
+            <PropertyRef Name="action_id" />
+          </Key>
+          <Property Type="Int32" Name="role_id" Nullable="false" />
+          <Property Type="Int32" Name="action_id" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Super">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int64" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="user_id" Nullable="false" />
+          <Property Type="Byte" Name="site_admin" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_User_Action">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="action_id" />
+          </Key>
+          <Property Type="Int32" Name="user_id" Nullable="false" />
+          <Property Type="Int32" Name="action_id" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_User_Role">
+          <Key>
+            <PropertyRef Name="user_id" />
+            <PropertyRef Name="role_id" />
+          </Key>
+          <Property Type="Int32" Name="user_id" Nullable="false" />
+          <Property Type="Int32" Name="role_id" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -867,7 +985,7 @@
           <EntitySetMapping Name="Buy_Order">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Order">
               <MappingFragment StoreEntitySet="Buy_Order">
-                <ScalarProperty Name="Buy_ID" ColumnName="Buy_ID" />
+                <ScalarProperty Name="Buy_Order_ID" ColumnName="Buy_Order_ID" />
                 <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Write_Date" ColumnName="Write_Date" />
@@ -944,6 +1062,7 @@
           <EntitySetMapping Name="Enter_Stock">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock">
               <MappingFragment StoreEntitySet="Enter_Stock">
+                <ScalarProperty Name="Buy_ID" ColumnName="Buy_ID" />
                 <ScalarProperty Name="Enter_Stock_ID" ColumnName="Enter_Stock_ID" />
                 <ScalarProperty Name="Enter_Date" ColumnName="Enter_Date" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
@@ -980,6 +1099,7 @@
           <EntitySetMapping Name="Mall_Type">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Type">
               <MappingFragment StoreEntitySet="Mall_Type">
+                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
@@ -1077,6 +1197,7 @@
           <EntitySetMapping Name="Shop_User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_User">
               <MappingFragment StoreEntitySet="Shop_User">
+                <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
@@ -1171,6 +1292,59 @@
                 <ScalarProperty Name="AppKey" ColumnName="AppKey" />
                 <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Action">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Action">
+              <MappingFragment StoreEntitySet="Admin_Action">
+                <ScalarProperty Name="action_description" ColumnName="action_description" />
+                <ScalarProperty Name="enable" ColumnName="enable" />
+                <ScalarProperty Name="action_name" ColumnName="action_name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Role">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Role">
+              <MappingFragment StoreEntitySet="Admin_Role">
+                <ScalarProperty Name="create_date" ColumnName="create_date" />
+                <ScalarProperty Name="create_uid" ColumnName="create_uid" />
+                <ScalarProperty Name="role_name" ColumnName="role_name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Role_Action">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Role_Action">
+              <MappingFragment StoreEntitySet="Admin_Role_Action">
+                <ScalarProperty Name="action_id" ColumnName="action_id" />
+                <ScalarProperty Name="role_id" ColumnName="role_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Super">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Super">
+              <MappingFragment StoreEntitySet="Admin_Super">
+                <ScalarProperty Name="site_admin" ColumnName="site_admin" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_User_Action">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_User_Action">
+              <MappingFragment StoreEntitySet="Admin_User_Action">
+                <ScalarProperty Name="action_id" ColumnName="action_id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_User_Role">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_User_Role">
+              <MappingFragment StoreEntitySet="Admin_User_Role">
+                <ScalarProperty Name="role_id" ColumnName="role_id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

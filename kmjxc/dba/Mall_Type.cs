@@ -17,5 +17,6 @@ namespace KM.JXC.DBA
         public long Mall_Type_ID { get; set; }
         public string Name { get; set; }
         public Nullable<long> Create_Time { get; set; }
+        public string Description { get; set; }
     }
 }

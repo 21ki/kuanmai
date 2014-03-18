@@ -49,6 +49,24 @@
     <Compile Include="Access_Token.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Admin_Action.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_Role.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_Role_Action.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_Super.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_User_Action.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Admin_User_Role.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Back_Sale.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

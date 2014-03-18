@@ -18,5 +18,6 @@ namespace KM.JXC.DBA
         public long User_ID { get; set; }
         public Nullable<long> Create_Time { get; set; }
         public string Description { get; set; }
+        public int Parent_User_ID { get; set; }
     }
 }

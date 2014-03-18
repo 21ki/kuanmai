@@ -12,16 +12,13 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Buy_Order
+    public partial class Admin_Action
     {
-        public long Supplier_ID { get; set; }
-        public long User_ID { get; set; }
-        public Nullable<long> Write_Date { get; set; }
-        public Nullable<long> Insure_Date { get; set; }
-        public Nullable<long> End_Date { get; set; }
-        public long Create_Date { get; set; }
-        public long Shop_ID { get; set; }
-        public Nullable<long> Order_User_ID { get; set; }
-        public long Buy_Order_ID { get; set; }
+        public int id { get; set; }
+        public string action_name { get; set; }
+        public bool enable { get; set; }
+        public string action_description { get; set; }
+
+        public bool HadPermission { get; set; }
     }
 }
