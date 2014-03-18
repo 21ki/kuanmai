@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constant.cs" />
+    <Compile Include="KMException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserException.cs" />
     <Compile Include="Util\DateTimeUtil.cs" />
