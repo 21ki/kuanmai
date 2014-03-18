@@ -12,11 +12,9 @@ namespace test
     class Program
     {
         static void Main(string[] args)
-        {           
-            DateTime date = DateTime.Now;
-            Console.WriteLine(date.ToLongTimeString());
-            double time = DateTimeUtil.ConvertDateTimeToInt(date);
-            Console.WriteLine(time);
+        {
+            PermissionTest pt = new PermissionTest();
+            pt.SyncPermissionsWithActions();
         }
     }
 }

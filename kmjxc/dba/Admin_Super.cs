@@ -14,8 +14,7 @@ namespace KM.JXC.DBA
     
     public partial class Admin_Super
     {
-        public long id { get; set; }
         public int user_id { get; set; }
-        public byte site_admin { get; set; }
+        public bool site_admin { get; set; }
     }
 }

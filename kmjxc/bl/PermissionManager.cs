@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Data.Entity.Validation;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
@@ -11,7 +12,7 @@ using KM.JXC.Open.Interface;
 using KM.JXC.Open.TaoBao;
 namespace KM.JXC.BL
 {
-    public struct Permissions
+    public class Permission
     {
         //User
         public int DELETE_USER = 0;
@@ -67,15 +68,15 @@ namespace KM.JXC.BL
         public int UPDATE_PRODUCT_UNIT = 0;
 
         //Stock
-        public int ADD_STOCK = 0;
-        public int LEAVE_STOCK = 0;
-        public int BACK_STOCK = 0;
+        public int ADD_ENTER_STOCK = 0;
+        public int ADD_LEAVE_STOCK = 0;
+        public int ADD_BACK_STOCK = 0;
     }
 
     public class PermissionManager
     {
         public PermissionManager()
-        {
+        {            
         }
 
         /// <summary>
@@ -113,7 +114,11 @@ namespace KM.JXC.BL
 
                 if (found)
                 {
-                    action.HadPermission = true;
+                    action.enable = true;
+                }
+                else
+                {
+                    action.enable = false;
                 }
             }
 
@@ -149,11 +154,11 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user">User object, must has User_ID field</param>
         /// <returns>Permissions Object</returns>
-        public Permissions GetUserPermission(User user)
+        public Permission GetUserPermission(User user)
         {
-            Permissions permissions = new Permissions();
+            Permission permissions = new Permission();
             List<Admin_Action> actions = this.GetUserActions(user); 
-            Type type = typeof(Permissions);
+            Type type = typeof(Permission);
 
             foreach (Admin_Action action in actions)
             {
@@ -165,6 +170,83 @@ namespace KM.JXC.BL
             }
 
             return permissions;
+        }
+
+        /// <summary>
+        /// Sync actions with Permission object
+        /// </summary>
+        public void SyncPermissionWithAction()
+        {
+            Type permission=typeof(Permission);
+            FieldInfo[] fields = permission.GetFields();
+            if (fields == null || fields.Length<=0)
+            {
+                return;
+            }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                foreach (FieldInfo field in fields)
+                {
+                    var action = from a in db.Admin_Action where a.action_name == field.Name select a;
+                    if (action == null || action.ToList<Admin_Action>().Count == 0)
+                    {
+                        Admin_Action new_action = new Admin_Action();
+                        new_action.action_name = field.Name;
+                        new_action.action_description = field.Name;
+                        new_action.enable = true;
+                        db.Admin_Action.Add(new_action);
+                    }
+                }
+                db.SaveChanges();
+            }
+            catch (DbEntityValidationException ex)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Update actions
+        /// </summary>
+        /// <param name="actions"></param>
+        public void UpdateAction(List<Admin_Action> actions)
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                foreach (Admin_Action action in actions)
+                {
+                    if (action.id > 0)
+                    {
+                        db.Admin_Action.Attach(action);
+                    }
+                }
+
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// Verify user is super admin or site admin
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Admin_Super GetSuperAdmin(User user)
+        {
+            Admin_Super super_admin=new Admin_Super();
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var super = from s in db.Admin_Super where s.user_id == user.User_ID select s;
+                if (super != null && super.ToList<Admin_Super>().Count>0)
+                {
+                    super_admin = super.ToList<Admin_Super>()[0];
+                }
+            }
+            
+             return super_admin;
         }
     }
 }

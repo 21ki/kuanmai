@@ -18,7 +18,5 @@ namespace KM.JXC.DBA
         public string action_name { get; set; }
         public bool enable { get; set; }
         public string action_description { get; set; }
-
-        public bool HadPermission { get; set; }
     }
 }

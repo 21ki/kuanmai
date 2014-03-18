@@ -62,9 +62,9 @@
           <Key>
             <PropertyRef Name="id" />
           </Key>
-          <Property Name="id" Type="umediumint" Nullable="false" />
-          <Property Name="action_name" Type="varchar" Nullable="false" MaxLength="20" />
-          <Property Name="action_description" Type="varchar" Nullable="false" MaxLength="40" />
+          <Property Name="id" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="action_name" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="action_description" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="enable" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_Role">
@@ -86,11 +86,10 @@
         </EntityType>
         <EntityType Name="Admin_Super">
           <Key>
-            <PropertyRef Name="id" />
+            <PropertyRef Name="user_id" />
           </Key>
-          <Property Name="id" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="user_id" Type="umediumint" Nullable="false" />
-          <Property Name="site_admin" Type="utinyint" Nullable="false" />
+          <Property Name="site_admin" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_User_Action">
           <Key>
@@ -493,9 +492,9 @@
           <EntitySet Name="Admin_Action" EntityType="KM.JXC.DBA.Model.Admin_Action" />
           <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Admin_Role" />
           <EntitySet Name="Admin_Role_Action" EntityType="KM.JXC.DBA.Model.Admin_Role_Action" />
-          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Admin_Super" />
           <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Admin_User_Action" />
           <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Admin_User_Role" />
+          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Admin_Super" />
         </EntityContainer>
         <EntityType Name="Back_Sale">
           <Key>
@@ -862,9 +861,9 @@
             <PropertyRef Name="id" />
           </Key>
           <Property Type="Int32" Name="id" Nullable="false" />
-          <Property Type="String" Name="action_name" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="action_name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="Boolean" Name="enable" Nullable="false" />
-          <Property Type="String" Name="action_description" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="action_description" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Admin_Role">
           <Key>
@@ -883,14 +882,6 @@
           <Property Type="Int32" Name="role_id" Nullable="false" />
           <Property Type="Int32" Name="action_id" Nullable="false" />
         </EntityType>
-        <EntityType Name="Admin_Super">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Type="Int64" Name="id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="user_id" Nullable="false" />
-          <Property Type="Byte" Name="site_admin" Nullable="false" />
-        </EntityType>
         <EntityType Name="Admin_User_Action">
           <Key>
             <PropertyRef Name="user_id" />
@@ -906,6 +897,13 @@
           </Key>
           <Property Type="Int32" Name="user_id" Nullable="false" />
           <Property Type="Int32" Name="role_id" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Super">
+          <Key>
+            <PropertyRef Name="user_id" />
+          </Key>
+          <Property Type="Int32" Name="user_id" Nullable="false" />
+          <Property Type="Boolean" Name="site_admin" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1323,15 +1321,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Super">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Super">
-              <MappingFragment StoreEntitySet="Admin_Super">
-                <ScalarProperty Name="site_admin" ColumnName="site_admin" />
-                <ScalarProperty Name="user_id" ColumnName="user_id" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Admin_User_Action">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_User_Action">
               <MappingFragment StoreEntitySet="Admin_User_Action">
@@ -1344,6 +1333,14 @@
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_User_Role">
               <MappingFragment StoreEntitySet="Admin_User_Role">
                 <ScalarProperty Name="role_id" ColumnName="role_id" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Super">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Super">
+              <MappingFragment StoreEntitySet="Admin_Super">
+                <ScalarProperty Name="site_admin" ColumnName="site_admin" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
               </MappingFragment>
             </EntityTypeMapping>
