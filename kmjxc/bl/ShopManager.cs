@@ -136,7 +136,7 @@ namespace KM.JXC.BL
                 scr.Shop_ID = (int)parent_shop.Shop_ID;
                 scr.Request_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 scr.Child_Shop_ID = (int)shop.Shop_ID;
-                scr.User_ID = (int)this.currentUser.User_ID;
+                scr.User_ID = (int)this.CurrentUser.User_ID;
                 scr.Status = "0";
                 scr.Approve_User_ID = 0;
                 scr.Approve_Time = 0;
@@ -159,7 +159,7 @@ namespace KM.JXC.BL
             {
                 scr.Status = "1";
                 scr.Approve_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                scr.Approve_User_ID = (int)this.currentUser.User_ID;
+                scr.Approve_User_ID = (int)this.CurrentUser.User_ID;
                 db.Shop_Child_Request.Attach(scr);
 
                 var sps = from sp in db.Shop where sp.Shop_ID == scr.Child_Shop_ID select sp;

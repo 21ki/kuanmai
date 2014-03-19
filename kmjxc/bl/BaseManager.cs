@@ -12,12 +12,26 @@ namespace KM.JXC.BL
 {
     public class BaseManager
     {
-        protected User currentUser = null;
+        protected User CurrentUser{get;set;}
+        protected int Shop_Id { get; set; }
         protected Permission currentUserPermission = new Permission();
         protected PermissionManager permissionManager = new PermissionManager();
+
+
         public BaseManager()
         {
             
+        }
+
+        public BaseManager(User user,int shop_id)
+        {
+            if (user == null)
+            {
+                throw new KMJXCException("");
+            }
+            this.CurrentUser = user;
+            this.Shop_Id = shop_id;
+            this.GetUserPermission();
         }
 
         public BaseManager(User user)
@@ -26,8 +40,7 @@ namespace KM.JXC.BL
             {
                 throw new KMJXCException("");
             }
-            this.currentUser = user;
-
+            this.CurrentUser = user;           
             this.GetUserPermission();
         }
 
@@ -36,7 +49,7 @@ namespace KM.JXC.BL
         /// </summary>
         protected virtual void GetUserPermission()
         {
-            currentUserPermission = this.permissionManager.GetUserPermission(this.currentUser);
+            currentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
         }        
     }
 }

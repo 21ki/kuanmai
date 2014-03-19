@@ -18,5 +18,6 @@ namespace KM.JXC.DBA
         public string role_name { get; set; }
         public int create_uid { get; set; }
         public long create_date { get; set; }
+        public int shop_id { get; set; }
     }
 }

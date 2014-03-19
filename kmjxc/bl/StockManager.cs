@@ -13,8 +13,8 @@ namespace KM.JXC.BL
 {
     public class StockManager:BaseManager
     {
-        public StockManager(User user)
-            :base(user)
+        public StockManager(User user,int shop_id)
+            : base(user, shop_id)
         {
         }
 
@@ -47,7 +47,7 @@ namespace KM.JXC.BL
 
             if (stock.User_ID <= 0)
             {
-                stock.User_ID = this.currentUser.User_ID;
+                stock.User_ID = this.CurrentUser.User_ID;
             }
 
             if (this.currentUserPermission.ADD_ENTER_STOCK == 0)

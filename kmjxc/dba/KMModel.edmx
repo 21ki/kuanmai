@@ -76,6 +76,7 @@
           <Property Name="role_name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="create_uid" Type="umediumint" Nullable="false" />
           <Property Name="create_date" Type="uint" Nullable="false" />
+          <Property Name="shop_id" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_Role_Action">
           <Key>
@@ -891,6 +892,7 @@
           <Property Type="String" Name="role_name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="create_uid" Nullable="false" />
           <Property Type="Int64" Name="create_date" Nullable="false" />
+          <Property Type="Int32" Name="shop_id" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_Role_Action">
           <Key>
@@ -1338,6 +1340,7 @@
           <EntitySetMapping Name="Admin_Role">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Role">
               <MappingFragment StoreEntitySet="Admin_Role">
+                <ScalarProperty Name="shop_id" ColumnName="shop_id" />
                 <ScalarProperty Name="create_date" ColumnName="create_date" />
                 <ScalarProperty Name="create_uid" ColumnName="create_uid" />
                 <ScalarProperty Name="role_name" ColumnName="role_name" />
