@@ -62,5 +62,6 @@ namespace KM.JXC.DBA
         public DbSet<Admin_User_Action> Admin_User_Action { get; set; }
         public DbSet<Admin_User_Role> Admin_User_Role { get; set; }
         public DbSet<Admin_Super> Admin_Super { get; set; }
+        public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
     }
 }

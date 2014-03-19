@@ -37,6 +37,7 @@
           <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Sale_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Store.Shop_Child_Request" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Store.Stock_Pile" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" />
@@ -372,28 +373,42 @@
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Discount" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Status" Type="bool" Nullable="false" />
+          <Property Name="Amount" Type="int" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
             <PropertyRef Name="Shop_ID" />
           </Key>
           <Property Name="Shop_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="User_ID" Type="uint" Nullable="false" />
-          <Property Name="Main_Shop_ID" Type="uint" />
+          <Property Name="Parent_Shop_ID" Type="uint" />
           <Property Name="Description" Type="varchar" MaxLength="500" />
-          <Property Name="Mall_Type_ID" Type="uint" />
-          <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Shop_Child_Request">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="User_ID" Type="int" Nullable="false" />
+          <Property Name="Request_Time" Type="int" Nullable="false" />
+          <Property Name="Status" Type="char" MaxLength="1" />
+          <Property Name="Approve_Time" Type="int" />
+          <Property Name="Approve_User_ID" Type="int" />
+          <Property Name="Child_Shop_ID" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_User">
           <Key>
             <PropertyRef Name="Shop_ID" />
+            <PropertyRef Name="User_ID" />
           </Key>
           <Property Name="Shop_ID" Type="uint" Nullable="false" />
           <Property Name="User_ID" Type="uint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
-          <Property Name="Parent_User_ID" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Stock_Pile">
           <Key>
@@ -448,10 +463,11 @@
           </Key>
           <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="Mall_Name" Type="varchar" MaxLength="45" />
+          <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Mall_Type" Type="uint" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
+          <Property Name="Parent_User_ID" Type="int" Nullable="false" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -495,6 +511,7 @@
           <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Admin_User_Action" />
           <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Admin_User_Role" />
           <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Admin_Super" />
+          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Shop_Child_Request" />
         </EntityContainer>
         <EntityType Name="Back_Sale">
           <Key>
@@ -749,6 +766,7 @@
           <Property Name="Price" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="Discount" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
           <Property Name="Status" Type="Boolean" Nullable="false" />
+          <Property Type="Int32" Name="Amount" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
@@ -757,10 +775,10 @@
           <Property Name="Shop_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="100" Unicode="false" FixedLength="false" />
           <Property Name="User_ID" Type="Int64" Nullable="false" />
-          <Property Name="Main_Shop_ID" Type="Int64" />
           <Property Name="Description" Type="String" MaxLength="500" Unicode="false" FixedLength="false" />
-          <Property Name="Mall_Type_ID" Type="Int64" />
+          <Property Name="Mall_Type_ID" Type="Int64" Nullable="false" />
           <Property Name="Mall_Shop_ID" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+          <Property Type="Int64" Name="Parent_Shop_ID" />
         </EntityType>
         <EntityType Name="Shop_User">
           <Key>
@@ -770,7 +788,6 @@
           <Property Name="User_ID" Type="Int64" Nullable="false" />
           <Property Name="Create_Time" Type="Int64" />
           <Property Name="Description" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
-          <Property Type="Int32" Name="Parent_User_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Stock_Pile">
           <Key>
@@ -825,10 +842,11 @@
           </Key>
           <Property Name="User_ID" Type="Int64" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="String" Nullable="false" MaxLength="45" Unicode="false" FixedLength="false" />
-          <Property Name="Mall_Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Name="Mall_Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" Nullable="false" />
           <Property Name="Mall_Type" Type="Int64" Nullable="false" />
           <Property Name="Name" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
           <Property Name="Password" Type="String" MaxLength="45" Unicode="false" FixedLength="false" />
+          <Property Type="Int32" Name="Parent_User_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Access_Token">
           <Key>
@@ -904,6 +922,19 @@
           </Key>
           <Property Type="Int32" Name="user_id" Nullable="false" />
           <Property Type="Boolean" Name="site_admin" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Shop_Child_Request">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Request_Time" Nullable="false" />
+          <Property Type="String" Name="Status" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Type="Int32" Name="Approve_Time" />
+          <Property Type="Int32" Name="Approve_User_ID" />
+          <Property Type="Int32" Name="Child_Shop_ID" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1169,6 +1200,7 @@
           <EntitySetMapping Name="Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
               <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
                 <ScalarProperty Name="Mall_Order_ID" ColumnName="Mall_Order_ID" />
@@ -1182,10 +1214,10 @@
           <EntitySetMapping Name="Shop">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop">
               <MappingFragment StoreEntitySet="Shop">
+                <ScalarProperty Name="Parent_Shop_ID" ColumnName="Parent_Shop_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-                <ScalarProperty Name="Main_Shop_ID" ColumnName="Main_Shop_ID" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />
                 <ScalarProperty Name="Mall_Shop_ID" ColumnName="Mall_Shop_ID" />
@@ -1195,7 +1227,6 @@
           <EntitySetMapping Name="Shop_User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_User">
               <MappingFragment StoreEntitySet="Shop_User">
-                <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
@@ -1256,6 +1287,7 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
                 <ScalarProperty Name="Mall_Name" ColumnName="Mall_Name" />
@@ -1342,6 +1374,20 @@
               <MappingFragment StoreEntitySet="Admin_Super">
                 <ScalarProperty Name="site_admin" ColumnName="site_admin" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Shop_Child_Request">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_Child_Request">
+              <MappingFragment StoreEntitySet="Shop_Child_Request">
+                <ScalarProperty Name="Child_Shop_ID" ColumnName="Child_Shop_ID" />
+                <ScalarProperty Name="Approve_User_ID" ColumnName="Approve_User_ID" />
+                <ScalarProperty Name="Approve_Time" ColumnName="Approve_Time" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Request_Time" ColumnName="Request_Time" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

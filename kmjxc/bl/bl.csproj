@@ -52,14 +52,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessTokenManager.cs" />
+    <Compile Include="BaseManager.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="Open\Interface\IAccessToken.cs" />
+    <Compile Include="Open\Interface\IShopManager.cs" />
     <Compile Include="Open\MallManager.cs" />
+    <Compile Include="Open\TaoBao\TaobaoShopManager.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Open\ShopManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />
     <Compile Include="OrderManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShopManager.cs" />
     <Compile Include="StockManager.cs" />
     <Compile Include="SupplierManager.cs" />
     <Compile Include="UserManager.cs" />

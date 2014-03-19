@@ -155,6 +155,9 @@
     <Compile Include="Shop.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Shop_Child_Request.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Shop_User.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

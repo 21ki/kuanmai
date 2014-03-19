@@ -206,6 +206,10 @@ namespace KM.JXC.BL
             {
 
             }
+            finally
+            {
+                db.Dispose();
+            }
         }
 
         /// <summary>

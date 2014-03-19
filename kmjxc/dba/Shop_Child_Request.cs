@@ -12,14 +12,15 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class User
+    public partial class Shop_Child_Request
     {
-        public long User_ID { get; set; }
-        public string Mall_ID { get; set; }
-        public string Mall_Name { get; set; }
-        public long Mall_Type { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
-        public int Parent_User_ID { get; set; }
+        public int ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int User_ID { get; set; }
+        public int Request_Time { get; set; }
+        public string Status { get; set; }
+        public Nullable<int> Approve_Time { get; set; }
+        public Nullable<int> Approve_User_ID { get; set; }
+        public int Child_Shop_ID { get; set; }
     }
 }

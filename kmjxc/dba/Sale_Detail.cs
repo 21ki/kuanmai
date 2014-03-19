@@ -21,5 +21,6 @@ namespace KM.JXC.DBA
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public bool Status { get; set; }
+        public Nullable<int> Amount { get; set; }
     }
 }
