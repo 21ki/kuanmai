@@ -16,5 +16,6 @@ namespace KM.JXC.DBA
     {
         public long Product_ID { get; set; }
         public long Supplier_ID { get; set; }
+        public Nullable<bool> Enabled { get; set; }
     }
 }

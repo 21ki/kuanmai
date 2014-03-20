@@ -22,5 +22,6 @@ namespace KM.JXC.DBA
         public decimal Discount { get; set; }
         public bool Status { get; set; }
         public Nullable<int> Amount { get; set; }
+        public int Supplier_ID { get; set; }
     }
 }

@@ -25,6 +25,13 @@ namespace KM.JXC.DBA
             throw new UnintentionalCodeFirstException();
         }
     
+        public DbSet<Access_Token> Access_Token { get; set; }
+        public DbSet<Admin_Action> Admin_Action { get; set; }
+        public DbSet<Admin_Role> Admin_Role { get; set; }
+        public DbSet<Admin_Role_Action> Admin_Role_Action { get; set; }
+        public DbSet<Admin_Super> Admin_Super { get; set; }
+        public DbSet<Admin_User_Action> Admin_User_Action { get; set; }
+        public DbSet<Admin_User_Role> Admin_User_Role { get; set; }
         public DbSet<Back_Sale> Back_Sale { get; set; }
         public DbSet<Back_Sale_Detail> Back_Sale_Detail { get; set; }
         public DbSet<Back_Stock> Back_Stock { get; set; }
@@ -41,6 +48,7 @@ namespace KM.JXC.DBA
         public DbSet<Enter_Stock_Detail> Enter_Stock_Detail { get; set; }
         public DbSet<Leave_Stock> Leave_Stock { get; set; }
         public DbSet<Mall_Type> Mall_Type { get; set; }
+        public DbSet<Open_Key> Open_Key { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<Product_Class> Product_Class { get; set; }
         public DbSet<Product_Supplier> Product_Supplier { get; set; }
@@ -48,20 +56,12 @@ namespace KM.JXC.DBA
         public DbSet<Sale> Sale { get; set; }
         public DbSet<Sale_Detail> Sale_Detail { get; set; }
         public DbSet<Shop> Shop { get; set; }
+        public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
         public DbSet<Shop_User> Shop_User { get; set; }
         public DbSet<Stock_Pile> Stock_Pile { get; set; }
         public DbSet<Store_House> Store_House { get; set; }
         public DbSet<Supplier> Supplier { get; set; }
         public DbSet<Supplier_Shop> Supplier_Shop { get; set; }
         public DbSet<User> User { get; set; }
-        public DbSet<Access_Token> Access_Token { get; set; }
-        public DbSet<Open_Key> Open_Key { get; set; }
-        public DbSet<Admin_Action> Admin_Action { get; set; }
-        public DbSet<Admin_Role> Admin_Role { get; set; }
-        public DbSet<Admin_Role_Action> Admin_Role_Action { get; set; }
-        public DbSet<Admin_User_Action> Admin_User_Action { get; set; }
-        public DbSet<Admin_User_Role> Admin_User_Role { get; set; }
-        public DbSet<Admin_Super> Admin_Super { get; set; }
-        public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
     }
 }

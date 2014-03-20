@@ -6,9 +6,18 @@ using System.Threading.Tasks;
 
 namespace KM.JXC.Common.KMException
 { 
+    public enum ExceptionLevel
+    {
+        SYSTEM,
+        USER,
+        DEBUG,
+    }
+
     public class KMJXCException:Exception
     {
         private string message;
+
+        public ExceptionLevel Level = ExceptionLevel.USER;
 
         public KMJXCException(string message)
             : base(message)
@@ -20,6 +29,13 @@ namespace KM.JXC.Common.KMException
             : base(message,ex)
         {
             this.message = message;
+        }
+
+        public KMJXCException(string message, ExceptionLevel level)
+            : base(message)
+        {
+            this.message = message;
+            this.Level = level;
         }
 
         public override string ToString()

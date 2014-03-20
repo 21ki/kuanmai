@@ -54,6 +54,7 @@
     <Compile Include="AccessTokenManager.cs" />
     <Compile Include="BaseManager.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
+    <Compile Include="Open\BuyManager.cs" />
     <Compile Include="Open\Interface\IAccessToken.cs" />
     <Compile Include="Open\Interface\IShopManager.cs" />
     <Compile Include="Open\MallManager.cs" />

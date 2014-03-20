@@ -18,6 +18,11 @@ namespace KM.JXC.BL
         {
         }
 
+        public StockManager(User user)
+            : base(user)
+        {
+        }
+
         /// <summary>
         /// Add new enter stock record
         /// </summary>
@@ -50,7 +55,7 @@ namespace KM.JXC.BL
                 stock.User_ID = this.CurrentUser.User_ID;
             }
 
-            if (this.currentUserPermission.ADD_ENTER_STOCK == 0)
+            if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
             {
                 throw new KMJXCException("没有新增入库单的权限");
             }
@@ -73,7 +78,7 @@ namespace KM.JXC.BL
         public bool EnterStockDetails(List<Enter_Stock_Detail> details)
         {
             bool result = false;
-            if (this.currentUserPermission.ADD_ENTER_STOCK == 0)
+            if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
             {
                 throw new KMJXCException("没有新增入库单的权限");
             }
@@ -110,7 +115,7 @@ namespace KM.JXC.BL
         public bool EnterStockDetail(Enter_Stock_Detail detail)
         {
             bool result = false;
-            if (this.currentUserPermission.ADD_ENTER_STOCK == 0)
+            if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
             {
                 throw new KMJXCException("没有新增入库单的权限");
             }
@@ -149,7 +154,7 @@ namespace KM.JXC.BL
         {
             bool result = false;
 
-            if (this.currentUserPermission.ADD_LEAVE_STOCK == 0)
+            if (this.CurrentUserPermission.ADD_LEAVE_STOCK == 0)
             {
                 throw new KMJXCException("没有权限出库");
             }

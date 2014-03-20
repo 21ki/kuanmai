@@ -14,6 +14,7 @@ namespace KM.JXC.DBA
     
     public partial class Buy_Order
     {
+        public long Buy_Order_ID { get; set; }
         public long Supplier_ID { get; set; }
         public long User_ID { get; set; }
         public Nullable<long> Write_Date { get; set; }
@@ -22,6 +23,6 @@ namespace KM.JXC.DBA
         public long Create_Date { get; set; }
         public long Shop_ID { get; set; }
         public Nullable<long> Order_User_ID { get; set; }
-        public long Buy_Order_ID { get; set; }
+        public Nullable<int> Status { get; set; }
     }
 }

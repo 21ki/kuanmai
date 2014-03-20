@@ -49,7 +49,9 @@ namespace KM.JXC.BL
         public int VIEW_BUY = 0;
         public int ADD_BUY = 0;        
         public int VIEW_BUY_ORDER;
-        public int ADD_BUY_ORDER = 0;   
+        public int ADD_BUY_ORDER = 0;
+        public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
+        public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted
 
         //Employee
         public int VIEW_EMPLOYEE = 0;
@@ -75,8 +77,15 @@ namespace KM.JXC.BL
 
     public class PermissionManager
     {
+        public int Shop_Id { get; set; }
+
         public PermissionManager()
         {            
+        }
+
+        public PermissionManager(int shop_id)
+        {
+            this.Shop_Id = shop_id;
         }
 
         /// <summary>
@@ -135,13 +144,25 @@ namespace KM.JXC.BL
             List<Admin_Action> actions = new List<Admin_Action>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var ps = from a in db.Admin_Action
-                         from c in db.Admin_Role_Action
-                         from d in db.Admin_User_Role
-                         where a.id == c.action_id && c.role_id == d.role_id && d.user_id == user.User_ID
-                         select a;
-                if (ps != null)
+                
+                if (this.Shop_Id > 0)
                 {
+                    var ps = from a in db.Admin_Action
+                             from c in db.Admin_Role_Action
+                             from d in db.Admin_User_Role
+                             from b in db.Admin_Role
+                             where a.id == c.action_id && c.role_id == b.id && d.user_id == user.User_ID && b.shop_id == this.Shop_Id && d.role_id == b.id
+                             select a;
+                    actions = ps.ToList<Admin_Action>();
+                }
+                else
+                {
+                    var ps = from a in db.Admin_Action
+                             from c in db.Admin_Role_Action
+                             from d in db.Admin_User_Role
+                             from b in db.Admin_Role
+                             where a.id == c.action_id && c.role_id == b.id && d.user_id == user.User_ID && d.role_id == b.id
+                             select a;
                     actions = ps.ToList<Admin_Action>();
                 }
             }

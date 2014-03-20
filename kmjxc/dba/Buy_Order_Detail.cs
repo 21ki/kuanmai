@@ -18,5 +18,6 @@ namespace KM.JXC.DBA
         public long Product_ID { get; set; }
         public long Quantity { get; set; }
         public decimal Price { get; set; }
+        public Nullable<int> Status { get; set; }
     }
 }

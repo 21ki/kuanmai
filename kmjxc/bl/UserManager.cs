@@ -4,33 +4,57 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
+using System.Data.Entity;
+using System.Data.Entity.Validation;
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.Open.Interface;
 using KM.JXC.Open.TaoBao;
 namespace KM.JXC.BL
 {
-    public class UserManager
-    {
-        public User CurrentUser { get; set; }
-
+    public class UserManager:BaseManager
+    {    
         public Access_Token CurrentToken { get; set; }
         
-        public UserManager(User user,Access_Token token)
+        public UserManager(User user,Access_Token token):base(user)
         {
-            this.CurrentUser = user;
-            this.CurrentToken = token;
+           
+        }
+
+        public UserManager(int user_id, Access_Token token)
+            : base(user_id)
+        {
+
         }
 
         public UserManager()
+            : base()
         {
-            
+
         }
 
         public User GetUser(int user_Id)
         {
-            return GetUser(new User() { User_ID=user_Id});
+            User user = null;
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                var us = from u in db.User where u.User_ID == user_Id select u;
+                if (us != null && us.ToList<User>().Count > 0)
+                {
+                    user = us.ToList<User>()[0];
+                }
+            }
+            catch (DbEntityValidationException dbex)
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return user;
         }
 
         public User GetUser(User user) {           
@@ -75,6 +99,18 @@ namespace KM.JXC.BL
             finally
             {
             }            
-        }       
+        }
+
+        public void UpdateUser(User newUser)
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var old = from ou in db.User where ou.User_ID == newUser.User_ID select ou;
+
+                User oldUser = old.ToList<User>()[0];
+                this.UpdateProperties(oldUser, newUser);
+                db.SaveChanges();
+            }
+        }
     }
 }
