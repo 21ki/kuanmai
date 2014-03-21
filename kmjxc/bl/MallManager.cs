@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using KM.JXC.DBA;
 
-namespace KM.JXC.BL.Open
+namespace KM.JXC.BL
 {
     /// <summary>
     /// Mall Manager

@@ -5,8 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 
 using KM.JXC.DBA;
-using KM.JXC.Open.Interface;
-using KM.JXC.Open.TaoBao;
+using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.Common.Util;
 
 namespace KM.JXC.Web.Controllers

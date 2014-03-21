@@ -8,11 +8,17 @@ using KM.JXC.DBA;
 using KM.JXC.BL.Open.Interface;
 namespace KM.JXC.BL.Open.TaoBao
 {
-    public class TaobaoShopManager:IShopManager
+    public class TaoBaoShopManager:BaseManager,IShopManager
     {
-        public TaobaoShopManager()
+        public Mall_Type MallType { get; set; }
+        public Access_Token Access_Token { get; set; }
+        public Open_Key Open_Key { get; set; }
+        public TaoBaoShopManager(Access_Token token,int mall_type_id)
+            : base(mall_type_id)
         {
-
+            this.Access_Token = token;
+            this.Open_Key = this.GetAppKey();
+            this.MallType = this.GetMallType();
         }
 
         /// <summary>
@@ -32,7 +38,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// </summary>
         /// <param name="mall_shop_name"></param>
         /// <returns></returns>
-        public Shop GetShop(string mall_shop_name)
+        public Shop GetShop(string mall_user_id,string mall_user_name)
         {
             Shop shop = null;
 

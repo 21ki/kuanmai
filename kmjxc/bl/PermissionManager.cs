@@ -8,8 +8,8 @@ using System.Data.Entity.Validation;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
-using KM.JXC.Open.Interface;
-using KM.JXC.Open.TaoBao;
+using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class Permission
@@ -19,6 +19,15 @@ namespace KM.JXC.BL
         public int DISABLE_USER = 0;
         public int VIEW_USER_PERMISSION = 0;
         public int GRANT_USER_PERMISSION = 0;
+        public int UPDATE_USER;        
+        public int MAPP_USER_EMPLOYEE;
+        public int SYNC_MALLUSER;
+
+        //Employee
+        public int VIEW_EMPLOYEE = 0;
+        public int UPDATE_EMPLOYEE = 0;
+        public int DELETE_EMPLOYEE = 0;
+        public int CREATE_EMPLOYEE;
 
         //Store
         public int ADD_STORE_HOUSE = 0;
@@ -51,12 +60,7 @@ namespace KM.JXC.BL
         public int VIEW_BUY_ORDER;
         public int ADD_BUY_ORDER = 0;
         public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
-        public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted
-
-        //Employee
-        public int VIEW_EMPLOYEE = 0;
-        public int UPDATE_EMPLOYEE = 0;
-        public int DELETE_EMPLOYEE = 0;
+        public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted       
 
         //Product
         public int VIEW_PRODUCT = 0;

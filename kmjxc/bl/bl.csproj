@@ -51,16 +51,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessTokenManager.cs" />
+    <Compile Include="AccessManager.cs" />
     <Compile Include="BaseManager.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
-    <Compile Include="Open\BuyManager.cs" />
+    <Compile Include="BuyManager.cs" />
+    <Compile Include="Open\BaseManager.cs" />
     <Compile Include="Open\Interface\IAccessToken.cs" />
+    <Compile Include="Open\Interface\IManager.cs" />
     <Compile Include="Open\Interface\IShopManager.cs" />
-    <Compile Include="Open\MallManager.cs" />
+    <Compile Include="MallManager.cs" />
+    <Compile Include="Open\Interface\IUserManager.cs" />
     <Compile Include="Open\TaoBao\TaobaoShopManager.cs" />
+    <Compile Include="Open\TaoBao\TaoBaoUserManager.cs" />
     <Compile Include="PermissionManager.cs" />
-    <Compile Include="Open\ShopManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />
     <Compile Include="OrderManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

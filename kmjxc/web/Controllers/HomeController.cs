@@ -36,7 +36,7 @@ namespace KM.JXC.Web.Controllers
                 RedirectToAction("Login");
             }
 
-            AccessTokenManager tokenManager = new AccessTokenManager(mall);
+            AccessManager tokenManager = new AccessManager(mall);
             Access_Token token = tokenManager.AuthorizationCallBack(code);
             FormsAuthentication.RedirectFromLoginPage(token.User_ID.ToString(), false);
             RedirectToAction("Index");

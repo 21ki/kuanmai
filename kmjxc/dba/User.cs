@@ -20,6 +20,8 @@ namespace KM.JXC.DBA
         public long Mall_Type { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
-        public int Parent_User_ID { get; set; }
+        public Nullable<int> Parent_User_ID { get; set; }
+        public string Parent_Mall_ID { get; set; }
+        public string Parent_Mall_Name { get; set; }
     }
 }

@@ -8,23 +8,19 @@ using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
-using KM.JXC.Open.Interface;
-using KM.JXC.Open.TaoBao;
-using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class ShopManager:BaseManager
     {
         public int Mall_Type { get; private set; }
-
-        private IShopManager mallShopManager;
+      
         private UserManager userManager = null;
         public ShopManager(User user,int mall_type)
             : base(user)
         {
             this.Mall_Type = mall_type;
-            mallShopManager = new TaobaoShopManager();
-            userManager = new UserManager();
+            
+            userManager = new UserManager(user);
         }
 
         /// <summary>
@@ -113,11 +109,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="child_shop_name"></param>
         /// <returns></returns>
-        public bool AddChildShop(Shop parent_shop,string child_shop_name)
+        public bool AddChildShop(Shop parent_shop,Shop shop)
         {
-            bool result = false;
-
-            Shop shop = mallShopManager.GetShop(child_shop_name);
+            bool result = false;           
 
             if (shop == null)
             {

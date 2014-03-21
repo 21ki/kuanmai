@@ -8,31 +8,24 @@ using System.Data.Entity;
 using System.Data.Entity.Validation;
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
-using KM.JXC.Open.Interface;
-using KM.JXC.Open.TaoBao;
+using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class UserManager:BaseManager
-    {    
-        public Access_Token CurrentToken { get; set; }
-        
-        public UserManager(User user,Access_Token token):base(user)
+    { 
+        public UserManager(User user):base(user)
         {
            
         }
 
-        public UserManager(int user_id, Access_Token token)
+        public UserManager(int user_id)
             : base(user_id)
         {
 
         }
 
-        public UserManager()
-            : base()
-        {
-
-        }
-
+       
         public User GetUser(int user_Id)
         {
             User user = null;
@@ -71,6 +64,11 @@ namespace KM.JXC.BL
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public User CreateNewUser(User user) {
            
             if (user == null) {
@@ -81,16 +79,16 @@ namespace KM.JXC.BL
                 throw new UserException("用户名不能为空");
             }
 
+           
+            KuanMaiEntities dba = new KuanMaiEntities();
             try
-            {
-                KuanMaiEntities dba = new KuanMaiEntities();
-
+            {   
                 if (GetUser(user) != null)
                     throw new UserException("用户名已经存在");
 
                 dba.User.Add(user);
                 dba.SaveChanges();
-                return GetUser(user);
+                return user;
             }
             catch (Exception ex)
             {
@@ -98,9 +96,17 @@ namespace KM.JXC.BL
             }
             finally
             {
+                if (dba != null)
+                {
+                    dba.Dispose();
+                }
             }            
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newUser"></param>
         public void UpdateUser(User newUser)
         {
             using (KuanMaiEntities db = new KuanMaiEntities())

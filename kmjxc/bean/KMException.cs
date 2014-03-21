@@ -11,6 +11,7 @@ namespace KM.JXC.Common.KMException
         SYSTEM,
         USER,
         DEBUG,
+        ERROR,
     }
 
     public class KMJXCException:Exception

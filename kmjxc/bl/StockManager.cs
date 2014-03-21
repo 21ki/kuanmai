@@ -7,8 +7,8 @@ using System.Data.Entity;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
-using KM.JXC.Open.Interface;
-using KM.JXC.Open.TaoBao;
+using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class StockManager:BaseManager

@@ -472,11 +472,13 @@
           </Key>
           <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Parent_Mall_ID" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Parent_Mall_Name" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Type" Type="uint" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
-          <Property Name="Parent_User_ID" Type="int" Nullable="false" />
+          <Property Name="Parent_User_ID" Type="int" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -953,7 +955,9 @@
           <Property Type="Int64" Name="Mall_Type" Nullable="false" />
           <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Parent_User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_User_ID" />
+          <Property Type="String" Name="Parent_Mall_ID" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Parent_Mall_Name" MaxLength="45" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1408,6 +1412,8 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Parent_Mall_Name" ColumnName="Parent_Mall_Name" />
+                <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
                 <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Name" ColumnName="Name" />

@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Open.Interface
 {
-    public interface IShopManager:IManager
+    public interface IManager
     {
-        Shop GetShop(User user);
-        Shop GetShop(string mall_user_id, string mall_user_name);        
+        Mall_Type MallType { get; set; }
+        Access_Token Access_Token { get; set; }
+        Open_Key Open_Key { get; set; }
     }
 }
