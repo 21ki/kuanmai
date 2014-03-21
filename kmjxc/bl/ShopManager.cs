@@ -24,10 +24,10 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Get local shop detail
         /// </summary>
-        /// <param name="mall_shop_id"></param>
-        /// <param name="mall_type_id"></param>
+        /// <param name="mall_shop_id">Mall Shop ID</param>
+        /// <param name="mall_type_id">Local Mall Type ID</param>
         /// <returns></returns>
         public Shop GetShopDetail(string mall_shop_id, int mall_type_id)
         {
@@ -46,9 +46,9 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Get local shop detail
         /// </summary>
-        /// <param name="shop_Id"></param>
+        /// <param name="shop_Id">Local Shop ID</param>
         /// <returns></returns>
         public Shop GetShopDetail(int shop_Id)
         {
@@ -77,7 +77,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop"></param>
         /// <returns></returns>
-        public Shop CreateNewShop(Shop shop)
+        public void CreateNewShop(Shop shop)
         {   
             if (string.IsNullOrEmpty(shop.Mall_Shop_ID))
             {
@@ -93,21 +93,14 @@ namespace KM.JXC.BL
             {
                 db.Shop.Add(shop);
                 db.SaveChanges();
-
-                var sps = from sp in db.Shop where sp.Name == shop.Name && sp.Mall_Type_ID == shop.Mall_Type_ID && shop.Mall_Shop_ID == shop.Mall_Shop_ID select sp;
-
-                if (sps.ToList<Shop>().Count > 0)
-                {
-                    shop = sps.ToList<Shop>()[0];
-                }
             }
-            return shop;
         }
-
+       
         /// <summary>
-        /// 
+        /// Add child shop
         /// </summary>
-        /// <param name="child_shop_name"></param>
+        /// <param name="parent_shop"></param>
+        /// <param name="shop"></param>
         /// <returns></returns>
         public bool AddChildShop(Shop parent_shop,Shop shop)
         {
@@ -118,7 +111,7 @@ namespace KM.JXC.BL
                 throw new KMJXCException("淘宝或者天猫没有此名称的店铺");
             }
 
-            shop = this.CreateNewShop(shop);
+            this.CreateNewShop(shop);
             if (shop.Shop_ID <= 0)
             {
                 throw new KMJXCException("本地创建店铺失败");
@@ -143,8 +136,9 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Approved to be child shop
         /// </summary>
+        /// <param name="scr"></param>
         /// <returns></returns>
         public bool ApproveChildShopRequest(Shop_Child_Request scr)
         {

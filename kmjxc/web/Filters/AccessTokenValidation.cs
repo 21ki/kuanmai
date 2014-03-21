@@ -18,7 +18,7 @@ namespace KM.JXC.Web.Filters
             string user_id = filterContext.HttpContext.User.Identity.Name;
 
             //Verify if the cookie user is a valid user
-            UserManager userMgr = new UserManager();
+            UserManager userMgr = new UserManager(int.Parse(user_id));
             KM.JXC.DBA.User user = userMgr.GetUser(int.Parse(user_id));
 
             if (user == null)

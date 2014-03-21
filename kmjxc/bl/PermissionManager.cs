@@ -22,6 +22,7 @@ namespace KM.JXC.BL
         public int UPDATE_USER;        
         public int MAPP_USER_EMPLOYEE;
         public int SYNC_MALLUSER;
+        public int ADD_USER;
 
         //Employee
         public int VIEW_EMPLOYEE = 0;
@@ -81,11 +82,7 @@ namespace KM.JXC.BL
 
     public class PermissionManager
     {
-        public int Shop_Id { get; set; }
-
-        public PermissionManager()
-        {            
-        }
+        public int Shop_Id { get; set; }       
 
         public PermissionManager(int shop_id)
         {
@@ -145,31 +142,22 @@ namespace KM.JXC.BL
         /// <returns></returns>
         public List<Admin_Action> GetUserActions(User user)
         {
+            Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
             List<Admin_Action> actions = new List<Admin_Action>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                
-                if (this.Shop_Id > 0)
-                {
-                    var ps = from a in db.Admin_Action
-                             from c in db.Admin_Role_Action
-                             from d in db.Admin_User_Role
-                             from b in db.Admin_Role
-                             where a.id == c.action_id && c.role_id == b.id && d.user_id == user.User_ID && b.shop_id == this.Shop_Id && d.role_id == b.id
-                             select a;
-                    actions = ps.ToList<Admin_Action>();
-                }
-                else
-                {
-                    var ps = from a in db.Admin_Action
-                             from c in db.Admin_Role_Action
-                             from d in db.Admin_User_Role
-                             from b in db.Admin_Role
-                             where a.id == c.action_id && c.role_id == b.id && d.user_id == user.User_ID && d.role_id == b.id
-                             select a;
-                    actions = ps.ToList<Admin_Action>();
-                }
-            }
+
+                var ps = from a in db.Admin_Action
+                         join c in db.Admin_Role_Action on a.id equals c.action_id
+                         join b in db.Admin_Role on c.role_id equals b.id
+                         join d in db.Admin_User_Role on b.id equals d.role_id
+                         where d.user_id == user.User_ID && b.shop_id==this.Shop_Id    
+                         orderby a.id ascending
+                         select a;
+                Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
+                actions = ps.ToList<Admin_Action>();
+                Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
+            }            
 
             return actions;
         }

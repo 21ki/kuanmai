@@ -256,7 +256,7 @@
           <Key>
             <PropertyRef Name="Enter_Stock_ID" />
           </Key>
-          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" />
+          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Enter_Date" Type="uint" Nullable="false" />
           <Property Name="Shop_ID" Type="uint" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
@@ -330,9 +330,10 @@
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Parent_ID" Type="uint" />
           <Property Name="Order" Type="utinyint" />
-          <Property Name="Create_Time" Type="uint" />
-          <Property Name="Create_User_ID" Type="uint" />
+          <Property Name="Create_Time" Type="uint" Nullable="false" />
+          <Property Name="Create_User_ID" Type="uint" Nullable="false" />
           <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Enabled" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Supplier">
           <Key>
@@ -809,9 +810,10 @@
           <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Parent_ID" />
           <Property Type="Byte" Name="Order" />
-          <Property Type="Int64" Name="Create_Time" />
-          <Property Type="Int64" Name="Create_User_ID" />
+          <Property Type="Int64" Name="Create_Time" Nullable="false" />
+          <Property Type="Int64" Name="Create_User_ID" Nullable="false" />
           <Property Type="Int64" Name="Shop_ID" Nullable="false" />
+          <Property Type="Boolean" Name="Enabled" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Supplier">
           <Key>
@@ -1260,6 +1262,7 @@
           <EntitySetMapping Name="Product_Class">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Class">
               <MappingFragment StoreEntitySet="Product_Class">
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Create_User_ID" ColumnName="Create_User_ID" />
                 <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />

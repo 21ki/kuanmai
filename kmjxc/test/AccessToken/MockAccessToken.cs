@@ -31,5 +31,10 @@ namespace test.AccessToken
 
             return token;
         }
+
+        public Access_Token RefreshToken(Access_Token oldToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

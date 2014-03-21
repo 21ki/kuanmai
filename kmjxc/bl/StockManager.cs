@@ -7,8 +7,10 @@ using System.Data.Entity;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
+using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class StockManager:BaseManager
@@ -21,6 +23,55 @@ namespace KM.JXC.BL
         public StockManager(User user)
             : base(user)
         {
+        }
+
+        public List<EnterStock> GetEnterStocks(int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
+        {            
+            List<EnterStock> stocks = new List<EnterStock>();
+            totalRecords = 0;
+            if (pageIndex <= 0)
+            {
+                pageIndex = 1;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var os = from o in db.Enter_Stock
+                         select o;  
+                os=os.Where(o1=>o1.Shop_ID==this.Shop_Id);
+
+                if (user_id > 0)
+                {
+                    os = os.Where(o11 => o11.User_ID == user_id);
+                }
+
+                if (startTime > 0)
+                {
+                    os=os.Where(o11=>o11.Enter_Date>startTime);
+                }
+
+                if (endTime > 0)
+                {
+                    os = os.Where(o11 => o11.Enter_Date < endTime);
+                }
+
+                totalRecords = os.Count();
+                var oos=from o2 in os
+                        orderby o2.Enter_Date descending
+                        select new EnterStock()
+                        {
+                            ID = (int)o2.Enter_Stock_ID,
+                            Shop = (from s in db.Shop where s.Shop_ID == o2.Shop_ID select s).FirstOrDefault<Shop>(),
+                            User = (from u in db.User where u.User_ID == o2.User_ID select u).FirstOrDefault<User>(),
+                            BuyID = (int)o2.Buy_ID,
+                            EnterTime = (int)o2.Enter_Date
+                        };
+                                
+                oos.Skip((pageIndex-1)*pageSize).Take(pageSize);
+
+                stocks = oos.ToList<EnterStock>();
+            }
+           
+            return stocks;
         }
 
         /// <summary>

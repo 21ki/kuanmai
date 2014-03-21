@@ -11,6 +11,9 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.Common.Util;
 namespace KM.JXC.BL
 {
+    /// <summary>
+    /// Call back access manager
+    /// </summary>
     public class AccessManager
     {
         public IAccessToken TokenManager{get;set;}
@@ -36,10 +39,9 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Calback from Mall Open API Authorization, it will verify if current login user has access to the system
         /// </summary>
-        /// <param name="code"></param>
-        /// <param name="mall_type_id"></param>
+        /// <param name="code">returns by Mall Open API Authorization</param>
         /// <returns></returns>
         public Access_Token AuthorizationCallBack(string code)
         {
@@ -53,7 +55,10 @@ namespace KM.JXC.BL
             User requester = new User();
             requester.Mall_Type = this.Mall_Type_ID;
             requester.Mall_ID = request_token.Mall_User_ID;
-            requester.Mall_Name = request_token.Mall_User_Name; 
+            requester.Mall_Name = request_token.Mall_User_Name;
+            requester.Parent_Mall_ID = string.Empty;
+            requester.Parent_Mall_Name = string.Empty;
+            requester.Parent_User_ID = 0;
 
             this.InitializeMallManagers(request_token);
 
@@ -104,23 +109,41 @@ namespace KM.JXC.BL
                             requester.Parent_Mall_Name = subUser.Parent_Mall_Name;
                             requester.Parent_User_ID = (int)mainUser.User_ID;
                         }
-                    }
-                    else
-                    {
-                        //create main user and shop
-                    }
+                    }                   
 
-                    //create sub user in local db
+                    //create user in local db
                     requester.Name = requester.Mall_Name;
                     requester.Password = Guid.NewGuid().ToString();
-
-                    //create the new user
                     db.User.Add(requester);
                     db.SaveChanges();
-                    //Store access token for new user
+                    //create access token for the new user
                     request_token.User_ID = requester.User_ID;
                     db.Access_Token.Add(request_token);
                     db.SaveChanges();
+
+                    //create local shop information for the new main user
+                    if (shop != null && string.IsNullOrEmpty(requester.Parent_Mall_ID) && string.IsNullOrEmpty(requester.Parent_Mall_Name))
+                    {
+                        shop.User_ID = requester.User_ID;
+                        shop.Parent_Shop_ID = 0;
+                        db.Shop.Add(shop);
+                        db.SaveChanges();
+
+                        //sync mall sub users to system
+                        List<User> subUsers = this.UserManager.GetSubUsers(requester.Parent_Mall_ID);
+                        if (subUsers.Count > 0)
+                        {
+                            foreach (User user in subUsers)
+                            {
+                                user.Parent_Mall_ID = requester.Mall_ID;
+                                user.Parent_Mall_Name = requester.Mall_Name;
+                                user.Parent_User_ID = (int)requester.User_ID;
+                                db.User.Add(user);
+                            }
+
+                            db.SaveChanges();
+                        }
+                    }
                 }
                 else
                 {

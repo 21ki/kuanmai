@@ -18,12 +18,13 @@ namespace KM.JXC.BL
         protected User CurrentUser{get;set;}
         protected int Shop_Id { get; set; }
         protected Permission CurrentUserPermission = new Permission();
-        protected PermissionManager permissionManager = new PermissionManager();
+        protected PermissionManager permissionManager;
 
         public BaseManager(User user,int shop_id)
         {
             this.CurrentUser = user;
             this.Shop_Id = shop_id;
+            permissionManager = new PermissionManager(shop_id);
             this.GetUserPermission();
         }
 

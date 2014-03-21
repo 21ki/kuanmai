@@ -18,8 +18,9 @@ namespace KM.JXC.DBA
         public string Name { get; set; }
         public Nullable<long> Parent_ID { get; set; }
         public Nullable<byte> Order { get; set; }
-        public Nullable<long> Create_Time { get; set; }
-        public Nullable<long> Create_User_ID { get; set; }
+        public long Create_Time { get; set; }
+        public long Create_User_ID { get; set; }
         public long Shop_ID { get; set; }
+        public bool Enabled { get; set; }
     }
 }

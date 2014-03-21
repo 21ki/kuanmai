@@ -25,7 +25,11 @@ namespace KM.JXC.BL
 
         }
 
-       
+        /// <summary>
+        /// Get user by id
+        /// </summary>
+        /// <param name="user_Id"></param>
+        /// <returns></returns>       
         public User GetUser(int user_Id)
         {
             User user = null;
@@ -50,6 +54,11 @@ namespace KM.JXC.BL
             return user;
         }
 
+        /// <summary>
+        /// Get user by user object
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public User GetUser(User user) {           
 
             KuanMaiEntities dba = new KuanMaiEntities();
@@ -65,7 +74,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Create new user
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
@@ -79,6 +88,10 @@ namespace KM.JXC.BL
                 throw new UserException("用户名不能为空");
             }
 
+            if (this.CurrentUserPermission.ADD_USER == 0)
+            {
+                throw new UserException("没有权限创建新用户");
+            }
            
             KuanMaiEntities dba = new KuanMaiEntities();
             try
@@ -104,11 +117,16 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Update user object
         /// </summary>
         /// <param name="newUser"></param>
         public void UpdateUser(User newUser)
         {
+            if (this.CurrentUserPermission.UPDATE_USER == 0)
+            {
+                throw new UserException("没有权限创建新用户");
+            }
+
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var old = from ou in db.User where ou.User_ID == newUser.User_ID select ou;
