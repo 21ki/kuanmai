@@ -10,6 +10,7 @@ using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class UserManager:BaseManager
@@ -30,27 +31,33 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user_Id"></param>
         /// <returns></returns>       
-        public User GetUser(int user_Id)
+        public BUser GetUser(int user_Id)
         {
-            User user = null;
+            BUser user = null;
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
-                var us = from u in db.User where u.User_ID == user_Id select u;
-                if (us != null && us.ToList<User>().Count > 0)
-                {
-                    user = us.ToList<User>()[0];
-                }
+                var us = from u in db.User
+                         where u.User_ID == user_Id
+                         select new BUser
+                             {
+                                 ID = u.User_ID,
+                                 EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).ToList<Employee>()[0],
+                                 Mall_ID = u.Mall_ID,
+                                 Mall_Name = u.Mall_Name,
+                                 Mall_Parent_ID = u.Parent_Mall_ID,
+                                 Mall_Parent_Name = u.Parent_Mall_Name,
+                                 Parent_ID = (int)u.Parent_User_ID,
+                                 Name = u.Name,
+                                 Password = u.Password,
+                                 Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).ToList<Mall_Type>()[0]
+                             };
+                user = us.ToList<BUser>()[0];
+
             }
-            catch (DbEntityValidationException dbex)
+            catch
             {
-
             }
-            catch (Exception ex)
-            {
-
-            }
-
             return user;
         }
 
@@ -59,18 +66,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public User GetUser(User user) {           
-
-            KuanMaiEntities dba = new KuanMaiEntities();
-
-            var obj = from p in dba.User where p.Mall_Name == user.Mall_Name && p.Mall_Type == user.Mall_Type select p;
-
-            if (obj != null && obj.ToList<User>().Count > 0)
-            {
-                return obj.ToList<User>()[0];
-            }
-
-            return null;
+        public BUser GetUser(User user)
+        {
+            return this.GetUser(user.User_ID);
         }
 
         /// <summary>

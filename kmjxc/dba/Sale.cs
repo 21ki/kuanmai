@@ -14,13 +14,13 @@ namespace KM.JXC.DBA
     
     public partial class Sale
     {
-        public long Sale_ID { get; set; }
+        public int Sale_ID { get; set; }
         public long Sale_Time { get; set; }
-        public long Shop_ID { get; set; }
-        public Nullable<long> User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public Nullable<int> User_ID { get; set; }
         public string Mall_Trade_ID { get; set; }
         public decimal Amount { get; set; }
         public string Express_Cop { get; set; }
-        public long Province_ID { get; set; }
+        public int Province_ID { get; set; }
     }
 }

@@ -14,10 +14,11 @@ namespace KM.JXC.DBA
     
     public partial class Buy
     {
-        public long Buy_ID { get; set; }
+        public int Buy_ID { get; set; }
         public long Come_Date { get; set; }
-        public long Shop_ID { get; set; }
-        public long User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int User_ID { get; set; }
         public long Create_Date { get; set; }
+        public string Description { get; set; }
     }
 }

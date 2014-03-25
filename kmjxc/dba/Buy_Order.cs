@@ -14,15 +14,16 @@ namespace KM.JXC.DBA
     
     public partial class Buy_Order
     {
-        public long Buy_Order_ID { get; set; }
-        public long Supplier_ID { get; set; }
-        public long User_ID { get; set; }
+        public int Buy_Order_ID { get; set; }
+        public int Supplier_ID { get; set; }
+        public int User_ID { get; set; }
         public Nullable<long> Write_Date { get; set; }
         public Nullable<long> Insure_Date { get; set; }
         public Nullable<long> End_Date { get; set; }
         public long Create_Date { get; set; }
-        public long Shop_ID { get; set; }
-        public Nullable<long> Order_User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public Nullable<int> Order_User_ID { get; set; }
         public Nullable<int> Status { get; set; }
+        public string Description { get; set; }
     }
 }

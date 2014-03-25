@@ -14,16 +14,16 @@ namespace KM.JXC.DBA
     
     public partial class Supplier
     {
-        public long Supplier_ID { get; set; }
+        public int Supplier_ID { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public string Fax { get; set; }
         public string Phone { get; set; }
         public string PostalCode { get; set; }
-        public Nullable<long> Province_ID { get; set; }
-        public Nullable<long> City_ID { get; set; }
+        public Nullable<int> Province_ID { get; set; }
+        public Nullable<int> City_ID { get; set; }
         public long Create_Time { get; set; }
-        public long User_ID { get; set; }
+        public int User_ID { get; set; }
         public string Contact_Person { get; set; }
         public Nullable<int> Shop_ID { get; set; }
         public Nullable<bool> Enabled { get; set; }

@@ -53,8 +53,14 @@
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
     <Compile Include="BaseManager.cs" />
-    <Compile Include="Models\EnterStock.cs" />
-    <Compile Include="Models\EnterStockDetail.cs" />
+    <Compile Include="Models\BBuy.cs" />
+    <Compile Include="Models\BBuyDetail.cs" />
+    <Compile Include="Models\BBuyOrder.cs" />
+    <Compile Include="Models\BBuyOrderDetail.cs" />
+    <Compile Include="Models\BEnterStock.cs" />
+    <Compile Include="Models\BEnterStockDetail.cs" />
+    <Compile Include="Models\BProduct.cs" />
+    <Compile Include="Models\BUser.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="BuyManager.cs" />
     <Compile Include="Open\BaseManager.cs" />

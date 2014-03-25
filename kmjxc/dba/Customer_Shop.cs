@@ -14,7 +14,7 @@ namespace KM.JXC.DBA
     
     public partial class Customer_Shop
     {
-        public long Customer_ID { get; set; }
-        public long Shop_ID { get; set; }
+        public int Customer_ID { get; set; }
+        public int Shop_ID { get; set; }
     }
 }

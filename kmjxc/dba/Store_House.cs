@@ -14,10 +14,10 @@ namespace KM.JXC.DBA
     
     public partial class Store_House
     {
-        public long StoreHouse_ID { get; set; }
+        public int StoreHouse_ID { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
-        public long Employee_ID { get; set; }
+        public int Employee_ID { get; set; }
         public long Create_Time { get; set; }
     }
 }

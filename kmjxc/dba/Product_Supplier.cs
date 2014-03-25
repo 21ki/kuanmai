@@ -14,8 +14,8 @@ namespace KM.JXC.DBA
     
     public partial class Product_Supplier
     {
-        public long Product_ID { get; set; }
-        public long Supplier_ID { get; set; }
+        public int Product_ID { get; set; }
+        public int Supplier_ID { get; set; }
         public Nullable<bool> Enabled { get; set; }
     }
 }

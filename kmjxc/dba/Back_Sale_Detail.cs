@@ -14,9 +14,9 @@ namespace KM.JXC.DBA
     
     public partial class Back_Sale_Detail
     {
-        public long Back_Sale_ID { get; set; }
-        public long Product_ID { get; set; }
-        public long Quantity { get; set; }
+        public int Back_Sale_ID { get; set; }
+        public int Product_ID { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
     }
 }

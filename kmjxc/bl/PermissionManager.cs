@@ -141,22 +141,18 @@ namespace KM.JXC.BL
         /// <param name="user"></param>
         /// <returns></returns>
         public List<Admin_Action> GetUserActions(User user)
-        {
-            Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
+        {            
             List<Admin_Action> actions = new List<Admin_Action>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
 
                 var ps = from a in db.Admin_Action
-                         join c in db.Admin_Role_Action on a.id equals c.action_id
-                         join b in db.Admin_Role on c.role_id equals b.id
-                         join d in db.Admin_User_Role on b.id equals d.role_id
-                         where d.user_id == user.User_ID && b.shop_id==this.Shop_Id    
+                         join c in db.Admin_Role_Action on a.id equals c.action_id                       
+                         join d in db.Admin_User_Role on c.role_id equals d.role_id
+                         where d.user_id == user.User_ID 
                          orderby a.id ascending
-                         select a;
-                Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
-                actions = ps.ToList<Admin_Action>();
-                Console.WriteLine(KM.JXC.Common.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now));
+                         select a;               
+                actions = ps.ToList<Admin_Action>();               
             }            
 
             return actions;

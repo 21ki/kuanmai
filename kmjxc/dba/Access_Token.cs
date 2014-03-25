@@ -14,8 +14,8 @@ namespace KM.JXC.DBA
     
     public partial class Access_Token
     {
-        public long User_ID { get; set; }
-        public long Mall_Type_ID { get; set; }
+        public int User_ID { get; set; }
+        public int Mall_Type_ID { get; set; }
         public string Access_Token1 { get; set; }
         public long Expirse_In { get; set; }
         public string Refresh_Token { get; set; }

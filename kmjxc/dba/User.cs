@@ -14,14 +14,14 @@ namespace KM.JXC.DBA
     
     public partial class User
     {
-        public long User_ID { get; set; }
+        public int User_ID { get; set; }
         public string Mall_ID { get; set; }
+        public string Parent_Mall_ID { get; set; }
         public string Mall_Name { get; set; }
-        public long Mall_Type { get; set; }
+        public string Parent_Mall_Name { get; set; }
+        public int Mall_Type { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
         public Nullable<int> Parent_User_ID { get; set; }
-        public string Parent_Mall_ID { get; set; }
-        public string Parent_Mall_Name { get; set; }
     }
 }

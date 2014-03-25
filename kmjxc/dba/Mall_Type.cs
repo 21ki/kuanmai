@@ -14,7 +14,7 @@ namespace KM.JXC.DBA
     
     public partial class Mall_Type
     {
-        public long Mall_Type_ID { get; set; }
+        public int Mall_Type_ID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public Nullable<long> Create_Time { get; set; }

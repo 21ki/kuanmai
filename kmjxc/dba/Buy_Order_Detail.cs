@@ -14,9 +14,9 @@ namespace KM.JXC.DBA
     
     public partial class Buy_Order_Detail
     {
-        public long Buy_Order_ID { get; set; }
-        public long Product_ID { get; set; }
-        public long Quantity { get; set; }
+        public int Buy_Order_ID { get; set; }
+        public int Product_ID { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
         public Nullable<int> Status { get; set; }
     }

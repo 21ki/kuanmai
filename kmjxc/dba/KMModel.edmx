@@ -49,8 +49,8 @@
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Mall_Type_ID" Type="umediumint" Nullable="false" />
           <Property Name="Access_Token" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Expirse_In" Type="uint" Nullable="false" />
           <Property Name="Refresh_Token" Type="varchar" Nullable="false" MaxLength="45" />
@@ -77,7 +77,7 @@
           <Property Name="role_name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="create_uid" Type="umediumint" Nullable="false" />
           <Property Name="create_date" Type="uint" Nullable="false" />
-          <Property Name="shop_id" Type="int" Nullable="false" />
+          <Property Name="shop_id" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_Role_Action">
           <Key>
@@ -114,55 +114,56 @@
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
           </Key>
-          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Sale_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Back_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
-          <Property Name="Sale_ID" Type="uint" Nullable="false" />
+          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Sale_Detail">
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Back_Sale_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
             <PropertyRef Name="Back_Sock_ID" />
           </Key>
-          <Property Name="Back_Sock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Back_Sock_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Back_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Description" Type="varchar" Nullable="false" MaxLength="200" />
-          <Property Name="Back_Sale_ID" Type="uint" Nullable="false" />
+          <Property Name="Back_Sale_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Stock_Detail">
           <Key>
             <PropertyRef Name="Back_Stock_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Back_Stock_ID" Type="uint" Nullable="false" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Back_Stock_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
             <PropertyRef Name="Buy_ID" />
           </Key>
-          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Buy_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Come_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="Buy_Detail">
           <Key>
@@ -170,10 +171,10 @@
             <PropertyRef Name="Product_ID" />
             <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Name="Buy_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Buy_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Buy_Order_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
         </EntityType>
@@ -181,25 +182,26 @@
           <Key>
             <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Buy_Order_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Supplier_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Write_Date" Type="uint" />
           <Property Name="Insure_Date" Type="uint" />
           <Property Name="End_Date" Type="uint" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="Order_User_ID" Type="uint" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Order_User_ID" Type="umediumint" />
           <Property Name="Status" Type="int" />
+          <Property Name="Description" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="Buy_Order_Detail">
           <Key>
             <PropertyRef Name="Buy_Order_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Buy_Order_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Buy_Order_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Status" Type="int" />
         </EntityType>
@@ -217,28 +219,28 @@
           <Key>
             <PropertyRef Name="Customer_ID" />
           </Key>
-          <Property Name="Customer_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="Customer_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Type_ID" Type="umediumint" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Email" Type="varchar" MaxLength="45" />
           <Property Name="Phone" Type="varchar" MaxLength="45" />
           <Property Name="Address" Type="varchar" MaxLength="200" />
-          <Property Name="City_ID" Type="uint" />
-          <Property Name="Province_ID" Type="uint" />
+          <Property Name="City_ID" Type="umediumint" />
+          <Property Name="Province_ID" Type="umediumint" />
         </EntityType>
         <EntityType Name="Customer_Shop">
           <Key>
             <PropertyRef Name="Customer_ID" />
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Name="Customer_ID" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Customer_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="Employee_ID" />
           </Key>
-          <Property Name="Employee_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Employee_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Department" Type="varchar" MaxLength="45" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Duty" Type="varchar" MaxLength="45" />
@@ -250,48 +252,49 @@
           <Property Name="Address" Type="varchar" MaxLength="45" />
           <Property Name="Phone" Type="varchar" MaxLength="15" />
           <Property Name="Email" Type="varchar" MaxLength="45" />
-          <Property Name="User_ID" Type="uint" />
+          <Property Name="User_ID" Type="umediumint" />
         </EntityType>
         <EntityType Name="Enter_Stock">
           <Key>
             <PropertyRef Name="Enter_Stock_ID" />
           </Key>
-          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Enter_Stock_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Enter_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
-          <Property Name="Buy_ID" Type="int" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Buy_ID" Type="mediumint" />
         </EntityType>
         <EntityType Name="Enter_Stock_Detail">
           <Key>
             <PropertyRef Name="Enter_Stock_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Enter_Stock_ID" Type="uint" Nullable="false" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Enter_Stock_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Have_Invoice" Type="bool" />
           <Property Name="Invoice_Num" Type="varchar" MaxLength="45" />
           <Property Name="Invoice_Amount" Type="decimal" Scale="2" />
+          <Property Name="Create_Date" Type="int" />
         </EntityType>
         <EntityType Name="Leave_Stock">
           <Key>
             <PropertyRef Name="Leave_Stock_ID" />
           </Key>
-          <Property Name="Leave_Stock_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Leave_Stock_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Leave_Date" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="To_StoreHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="Sale_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="To_StoreHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Type">
           <Key>
             <PropertyRef Name="Mall_Type_ID" />
           </Key>
-          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Type_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
           <Property Name="Create_Time" Type="uint" />
@@ -300,8 +303,8 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="int" Nullable="false" />
-          <Property Name="Mall_Type_ID" Type="int" Nullable="false" />
+          <Property Name="ID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Mall_Type_ID" Type="mediumint" Nullable="false" />
           <Property Name="AppKey" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="AppSecret" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Auth_Main_Url" Type="varchar" Nullable="false" MaxLength="100" />
@@ -312,27 +315,27 @@
           <Key>
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Product_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Product_Class_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_Class_ID" Type="umediumint" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="Price" Type="decimal" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
-          <Property Name="Product_Unit_ID" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="Parent_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_Unit_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Parent_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Class">
           <Key>
             <PropertyRef Name="Product_Class_ID" />
           </Key>
-          <Property Name="Product_Class_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_Class_ID" Type="umediumint" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
-          <Property Name="Parent_ID" Type="uint" />
+          <Property Name="Parent_ID" Type="umediumint" />
           <Property Name="Order" Type="utinyint" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
-          <Property Name="Create_User_ID" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Create_User_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="Enabled" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Supplier">
@@ -340,81 +343,81 @@
             <PropertyRef Name="Product_ID" />
             <PropertyRef Name="Supplier_ID" />
           </Key>
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
-          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Supplier_ID" Type="umediumint" Nullable="false" />
           <Property Name="Enabled" Type="bool" />
         </EntityType>
         <EntityType Name="Product_Unit">
           <Key>
             <PropertyRef Name="Product_Unit_ID" />
           </Key>
-          <Property Name="Product_Unit_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Product_Unit_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Description" Type="varchar" MaxLength="100" />
-          <Property Name="Shop_ID" Type="uint" />
+          <Property Name="Shop_ID" Type="umediumint" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale">
           <Key>
             <PropertyRef Name="Sale_ID" />
           </Key>
-          <Property Name="Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Sale_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Sale_Time" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" />
           <Property Name="Mall_Trade_ID" Type="varchar" MaxLength="30" />
           <Property Name="Amount" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Express_Cop" Type="varchar" Nullable="false" MaxLength="20" />
-          <Property Name="Province_ID" Type="uint" Nullable="false" />
+          <Property Name="Province_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
             <PropertyRef Name="Sale_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Name="Sale_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
           <Property Name="Mall_Order_ID" Type="varchar" MaxLength="30" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Discount" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Status" Type="bool" Nullable="false" />
-          <Property Name="Amount" Type="int" />
-          <Property Name="Supplier_ID" Type="int" Nullable="false" />
+          <Property Name="Amount" Type="decimal" Scale="2" />
+          <Property Name="Supplier_ID" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Name="Shop_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
-          <Property Name="Parent_Shop_ID" Type="uint" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Parent_Shop_ID" Type="umediumint" />
           <Property Name="Description" Type="varchar" MaxLength="500" />
-          <Property Name="Mall_Type_ID" Type="uint" Nullable="false" />
+          <Property Name="Mall_Type_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_Child_Request">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="int" Nullable="false" />
-          <Property Name="Shop_ID" Type="int" Nullable="false" />
-          <Property Name="User_ID" Type="int" Nullable="false" />
+          <Property Name="ID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
+          <Property Name="User_ID" Type="mediumint" Nullable="false" />
           <Property Name="Request_Time" Type="int" Nullable="false" />
           <Property Name="Status" Type="char" MaxLength="1" />
           <Property Name="Approve_Time" Type="int" />
-          <Property Name="Approve_User_ID" Type="int" />
-          <Property Name="Child_Shop_ID" Type="int" Nullable="false" />
+          <Property Name="Approve_User_ID" Type="mediumint" />
+          <Property Name="Child_Shop_ID" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_User">
           <Key>
             <PropertyRef Name="Shop_ID" />
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
         </EntityType>
@@ -422,41 +425,41 @@
           <Key>
             <PropertyRef Name="StockPile_ID" />
           </Key>
-          <Property Name="StockPile_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
-          <Property Name="StockHouse_ID" Type="uint" Nullable="false" />
-          <Property Name="Product_ID" Type="uint" Nullable="false" />
+          <Property Name="StockPile_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="StockHouse_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Product_ID" Type="umediumint" Nullable="false" />
           <Property Name="First_Enter_Time" Type="uint" />
           <Property Name="LastLeave_Time" Type="uint" />
-          <Property Name="Quantity" Type="uint" Nullable="false" />
+          <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
         </EntityType>
         <EntityType Name="Store_House">
           <Key>
             <PropertyRef Name="StoreHouse_ID" />
           </Key>
-          <Property Name="StoreHouse_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Address" Type="varchar" MaxLength="200" />
           <Property Name="Phone" Type="varchar" MaxLength="45" />
-          <Property Name="Employee_ID" Type="uint" Nullable="false" />
+          <Property Name="Employee_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Supplier">
           <Key>
             <PropertyRef Name="Supplier_ID" />
           </Key>
-          <Property Name="Supplier_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Supplier_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="Address" Type="varchar" MaxLength="200" />
           <Property Name="Fax" Type="varchar" MaxLength="20" />
           <Property Name="Phone" Type="varchar" MaxLength="20" />
           <Property Name="PostalCode" Type="varchar" MaxLength="10" />
-          <Property Name="Province_ID" Type="uint" />
-          <Property Name="City_ID" Type="uint" />
+          <Property Name="Province_ID" Type="umediumint" />
+          <Property Name="City_ID" Type="umediumint" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
-          <Property Name="User_ID" Type="uint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Contact_Person" Type="varchar" MaxLength="20" />
-          <Property Name="Shop_ID" Type="int" />
+          <Property Name="Shop_ID" Type="mediumint" />
           <Property Name="Enabled" Type="bool" />
         </EntityType>
         <EntityType Name="Supplier_Shop">
@@ -464,22 +467,22 @@
             <PropertyRef Name="Supplier_ID" />
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Name="Supplier_ID" Type="uint" Nullable="false" />
-          <Property Name="Shop_ID" Type="uint" Nullable="false" />
+          <Property Name="Supplier_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="User_ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Parent_Mall_ID" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Parent_Mall_Name" Type="varchar" MaxLength="45" />
-          <Property Name="Mall_Type" Type="uint" Nullable="false" />
+          <Property Name="Mall_Type" Type="umediumint" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
-          <Property Name="Parent_User_ID" Type="int" />
+          <Property Name="Parent_User_ID" Type="mediumint" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -529,8 +532,8 @@
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Type="Int64" Name="User_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Mall_Type_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
           <Property Type="String" Name="Access_Token1" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Expirse_In" Nullable="false" />
           <Property Type="String" Name="Refresh_Token" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
@@ -594,55 +597,56 @@
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
           </Key>
-          <Property Type="Int64" Name="Back_Sale_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Back_Sale_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Back_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="StoreHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Description" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Sale_ID" Nullable="false" />
+          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Sale_Detail">
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Back_Sale_ID" Nullable="false" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Back_Sale_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
             <PropertyRef Name="Back_Sock_ID" />
           </Key>
-          <Property Type="Int64" Name="Back_Sock_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Back_Sock_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Back_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="StoreHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Description" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Back_Sale_ID" Nullable="false" />
+          <Property Type="Int32" Name="Back_Sale_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Stock_Detail">
           <Key>
             <PropertyRef Name="Back_Stock_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Back_Stock_ID" Nullable="false" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Back_Stock_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
             <PropertyRef Name="Buy_ID" />
           </Key>
-          <Property Type="Int64" Name="Buy_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Buy_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Come_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
+          <Property Type="String" Name="Description" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Buy_Detail">
           <Key>
@@ -650,10 +654,10 @@
             <PropertyRef Name="Product_ID" />
             <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Type="Int64" Name="Buy_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Buy_Order_ID" Nullable="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Buy_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Buy_Order_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
         </EntityType>
@@ -661,25 +665,26 @@
           <Key>
             <PropertyRef Name="Buy_Order_ID" />
           </Key>
-          <Property Type="Int64" Name="Buy_Order_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Supplier_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Buy_Order_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int64" Name="Write_Date" />
           <Property Type="Int64" Name="Insure_Date" />
           <Property Type="Int64" Name="End_Date" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="Order_User_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Order_User_ID" />
           <Property Type="Int32" Name="Status" />
+          <Property Type="String" Name="Description" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Buy_Order_Detail">
           <Key>
             <PropertyRef Name="Buy_Order_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Buy_Order_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Buy_Order_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Int32" Name="Status" />
         </EntityType>
@@ -697,28 +702,28 @@
           <Key>
             <PropertyRef Name="Customer_ID" />
           </Key>
-          <Property Type="Int64" Name="Customer_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Mall_Type_ID" Nullable="false" />
+          <Property Type="Int32" Name="Customer_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Email" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Address" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="City_ID" />
-          <Property Type="Int64" Name="Province_ID" />
+          <Property Type="Int32" Name="City_ID" />
+          <Property Type="Int32" Name="Province_ID" />
         </EntityType>
         <EntityType Name="Customer_Shop">
           <Key>
             <PropertyRef Name="Customer_ID" />
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Type="Int64" Name="Customer_ID" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Customer_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="Employee_ID" />
           </Key>
-          <Property Type="Int64" Name="Employee_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Employee_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Department" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Duty" MaxLength="45" FixedLength="false" Unicode="false" />
@@ -730,17 +735,17 @@
           <Property Type="String" Name="Address" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="15" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Email" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="User_ID" />
+          <Property Type="Int32" Name="User_ID" />
         </EntityType>
         <EntityType Name="Enter_Stock">
           <Key>
             <PropertyRef Name="Enter_Stock_ID" />
           </Key>
-          <Property Type="Int64" Name="Enter_Stock_ID" Nullable="false" />
+          <Property Type="Int32" Name="Enter_Stock_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Enter_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="StoreHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int32" Name="Buy_ID" />
         </EntityType>
         <EntityType Name="Enter_Stock_Detail">
@@ -748,30 +753,31 @@
             <PropertyRef Name="Enter_Stock_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Enter_Stock_ID" Nullable="false" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Enter_Stock_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Boolean" Name="Have_Invoice" />
           <Property Type="String" Name="Invoice_Num" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Decimal" Name="Invoice_Amount" Precision="10" Scale="2" />
+          <Property Type="Int32" Name="Create_Date" />
         </EntityType>
         <EntityType Name="Leave_Stock">
           <Key>
             <PropertyRef Name="Leave_Stock_ID" />
           </Key>
-          <Property Type="Int64" Name="Leave_Stock_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Leave_Stock_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Leave_Date" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="StoreHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="To_StoreHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="Sale_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="To_StoreHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Type">
           <Key>
             <PropertyRef Name="Mall_Type_ID" />
           </Key>
-          <Property Type="Int64" Name="Mall_Type_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Description" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Create_Time" />
@@ -780,7 +786,7 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
           <Property Type="String" Name="AppKey" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="AppSecret" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
@@ -792,27 +798,27 @@
           <Key>
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Product_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Product_Class_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Product_Class_ID" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="0" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
-          <Property Type="Int64" Name="Product_Unit_ID" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="Parent_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_Unit_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Class">
           <Key>
             <PropertyRef Name="Product_Class_ID" />
           </Key>
-          <Property Type="Int64" Name="Product_Class_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Product_Class_ID" Nullable="false" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Parent_ID" />
+          <Property Type="Int32" Name="Parent_ID" />
           <Property Type="Byte" Name="Order" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
-          <Property Type="Int64" Name="Create_User_ID" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Create_User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Boolean" Name="Enabled" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Supplier">
@@ -820,66 +826,66 @@
             <PropertyRef Name="Product_ID" />
             <PropertyRef Name="Supplier_ID" />
           </Key>
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
-          <Property Type="Int64" Name="Supplier_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
           <Property Type="Boolean" Name="Enabled" />
         </EntityType>
         <EntityType Name="Product_Unit">
           <Key>
             <PropertyRef Name="Product_Unit_ID" />
           </Key>
-          <Property Type="Int64" Name="Product_Unit_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Product_Unit_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Description" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Shop_ID" />
+          <Property Type="Int32" Name="Shop_ID" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale">
           <Key>
             <PropertyRef Name="Sale_ID" />
           </Key>
-          <Property Type="Int64" Name="Sale_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Sale_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int64" Name="Sale_Time" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" />
           <Property Type="String" Name="Mall_Trade_ID" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Type="Decimal" Name="Amount" Nullable="false" Precision="10" Scale="2" />
           <Property Type="String" Name="Express_Cop" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Province_ID" Nullable="false" />
+          <Property Type="Int32" Name="Province_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
             <PropertyRef Name="Sale_ID" />
             <PropertyRef Name="Product_ID" />
           </Key>
-          <Property Type="Int64" Name="Sale_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
           <Property Type="String" Name="Mall_Order_ID" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Decimal" Name="Discount" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Boolean" Name="Status" Nullable="false" />
-          <Property Type="Int32" Name="Amount" />
+          <Property Type="Decimal" Name="Amount" Precision="10" Scale="2" />
           <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Mall_Shop_ID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
-          <Property Type="Int64" Name="Parent_Shop_ID" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_Shop_ID" />
           <Property Type="String" Name="Description" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Mall_Type_ID" Nullable="false" />
+          <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_Child_Request">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int32" Name="Request_Time" Nullable="false" />
@@ -893,8 +899,8 @@
             <PropertyRef Name="Shop_ID" />
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Time" />
           <Property Type="String" Name="Description" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
@@ -902,39 +908,39 @@
           <Key>
             <PropertyRef Name="StockPile_ID" />
           </Key>
-          <Property Type="Int64" Name="StockPile_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int64" Name="StockHouse_ID" Nullable="false" />
-          <Property Type="Int64" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="StockPile_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="StockHouse_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
           <Property Type="Int64" Name="First_Enter_Time" />
           <Property Type="Int64" Name="LastLeave_Time" />
-          <Property Type="Int64" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
         </EntityType>
         <EntityType Name="Store_House">
           <Key>
             <PropertyRef Name="StoreHouse_ID" />
           </Key>
-          <Property Type="Int64" Name="StoreHouse_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Address" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Employee_ID" Nullable="false" />
+          <Property Type="Int32" Name="Employee_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
         </EntityType>
         <EntityType Name="Supplier">
           <Key>
             <PropertyRef Name="Supplier_ID" />
           </Key>
-          <Property Type="Int64" Name="Supplier_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Supplier_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Address" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Fax" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="PostalCode" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Province_ID" />
-          <Property Type="Int64" Name="City_ID" />
+          <Property Type="Int32" Name="Province_ID" />
+          <Property Type="Int32" Name="City_ID" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
-          <Property Type="Int64" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Contact_Person" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Shop_ID" />
           <Property Type="Boolean" Name="Enabled" />
@@ -944,22 +950,22 @@
             <PropertyRef Name="Supplier_ID" />
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Type="Int64" Name="Supplier_ID" Nullable="false" />
-          <Property Type="Int64" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Type="Int64" Name="User_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Parent_Mall_ID" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Mall_Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Mall_Type" Nullable="false" />
+          <Property Type="String" Name="Parent_Mall_Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Mall_Type" Nullable="false" />
           <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Parent_User_ID" />
-          <Property Type="String" Name="Parent_Mall_ID" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Parent_Mall_Name" MaxLength="45" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1085,6 +1091,7 @@
           <EntitySetMapping Name="Buy">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy">
               <MappingFragment StoreEntitySet="Buy">
+                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
@@ -1108,6 +1115,7 @@
           <EntitySetMapping Name="Buy_Order">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Order">
               <MappingFragment StoreEntitySet="Buy_Order">
+                <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Order_User_ID" ColumnName="Order_User_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
@@ -1199,6 +1207,7 @@
           <EntitySetMapping Name="Enter_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock_Detail">
               <MappingFragment StoreEntitySet="Enter_Stock_Detail">
+                <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
                 <ScalarProperty Name="Invoice_Amount" ColumnName="Invoice_Amount" />
                 <ScalarProperty Name="Invoice_Num" ColumnName="Invoice_Num" />
                 <ScalarProperty Name="Have_Invoice" ColumnName="Have_Invoice" />
@@ -1415,13 +1424,13 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
-                <ScalarProperty Name="Parent_Mall_Name" ColumnName="Parent_Mall_Name" />
-                <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
                 <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Mall_Type" ColumnName="Mall_Type" />
+                <ScalarProperty Name="Parent_Mall_Name" ColumnName="Parent_Mall_Name" />
                 <ScalarProperty Name="Mall_Name" ColumnName="Mall_Name" />
+                <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
                 <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
               </MappingFragment>

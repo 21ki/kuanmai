@@ -14,13 +14,13 @@ namespace KM.JXC.DBA
     
     public partial class Stock_Pile
     {
-        public long StockPile_ID { get; set; }
-        public long Shop_ID { get; set; }
-        public long StockHouse_ID { get; set; }
-        public long Product_ID { get; set; }
+        public int StockPile_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int StockHouse_ID { get; set; }
+        public int Product_ID { get; set; }
         public Nullable<long> First_Enter_Time { get; set; }
         public Nullable<long> LastLeave_Time { get; set; }
-        public long Quantity { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
     }
 }

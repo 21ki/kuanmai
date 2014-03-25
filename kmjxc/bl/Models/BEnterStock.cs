@@ -8,16 +8,18 @@ using KM.JXC.DBA;
 
 namespace KM.JXC.BL.Models
 {
-    public class EnterStock
+    public class BEnterStock
     {
         public int ID { get; set; }
 
         public Shop Shop { get; set; }
 
-        public User User { get; set; }
+        public BUser User { get; set; }
 
         public int BuyID { get; set; }        
 
         public int EnterTime { get; set; }
+
+        public List<BEnterStockDetail> Details { get; set; }
     }
 }

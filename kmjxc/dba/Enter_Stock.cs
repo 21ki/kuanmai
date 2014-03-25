@@ -14,11 +14,11 @@ namespace KM.JXC.DBA
     
     public partial class Enter_Stock
     {
-        public long Enter_Stock_ID { get; set; }
+        public int Enter_Stock_ID { get; set; }
         public long Enter_Date { get; set; }
-        public long Shop_ID { get; set; }
-        public long StoreHouse_ID { get; set; }
-        public long User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int StoreHouse_ID { get; set; }
+        public int User_ID { get; set; }
         public Nullable<int> Buy_ID { get; set; }
     }
 }

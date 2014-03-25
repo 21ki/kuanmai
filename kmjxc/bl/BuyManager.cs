@@ -8,6 +8,7 @@ using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class BuyManager:BaseManager
@@ -22,15 +23,166 @@ namespace KM.JXC.BL
         {
         }
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <param name="user_id"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<KM.JXC.BL.Models.BBuy> GetBuy(int shop_id,int user_id,int startTime,int endTime,int pageIndex,int pageSize, out int totalRecords)
+        {
+            List<KM.JXC.BL.Models.BBuy> verifications = new List<Models.BBuy>();
+            totalRecords = 0;
+            int shop_Id;
+            if (shop_id > 0)
+            {
+                shop_Id = shop_id;
+            }
+            else
+            {
+                shop_Id = this.Shop_Id;
+            }
 
+
+            if (pageIndex <= 0)
+            {
+                pageIndex = 1;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var vbo = from vb in db.Buy 
+                          where vb.Shop_ID == shop_Id 
+                          select vb;
+
+                totalRecords = vbo.Count();
+
+                if (user_id > 0)
+                {
+                    vbo = vbo.Where(vb1=>vb1.User_ID==user_id);
+                }
+                if (startTime > 0)
+                {
+                    vbo = vbo.Where(vb1 => vb1.Create_Date >= startTime);
+                }
+                if (endTime > 0)
+                {
+                    vbo = vbo.Where(vb1 => vb1.Create_Date <= endTime);
+                }
+
+                var vboo = from vbb in vbo 
+                           select new BBuy 
+                           {
+                               ComeDate=(int)vbb.Come_Date,
+                               Description=vbb.Description,
+                               CreateDate=(int)vbb.Create_Date,
+                               ID=(int)vbb.Buy_ID,
+                               User= (from u in db.User where u.User_ID==vbb.User_ID 
+                                      select new BUser
+                                      {
+                                         ID=u.User_ID,
+                                         EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
+                                         Mall_ID=u.Mall_ID,
+                                         Mall_Name=u.Mall_Name,
+                                         Mall_Parent_ID=u.Parent_Mall_ID,
+                                         Mall_Parent_Name=u.Parent_Mall_Name,
+                                         Parent_ID=(int)u.Parent_User_ID,
+                                         Name=u.Name,
+                                         Password=u.Password,
+                                         Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]
+                                      }).ToList<BUser>()[0],
+                               Shop = (from sp in db.Shop where sp.Shop_ID==vbb.Shop_ID select sp).ToList<Shop>()[0]
+                           };
+                verifications = vboo.ToList<BBuy>();
+            }
+
+            return verifications;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buy_id"></param>
+        /// <returns></returns>
+        public List<Models.BBuyDetail> GetBuyDetails(int buy_id)
+        {
+            List<Models.BBuyDetail> details = new List<BBuyDetail>();
+
+            if (buy_id == 0)
+            {
+                throw new KMJXCException("验货单ID必须大于零");
+            }
+
+            BBuy buy = null;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var byo = from b in db.Buy where b.Buy_ID == buy_id 
+                          select new BBuy 
+                          {
+                            ComeDate=b.Come_Date,
+                            Description=b.Description,
+                            CreateDate=b.Create_Date,
+                            ID=b.Buy_ID,
+                            User = (from u in db.User
+                                    where u.User_ID == b.User_ID
+                                    select new BUser
+                                    {
+                                        ID = u.User_ID,
+                                        EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).ToList<Employee>()[0],
+                                        Mall_ID = u.Mall_ID,
+                                        Mall_Name = u.Mall_Name,
+                                        Mall_Parent_ID = u.Parent_Mall_ID,
+                                        Mall_Parent_Name = u.Parent_Mall_Name,
+                                        Parent_ID = (int)u.Parent_User_ID,
+                                        Name = u.Name,
+                                        Password = u.Password,
+                                        Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).ToList<Mall_Type>()[0]
+                                    }).FirstOrDefault<BUser>(),
+                            Shop = (from s in db.Shop where s.Shop_ID == b.Shop_ID select s).FirstOrDefault<Shop>(),
+                          };
+                if (byo.ToList<BBuy>().Count == 1)
+                {
+                    buy = byo.ToList<BBuy>()[0];
+                }
+
+                if (buy == null)
+                {
+                    throw new KMJXCException("没有找到对应的验货单");
+                }
+
+                var bydo = from bb in db.Buy_Detail
+                           where bb.Buy_ID == buy_id
+                           select new BBuyDetail
+                           {
+                               Buy = buy,
+                               Buy_Order_ID = bb.Buy_Order_ID,
+                               CreateDate = bb.Create_Date,
+                               Price = bb.Price,
+                               Quantity=bb.Quantity,
+                               Product = (from p in db.Product
+                                          where p.Product_ID == bb.Product_ID
+                                          select new BProduct
+                                          {
+                                              ID=bb.Product_ID
+                                          }).ToList<BProduct>()[0],
+                           };
+            }
+
+            return details;
+        }
         /// <summary>
         /// Create a buy which could contains details information 
         /// </summary>
         /// <param name="buy"></param>
         /// <param name="details">A list of Buy_Detail, it could be NULL</param>
         /// <returns>TRUE/FALSE</returns>
-        public bool CreateNewBuy(Buy buy,List<Buy_Detail> details)
+        public bool CreateNewBuy(KM.JXC.DBA.Buy buy, List<Buy_Detail> details)
         {
             bool result = false;
 
@@ -132,12 +284,7 @@ namespace KM.JXC.BL
 
             return ret;
         }
-
-        private void UpdateBuyOrderDetail(Buy_Order_Detail detail)
-        {
-
-        }
-
+     
         /// <summary>
         /// Verify if all buy order details of one buy order have been verified
         /// </summary>

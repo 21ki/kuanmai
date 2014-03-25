@@ -25,9 +25,20 @@ namespace KM.JXC.BL
         {
         }
 
-        public List<EnterStock> GetEnterStocks(int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
+        /// <summary>
+        /// Get Enter stocks
+        /// </summary>
+        /// <param name="user_id">who create the enter stock</param>
+        /// <param name="startTime">date time range for enter date</param>
+        /// <param name="endTime">date time range for enter date</param>
+        /// <param name="storeHouseId">store house</param>
+        /// <param name="pageIndex">page</param>
+        /// <param name="pageSize">page size</param>
+        /// <param name="totalRecords">total records fitting the input conditions</param>
+        /// <returns>a list of enter stock</returns>
+        public List<BEnterStock> GetEnterStocks(int enter_stock_id,int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
         {            
-            List<EnterStock> stocks = new List<EnterStock>();
+            List<BEnterStock> stocks = new List<BEnterStock>();
             totalRecords = 0;
             if (pageIndex <= 0)
             {
@@ -38,6 +49,11 @@ namespace KM.JXC.BL
                 var os = from o in db.Enter_Stock
                          select o;  
                 os=os.Where(o1=>o1.Shop_ID==this.Shop_Id);
+
+                if (enter_stock_id > 0)
+                {
+                    os = os.Where(o11 => o11.Enter_Stock_ID == enter_stock_id);
+                }
 
                 if (user_id > 0)
                 {
@@ -55,23 +71,87 @@ namespace KM.JXC.BL
                 }
 
                 totalRecords = os.Count();
-                var oos=from o2 in os
-                        orderby o2.Enter_Date descending
-                        select new EnterStock()
-                        {
-                            ID = (int)o2.Enter_Stock_ID,
-                            Shop = (from s in db.Shop where s.Shop_ID == o2.Shop_ID select s).FirstOrDefault<Shop>(),
-                            User = (from u in db.User where u.User_ID == o2.User_ID select u).FirstOrDefault<User>(),
-                            BuyID = (int)o2.Buy_ID,
-                            EnterTime = (int)o2.Enter_Date
-                        };
+                var oos = from o2 in os
+                          orderby o2.Enter_Date descending
+                          select new BEnterStock()
+                          {
+                              ID = (int)o2.Enter_Stock_ID,
+                              Shop = (from s in db.Shop where s.Shop_ID == o2.Shop_ID select s).FirstOrDefault<Shop>(),
+                              User = (from u in db.User
+                                      where u.User_ID == o2.User_ID
+                                      select new BUser
+                                      { 
+                                         ID=u.User_ID,
+                                         EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
+                                         Mall_ID=u.Mall_ID,
+                                         Mall_Name=u.Mall_Name,
+                                         Mall_Parent_ID=u.Parent_Mall_ID,
+                                         Mall_Parent_Name=u.Parent_Mall_Name,
+                                         Parent_ID=(int)u.Parent_User_ID,
+                                         Name=u.Name,
+                                         Password=u.Password,
+                                         Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]
+                                      }).FirstOrDefault<BUser>(),
+                              BuyID = (int)o2.Buy_ID,
+                              EnterTime = (int)o2.Enter_Date
+                          };
                                 
                 oos.Skip((pageIndex-1)*pageSize).Take(pageSize);
 
-                stocks = oos.ToList<EnterStock>();
+                stocks = oos.ToList<BEnterStock>();
             }
            
             return stocks;
+        }
+
+        /// <summary>
+        /// Get enter stock details for one single enter stock
+        /// </summary>
+        /// <param name="enter_stock_id"></param>
+        /// <returns></returns>
+        public List<BEnterStockDetail> GetEnterStockDetails(int enter_stock_id)
+        {
+            List<BEnterStockDetail> details = new List<BEnterStockDetail>();
+            int stockCount=0;
+            List<BEnterStock> stocks = this.GetEnterStocks(enter_stock_id, 0, 0, 0, 0, 1, 1, out stockCount);
+            if (stockCount == 0)
+            {
+                throw new KMJXCException("此入库单不存在");
+            }
+
+            if (stockCount > 1)
+            {
+                throw new KMJXCException("此入库单信息错误:"+enter_stock_id+" 对应条数据",ExceptionLevel.SYSTEM);
+            }
+
+            BEnterStock stock = stocks[0];
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var sdo = from sdd in db.Enter_Stock_Detail
+                          where sdd.Enter_Stock_ID == enter_stock_id
+                          orderby sdd.Product_ID ascending
+                          select sdd;
+
+                var sdoo = from sddd in sdo
+                           select new BEnterStockDetail
+                           {
+                               EnterStock = stock,
+                               Product = (from p in db.Product
+                                          where p.Product_ID == sddd.Product_ID
+                                          select new BProduct 
+                                          {
+
+                                          }).ToList<BProduct>()[0],
+                               Quantity = sddd.Quantity,
+                               Price = (double)sddd.Price,
+                               DateTime = (int)sddd.Create_Date,
+                               Invoiced = (bool)sddd.Have_Invoice,
+                               InvoiceAmount = (double)sddd.Invoice_Amount,
+                               InvoiceNumber = sddd.Invoice_Num
+                           };
+            }
+            
+            return details;
         }
 
         /// <summary>

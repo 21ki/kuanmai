@@ -14,14 +14,14 @@ namespace KM.JXC.DBA
     
     public partial class Product
     {
-        public long Product_ID { get; set; }
-        public long Product_Class_ID { get; set; }
+        public int Product_ID { get; set; }
+        public int Product_Class_ID { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
-        public long User_ID { get; set; }
+        public int User_ID { get; set; }
         public long Create_Time { get; set; }
-        public long Product_Unit_ID { get; set; }
-        public long Shop_ID { get; set; }
-        public long Parent_ID { get; set; }
+        public int Product_Unit_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int Parent_ID { get; set; }
     }
 }

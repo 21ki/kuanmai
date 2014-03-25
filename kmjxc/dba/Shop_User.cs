@@ -14,8 +14,8 @@ namespace KM.JXC.DBA
     
     public partial class Shop_User
     {
-        public long Shop_ID { get; set; }
-        public long User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int User_ID { get; set; }
         public Nullable<long> Create_Time { get; set; }
         public string Description { get; set; }
     }

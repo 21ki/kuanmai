@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Models
 {
-    public class EnterStockDetail
+    public class BEnterStockDetail
     {
-        public EnterStock EnterStock { get; set; }
-        public Product Product { get; set; }
-        public int Quantity { get; set; }
+        public BEnterStock EnterStock { get; set; }
+        public BProduct Product { get; set; }
+        public long Quantity { get; set; }
         public double Price { get; set; }
         public bool Invoiced { get; set; }
-        public int InvoiceNumber { get; set; }
+        public string InvoiceNumber { get; set; }
         public double InvoiceAmount { get; set; }
+        public int DateTime { get; set; }
     }
 }
