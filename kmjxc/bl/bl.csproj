@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
-    <Compile Include="BaseManager.cs" />
+    <Compile Include="BBaseManager.cs" />
     <Compile Include="Models\BBuy.cs" />
     <Compile Include="Models\BBuyDetail.cs" />
     <Compile Include="Models\BBuyOrder.cs" />
@@ -63,7 +63,7 @@
     <Compile Include="Models\BUser.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="BuyManager.cs" />
-    <Compile Include="Open\BaseManager.cs" />
+    <Compile Include="Open\OBaseManager.cs" />
     <Compile Include="Open\Interface\IAccessToken.cs" />
     <Compile Include="Open\Interface\IManager.cs" />
     <Compile Include="Open\Interface\IShopManager.cs" />

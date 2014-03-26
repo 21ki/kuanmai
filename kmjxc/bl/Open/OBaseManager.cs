@@ -5,15 +5,32 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KM.JXC.DBA;
+using Top.Api;
+
 namespace KM.JXC.BL.Open
 {
-    public class BaseManager
+    public class OBaseManager
     {
+        public Mall_Type MallType { get; set; }
+        public Access_Token Access_Token { get; set; }
+        public Open_Key Open_Key { get; set; }
+        public ITopClient client {get;set;}
         public int Mall_Type_ID { get; private set; }
 
-        public BaseManager(int mall_type_id)
+        public OBaseManager(int mall_type_id,Access_Token token)
         {
             this.Mall_Type_ID = mall_type_id;
+            this.Access_Token = token;
+            this.Open_Key = this.GetAppKey();
+            this.MallType = this.GetMallType();
+            client = new DefaultTopClient(this.Open_Key.API_Main_Url, this.Open_Key.AppKey, this.Open_Key.AppSecret, "json");
+        }
+        public OBaseManager(int mall_type_id)
+        {
+            this.Mall_Type_ID = mall_type_id;          
+            this.Open_Key = this.GetAppKey();
+            this.MallType = this.GetMallType();
+            client = new DefaultTopClient(this.Open_Key.API_Main_Url, this.Open_Key.AppKey, this.Open_Key.AppSecret, "json");
         }
 
         protected Open_Key GetAppKey()

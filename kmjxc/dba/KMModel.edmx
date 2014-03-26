@@ -242,7 +242,7 @@
           </Key>
           <Property Name="Employee_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Department" Type="varchar" MaxLength="45" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Duty" Type="varchar" MaxLength="45" />
           <Property Name="Gendar" Type="char" MaxLength="1" />
           <Property Name="BirthDate" Type="uint" />
@@ -725,7 +725,7 @@
           </Key>
           <Property Type="Int32" Name="Employee_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Department" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Duty" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Gendar" MaxLength="1" FixedLength="true" Unicode="false" />
           <Property Type="Int64" Name="BirthDate" />

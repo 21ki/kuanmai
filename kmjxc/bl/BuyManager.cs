@@ -11,7 +11,7 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
-    public class BuyManager:BaseManager
+    public class BuyManager:BBaseManager
     {
         public BuyManager(User user, int shop_id)
             : base(user, shop_id)
@@ -34,7 +34,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<KM.JXC.BL.Models.BBuy> GetBuy(int shop_id,int user_id,int startTime,int endTime,int pageIndex,int pageSize, out int totalRecords)
+        public List<BBuy> GetBuy(int shop_id,int user_id,int startTime,int endTime,int pageIndex,int pageSize, out int totalRecords)
         {
             List<KM.JXC.BL.Models.BBuy> verifications = new List<Models.BBuy>();
             totalRecords = 0;
@@ -88,9 +88,7 @@ namespace KM.JXC.BL
                                          ID=u.User_ID,
                                          EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
                                          Mall_ID=u.Mall_ID,
-                                         Mall_Name=u.Mall_Name,
-                                         Mall_Parent_ID=u.Parent_Mall_ID,
-                                         Mall_Parent_Name=u.Parent_Mall_Name,
+                                         Mall_Name=u.Mall_Name,                                         
                                          Parent_ID=(int)u.Parent_User_ID,
                                          Name=u.Name,
                                          Password=u.Password,
@@ -109,7 +107,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="buy_id"></param>
         /// <returns></returns>
-        public List<Models.BBuyDetail> GetBuyDetails(int buy_id)
+        public List<BBuyDetail> GetBuyDetails(int buy_id)
         {
             List<Models.BBuyDetail> details = new List<BBuyDetail>();
 
@@ -136,9 +134,7 @@ namespace KM.JXC.BL
                                         ID = u.User_ID,
                                         EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).ToList<Employee>()[0],
                                         Mall_ID = u.Mall_ID,
-                                        Mall_Name = u.Mall_Name,
-                                        Mall_Parent_ID = u.Parent_Mall_ID,
-                                        Mall_Parent_Name = u.Parent_Mall_Name,
+                                        Mall_Name = u.Mall_Name,                                       
                                         Parent_ID = (int)u.Parent_User_ID,
                                         Name = u.Name,
                                         Password = u.Password,

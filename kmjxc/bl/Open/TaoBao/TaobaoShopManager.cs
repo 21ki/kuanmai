@@ -4,44 +4,56 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+
 using KM.JXC.DBA;
 using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Models;
+using KM.JXC.Common.KMException;
+using KM.JXC.Common;
+
+using Top.Api;
+using Top.Tmc;
+using Top.Api.Request;
+using Top.Api.Response;
 namespace KM.JXC.BL.Open.TaoBao
 {
-    public class TaoBaoShopManager:BaseManager,IShopManager
+    public class TaoBaoShopManager:OBaseManager,IShopManager
     {
-        public Mall_Type MallType { get; set; }
-        public Access_Token Access_Token { get; set; }
-        public Open_Key Open_Key { get; set; }
         public TaoBaoShopManager(Access_Token token,int mall_type_id)
-            : base(mall_type_id)
+            : base(mall_type_id,token)
         {
-            this.Access_Token = token;
-            this.Open_Key = this.GetAppKey();
-            this.MallType = this.GetMallType();
+           
         }
 
         /// <summary>
-        /// 
+        /// Get shop from Mall
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
-        public Shop GetShop(User user)
+        /// <returns>Shop object</returns>
+        public Shop GetShop(BUser user)
         {
             Shop shop = null;
+            ShopGetRequest req = new ShopGetRequest();
+            req.Fields = "sid,cid,title,nick,desc,bulletin,pic_path,created,modified";
+            req.Nick = user.Mall_Name;           
+            ShopGetResponse response = client.Execute(req);
+            if (response.IsError)
+            {
+                throw new KMJXCException("从"+this.MallType.Name+" 获取 "+user.Mall_Name +"的店铺信息失败");
+            }
 
-            return shop;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mall_shop_name"></param>
-        /// <returns></returns>
-        public Shop GetShop(string mall_user_id,string mall_user_name)
-        {
-            Shop shop = null;
-
+            if (response.Shop != null)
+            {
+                shop.Description = response.Shop.Desc;
+                shop.Name = response.Shop.Title;
+                shop.Mall_Shop_ID = response.Shop.Sid.ToString();
+                shop.Mall_Type_ID = this.MallType.Mall_Type_ID;
+                shop.Parent_Shop_ID = 0;
+                shop.Shop_ID = 0;
+                shop.User_ID = user.ID;
+            }
             return shop;
         }
     }

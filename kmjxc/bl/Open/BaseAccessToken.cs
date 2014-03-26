@@ -8,7 +8,7 @@ using KM.JXC.DBA;
 
 namespace KM.JXC.BL.Open
 {
-    public class BaseAccessToken:BaseManager
+    public class BaseAccessToken:OBaseManager
     {   
         public BaseAccessToken(int mall_type_id)
             :base(mall_type_id)

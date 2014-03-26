@@ -10,7 +10,7 @@ using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 namespace KM.JXC.BL
 {
-    public class ShopCategoryManager:BaseManager
+    public class ShopCategoryManager:BBaseManager
     {
         public ShopCategoryManager(User user,int shop_id)
             : base(user,shop_id)

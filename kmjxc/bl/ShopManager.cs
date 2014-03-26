@@ -10,7 +10,7 @@ using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 namespace KM.JXC.BL
 {
-    public class ShopManager:BaseManager
+    public class ShopManager:BBaseManager
     {
         public int Mall_Type { get; private set; }
       

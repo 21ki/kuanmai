@@ -10,46 +10,58 @@ using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 using System.Data.Entity;
+using KM.JXC.BL.Models;
 
 namespace KM.JXC.BL
 {
-    public class BaseManager
+    public class BBaseManager
     {
-        protected User CurrentUser{get;set;}
-        protected int Shop_Id { get; set; }
-        protected Permission CurrentUserPermission = new Permission();
-        protected PermissionManager permissionManager;
+        public Shop Shop { get; private set; }
+        public User CurrentUser { get; private set; }
+        public int Shop_Id { get; private set; }
+        public Permission CurrentUserPermission = new Permission();
+        public PermissionManager permissionManager;
 
-        public BaseManager(User user,int shop_id)
+        public BBaseManager(User user,int shop_id)
         {
             this.CurrentUser = user;
             this.Shop_Id = shop_id;
+            if (this.Shop_Id == 0)
+            {
+                this.FindUserShop();
+            }
             permissionManager = new PermissionManager(shop_id);
             this.GetUserPermission();
         }
 
-        public BaseManager(int user_id, int shop_id)
+        public BBaseManager(int user_id, int shop_id)
         {
             GetUserById(user_id);
             this.Shop_Id = shop_id;
+            if (this.Shop_Id == 0)
+            {
+                this.FindUserShop();
+            }
             this.GetUserPermission();
         }
 
-        public BaseManager(int user_id)
+        public BBaseManager(int user_id)
         {
             GetUserById(user_id);
             this.GetUserPermission();
+            this.FindUserShop();
         }
 
-        public BaseManager(User user)
+        public BBaseManager(User user)
         {
             this.CurrentUser = user;           
             this.GetUserPermission();
+            this.FindUserShop();
         }
 
-        public BaseManager()
+        public BBaseManager()
         {
-        }
+        }      
 
         private void GetUserById(int user_id)
         {
@@ -75,6 +87,34 @@ namespace KM.JXC.BL
             }
 
             CurrentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
+        }
+
+        /// <summary>
+        /// Find shop for current login user
+        /// </summary>
+        private void FindUserShop()
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Shop shop = (from s in db.Shop where s.User_ID == this.CurrentUser.User_ID select s).FirstOrDefault<Shop>();
+                if (shop == null)
+                {
+                    shop = (from s in db.Shop
+                            from sp in db.Shop_User
+                            where s.Shop_ID == sp.Shop_ID && sp.User_ID == this.CurrentUser.User_ID
+                            select s).FirstOrDefault<Shop>();
+
+                    if (shop == null)
+                    {
+                        throw new KMJXCException("你不是店铺掌柜，也不是任何店铺的子账户");
+                    }
+
+                    
+                }
+                
+                this.Shop_Id = shop.Shop_ID;
+                this.Shop = shop;
+            }
         }
 
         protected void UpdateProperties(object oldObj,object newObj)

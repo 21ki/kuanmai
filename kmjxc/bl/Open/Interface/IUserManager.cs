@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KM.JXC.DBA;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL.Open.Interface
 {
     public interface IUserManager
     {
-        User GetUser(string mall_id,string mall_name);
-        User GetSubUser(string mall_id, string mall_name);
-        List<User> GetSubUsers(string user_id);
+        BUser GetUser(string mall_id, string mall_name);
+        BUser GetSubUser(string mall_id, string mall_name);
+        BUser GetSubUserFullInfo(string mall_name);
+        List<BUser> GetSubUsers(BUser mainUser);
     }
 }

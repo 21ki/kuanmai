@@ -13,8 +13,10 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
-    public class UserManager:BaseManager
-    { 
+    public class UserManager:BBaseManager
+    {
+        public IUserManager MallUserManager = null;
+
         public UserManager(User user):base(user)
         {
            
@@ -24,6 +26,12 @@ namespace KM.JXC.BL
             : base(user_id)
         {
 
+        }
+
+        public UserManager(int user_id,IUserManager manager)
+            : base(user_id)
+        {
+            this.MallUserManager = manager;
         }
 
         /// <summary>
@@ -42,18 +50,19 @@ namespace KM.JXC.BL
                          select new BUser
                              {
                                  ID = u.User_ID,
-                                 EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).ToList<Employee>()[0],
+                                 EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).FirstOrDefault<Employee>(),
                                  Mall_ID = u.Mall_ID,
-                                 Mall_Name = u.Mall_Name,
-                                 Mall_Parent_ID = u.Parent_Mall_ID,
-                                 Mall_Parent_Name = u.Parent_Mall_Name,
-                                 Parent_ID = (int)u.Parent_User_ID,
+                                 Mall_Name = u.Mall_Name,                                
                                  Name = u.Name,
                                  Password = u.Password,
-                                 Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).ToList<Mall_Type>()[0]
+                                 Parent_ID=(int)u.Parent_User_ID,
+                                 Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).FirstOrDefault<Mall_Type>(),                                 
                              };
-                user = us.ToList<BUser>()[0];
-
+                user = us.FirstOrDefault<BUser>();
+                if (user.Parent_ID > 0)
+                {
+                    user.Parent = this.GetUser(user.Parent_ID);
+                }
             }
             catch
             {
@@ -66,9 +75,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public BUser GetUser(User user)
+        public BUser GetUser(BUser user)
         {
-            return this.GetUser(user.User_ID);
+            return this.GetUser(user.ID);
         }
 
         /// <summary>
@@ -76,7 +85,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public User CreateNewUser(User user) {
+        public BUser CreateNewUser(BUser user) {
            
             if (user == null) {
                 throw new UserException("用户实体不能为空引用");
@@ -97,7 +106,19 @@ namespace KM.JXC.BL
                 if (GetUser(user) != null)
                     throw new UserException("用户名已经存在");
 
-                dba.User.Add(user);
+                User dbUser = new User();
+                dbUser.User_ID = user.ID;
+                dbUser.Mall_ID = user.Mall_ID;
+                dbUser.Mall_Name = user.Mall_Name;
+                dbUser.Name = user.Name;
+                dbUser.Mall_Type = user.Type.Mall_Type_ID;
+                if (user.Parent != null)
+                {
+                    dbUser.Parent_Mall_ID = user.Parent.Mall_ID;
+                    dbUser.Parent_Mall_Name = user.Parent.Mall_Name;
+                    dbUser.Parent_User_ID = user.Parent.ID;
+                }
+                dba.User.Add(dbUser);
                 dba.SaveChanges();
                 return user;
             }
@@ -118,7 +139,7 @@ namespace KM.JXC.BL
         /// Update user object
         /// </summary>
         /// <param name="newUser"></param>
-        public void UpdateUser(User newUser)
+        public void UpdateUser(BUser user)
         {
             if (this.CurrentUserPermission.UPDATE_USER == 0)
             {
@@ -127,12 +148,133 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var old = from ou in db.User where ou.User_ID == newUser.User_ID select ou;
+                var old = from ou in db.User where ou.User_ID == user.ID select ou;
 
-                User oldUser = old.ToList<User>()[0];
-                this.UpdateProperties(oldUser, newUser);
+                User dbUser = old.FirstOrDefault<User>();
+                if (dbUser != null)
+                {
+                    dbUser.User_ID = user.ID;
+                    dbUser.Mall_ID = user.Mall_ID;
+                    dbUser.Mall_Name = user.Mall_Name;
+                    dbUser.Name = user.Name;
+                    dbUser.Password = user.Password;
+                    //dbUser.Mall_Type = user.Type.Mall_Type_ID;
+                    if (user.Parent != null)
+                    {
+                        dbUser.Parent_Mall_ID = user.Parent.Mall_ID;
+                        dbUser.Parent_Mall_Name = user.Parent.Mall_Name;
+                        dbUser.Parent_User_ID = user.Parent.ID;
+                    }
+
+                    Employee employee = (from em in db.Employee where em.User_ID == dbUser.User_ID select em).FirstOrDefault<Employee>();
+                    if (employee != null)
+                    {
+                        base.UpdateProperties(employee, user.EmployeeInfo);
+                    }
+                }
                 db.SaveChanges();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
+        public bool SyncShopSubUsers(int shop_id)
+        {
+            bool result = false;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                BUser dbUser = (from us in db.User
+                                from sp in db.Shop
+                                where us.User_ID == sp.User_ID && sp.Shop_ID == shop_id
+                                select new BUser
+                                {
+                                    ID = us.User_ID,
+                                    EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
+                                    Mall_ID = us.Mall_ID,
+                                    Mall_Name = us.Mall_Name,
+                                    Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
+                                    Parent_ID = (int)us.Parent_User_ID,
+                                    Parent = null,
+                                    Name = us.Name,
+                                    Password = us.Password
+                                }).FirstOrDefault<BUser>();
+
+                if (dbUser == null)
+                {
+                    throw new KMJXCException("没有找到对应店铺的卖家信息");
+                }
+
+                List<BUser> subUsers = this.MallUserManager.GetSubUsers(dbUser);
+                List<BUser> existedUsers = (from us in db.User
+                                            from sp in db.Shop_User
+                                            where us.User_ID == sp.User_ID && sp.Shop_ID == shop_id
+                                            select new BUser
+                                            {
+                                                ID = us.User_ID,
+                                                EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
+                                                Mall_ID = us.Mall_ID,
+                                                Mall_Name = us.Mall_Name,
+                                                Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
+                                                Parent_ID = (int)us.Parent_User_ID,
+                                                Parent = null,
+                                                Name = us.Name,
+                                                Password = us.Password
+                                            }).ToList<BUser>();
+
+
+                foreach (BUser user in subUsers)
+                {
+                    bool found = false;
+                    foreach (BUser eUser in existedUsers)
+                    {
+                        if (user.Mall_ID == eUser.Mall_ID && user.Mall_Name == eUser.Mall_Name)
+                        {
+                            //Update user
+                            found = true;
+                            eUser.EmployeeInfo = user.EmployeeInfo;
+                            eUser.Name = user.Name;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        //add new sub user
+                        User dbUser1 = new User();
+                        //dbUser1.User_ID = user.ID;
+                        dbUser1.Mall_ID = user.Mall_ID;
+                        dbUser1.Mall_Name = user.Mall_Name;
+                        dbUser1.Name = user.Name;
+                        dbUser1.Mall_Type = user.Type.Mall_Type_ID;
+                        if (user.Parent != null)
+                        {
+                            dbUser1.Parent_Mall_ID = user.Parent.Mall_ID;
+                            dbUser1.Parent_Mall_Name = user.Parent.Mall_Name;
+                            dbUser1.Parent_User_ID = user.Parent.ID;
+                        }
+                        db.User.Add(dbUser1);
+                        db.SaveChanges();
+
+                        if (user.EmployeeInfo != null && dbUser1.User_ID>0)
+                        {
+                            db.Employee.Add(user.EmployeeInfo);
+                        }
+
+                        Shop_User sp = new Shop_User();
+                        sp.Shop_ID = shop_id;
+                        sp.User_ID = dbUser1.User_ID;
+                        db.Shop_User.Add(sp);
+                    }
+                }
+
+                db.SaveChanges();
+            }
+
+            return result;
         }
     }
 }

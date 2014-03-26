@@ -9,6 +9,7 @@ using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.Common.Util;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     /// <summary>
@@ -18,7 +19,7 @@ namespace KM.JXC.BL
     {
         public IAccessToken TokenManager{get;set;}
         public IShopManager ShopManager { get; private set; }
-        public IUserManager UserManager { get; private set; }
+        public IUserManager MallUserManager { get; private set; }
         public UserManager LocUserManager { get; private set; }
         public int Mall_Type_ID { get; set; }
         
@@ -35,7 +36,7 @@ namespace KM.JXC.BL
         private void InitializeMallManagers(Access_Token token)
         {
             this.ShopManager = new TaoBaoShopManager(token, this.Mall_Type_ID);
-            this.UserManager = new TaoBaoUserManager(token,this.Mall_Type_ID);
+            this.MallUserManager = new TaoBaoUserManager(token,this.Mall_Type_ID);
         }
 
         /// <summary>
@@ -52,13 +53,12 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有获取到Access token",ExceptionLevel.SYSTEM);
             }
 
-            User requester = new User();
-            requester.Mall_Type = this.Mall_Type_ID;
+            BUser requester = new BUser();
+            requester.Type = new Mall_Type(){ Mall_Type_ID= this.Mall_Type_ID};
             requester.Mall_ID = request_token.Mall_User_ID;
             requester.Mall_Name = request_token.Mall_User_Name;
-            requester.Parent_Mall_ID = string.Empty;
-            requester.Parent_Mall_Name = string.Empty;
-            requester.Parent_User_ID = 0;
+            requester.Parent_ID = 0;
+            requester.Parent = null;
 
             this.InitializeMallManagers(request_token);
 
@@ -69,76 +69,150 @@ namespace KM.JXC.BL
 
             KuanMaiEntities db = new KuanMaiEntities();
             try
-            { 
-                var db_user = from u in db.User where u.Mall_ID == requester.Mall_ID && u.Mall_Name == requester.Mall_Name && u.Mall_Type == requester.Mall_Type select u;
-                List<User> users = db_user.ToList<User>();
+            {
+                var db_user = from u in db.User
+                              where u.Mall_ID == requester.Mall_ID && u.Mall_Name == requester.Mall_Name && u.Mall_Type == this.Mall_Type_ID
+                              select new BUser {
+                                  ID=u.User_ID,
+                                  Name = u.Name,
+                                  Mall_Name = u.Mall_Name,
+                                  Mall_ID = u.Mall_ID,
+                                  Password = u.Password,
+                                  Parent_ID = (int)u.Parent_User_ID,
+                                  Type = new Mall_Type { Mall_Type_ID = u.Mall_Type }
+                              };
+                List<BUser> users = db_user.ToList<BUser>();
                 //Create user in local db with mall owner id
                 if (users.Count == 0)
                 {
                     //check if current user's shop is ready in system
-                    Shop shop = this.ShopManager.GetShop(requester.Mall_ID, requester.Mall_Name);
+                    Shop shop = this.ShopManager.GetShop(requester);
                     if (shop == null)
                     {
-                        User subUser = this.UserManager.GetSubUser(requester.Mall_ID, requester.Mall_Name);
+                        BUser subUser = this.MallUserManager.GetSubUser(requester.Mall_ID, requester.Mall_Name);
                         if (subUser == null)
                         {
-                            throw new KMJXCException("用户:" + requester.Mall_Name + " 没有对应的" + this.ShopManager.MallType.Description + ",并且不属于任何店铺的子账户", ExceptionLevel.ERROR);
+                            throw new KMJXCException("用户:" + requester.Mall_Name + " 没有对应的" + ((KM.JXC.BL.Open.OBaseManager)this.ShopManager).MallType.Description + ",并且不属于任何店铺的子账户", ExceptionLevel.ERROR);
                         }
                         else
                         {
-                            //not any user's sub user
-                            if (!string.IsNullOrEmpty(subUser.Parent_Mall_ID))
+                            //
+                            if (subUser.Parent==null || string.IsNullOrEmpty(subUser.Parent.Mall_Name))
                             {
-                                throw new KMJXCException("用户:" + requester.Mall_Name + " 没有对应的" + this.ShopManager.MallType.Description + ",并且不属于任何店铺的子账户", ExceptionLevel.ERROR);
+                                throw new KMJXCException("用户:" + requester.Mall_Name + " 没有对应的" + ((KM.JXC.BL.Open.OBaseManager)this.ShopManager).MallType.Description + ",并且不属于任何店铺的子账户", ExceptionLevel.ERROR);
                             }
 
-                            User mainUser = null;
+                            BUser mainUser = null;
 
-                            var u = from us in db.User where us.Mall_ID == subUser.Parent_Mall_ID && us.Mall_Type == requester.Mall_Type && us.Parent_Mall_Name == subUser.Parent_Mall_Name select us;
-                            if (u.ToList<User>().Count() == 1)
+                            var u = from us in db.User
+                                    where us.Mall_ID == subUser.Parent.Mall_ID && us.Mall_Type == requester.Type.Mall_Type_ID && us.Mall_Name == subUser.Parent.Mall_Name
+                                    select new BUser
+                                    {
+                                        ID = us.User_ID,
+                                        Name = us.Name,
+                                        Mall_Name = us.Mall_Name,
+                                        Mall_ID = us.Mall_ID,
+                                        Password = us.Password,
+                                        Parent_ID = (int)us.Parent_User_ID,
+                                        Type = new Mall_Type { Mall_Type_ID=us.Mall_Type }
+                                    };
+                            if (u.ToList<BUser>().Count() == 1)
                             {
-                                mainUser = u.ToList<User>()[0];
+                                mainUser = u.ToList<BUser>()[0];
                             }
 
                             if (mainUser == null)
                             {
-                                throw new KMJXCException("主账户:" + subUser.Parent_Mall_Name + " 还没有初始化店铺信息，所有子账户无法登录系统", ExceptionLevel.ERROR);
+                                throw new KMJXCException("主账户:" + subUser.Parent.Mall_Name + " 还没有初始化店铺信息，所有子账户无法登录系统", ExceptionLevel.ERROR);
                             }
 
-                            requester.Parent_Mall_ID = subUser.Parent_Mall_ID;
-                            requester.Parent_Mall_Name = subUser.Parent_Mall_Name;
-                            requester.Parent_User_ID = (int)mainUser.User_ID;
+                            requester.Parent_ID = mainUser.ID;
+                            requester.Parent = mainUser;
+                            requester.EmployeeInfo=subUser.EmployeeInfo;
+                           
                         }
                     }                   
 
                     //create user in local db
                     requester.Name = requester.Mall_Name;
                     requester.Password = Guid.NewGuid().ToString();
-                    db.User.Add(requester);
+
+                    User dbUser = new User();
+                    dbUser.User_ID = requester.ID;
+                    dbUser.Mall_ID = requester.Mall_ID;
+                    dbUser.Mall_Name = requester.Mall_Name;
+                    dbUser.Name = requester.Name;
+                    dbUser.Mall_Type = requester.Type.Mall_Type_ID;
+                    if (requester.Parent != null)
+                    {
+                        dbUser.Parent_Mall_ID = requester.Parent.Mall_ID;
+                        dbUser.Parent_Mall_Name = requester.Parent.Mall_Name;
+                        dbUser.Parent_User_ID = requester.Parent.ID;
+                    }
+
+                    db.User.Add(dbUser);
                     db.SaveChanges();
+
                     //create access token for the new user
-                    request_token.User_ID = requester.User_ID;
+                    request_token.User_ID = dbUser.User_ID;
+                    requester.ID = dbUser.User_ID;
                     db.Access_Token.Add(request_token);
+
+                    //save employee
+                    if (requester.Parent_ID > 0 && requester.EmployeeInfo != null)
+                    {
+                        requester.EmployeeInfo.User_ID = requester.ID;
+                        db.Employee.Add(requester.EmployeeInfo);
+                    }
+
+                    Shop_User shop_User = new Shop_User();
+                    shop_User.User_ID = requester.ID;
+                    shop_User.Shop_ID = shop.Shop_ID;
+                    db.Shop_User.Add(shop_User);
                     db.SaveChanges();
 
                     //create local shop information for the new main user
-                    if (shop != null && string.IsNullOrEmpty(requester.Parent_Mall_ID) && string.IsNullOrEmpty(requester.Parent_Mall_Name))
+                    if (shop != null && requester.Parent_ID==0)
                     {
-                        shop.User_ID = requester.User_ID;
+                        shop.User_ID = requester.ID;
                         shop.Parent_Shop_ID = 0;
                         db.Shop.Add(shop);
                         db.SaveChanges();
 
                         //sync mall sub users to system
-                        List<User> subUsers = this.UserManager.GetSubUsers(requester.Parent_Mall_ID);
-                        if (subUsers.Count > 0)
+                        List<BUser> subUsers = this.MallUserManager.GetSubUsers(requester);
+                        if (subUsers != null && subUsers.Count > 0 && shop.Shop_ID>0)
                         {
-                            foreach (User user in subUsers)
+                            foreach (BUser user in subUsers)
                             {
-                                user.Parent_Mall_ID = requester.Mall_ID;
-                                user.Parent_Mall_Name = requester.Mall_Name;
-                                user.Parent_User_ID = (int)requester.User_ID;
-                                db.User.Add(user);
+                                User db1User = new User();
+                                db1User.Parent_Mall_ID = requester.Mall_ID;
+                                db1User.Parent_Mall_Name = requester.Mall_Name;
+                                db1User.Parent_User_ID = (int)requester.ID;
+                                db1User.Mall_Name = user.Mall_Name;
+                                db1User.Mall_ID = user.Mall_ID;
+                                db1User.Mall_Type = user.Type.Mall_Type_ID;
+                                db1User.Name = user.Name;
+                                db1User.Password = "";
+                                db.User.Add(db1User);
+
+                                db.SaveChanges();
+
+                                if (db1User.User_ID > 0)
+                                {
+                                    //add shop user
+                                    Shop_User shop_User1 = new Shop_User();
+                                    shop_User1.User_ID = requester.ID;
+                                    shop_User1.Shop_ID = shop.Shop_ID;
+                                    db.Shop_User.Add(shop_User1);
+
+                                    if (user.EmployeeInfo != null)
+                                    {
+                                        user.EmployeeInfo.User_ID = db1User.User_ID;
+                                        db.Employee.Add(user.EmployeeInfo);
+                                        //db.SaveChanges();
+                                    }
+                                }
                             }
 
                             db.SaveChanges();
@@ -149,8 +223,8 @@ namespace KM.JXC.BL
                 {
                     //Verify if local db has non expried accesstoken
                     requester = users[0];
-                    request_token.User_ID = requester.User_ID;
-                    Access_Token local_token = GetLocalToken(requester.User_ID, this.Mall_Type_ID);
+                    request_token.User_ID = requester.ID;
+                    Access_Token local_token = GetLocalToken(requester.ID, this.Mall_Type_ID);
                     if (local_token != null)
                     {
                         int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -176,6 +250,19 @@ namespace KM.JXC.BL
             }
             
             return request_token;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
+        public bool ShopUserVerification(BUser user, int shop_id)
+        {
+            bool result = false;
+            
+            return result;
         }
 
         /// <summary>

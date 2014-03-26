@@ -16,34 +16,31 @@ using Newtonsoft.Json.Converters;
 namespace KM.JXC.BL.Open.TaoBao
 {
     public class TaoBaoAccessToken:BaseAccessToken,IAccessToken
-    {
-        
+    {        
         public TaoBaoAccessToken(int mall_type_id)
             : base(mall_type_id)
         {
-            this.OpenKey = this.GetAppKey();
-        }
-
-        public Open_Key OpenKey { get; set; }
+           
+        }       
 
         public Access_Token RequestAccessToken(string code){
             Access_Token token = new Access_Token();
             token.Request_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             
-            if (this.OpenKey == null)
+            if (this.Open_Key == null)
             {
                 throw new Exception("Didn't find app key configuration for Mall Type ID:" + this.Mall_Type_ID);
             }
 
-            String auth_host = this.OpenKey.Auth_Main_Url;
+            String auth_host = this.Open_Key.Auth_Main_Url;
             NameValueCollection paras = new NameValueCollection();
-            paras.Add("client_id", this.OpenKey.AppKey);
-            paras.Add("client_secret", this.OpenKey.AppSecret);
+            paras.Add("client_id", this.Open_Key.AppKey);
+            paras.Add("client_secret", this.Open_Key.AppSecret);
             paras.Add("grant_type", "authorization_code");
             paras.Add("code", code);
-            paras.Add("redirect_uri",this.OpenKey.CallBack_Url);
+            paras.Add("redirect_uri", this.Open_Key.CallBack_Url);
 
-            string response = HttpRequester.PostHttpRequest(this.OpenKey.Auth_Main_Url + "/token", paras);
+            string response = HttpRequester.PostHttpRequest(this.Open_Key.Auth_Main_Url + "/token", paras);
 
             JObject json = new JObject(response);
            

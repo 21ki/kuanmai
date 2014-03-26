@@ -9,7 +9,6 @@ namespace KM.JXC.BL.Open.Interface
     public interface IAccessToken
     {
         Access_Token RequestAccessToken(string code);
-        Access_Token RefreshToken(Access_Token oldToken);
-        Open_Key OpenKey { get; set; }
+        Access_Token RefreshToken(Access_Token oldToken);       
     }
 }

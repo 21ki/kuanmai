@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KM.JXC.DBA;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL.Open.Interface
 {
-    public interface IShopManager:IManager
+    public interface IShopManager
     {
-        Shop GetShop(User user);
-        Shop GetShop(string mall_user_id, string mall_user_name);        
+        Shop GetShop(BUser user);        
     }
 }

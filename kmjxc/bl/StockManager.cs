@@ -13,7 +13,7 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
-    public class StockManager:BaseManager
+    public class StockManager:BBaseManager
     {
         public StockManager(User user,int shop_id)
             : base(user, shop_id)
@@ -85,9 +85,7 @@ namespace KM.JXC.BL
                                          EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
                                          Mall_ID=u.Mall_ID,
                                          Mall_Name=u.Mall_Name,
-                                         Mall_Parent_ID=u.Parent_Mall_ID,
-                                         Mall_Parent_Name=u.Parent_Mall_Name,
-                                         Parent_ID=(int)u.Parent_User_ID,
+                                         Parent_ID = (int)u.Parent_User_ID,
                                          Name=u.Name,
                                          Password=u.Password,
                                          Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]

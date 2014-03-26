@@ -10,7 +10,7 @@ using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
-    public class SupplierManager:BaseManager
+    public class SupplierManager:BBaseManager
     {        
         public SupplierManager(User user,int shop_id)
             : base(user, shop_id)
