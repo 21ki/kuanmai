@@ -12,17 +12,14 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Sale_Detail
+    public partial class Mall_Product_Sku
     {
-        public int Sale_ID { get; set; }
-        public int Product_ID { get; set; }
-        public string Mall_Order_ID { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
-        public decimal Discount { get; set; }
-        public bool Status { get; set; }
-        public Nullable<decimal> Amount { get; set; }
-        public int Supplier_ID { get; set; }
-        public string Mall_PID { get; set; }
+        public string SKU_ID { get; set; }
+        public string Mall_Item_ID { get; set; }
+        public Nullable<int> Quantity { get; set; }
+        public string Properties_name { get; set; }
+        public int Outer_ID { get; set; }
+        public string Properties { get; set; }
+        public Nullable<decimal> Price { get; set; }
     }
 }

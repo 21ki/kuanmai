@@ -127,6 +127,12 @@
     <Compile Include="Leave_Stock.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Mall_Product.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Mall_Product_Sku.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Mall_Type.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
@@ -137,6 +143,15 @@
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Product_Class.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Spec.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Specifications.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product_Spec_Value.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Product_Supplier.cs">

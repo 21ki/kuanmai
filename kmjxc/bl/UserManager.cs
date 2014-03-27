@@ -15,7 +15,7 @@ namespace KM.JXC.BL
 {
     public class UserManager:BBaseManager
     {
-        public IUserManager MallUserManager = null;
+        public IOUserManager MallUserManager = null;
 
         public UserManager(User user):base(user)
         {
@@ -28,7 +28,7 @@ namespace KM.JXC.BL
 
         }
 
-        public UserManager(int user_id,IUserManager manager)
+        public UserManager(int user_id,IOUserManager manager)
             : base(user_id)
         {
             this.MallUserManager = manager;

@@ -18,8 +18,8 @@ namespace KM.JXC.BL
     public class AccessManager
     {
         public IAccessToken TokenManager{get;set;}
-        public IShopManager ShopManager { get; private set; }
-        public IUserManager MallUserManager { get; private set; }
+        public IOShopManager ShopManager { get; private set; }
+        public IOUserManager MallUserManager { get; private set; }
         public UserManager LocUserManager { get; private set; }
         public int Mall_Type_ID { get; set; }
         

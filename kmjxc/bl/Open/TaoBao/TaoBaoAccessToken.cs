@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Converters;
 namespace KM.JXC.BL.Open.TaoBao
 {
-    public class TaoBaoAccessToken:BaseAccessToken,IAccessToken
+    internal class TaoBaoAccessToken:BaseAccessToken,IAccessToken
     {        
         public TaoBaoAccessToken(int mall_type_id)
             : base(mall_type_id)

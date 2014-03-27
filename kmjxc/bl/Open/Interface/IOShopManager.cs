@@ -8,8 +8,10 @@ using KM.JXC.DBA;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL.Open.Interface
 {
-    public interface IShopManager
+    public interface IOShopManager
     {
-        Shop GetShop(BUser user);        
+        KM.JXC.DBA.Shop GetShop(BUser user);
+        List<Product_Class> GetCategories(BUser user);
+        List<Product_Spec> GetProperities(Product_Class category, Shop shop);
     }
 }

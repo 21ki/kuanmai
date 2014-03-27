@@ -22,5 +22,6 @@ namespace KM.JXC.DBA
         public decimal Amount { get; set; }
         public string Express_Cop { get; set; }
         public int Province_ID { get; set; }
+        public Nullable<short> Sale_Type { get; set; }
     }
 }

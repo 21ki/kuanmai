@@ -12,14 +12,15 @@ using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Models;
 using KM.JXC.Common.KMException;
 using KM.JXC.Common;
+using KM.JXC.Common.Util;
 
-using Top.Api;
+using TB=Top.Api.Domain;
 using Top.Tmc;
 using Top.Api.Request;
 using Top.Api.Response;
 namespace KM.JXC.BL.Open.TaoBao
 {
-    public class TaoBaoShopManager:OBaseManager,IShopManager
+    internal class TaoBaoShopManager:OBaseManager,IOShopManager
     {
         public TaoBaoShopManager(Access_Token token,int mall_type_id)
             : base(mall_type_id,token)
@@ -55,6 +56,81 @@ namespace KM.JXC.BL.Open.TaoBao
                 shop.User_ID = user.ID;
             }
             return shop;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public List<Product_Class> GetCategories(BUser user)
+        {
+            List<Product_Class> categories = new List<Product_Class>();
+            SellercatsListGetRequest req = new SellercatsListGetRequest();
+            req.Nick = user.Mall_Name;
+            SellercatsListGetResponse response = client.Execute(req);
+            if (response.IsError)
+            {
+                throw new KMJXCException(response.ErrMsg);
+            }
+
+            foreach (TB.SellerCat cat in response.SellerCats)
+            {
+                Product_Class category = new Product_Class();
+                category.Create_Time=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                category.Create_User_ID=user.ID;
+                category.Enabled=true;
+                category.Mall_CID=cat.Cid.ToString();
+                category.Mall_PCID=cat.ParentCid.ToString();
+                category.Name=cat.Name;
+                category.Parent_ID=0;
+                category.Product_Class_ID=0;
+                categories.Add(category);
+            }
+            return categories;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public List<Product_Spec> GetProperities(Product_Class category,Shop shop)
+        {
+            List<Product_Spec> properities = new List<Product_Spec>();
+            ItempropsGetRequest req = new ItempropsGetRequest();
+            req.Fields = "pid,name,must,multi,prop_values";
+            req.Cid = long.Parse(category.Mall_CID);  
+            req.IsKeyProp = true;
+            req.IsSaleProp = true;
+            req.IsColorProp = true;
+            req.IsEnumProp = true;
+            req.IsInputProp = true;
+            req.IsItemProp = true;   
+            //1=>Taobao
+            //2=>TMall, need to check Mall Type from Shop object
+            req.Type = 1L;
+         
+            ItempropsGetResponse response = client.Execute(req);
+            if (response.IsError)
+            {
+                throw new KMJXCException(response.ErrMsg);
+            }
+
+            foreach (TB.ItemProp prop in response.ItemProps)
+            {
+                Product_Spec spec = new Product_Spec();
+                spec.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                spec.Mall_PID = prop.Pid.ToString();
+                spec.Name = prop.Name;
+                spec.Product_Class_ID = category.Product_Class_ID;
+                spec.Product_Spec_ID = 0;
+                spec.Shop_ID = category.Shop_ID;
+                spec.User_ID = category.Create_User_ID;
+                properities.Add(spec);
+            }
+
+            return properities;
         }
     }
 }

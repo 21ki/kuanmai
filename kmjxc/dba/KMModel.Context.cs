@@ -63,5 +63,10 @@ namespace KM.JXC.DBA
         public DbSet<Supplier> Supplier { get; set; }
         public DbSet<Supplier_Shop> Supplier_Shop { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Mall_Product> Mall_Product { get; set; }
+        public DbSet<Mall_Product_Sku> Mall_Product_Sku { get; set; }
+        public DbSet<Product_Spec> Product_Spec { get; set; }
+        public DbSet<Product_Spec_Value> Product_Spec_Value { get; set; }
+        public DbSet<Product_Specifications> Product_Specifications { get; set; }
     }
 }

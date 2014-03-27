@@ -8,7 +8,7 @@ using KM.JXC.DBA;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL.Open.Interface
 {
-    public interface IUserManager
+    public interface IOUserManager
     {
         BUser GetUser(string mall_id, string mall_name);
         BUser GetSubUser(string mall_id, string mall_name);

@@ -28,10 +28,15 @@
           <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Store.Mall_Product" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Store.Mall_Product_Sku" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Store.Mall_Type" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Store.Open_Key" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Store.Product" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Store.Product_Class" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Spec" EntityType="KM.JXC.DBA.Model.Store.Product_Spec" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Spec_Value" EntityType="KM.JXC.DBA.Model.Store.Product_Spec_Value" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Store.Product_Specifications" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Store.Product_Supplier" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Store.Product_Unit" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" />
@@ -290,6 +295,37 @@
           <Property Name="To_StoreHouse_ID" Type="umediumint" Nullable="false" />
           <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
         </EntityType>
+        <EntityType Name="Mall_Product">
+          <Key>
+            <PropertyRef Name="Mall_ID" />
+            <PropertyRef Name="Outer_ID" />
+          </Key>
+          <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="Outer_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Title" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="Price" Type="decimal" Scale="2" />
+          <Property Name="Quantity" Type="varchar" MaxLength="45" />
+          <Property Name="Description" Type="text" />
+          <Property Name="Created" Type="int" />
+          <Property Name="Synced" Type="int" />
+          <Property Name="Shop_ID" Type="mediumint" />
+          <Property Name="PicUrl" Type="varchar" MaxLength="200" />
+          <Property Name="Modified" Type="int" />
+        </EntityType>
+        <EntityType Name="Mall_Product_Sku">
+          <Key>
+            <PropertyRef Name="SKU_ID" />
+            <PropertyRef Name="Mall_Item_ID" />
+            <PropertyRef Name="Outer_ID" />
+          </Key>
+          <Property Name="SKU_ID" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="Mall_Item_ID" Type="varchar" Nullable="false" MaxLength="20" />
+          <Property Name="Outer_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Quantity" Type="int" />
+          <Property Name="Properties_name" Type="varchar" MaxLength="500" />
+          <Property Name="Properties" Type="varchar" MaxLength="500" />
+          <Property Name="Price" Type="decimal" Scale="2" />
+        </EntityType>
         <EntityType Name="Mall_Type">
           <Key>
             <PropertyRef Name="Mall_Type_ID" />
@@ -337,6 +373,43 @@
           <Property Name="Create_User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="Enabled" Type="bool" Nullable="false" />
+          <Property Name="Mall_CID" Type="varchar" MaxLength="20" />
+          <Property Name="Mall_PCID" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Product_Spec">
+          <Key>
+            <PropertyRef Name="Product_Spec_ID" />
+          </Key>
+          <Property Name="Product_Spec_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Product_Class_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Created" Type="int" />
+          <Property Name="User_ID" Type="mediumint" />
+          <Property Name="Mall_PID" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Product_Spec_Value">
+          <Key>
+            <PropertyRef Name="Product_Spec_Value_ID" />
+          </Key>
+          <Property Name="Product_Spec_Value_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Product_Spec_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="45" />
+          <Property Name="Created" Type="int" />
+          <Property Name="User_ID" Type="mediumint" />
+          <Property Name="Mall_PVID" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Product_Specifications">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Product_Spec_Value_ID" />
+            <PropertyRef Name="Product_Spec_ID" />
+          </Key>
+          <Property Name="Product_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Product_Spec_Value_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Product_Spec_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Created" Type="int" />
+          <Property Name="User_ID" Type="mediumint" />
         </EntityType>
         <EntityType Name="Product_Supplier">
           <Key>
@@ -370,14 +443,17 @@
           <Property Name="Amount" Type="decimal" Nullable="false" Scale="2" />
           <Property Name="Express_Cop" Type="varchar" Nullable="false" MaxLength="20" />
           <Property Name="Province_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Sale_Type" Type="smallint" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
             <PropertyRef Name="Sale_ID" />
             <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Mall_PID" />
           </Key>
           <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
           <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Mall_PID" Type="varchar" Nullable="false" MaxLength="20" />
           <Property Name="Mall_Order_ID" Type="varchar" MaxLength="30" />
           <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
@@ -527,6 +603,11 @@
           <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Supplier" />
           <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Supplier_Shop" />
           <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
+          <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Mall_Product" />
+          <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" />
+          <EntitySet Name="Product_Spec" EntityType="KM.JXC.DBA.Model.Product_Spec" />
+          <EntitySet Name="Product_Spec_Value" EntityType="KM.JXC.DBA.Model.Product_Spec_Value" />
+          <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Product_Specifications" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -820,6 +901,8 @@
           <Property Type="Int32" Name="Create_User_ID" Nullable="false" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Boolean" Name="Enabled" Nullable="false" />
+          <Property Type="String" Name="Mall_CID" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_PCID" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Product_Supplier">
           <Key>
@@ -853,11 +936,13 @@
           <Property Type="Decimal" Name="Amount" Nullable="false" Precision="10" Scale="2" />
           <Property Type="String" Name="Express_Cop" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Province_ID" Nullable="false" />
+          <Property Type="Int16" Name="Sale_Type" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
             <PropertyRef Name="Sale_ID" />
             <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Mall_PID" />
           </Key>
           <Property Type="Int32" Name="Sale_ID" Nullable="false" />
           <Property Type="Int32" Name="Product_ID" Nullable="false" />
@@ -868,6 +953,7 @@
           <Property Type="Boolean" Name="Status" Nullable="false" />
           <Property Type="Decimal" Name="Amount" Precision="10" Scale="2" />
           <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
+          <Property Type="String" Name="Mall_PID" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
@@ -966,6 +1052,72 @@
           <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Parent_User_ID" />
+        </EntityType>
+        <EntityType Name="Mall_Product">
+          <Key>
+            <PropertyRef Name="Mall_ID" />
+            <PropertyRef Name="Outer_ID" />
+          </Key>
+          <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Title" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="Decimal" Name="Price" Precision="10" Scale="2" />
+          <Property Type="String" Name="Quantity" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="Synced" />
+          <Property Type="Int32" Name="Shop_ID" />
+          <Property Type="Int32" Name="Outer_ID" Nullable="false" />
+          <Property Type="String" Name="PicUrl" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Modified" />
+        </EntityType>
+        <EntityType Name="Mall_Product_Sku">
+          <Key>
+            <PropertyRef Name="SKU_ID" />
+            <PropertyRef Name="Mall_Item_ID" />
+            <PropertyRef Name="Outer_ID" />
+          </Key>
+          <Property Type="String" Name="SKU_ID" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_Item_ID" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Quantity" />
+          <Property Type="String" Name="Properties_name" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Outer_ID" Nullable="false" />
+          <Property Type="String" Name="Properties" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Type="Decimal" Name="Price" Precision="10" Scale="2" />
+        </EntityType>
+        <EntityType Name="Product_Spec">
+          <Key>
+            <PropertyRef Name="Product_Spec_ID" />
+          </Key>
+          <Property Type="Int32" Name="Product_Spec_ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="User_ID" />
+          <Property Type="String" Name="Mall_PID" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Product_Class_ID" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Product_Spec_Value">
+          <Key>
+            <PropertyRef Name="Product_Spec_Value_ID" />
+          </Key>
+          <Property Type="Int32" Name="Product_Spec_Value_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_Spec_ID" Nullable="false" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="User_ID" />
+          <Property Type="String" Name="Mall_PVID" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Product_Specifications">
+          <Key>
+            <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Product_Spec_Value_ID" />
+            <PropertyRef Name="Product_Spec_ID" />
+          </Key>
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_Spec_Value_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_Spec_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="User_ID" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1271,6 +1423,8 @@
           <EntitySetMapping Name="Product_Class">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Class">
               <MappingFragment StoreEntitySet="Product_Class">
+                <ScalarProperty Name="Mall_PCID" ColumnName="Mall_PCID" />
+                <ScalarProperty Name="Mall_CID" ColumnName="Mall_CID" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Create_User_ID" ColumnName="Create_User_ID" />
@@ -1306,6 +1460,7 @@
           <EntitySetMapping Name="Sale">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
               <MappingFragment StoreEntitySet="Sale">
+                <ScalarProperty Name="Sale_Type" ColumnName="Sale_Type" />
                 <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
                 <ScalarProperty Name="Express_Cop" ColumnName="Express_Cop" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
@@ -1320,6 +1475,7 @@
           <EntitySetMapping Name="Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
               <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="Mall_PID" ColumnName="Mall_PID" />
                 <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
@@ -1433,6 +1589,72 @@
                 <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
                 <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mall_Product">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Product">
+              <MappingFragment StoreEntitySet="Mall_Product">
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="PicUrl" ColumnName="PicUrl" />
+                <ScalarProperty Name="Outer_ID" ColumnName="Outer_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Synced" ColumnName="Synced" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Mall_Product_Sku">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Product_Sku">
+              <MappingFragment StoreEntitySet="Mall_Product_Sku">
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Properties" ColumnName="Properties" />
+                <ScalarProperty Name="Outer_ID" ColumnName="Outer_ID" />
+                <ScalarProperty Name="Properties_name" ColumnName="Properties_name" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Mall_Item_ID" ColumnName="Mall_Item_ID" />
+                <ScalarProperty Name="SKU_ID" ColumnName="SKU_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Spec">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Spec">
+              <MappingFragment StoreEntitySet="Product_Spec">
+                <ScalarProperty Name="Product_Class_ID" ColumnName="Product_Class_ID" />
+                <ScalarProperty Name="Mall_PID" ColumnName="Mall_PID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Product_Spec_ID" ColumnName="Product_Spec_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Spec_Value">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Spec_Value">
+              <MappingFragment StoreEntitySet="Product_Spec_Value">
+                <ScalarProperty Name="Mall_PVID" ColumnName="Mall_PVID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Product_Spec_ID" ColumnName="Product_Spec_ID" />
+                <ScalarProperty Name="Product_Spec_Value_ID" ColumnName="Product_Spec_Value_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Product_Specifications">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Specifications">
+              <MappingFragment StoreEntitySet="Product_Specifications">
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Product_Spec_ID" ColumnName="Product_Spec_ID" />
+                <ScalarProperty Name="Product_Spec_Value_ID" ColumnName="Product_Spec_Value_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

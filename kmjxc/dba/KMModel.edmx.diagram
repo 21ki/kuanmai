@@ -43,6 +43,11 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Supplier" Width="1.5" PointX="10.552252521064251" PointY="1.6883166291230902" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Supplier_Shop" Width="1.5" PointX="2.8777821803827686" PointY="16.980105273881975" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.User" Width="1.5" PointX="1.1493880195307491" PointY="29.078409327696267" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product" Width="1.5" PointX="9.525541298801798" PointY="29.41413821159589" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" Width="1.5" PointX="5.7770436079134431" PointY="12.045214435106709" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Spec" Width="1.5" PointX="9.8230714750583612" PointY="3.0278108283075555" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Spec_Value" Width="1.5" PointX="4.1041493807472982" PointY="28.596722735369916" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Specifications" Width="1.5" PointX="0.0890035070893371" PointY="22.997826542238624" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

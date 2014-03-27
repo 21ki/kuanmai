@@ -22,5 +22,7 @@ namespace KM.JXC.DBA
         public int Create_User_ID { get; set; }
         public int Shop_ID { get; set; }
         public bool Enabled { get; set; }
+        public string Mall_CID { get; set; }
+        public string Mall_PCID { get; set; }
     }
 }

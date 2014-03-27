@@ -17,8 +17,11 @@ namespace KM.JXC.BL
     public class BBaseManager
     {
         public Shop Shop { get; private set; }
+        public Shop Main_Shop { get; private set; }
         public User CurrentUser { get; private set; }
+        public User MainUser { get; private set; }
         public int Shop_Id { get; private set; }
+        public int Main_Shop_Id { get; private set; }
         public Permission CurrentUserPermission = new Permission();
         public PermissionManager permissionManager;
 
@@ -67,10 +70,14 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var u = from us in db.User where us.User_ID == user_id select us;
-                if (u.ToList<User>().Count == 1)
+                this.CurrentUser = (from us in db.User where us.User_ID == user_id select us).FirstOrDefault<User>();
+                if (this.CurrentUser != null && this.CurrentUser.Parent_User_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent_Mall_ID))
                 {
-                    this.CurrentUser = u.ToList<User>()[0];
+                    this.MainUser = (from us in db.User where us.User_ID == this.CurrentUser.Parent_User_ID select us).FirstOrDefault<User>();
+                }
+                else
+                {
+                    this.MainUser = this.CurrentUser;
                 }
             }
         }
@@ -96,7 +103,7 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Shop shop = (from s in db.Shop where s.User_ID == this.CurrentUser.User_ID select s).FirstOrDefault<Shop>();
+                Shop shop = (from s in db.Shop where s.User_ID == this.MainUser.User_ID select s).FirstOrDefault<Shop>();
                 if (shop == null)
                 {
                     shop = (from s in db.Shop
@@ -108,12 +115,14 @@ namespace KM.JXC.BL
                     {
                         throw new KMJXCException("你不是店铺掌柜，也不是任何店铺的子账户");
                     }
-
-                    
                 }
                 
                 this.Shop_Id = shop.Shop_ID;
                 this.Shop = shop;
+                if (shop.Parent_Shop_ID > 0)
+                {
+                    this.Main_Shop = (from s in db.Shop where s.Shop_ID == shop.Parent_Shop_ID select s).FirstOrDefault<Shop>();
+                }
             }
         }
 

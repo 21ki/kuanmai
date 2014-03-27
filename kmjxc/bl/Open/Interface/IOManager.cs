@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Open.Interface
 {
-    public interface IManager
+    public interface IOManager
     {
         Mall_Type MallType { get; set; }
         Access_Token Access_Token { get; set; }

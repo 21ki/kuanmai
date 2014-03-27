@@ -13,7 +13,7 @@ using Top.Api.Response;
 
 namespace KM.JXC.BL.Open.TaoBao
 {
-    public class TaoBaoUserManager : OBaseManager, IUserManager
+    internal class TaoBaoUserManager : OBaseManager, IOUserManager
     {       
         public TaoBaoUserManager(Access_Token token, int mall_type_id)
             : base(mall_type_id,token)
