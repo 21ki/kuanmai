@@ -23,5 +23,7 @@ namespace KM.JXC.DBA
         public int Product_Unit_ID { get; set; }
         public int Shop_ID { get; set; }
         public int Parent_ID { get; set; }
+        public string Code { get; set; }
+        public string Description { get; set; }
     }
 }

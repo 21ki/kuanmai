@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KM.JXC.BL.Open.Interface
+namespace KM.JXC.BL.Models
 {
-    public interface IOTradeManager
+    public class BProperty
     {
-        
     }
 }

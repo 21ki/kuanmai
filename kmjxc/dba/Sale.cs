@@ -21,7 +21,11 @@ namespace KM.JXC.DBA
         public string Mall_Trade_ID { get; set; }
         public decimal Amount { get; set; }
         public string Express_Cop { get; set; }
-        public int Province_ID { get; set; }
+        public Nullable<int> Province_ID { get; set; }
         public Nullable<short> Sale_Type { get; set; }
+        public Nullable<decimal> Post_Fee { get; set; }
+        public Nullable<int> Created { get; set; }
+        public Nullable<int> Modified { get; set; }
+        public Nullable<int> Synced { get; set; }
     }
 }

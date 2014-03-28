@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using KM.JXC.DBA;
+using KM.JXC.BL.Models;
 using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
@@ -24,24 +25,67 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="category_id"></param>
         /// <returns></returns>
-        public Product_Class GetCategory(int category_id)
+        public BCategory GetCategory(int category_id)
         {
-            Product_Class category = null;
-
+            BCategory cate = null;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var opc = from pc in db.Product_Class where pc.Product_Class_ID == category_id select pc;
-                if (opc.ToList<Product_Class>().Count == 0)
-                {
-                    throw new KMJXCException("没有找到类目ID为"+category_id+"的类目");
-                }
+                cate = this.GetCategory(category_id, db);
+            }
+            return cate;
+        }
 
-                if (opc.ToList<Product_Class>().Count >1)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="category_id"></param>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        private BCategory GetCategory(int category_id,KuanMaiEntities db)
+        {
+            BCategory category = null;
+            try
+            {
+                Product_Class ca = (from pc in db.Product_Class where pc.Product_Class_ID == category_id select pc).FirstOrDefault<Product_Class>();
+                if (ca != null)
                 {
-                    throw new KMJXCException("类目ID为" + category_id + "的类目个数不止一个",ExceptionLevel.SYSTEM);
+                    category = new BCategory();
+                    category.ID = ca.Product_Class_ID;
+                    category.Mall_ID = ca.Mall_CID;
+                    category.Mall_PID = ca.Mall_PCID;
+                    category.Name = ca.Name;
+                    category.Order = (int)ca.Order;
+                    if (ca.Parent_ID <= 0)
+                    {
+                        category.Parent = null;
+                    }
+                    category.Enabled = ca.Enabled;
+                    category.Created = ca.Create_Time;
+                    category.Chindren = new List<BCategory>();
+                    List<Product_Class> children = (from pc in db.Product_Class where pc.Parent_ID == category_id select pc).ToList<Product_Class>();
+                    if (children.Count > 0)
+                    {
+                        foreach (Product_Class productclass in children)
+                        {
+                            BCategory category1 = new BCategory();
+                            category1.ID = ca.Product_Class_ID;
+                            category1.Mall_ID = ca.Mall_CID;
+                            category1.Mall_PID = ca.Mall_PCID;
+                            category1.Name = ca.Name;
+                            category1.Order = (int)ca.Order;
+                            category1.Enabled = ca.Enabled;
+                            category1.Created = ca.Create_Time;
+                            category.Chindren.Add(category1);
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
 
-                category = opc.ToList<Product_Class>()[0];
+            }
+            finally
+            {
             }
 
             return category;
@@ -51,43 +95,41 @@ namespace KM.JXC.BL
         /// Get all categories
         /// </summary>
         /// <returns></returns>
-        public List<Product_Class> GetCategories(int shop_id)
+        public List<BCategory> GetCategories()
         {
-            List<Product_Class> categories = new List<Product_Class>();
+            List<BCategory> categories = new List<BCategory>();          
             
-            int shop_ID = 0;
-            if (shop_id > 0)
-            {
-                shop_ID = shop_id;
-            }
-            else
-            {
-                shop_ID = this.Shop_Id;
-            }
-
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var osp = db.Shop.Where(sp=>sp.Shop_ID==shop_ID);
-                if (osp.ToList<Shop>().Count == 0)
-                {
-                    throw new KMJXCException("店铺信息不存在");
-                }
+               List<Product_Class> allpcs=(from pc in db.Product_Class 
+                                        where pc.Shop_ID==this.Main_Shop.Shop_ID 
+                                        select pc).ToList<Product_Class>();
 
-                if (osp.ToList<Shop>().Count > 1)
-                {
-                    throw new KMJXCException("Shop ID 为"+shop_ID+"的店铺不止一个",ExceptionLevel.SYSTEM);
-                }
+               List<Product_Class> pcs = (from p in allpcs where p.Parent_ID == 0 select p).ToList<Product_Class>();
 
-                Shop shop = osp.ToList<Shop>()[0];
-
-                //in local system all the child shops use the same product categories of main shop
-                if (shop.Parent_Shop_ID > 0)
-                {
-                    shop_ID = (int)shop.Parent_Shop_ID;
-                }
-
-                var opc = db.Product_Class.Where(pc => pc.Shop_ID == shop_ID).OrderBy(pc => pc.Product_Class_ID);
-                categories = opc.ToList<Product_Class>();
+               foreach (Product_Class ca in pcs)
+               {
+                   BCategory category = new BCategory();
+                   category.ID = ca.Product_Class_ID;
+                   category.Mall_ID = ca.Mall_CID;
+                   category.Mall_PID = ca.Mall_PCID;
+                   category.Name = ca.Name;
+                   category.Order = (int)ca.Order;
+                   category.Enabled = ca.Enabled;
+                   category.Created = ca.Create_Time;
+                   category.Chindren = (from cate in allpcs
+                                        where cate.Parent_ID == ca.Product_Class_ID
+                                        select new BCategory
+                                        {
+                                            ID = cate.Product_Class_ID,
+                                            Mall_ID = cate.Mall_CID,
+                                            Mall_PID = cate.Mall_PCID,
+                                            Name = cate.Name,
+                                            Order = (int)cate.Order,
+                                            Enabled = cate.Enabled,
+                                            Created = cate.Create_Time
+                                        }).ToList<BCategory>();
+               }
             }
             
             return categories;
@@ -98,9 +140,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns>Product_Class list</returns>
-        public List<Product_Class> GetEnabledCategories(int shop_id)
+        public List<BCategory> GetEnabledCategories()
         {
-            return (from c in GetCategories(shop_id) where c.Enabled==true select c).ToList<Product_Class>();
+            return (from c in GetCategories() where c.Enabled == true select c).ToList<BCategory>();
         }
 
         /// <summary>
@@ -108,9 +150,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns></returns>
-        public List<Product_Class> GetDisabledCategories(int shop_id)
+        public List<BCategory> GetDisabledCategories(int shop_id)
         {
-            return (from c in GetCategories(shop_id) where c.Enabled == false select c).ToList<Product_Class>();
+            return (from c in GetCategories() where c.Enabled == false select c).ToList<BCategory>();
         }
 
         /// <summary>
@@ -118,7 +160,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="category">Product_Class object</param>
         /// <returns></returns>
-        public bool CreateCategory(Product_Class category)
+        public bool CreateCategory(BCategory category)
         {
             bool result = false;
             if (category == null)
@@ -138,7 +180,22 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                db.Product_Class.Add(category);
+                Product_Class existed=(from ca in db.Product_Class where ca.Name.ToLower()==category.Name.ToLower() && ca.Shop_ID==this.Main_Shop.Shop_ID select ca).FirstOrDefault<Product_Class>();
+                if (existed != null)
+                {
+                    throw new KMJXCException("名为"+category.Name+"的类目已经存在");
+                }
+
+                Product_Class pc = new Product_Class();
+                pc.Create_Time = category.Created;
+                pc.Create_User_ID = this.CurrentUser.User_ID;
+                pc.Enabled = true;
+                pc.Mall_CID = category.Mall_ID;
+                pc.Mall_PCID = category.Mall_PID;
+                pc.Name = category.Name;
+                pc.Order = category.Order;
+                pc.Shop_ID = this.Main_Shop.Shop_ID;
+                db.Product_Class.Add(pc);
                 db.SaveChanges();
                 result = true;
             }
@@ -150,7 +207,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="category">Product_Class object</param>
         /// <returns></returns>
-        public bool UpdateCategory(Product_Class category)
+        public bool UpdateCategory(BCategory category)
         {
             bool result = false;
             if (category == null)
@@ -170,8 +227,13 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Product_Class oldCategory = (from pc in db.Product_Class where pc.Product_Class_ID == category.Product_Class_ID select pc).ToList<Product_Class>()[0];
-                this.UpdateProperties(oldCategory, category);
+                Product_Class oldCategory = (from pc in db.Product_Class where pc.Product_Class_ID == category.ID select pc).ToList<Product_Class>()[0];
+                oldCategory.Name = category.Name;
+                oldCategory.Enabled = category.Enabled;
+                if (category.Parent != null)
+                {
+                    oldCategory.Parent_ID = category.Parent.ID;
+                }
                 db.SaveChanges();
                 result = true;
             }

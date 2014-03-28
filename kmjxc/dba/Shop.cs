@@ -21,5 +21,7 @@ namespace KM.JXC.DBA
         public Nullable<int> Parent_Shop_ID { get; set; }
         public string Description { get; set; }
         public int Mall_Type_ID { get; set; }
+        public Nullable<int> Created { get; set; }
+        public Nullable<int> Synced { get; set; }
     }
 }

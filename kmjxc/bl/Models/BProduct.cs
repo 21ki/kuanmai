@@ -12,12 +12,17 @@ namespace KM.JXC.BL.Models
         public int ID { get; set; }
         public BUser User { get; set; }
         public string Title { get; set; }
-        public Product_Class Category { get; set; }
+        public string Description { get; set; }
+        public BCategory Category { get; set; }
         public Product_Unit Unit { get; set; }
         public decimal Price { get; set; }
         public long CreateTime { get; set; }
         public Shop Shop { get; set; }
         public BProduct Parent { get; set; }
         public List<Supplier> Suppliers { get; set; }
+        public string Code { get; set; }      
+        public List<BProductProperty> Properties { get; set; }
+        public List<BProduct> Children { get; set; }
+        public int Quantity { get; set; }
     }
 }

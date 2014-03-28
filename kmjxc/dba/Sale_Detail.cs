@@ -14,15 +14,17 @@ namespace KM.JXC.DBA
     
     public partial class Sale_Detail
     {
+        public int Sale_DID { get; set; }
         public int Sale_ID { get; set; }
-        public int Product_ID { get; set; }
+        public Nullable<int> Product_ID { get; set; }
+        public string Mall_PID { get; set; }
         public string Mall_Order_ID { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
-        public decimal Discount { get; set; }
-        public bool Status { get; set; }
+        public Nullable<decimal> Discount { get; set; }
+        public string Status { get; set; }
         public Nullable<decimal> Amount { get; set; }
-        public int Supplier_ID { get; set; }
-        public string Mall_PID { get; set; }
+        public Nullable<int> Supplier_ID { get; set; }
+        public Nullable<short> StockStatus { get; set; }
     }
 }

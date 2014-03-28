@@ -152,7 +152,8 @@ namespace KM.JXC.BL
                          where d.user_id == user.User_ID 
                          orderby a.id ascending
                          select a;               
-                actions = ps.ToList<Admin_Action>();               
+                actions = ps.ToList<Admin_Action>();              
+                
             }            
 
             return actions;

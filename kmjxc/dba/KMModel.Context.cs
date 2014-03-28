@@ -50,11 +50,9 @@ namespace KM.JXC.DBA
         public DbSet<Mall_Type> Mall_Type { get; set; }
         public DbSet<Open_Key> Open_Key { get; set; }
         public DbSet<Product> Product { get; set; }
-        public DbSet<Product_Class> Product_Class { get; set; }
         public DbSet<Product_Supplier> Product_Supplier { get; set; }
         public DbSet<Product_Unit> Product_Unit { get; set; }
         public DbSet<Sale> Sale { get; set; }
-        public DbSet<Sale_Detail> Sale_Detail { get; set; }
         public DbSet<Shop> Shop { get; set; }
         public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
         public DbSet<Shop_User> Shop_User { get; set; }
@@ -68,5 +66,7 @@ namespace KM.JXC.DBA
         public DbSet<Product_Spec> Product_Spec { get; set; }
         public DbSet<Product_Spec_Value> Product_Spec_Value { get; set; }
         public DbSet<Product_Specifications> Product_Specifications { get; set; }
+        public DbSet<Sale_Detail> Sale_Detail { get; set; }
+        public DbSet<Product_Class> Product_Class { get; set; }
     }
 }
