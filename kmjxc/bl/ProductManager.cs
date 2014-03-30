@@ -373,11 +373,11 @@ namespace KM.JXC.BL
                                               ID = u.User_ID,
                                               Mall_Name = u.Mall_Name,
                                               Mall_ID = u.Mall_ID,
-                                              EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).FirstOrDefault<Employee>()
+                                              //EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).FirstOrDefault<Employee>()
                                           }).FirstOrDefault<BUser>()
                               };
 
-                    products = bps.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();
+                    products = bps.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();
                 }
             }
 
