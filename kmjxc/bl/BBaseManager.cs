@@ -18,14 +18,14 @@ namespace KM.JXC.BL
     {
         public Shop Shop { get; private set; }
         public Shop Main_Shop { get; private set; }
-        public User CurrentUser { get; private set; }
-        public User MainUser { get; private set; }
+        public BUser CurrentUser { get; private set; }
+        public BUser MainUser { get; private set; }
         public int Shop_Id { get; private set; }
         public int Main_Shop_Id { get; private set; }
         public Permission CurrentUserPermission = new Permission();
         public PermissionManager permissionManager;
 
-        public BBaseManager(User user,int shop_id)
+        public BBaseManager(BUser user,int shop_id)
         {
             this.CurrentUser = user;
             this.Shop_Id = shop_id;
@@ -55,7 +55,7 @@ namespace KM.JXC.BL
             this.FindUserShop();
         }
 
-        public BBaseManager(User user)
+        public BBaseManager(BUser user)
         {
             this.CurrentUser = user;           
             this.GetUserPermission();
@@ -70,10 +70,35 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                this.CurrentUser = (from us in db.User where us.User_ID == user_id select us).FirstOrDefault<User>();
-                if (this.CurrentUser != null && this.CurrentUser.Parent_User_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent_Mall_ID))
+                this.CurrentUser = (from us in db.User where us.User_ID == user_id 
+                                    select new BUser
+                                    {
+                                         EmployeeInfo=(from employee in db.Employee where employee.User_ID==us.User_ID select employee).FirstOrDefault<Employee>(),
+                                         ID=us.User_ID,
+                                         Mall_ID=us.Mall_ID,
+                                         Mall_Name=us.Mall_Name,
+                                         Name=us.Name,
+                                         Parent=null,
+                                         Parent_ID=(int)us.Parent_User_ID,
+                                         Password=us.Password,
+                                         Type= (from mtype in db.Mall_Type where mtype.Mall_Type_ID==us.Mall_Type select mtype).FirstOrDefault<Mall_Type>()
+                                    }).FirstOrDefault<BUser>();
+                if (this.CurrentUser != null && this.CurrentUser.Parent_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent.Mall_ID))
                 {
-                    this.MainUser = (from us in db.User where us.User_ID == this.CurrentUser.Parent_User_ID select us).FirstOrDefault<User>();
+                    this.MainUser = (from us in db.User
+                                     where us.User_ID == this.CurrentUser.Parent_ID
+                                     select new BUser
+                                     {
+                                         EmployeeInfo = (from employee in db.Employee where employee.User_ID == us.User_ID select employee).FirstOrDefault<Employee>(),
+                                         ID = us.User_ID,
+                                         Mall_ID = us.Mall_ID,
+                                         Mall_Name = us.Mall_Name,
+                                         Name = us.Name,
+                                         Parent = null,
+                                         Parent_ID = (int)us.Parent_User_ID,
+                                         Password = us.Password,
+                                         Type = (from mtype in db.Mall_Type where mtype.Mall_Type_ID == us.Mall_Type select mtype).FirstOrDefault<Mall_Type>()
+                                     }).FirstOrDefault<BUser>();
                 }
                 else
                 {
@@ -87,7 +112,7 @@ namespace KM.JXC.BL
         /// </summary>
         protected virtual void GetUserPermission()
         {
-            if (this.CurrentUser == null || this.CurrentUser.User_ID <= 0)
+            if (this.CurrentUser == null || this.CurrentUser.ID <= 0)
             {
                 return;
                 //throw new KMJXCException("调用 " + this.GetType() + " 没有传入当前登录用户对象", ExceptionLevel.SYSTEM);
@@ -103,12 +128,12 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Shop shop = (from s in db.Shop where s.User_ID == this.MainUser.User_ID select s).FirstOrDefault<Shop>();
+                Shop shop = (from s in db.Shop where s.User_ID == this.MainUser.ID select s).FirstOrDefault<Shop>();
                 if (shop == null)
                 {
                     shop = (from s in db.Shop
                             from sp in db.Shop_User
-                            where s.Shop_ID == sp.Shop_ID && sp.User_ID == this.CurrentUser.User_ID
+                            where s.Shop_ID == sp.Shop_ID && sp.User_ID == this.CurrentUser.ID
                             select s).FirstOrDefault<Shop>();
 
                     if (shop == null)

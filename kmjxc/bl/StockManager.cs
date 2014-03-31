@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
+using System.Data;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
@@ -15,12 +16,12 @@ namespace KM.JXC.BL
 {
     public class StockManager:BBaseManager
     {
-        public StockManager(User user,int shop_id)
+        public StockManager(BUser user,int shop_id)
             : base(user, shop_id)
         {
         }
 
-        public StockManager(User user)
+        public StockManager(BUser user)
             : base(user)
         {
         }
@@ -76,19 +77,33 @@ namespace KM.JXC.BL
                           select new BEnterStock()
                           {
                               ID = (int)o2.Enter_Stock_ID,
-                              Shop = (from s in db.Shop where s.Shop_ID == o2.Shop_ID select s).FirstOrDefault<Shop>(),
+                              Shop = (from sp in db.Shop
+                                      where sp.Shop_ID == o2.Shop_ID
+                                      select new BShop
+                                      {
+                                          Chindren = null,
+                                          Created = (int)sp.Created,
+                                          Description = sp.Description,
+                                          ID = sp.Shop_ID,
+                                          Mall_ID = sp.Mall_Shop_ID,
+                                          Parent = null,
+                                          Synced = (int)sp.Synced,
+                                          Title = sp.Name,
+                                          Type = null,
+
+                                      }).FirstOrDefault<BShop>(),
                               User = (from u in db.User
                                       where u.User_ID == o2.User_ID
                                       select new BUser
-                                      { 
-                                         ID=u.User_ID,
-                                         EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
-                                         Mall_ID=u.Mall_ID,
-                                         Mall_Name=u.Mall_Name,
-                                         Parent_ID = (int)u.Parent_User_ID,
-                                         Name=u.Name,
-                                         Password=u.Password,
-                                         Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]
+                                      {
+                                          ID = u.User_ID,
+                                          //EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
+                                          Mall_ID = u.Mall_ID,
+                                          Mall_Name = u.Mall_Name,
+                                          Parent_ID = (int)u.Parent_User_ID,
+                                          Name = u.Name,
+                                          Password = u.Password,
+                                          //Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]
                                       }).FirstOrDefault<BUser>(),
                               BuyID = (int)o2.Buy_ID,
                               EnterTime = (int)o2.Enter_Date
@@ -136,17 +151,22 @@ namespace KM.JXC.BL
                                EnterStock = stock,
                                Product = (from p in db.Product
                                           where p.Product_ID == sddd.Product_ID
-                                          select new BProduct 
+                                          select new BProduct
                                           {
-
+                                              Title = p.Name,
+                                              ID = p.Product_ID,
+                                              Code = p.Code,
+                                              CreateTime = p.Create_Time,
                                           }).ToList<BProduct>()[0],
                                Quantity = sddd.Quantity,
                                Price = (double)sddd.Price,
-                               DateTime = (int)sddd.Create_Date,
+                               Created = (int)sddd.Create_Date,
                                Invoiced = (bool)sddd.Have_Invoice,
                                InvoiceAmount = (double)sddd.Invoice_Amount,
                                InvoiceNumber = sddd.Invoice_Num
                            };
+
+                details = sdoo.OrderBy(a => a.Created).ToList<BEnterStockDetail>();
             }
             
             return details;
@@ -157,7 +177,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="stock">Instance of Enter_Stock object</param>
         /// <returns></returns>
-        public bool EnterStock(Enter_Stock stock)
+        public bool EnterStock(BEnterStock stock)
         {
             bool result = false;
             if (stock == null)
@@ -165,23 +185,23 @@ namespace KM.JXC.BL
                 return result;
             }
 
-            if (stock.Buy_ID <= 0) {
+            if (stock.BuyID <= 0) {
                 throw new KMJXCException("入库单未包含任何采购单信息");
             }
 
-            if (stock.Shop_ID <= 0)
+            if (stock.Shop==null)
             {
-                throw new KMJXCException("入库单未包含店铺信息");
+                stock.Shop = new BShop() { ID = this.Shop_Id, Title=this.Shop.Name };
             }
 
-            if (stock.StoreHouse_ID <= 0)
+            if (stock.StoreHouse ==null)
             {
                 throw new KMJXCException("入库单未包含任何仓库信息");
             }
 
-            if (stock.User_ID <= 0)
+            if (stock.User == null)
             {
-                stock.User_ID = this.CurrentUser.User_ID;
+                stock.User = this.CurrentUser;
             }
 
             if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
@@ -191,8 +211,21 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                db.Enter_Stock.Add(stock);
+                Enter_Stock dbStock = new Enter_Stock();
+
+                dbStock.Buy_ID = stock.BuyID;
+                dbStock.Enter_Date = stock.EnterTime;
+                dbStock.Enter_Stock_ID = 0;
+                dbStock.Shop_ID = stock.Shop.ID;
+                dbStock.StoreHouse_ID = stock.StoreHouse.StoreHouse_ID;
+                dbStock.User_ID = stock.User.ID;
+                db.Enter_Stock.Add(dbStock);
                 db.SaveChanges();
+                if (dbStock.Enter_Stock_ID <= 0)
+                {
+                    throw new KMJXCException("入库单创建失败");
+                }
+
                 result = true;
             }
 
@@ -204,29 +237,66 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="stock"></param>
         /// <returns></returns>
-        public bool EnterStockDetails(List<Enter_Stock_Detail> details)
+        public bool EnterStockDetails(int stockId,List<BEnterStockDetail> details)
         {
             bool result = false;
             if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
             {
-                throw new KMJXCException("没有新增入库单的权限");
+                throw new KMJXCException("没有新增入库单产品信息的权限");
             }
-            KuanMaiEntities db = new KuanMaiEntities();
-            foreach (Enter_Stock_Detail detail in details)
+
+            if (stockId <= 0)
             {
-                if (detail.Enter_Stock_ID > 0 && detail.Quantity > 0 && detail.Product_ID > 0)
+                throw new KMJXCException("");
+            }
+
+            if (details == null)
+            {
+                throw new KMJXCException("输入错误",ExceptionLevel.SYSTEM);
+            }            
+
+            KuanMaiEntities db = new KuanMaiEntities();
+            List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == this.Shop.Shop_ID select sp).ToList<Stock_Pile>();
+            Enter_Stock stock = (from st in db.Enter_Stock where st.Enter_Stock_ID == stockId select st).FirstOrDefault<Enter_Stock>();
+            if (stock == null)
+            {
+                throw new KMJXCException("");
+            }
+            foreach (BEnterStockDetail detail in details)
+            {
+                Enter_Stock_Detail dbDetail = new Enter_Stock_Detail();
+                dbDetail.Create_Date = detail.Created;
+                dbDetail.Enter_Stock_ID = stockId;
+                dbDetail.Have_Invoice = detail.Invoiced;
+                dbDetail.Invoice_Amount = decimal.Parse(detail.InvoiceAmount.ToString("0.00"));
+                dbDetail.Invoice_Num = detail.InvoiceNumber;
+                dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
+                dbDetail.Product_ID = detail.Product.ID;
+                dbDetail.Quantity = (int)detail.Quantity;
+                db.Enter_Stock_Detail.Add(dbDetail);   
+             
+                //update stock pile
+                Stock_Pile stockPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                if (stockPile != null)
                 {
-                    db.Enter_Stock_Detail.Add(detail);
+                    stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
+                    stockPile.Price = dbDetail.Price;
+                    if (stockPile.First_Enter_Time == 0)
+                    {
+                        stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    }
                 }
             }
+
+            db.SaveChanges();
 
             try
             {
                 db.SaveChanges();
             }
-            catch
+            catch(Exception ex)
             {
-                throw new KMJXCException("未知错误");
+                throw new KMJXCException(ex.Message, ExceptionLevel.SYSTEM);
             }
             finally
             {
@@ -241,7 +311,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="detail"></param>
         /// <returns></returns>
-        public bool EnterStockDetail(Enter_Stock_Detail detail)
+        public bool EnterStockDetail(int stockId,BEnterStockDetail detail)
         {
             bool result = false;
             if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
@@ -249,12 +319,26 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有新增入库单的权限");
             }
 
-            if (detail.Enter_Stock_ID == 0)
+            if (detail.EnterStock == null && stockId<=0)
             {
-                throw new KMJXCException("必须指定入库单");
+                throw new KMJXCException("必须选择入库单");                
             }
 
-            if (detail.Product_ID == 0)
+            KuanMaiEntities db = new KuanMaiEntities();
+            if (stockId > 0)
+            {                
+                Enter_Stock dbStock= (from st in db.Enter_Stock where st.Enter_Stock_ID == stockId select st).FirstOrDefault<Enter_Stock>();
+                detail.EnterStock = new BEnterStock() { ID = stockId, StoreHouse = new Store_House() { StoreHouse_ID = dbStock.StoreHouse_ID } };
+            }
+            else
+            {
+                if (detail.EnterStock.ID <= 0)
+                {
+                    throw new KMJXCException("必须选择入库单");
+                }
+            }
+
+            if (detail.Product == null)
             {
                 throw new KMJXCException("必须指定商品");
             }
@@ -263,12 +347,44 @@ namespace KM.JXC.BL
             {
                 throw new KMJXCException("数量必须大于零");
             }
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
+            try
             {
-                db.Enter_Stock_Detail.Add(detail);
+
+                Enter_Stock_Detail dbDetail = new Enter_Stock_Detail();
+                dbDetail.Create_Date = detail.Created;
+                dbDetail.Enter_Stock_ID = detail.EnterStock.ID;
+                dbDetail.Have_Invoice = detail.Invoiced;
+                dbDetail.Invoice_Amount = decimal.Parse(detail.InvoiceAmount.ToString("0.00"));
+                dbDetail.Invoice_Num = detail.InvoiceNumber;
+                dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
+                dbDetail.Product_ID = detail.Product.ID;
+                dbDetail.Quantity = (int)detail.Quantity;
+                db.Enter_Stock_Detail.Add(dbDetail);
                 db.SaveChanges();
+
+                //update stock pile
+                Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID==detail.EnterStock.StoreHouse.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                if (stockPile != null)
+                {
+                    stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
+                    stockPile.Price = dbDetail.Price;
+                    if (stockPile.First_Enter_Time == 0)
+                    {
+                        stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    }
+                }
+
                 result = true;
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
             }
 
             return result;
@@ -310,7 +426,7 @@ namespace KM.JXC.BL
                     int product_id = (int)order.Product_ID;
                     int quantity = (int)order.Quantity;
 
-                    var sp = from spl in db.Stock_Pile where spl.Product_ID == product_id select spl;
+                    var sp = from spl in db.Stock_Pile where spl.Product_ID == product_id && spl.StockHouse_ID == lstock.StoreHouse_ID select spl;
                     Stock_Pile stock_Pile = null;
                     if (sp != null && sp.ToList<Stock_Pile>().Count>0)
                     {
@@ -320,7 +436,7 @@ namespace KM.JXC.BL
                     if (stock_Pile != null)
                     {
                         stock_Pile.Quantity = stock_Pile.Quantity - quantity;
-                        stock_Pile.LastLeave_Time = lstock.Leave_Date;
+                        stock_Pile.LastLeave_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     }
                 }
 
@@ -343,6 +459,84 @@ namespace KM.JXC.BL
             {
                 this.LeaveStock(stock);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="product_id"></param>
+        public void CreateDefaultStockPile(Stock_Pile stockPile)
+        {
+            if (stockPile == null)
+            {
+                throw new KMJXCException("");
+            }
+
+            if (stockPile.Shop_ID < 0)
+            {
+                throw new KMJXCException("");
+            }
+
+            if (stockPile.Product_ID <= 0)
+            {
+                throw new KMJXCException("");
+            }
+
+            if (stockPile.Price < 0)
+            {
+                throw new KMJXCException("");
+            }
+
+            if (stockPile.StockHouse_ID <= 0)
+            {
+                throw new KMJXCException("");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                stockPile.First_Enter_Time = 0;
+                stockPile.LastLeave_Time = 0;
+                db.Stock_Pile.Add(stockPile);
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="house"></param>
+        public void CreateStoreHouse(Store_House house)
+        {
+            if (this.CurrentUserPermission.ADD_STORE_HOUSE == 0)
+            {
+                throw new KMJXCException("没有创建仓库的权限");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int existing = (from h in db.Store_House where h.Title == house.Title select h).Count();
+                if (existing > 0)
+                {
+                    throw new KMJXCException("此仓库名字已经存在");
+                }
+                db.Store_House.Add(house);
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Store_House> GetStoreHouses()
+        {
+            List<Store_House> houses = new List<Store_House>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                houses = (from house in db.Store_House where house.Shop_ID == this.Main_Shop_Id select house).ToList<Store_House>();
+            }
+
+            return houses;
         }
     }
 }

@@ -17,15 +17,15 @@ namespace KM.JXC.BL
     {
         public IOUserManager MallUserManager = null;
 
-        public UserManager(User user):base(user)
+        public UserManager(BUser user):base(user)
         {
-           
+            
         }
 
         public UserManager(int user_id)
             : base(user_id)
         {
-
+            
         }
 
         public UserManager(int user_id,IOUserManager manager)
@@ -193,7 +193,7 @@ namespace KM.JXC.BL
                                 select new BUser
                                 {
                                     ID = us.User_ID,
-                                    EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
+                                    //EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
                                     Mall_ID = us.Mall_ID,
                                     Mall_Name = us.Mall_Name,
                                     Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
@@ -215,7 +215,7 @@ namespace KM.JXC.BL
                                             select new BUser
                                             {
                                                 ID = us.User_ID,
-                                                EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
+                                                //EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
                                                 Mall_ID = us.Mall_ID,
                                                 Mall_Name = us.Mall_Name,
                                                 Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
@@ -275,6 +275,76 @@ namespace KM.JXC.BL
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool UpdateEmployeeInfo(Employee employee)
+        {
+            bool result = false;
+            if (this.CurrentUserPermission.UPDATE_EMPLOYEE == 0)
+            {
+                throw new KMJXCException("没有权限更新员工信息");
+            }
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                User user = (from u in db.User where u.User_ID == employee.User_ID select u).FirstOrDefault<User>();
+                if (user != null)
+                {
+                    Employee existing = (from e in db.Employee where e.User_ID == employee.User_ID select e).FirstOrDefault<Employee>();
+                    if (existing == null)
+                    {
+                        db.Employee.Add(employee);
+                    }
+                    else
+                    {
+                        this.UpdateProperties(existing, employee);
+                    }
+                    result = true;
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user_id"></param>
+        /// <returns></returns>
+        public Employee GetEmployInfo(int user_id)
+        {
+            Employee e = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                e = (from em in db.Employee where em.User_ID == user_id select em).FirstOrDefault<Employee>();
+            }
+            return e;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BUser> GetUsers(string department,string duty,int pageInde,int pageSize,out int total)
+        {
+            List<BUser> users = new List<BUser>();
+            total = 0;
+            return users;
         }
     }
 }

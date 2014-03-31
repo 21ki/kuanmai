@@ -20,5 +20,6 @@ namespace KM.JXC.BL.Models
         public BUser OrderUser { get; set; }
         public int Status { get; set; }
         public List<BBuyOrderDetail> Details { get; set; }
+        public string Description { get; set; }
     }
 }

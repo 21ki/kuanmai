@@ -13,7 +13,7 @@ namespace KM.JXC.BL
 {
     public class ShopCategoryManager:BBaseManager
     {
-        public ShopCategoryManager(User user,int shop_id)
+        public ShopCategoryManager(BUser user,int shop_id)
             : base(user,shop_id)
         {
             
@@ -188,7 +188,7 @@ namespace KM.JXC.BL
 
                 Product_Class pc = new Product_Class();
                 pc.Create_Time = category.Created;
-                pc.Create_User_ID = this.CurrentUser.User_ID;
+                pc.Create_User_ID = this.CurrentUser.ID;
                 pc.Enabled = true;
                 pc.Mall_CID = category.Mall_ID;
                 pc.Mall_PCID = category.Mall_PID;

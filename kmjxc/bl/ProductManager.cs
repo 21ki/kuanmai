@@ -14,11 +14,13 @@ namespace KM.JXC.BL
 {
     public class ProductManager : BBaseManager
     {
-        public ProductManager(User user, int shop_id)
+        private StockManager stockManager = null;
+
+        public ProductManager(BUser user, int shop_id)
             : base(user,shop_id)
         {
-            
-            
+
+            stockManager = new StockManager(user,shop_id);
         }
 
         /// <summary>
@@ -70,6 +72,11 @@ namespace KM.JXC.BL
         /// <returns></returns>
         private bool CreateProperties(Product product, List<BProductProperty> props)
         {
+            if (this.CurrentUserPermission.UPDATE_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限更新产品");
+            }
+
             if (product == null || product.Product_ID <= 0)
             {
                 throw new KMJXCException("产品不存在");
@@ -86,7 +93,7 @@ namespace KM.JXC.BL
             newProduct.Product_ID = 0;
             newProduct.Product_Unit_ID = product.Product_Unit_ID;
             newProduct.Shop_ID = product.Shop_ID;
-            newProduct.User_ID = this.CurrentUser.User_ID;
+            newProduct.User_ID = this.CurrentUser.ID;
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
@@ -97,12 +104,22 @@ namespace KM.JXC.BL
                     throw new KMJXCException("创建属性失败");
                 }
 
+                Stock_Pile stockPile = new Stock_Pile();
+                stockPile.LastLeave_Time = 0;
+                stockPile.Price = 0;
+                stockPile.Product_ID = newProduct.Product_ID;
+                stockPile.Quantity = 0;
+                stockPile.Shop_ID = this.Shop.Shop_ID;
+                stockPile.StockHouse_ID = 0;
+                stockPile.StockPile_ID = 0;
+                this.stockManager.CreateDefaultStockPile(stockPile);
+
                 if (props != null)
                 {
                     foreach (BProductProperty p in props)
                     {
                         Product_Specifications ps = new Product_Specifications();
-                        ps.User_ID = this.CurrentUser.User_ID;
+                        ps.User_ID = this.CurrentUser.ID;
                         ps.Created = (int)newProduct.Create_Time;
                         ps.Product_ID = newProduct.Product_ID;
                         ps.Product_Spec_ID = p.PID;
@@ -124,7 +141,12 @@ namespace KM.JXC.BL
         /// <param name="product"></param>
         /// <returns></returns>
         public void CreateProduct(BProduct product)
-        {           
+        {
+            if (this.CurrentUserPermission.ADD_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限创建产品");
+            }
+         
             Product dbProduct = new Product();
             dbProduct.Code = product.Code;
             dbProduct.Create_Time = product.CreateTime;
@@ -134,7 +156,7 @@ namespace KM.JXC.BL
             dbProduct.Price = product.Price;
             dbProduct.Product_Unit_ID = product.Unit.Product_Unit_ID;
             dbProduct.Shop_ID = this.Main_Shop.Shop_ID;
-            dbProduct.User_ID = this.MainUser.User_ID;
+            dbProduct.User_ID = this.MainUser.ID;
 
             if (product.Parent != null && product.Parent.ID > 0)
             {
@@ -151,6 +173,17 @@ namespace KM.JXC.BL
                 }
                 product.ID = dbProduct.Product_ID;
 
+                Stock_Pile stockPile = new Stock_Pile();
+                stockPile.LastLeave_Time = 0;
+                stockPile.Price = 0;
+                stockPile.Product_ID = product.ID;
+                stockPile.Quantity = 0;
+                stockPile.Shop_ID = this.Shop.Shop_ID;
+                stockPile.StockHouse_ID = 0;
+                stockPile.StockPile_ID = 0;
+
+                this.stockManager.CreateDefaultStockPile(stockPile);
+
                 if (product.Properties != null && product.Properties.Count > 0)
                 {
                     Product_Specifications ps = new Product_Specifications();
@@ -159,7 +192,7 @@ namespace KM.JXC.BL
                         ps.Product_ID = dbProduct.Product_ID;
                         ps.Product_Spec_ID = pro.PID;
                         ps.Product_Spec_Value_ID = pro.PVID;
-                        ps.User_ID = this.CurrentUser.User_ID;
+                        ps.User_ID = this.CurrentUser.ID;
                         db.Product_Specifications.Add(ps);
                     }
 
@@ -188,6 +221,11 @@ namespace KM.JXC.BL
         /// <returns></returns>
         public bool UpdateProduct(BProduct product)
         {
+            if (this.CurrentUserPermission.UPDATE_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限更新产品");
+            }
+
             bool result = false;
 
             Product dbProduct = GetProduct(product.ID);
@@ -307,30 +345,37 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var dbps = from dbp in db.Product where dbp.Parent_ID == 0 select dbp;
+                var dbps = from product in db.Product
+                           //join employee in db.Employee on product.User_ID equals employee.User_ID                           
+                           where product.Parent_ID == 0
+                           select new
+                           {
+                               Pdt=product,
+                               //Emp=employee,                              
+                           };
                 if (!string.IsNullOrEmpty(title))
                 {
-                    dbps = dbps.Where(a=>a.Name.Contains(title));
+                    dbps = dbps.Where(a=>a.Pdt.Name.Contains(title));
                 }
 
                 if (!string.IsNullOrEmpty(description))
                 {
-                    dbps = dbps.Where(a => a.Description.Contains(description));
+                    dbps = dbps.Where(a => a.Pdt.Description.Contains(description));
                 }
 
                 if (startTime > 0)
                 {
-                    dbps = dbps.Where(a => a.Create_Time >= startTime);
+                    dbps = dbps.Where(a => a.Pdt.Create_Time >= startTime);
                 }
 
                 if (endTime > 0)
                 {
-                    dbps = dbps.Where(a => a.Create_Time <= endTime);
+                    dbps = dbps.Where(a => a.Pdt.Create_Time <= endTime);
                 }
 
                 if (category_id > 0)
                 {
-                    dbps = dbps.Where(a => a.Product_Class_ID == category_id);
+                    dbps = dbps.Where(a => a.Pdt.Product_Class_ID == category_id);
                 }
 
                 total = dbps.Count();
@@ -339,41 +384,28 @@ namespace KM.JXC.BL
                     var bps = from bpss in dbps
                               select new BProduct
                               {
-                                  Description = bpss.Description,
-                                  Price = bpss.Price,
-                                  ID = bpss.Product_ID,
-                                  Title = bpss.Name,
-                                  CreateTime=bpss.Create_Time,
-                                  Code=bpss.Code,
-                                  Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Product_ID select sp.Quantity).FirstOrDefault<int>(),
-                                  //Suppliers = (from sp in db.Supplier
-                                  //             join psp in db.Product_Supplier on sp.Supplier_ID equals psp.Supplier_ID
-                                  //             where psp.Product_ID == bpss.Product_ID
-                                  //             orderby sp.Supplier_ID ascending
-                                  //             select sp).ToList<Supplier>(),
-                                  Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
+                                  Description = bpss.Pdt.Description,
+                                  Price = bpss.Pdt.Price,
+                                  ID = bpss.Pdt.Product_ID,
+                                  Title = bpss.Pdt.Name,
+                                  CreateTime = bpss.Pdt.Create_Time,
+                                  Code = bpss.Pdt.Code,
+                                  Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
+                                  Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
-                                              where bpss.Product_Class_ID == c.Product_Class_ID
+                                              where bpss.Pdt.Product_Class_ID == c.Product_Class_ID
                                               select new BCategory
                                               {
                                                   Name = c.Name,
-                                                  ID = c.Product_Class_ID,
-                                                  //Parent = (from cp in db.Product_Class
-                                                  //          where cp.Product_Class_ID == c.Parent_ID
-                                                  //          select new BCategory
-                                                  //          {
-                                                  //              ID = cp.Product_Class_ID,
-                                                  //              Name = cp.Name
-                                                  //          }).FirstOrDefault<BCategory>()
+                                                  ID = c.Product_Class_ID,                                                 
                                               }).FirstOrDefault<BCategory>(),
                                   User = (from u in db.User
-                                          where u.User_ID == bpss.User_ID
+                                          where u.User_ID == bpss.Pdt.User_ID
                                           select new BUser
                                           {
                                               ID = u.User_ID,
                                               Mall_Name = u.Mall_Name,
-                                              Mall_ID = u.Mall_ID,
-                                              //EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).FirstOrDefault<Employee>()
+                                              Mall_ID = u.Mall_ID,                                             
                                           }).FirstOrDefault<BUser>()
                               };
 

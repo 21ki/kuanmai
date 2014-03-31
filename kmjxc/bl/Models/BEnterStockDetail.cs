@@ -16,6 +16,6 @@ namespace KM.JXC.BL.Models
         public bool Invoiced { get; set; }
         public string InvoiceNumber { get; set; }
         public double InvoiceAmount { get; set; }
-        public int DateTime { get; set; }
+        public int Created { get; set; }
     }
 }

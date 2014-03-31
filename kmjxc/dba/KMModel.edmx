@@ -136,6 +136,9 @@
           <Property Name="Product_ID" Type="umediumint" Nullable="false" />
           <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Created" Type="int" />
+          <Property Name="Description" Type="varchar" MaxLength="400" />
+          <Property Name="Status" Type="smallint" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
@@ -527,8 +530,11 @@
           <Property Name="StoreHouse_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Address" Type="varchar" MaxLength="200" />
           <Property Name="Phone" Type="varchar" MaxLength="45" />
-          <Property Name="Employee_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Guard" Type="mediumint" />
+          <Property Name="Title" Type="varchar" Nullable="false" MaxLength="40" />
         </EntityType>
         <EntityType Name="Supplier">
           <Key>
@@ -705,6 +711,9 @@
           <Property Type="Int32" Name="Product_ID" Nullable="false" />
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="String" Name="Description" MaxLength="400" FixedLength="false" Unicode="false" />
+          <Property Type="Int16" Name="Status" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
@@ -997,8 +1006,11 @@
           <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Address" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Employee_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Guard" />
+          <Property Type="String" Name="Title" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Supplier">
           <Key>
@@ -1230,6 +1242,9 @@
           <EntitySetMapping Name="Back_Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale_Detail">
               <MappingFragment StoreEntitySet="Back_Sale_Detail">
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
@@ -1539,8 +1554,11 @@
           <EntitySetMapping Name="Store_House">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Store_House">
               <MappingFragment StoreEntitySet="Store_House">
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Guard" ColumnName="Guard" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Create_Time" ColumnName="Create_Time" />
-                <ScalarProperty Name="Employee_ID" ColumnName="Employee_ID" />
                 <ScalarProperty Name="Phone" ColumnName="Phone" />
                 <ScalarProperty Name="Address" ColumnName="Address" />
                 <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />

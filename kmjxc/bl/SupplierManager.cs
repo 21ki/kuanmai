@@ -8,17 +8,18 @@ using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class SupplierManager:BBaseManager
     {        
-        public SupplierManager(User user,int shop_id)
+        public SupplierManager(BUser user,int shop_id)
             : base(user, shop_id)
         {
 
         }
 
-        public SupplierManager(User user)
+        public SupplierManager(BUser user)
             : base(user)
         {
         }
@@ -138,7 +139,7 @@ namespace KM.JXC.BL
 
             if (supplier.User_ID == 0 && this.CurrentUser!=null)
             {
-                supplier.User_ID = this.CurrentUser.User_ID;
+                supplier.User_ID = this.CurrentUser.ID;
             }
 
             using (KuanMaiEntities db = new KuanMaiEntities())
@@ -161,18 +162,23 @@ namespace KM.JXC.BL
         {
             bool result = false;
 
-            if (product_id == 0 || supplier_id == 0)
-            {
-                throw new KMJXCException("创建产品供应商时，产品和供应商都必须选择");
-            }
-
             if (this.CurrentUserPermission.ADD_SUPPLIER == 0)
             {
                 throw new KMJXCException("没有创建供应商的权限");
             }
 
+            if (product_id == 0 || supplier_id == 0)
+            {
+                throw new KMJXCException("创建产品供应商时，产品和供应商都必须选择");
+            }
+
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                Product_Supplier pps = (from p in db.Product_Supplier where p.Product_ID == product_id && p.Supplier_ID == supplier_id select p).FirstOrDefault<Product_Supplier>();
+                if (pps != null)
+                {
+                    throw new KMJXCException("");
+                }
                 Product_Supplier ps = new Product_Supplier();
                 ps.Product_ID = product_id;
                 ps.Supplier_ID = supplier_id;

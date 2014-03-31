@@ -10,6 +10,7 @@ using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class Permission
@@ -94,7 +95,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public List<Admin_Action> GetActions(User user)
+        public List<Admin_Action> GetActions(BUser user)
         {
             List<Admin_Action> actions = new List<Admin_Action>();
             List<Admin_Action> all_actions = new List<Admin_Action>();
@@ -140,7 +141,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public List<Admin_Action> GetUserActions(User user)
+        public List<Admin_Action> GetUserActions(BUser user)
         {            
             List<Admin_Action> actions = new List<Admin_Action>();
             using (KuanMaiEntities db = new KuanMaiEntities())
@@ -149,7 +150,7 @@ namespace KM.JXC.BL
                 var ps = from a in db.Admin_Action
                          join c in db.Admin_Role_Action on a.id equals c.action_id                       
                          join d in db.Admin_User_Role on c.role_id equals d.role_id
-                         where d.user_id == user.User_ID 
+                         where d.user_id == user.ID 
                          orderby a.id ascending
                          select a;               
                 actions = ps.ToList<Admin_Action>();              
@@ -164,7 +165,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="user">User object, must has User_ID field</param>
         /// <returns>Permissions Object</returns>
-        public Permission GetUserPermission(User user)
+        public Permission GetUserPermission(BUser user)
         {
             Permission permissions = new Permission();
             List<Admin_Action> actions = this.GetUserActions(user); 

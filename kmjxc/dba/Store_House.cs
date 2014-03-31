@@ -17,7 +17,10 @@ namespace KM.JXC.DBA
         public int StoreHouse_ID { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
-        public int Employee_ID { get; set; }
         public long Create_Time { get; set; }
+        public int User_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public Nullable<int> Guard { get; set; }
+        public string Title { get; set; }
     }
 }
