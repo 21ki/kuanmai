@@ -37,6 +37,7 @@ namespace KM.JXC.BL
         public int DELETE_STORE_HOUSE = 0;
 
         //Sale Order
+        public int ADD_BACK_SALE = 0;
         public int SYNC_ORDER = 0;
         public int VIEW_ORDER_SUMMARY = 0;
         public int VIEW_ORDER_DETAIL = 0;

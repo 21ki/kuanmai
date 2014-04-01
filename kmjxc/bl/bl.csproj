@@ -53,6 +53,10 @@
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
+    <Compile Include="Models\BBackSale.cs" />
+    <Compile Include="Models\BBackSaleDetail.cs" />
+    <Compile Include="Models\BBackStock.cs" />
+    <Compile Include="Models\BBackStockDetail.cs" />
     <Compile Include="Models\BBuy.cs" />
     <Compile Include="Models\BBuyDetail.cs" />
     <Compile Include="Models\BBuyOrder.cs" />

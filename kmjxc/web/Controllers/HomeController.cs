@@ -16,6 +16,7 @@ namespace KM.JXC.Web.Controllers
         public ActionResult Index()
         {
             string user = HttpContext.User.Identity.Name;
+           
             return View();
         }        
 
@@ -45,7 +46,7 @@ namespace KM.JXC.Web.Controllers
 
         [AllowAnonymous]
         public ActionResult Login()
-        {
+        {            
             return View();
         }
     }

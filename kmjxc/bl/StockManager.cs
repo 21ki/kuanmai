@@ -27,6 +27,143 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backSaleId"></param>
+        /// <param name="backSaleDetailId"></param>
+        /// <param name="productId"></param>
+        private void CreateBackStock(BBackStock backStock,List<BBackStockDetail> details)
+        {
+            if (this.CurrentUserPermission.ADD_BACK_STOCK == 0)
+            {
+                throw new KMJXCException("没有权限进行退货退库存操作");
+            }
+
+            if (backStock == null)
+            {
+                throw new KMJXCException("输入错误",ExceptionLevel.SYSTEM);
+            }
+
+            if (backStock.BackSale == null || backStock.BackSale.ID<=0)
+            {
+                throw new KMJXCException("请选择退货单进行退库存操作", ExceptionLevel.SYSTEM);
+            }
+
+            if (details == null)
+            {
+                throw new KMJXCException("没有选择产品进行退库存");
+            }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                Back_Stock dbBackStock = (from dbStock in db.Back_Stock where dbStock.Back_Sale_ID == backStock.BackSale.ID select dbStock).FirstOrDefault<Back_Stock>();
+                if (dbBackStock == null)
+                {
+                    dbBackStock = new Back_Stock();
+                    dbBackStock.Back_Date = backStock.Created;
+                    dbBackStock.Back_Sale_ID = backStock.BackSale.ID;
+                    dbBackStock.Back_Sock_ID = 0;
+                    dbBackStock.Description = backStock.Description;
+                    dbBackStock.Shop_ID = this.Shop.Shop_ID;
+                    dbBackStock.StoreHouse_ID = backStock.StoreHouse.StoreHouse_ID;
+                    dbBackStock.User_ID = this.CurrentUser.ID;
+                    db.Back_Stock.Add(dbBackStock);
+                    db.SaveChanges();
+                }               
+                
+                if (dbBackStock.Back_Sock_ID > 0)
+                {
+                    foreach (BBackStockDetail detail in details)
+                    {
+                        if (detail.Product == null)
+                        {
+                            continue;
+                        }
+
+                        Back_Stock_Detail dbDetail = (from dbd in db.Back_Stock_Detail where dbd.Back_Stock_ID==dbBackStock.Back_Sock_ID && dbd.Product_ID==detail.Product.ID select dbd).FirstOrDefault<Back_Stock_Detail>();
+                        if (dbDetail != null) 
+                        {
+                            continue;
+                        }
+
+                        dbDetail = new Back_Stock_Detail();
+                        dbDetail.Back_Stock_ID = dbBackStock.Back_Sock_ID;
+                        dbDetail.Price = detail.Price;
+                        dbDetail.Product_ID = detail.Product.ID;
+                        dbDetail.Quantity = detail.Quantity;
+                        db.Back_Stock_Detail.Add(dbDetail);
+
+                        //Update stock pile
+                        Stock_Pile pile = (from spile in db.Stock_Pile where spile.Product_ID == dbDetail.Product_ID && spile.Shop_ID == this.Shop.Shop_ID && spile.StockHouse_ID == dbBackStock.StoreHouse_ID select spile).FirstOrDefault<Stock_Pile>();
+                        if (pile != null)
+                        {
+                            pile.Quantity = pile.Quantity + dbDetail.Quantity;
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    throw new KMJXCException("退库存操作失败");
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backSale"></param>
+        /// <param name="details"></param>
+        public void CreateBackStock(BBackSale backSale, List<BBackSaleDetail> details)
+        {
+            if (this.CurrentUserPermission.ADD_BACK_STOCK == 0)
+            {
+                throw new KMJXCException("没有权限进行退货退库存操作");
+            }
+            if (backSale == null || backSale.ID <= 0)
+            {
+                throw new KMJXCException("");
+            }
+
+            if (details == null)
+            {
+                throw new KMJXCException("");
+            }
+            KuanMaiEntities db = new KuanMaiEntities();
+            BBackStock backStock = new BBackStock();
+            backStock.BackSale = backSale;
+            backStock.BackSaleID = backSale.ID;
+            backStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            backStock.CreatedBy = this.CurrentUser;
+            backStock.Description = backSale.Description;
+            backStock.Shop = backSale.Shop;
+            List<BBackStockDetail> bdetails = new List<BBackStockDetail>();
+            foreach (BBackSaleDetail sDetail in details)
+            {  
+                BBackStockDetail bDetail = new BBackStockDetail();
+                bDetail.BackStock = backStock;
+                bDetail.Price = sDetail.Price;
+                bDetail.Product = sDetail.Product;
+                bDetail.Quantity = sDetail.Quantity;              
+                bdetails.Add(bDetail);
+            }
+            this.CreateBackStock(backStock, bdetails);
+        }
+
+        /// <summary>
         /// Get Enter stocks
         /// </summary>
         /// <param name="user_id">who create the enter stock</param>
