@@ -46,6 +46,7 @@ namespace KM.JXC.BL
             {
                 this.FindUserShop();
             }
+            permissionManager = new PermissionManager(shop_id);
             this.CurrentUserPermission = permission;
             this.GetUserPermission();
         }
@@ -54,15 +55,15 @@ namespace KM.JXC.BL
         {
             GetUserById(user_id);
             this.CurrentUserPermission = permission;
-            this.GetUserPermission();
+            //this.GetUserPermission();
             this.FindUserShop();
         }
 
         public BBaseManager(BUser user, Permission permission)
         {
             this.CurrentUserPermission = permission;
-            this.CurrentUser = user;           
-            this.GetUserPermission();
+            this.CurrentUser = user;
+            //this.GetUserPermission();
             this.FindUserShop();
         }       
 

@@ -68,7 +68,7 @@ namespace KM.JXC.BL.Open.TaoBao
         {
             BUser user=null;
             SubuserFullinfoGetRequest req = new SubuserFullinfoGetRequest();
-            req.Fields = "user_email,sub_id,sub_nick,user_nick,user_id,duty_name,duty_id,employee_name,entry_date,office_phone,sex,employee_id";
+            req.Fields = "subuser_email,user_email";
             req.SubNick = user_name;
             SubuserFullinfoGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             if (response.IsError)

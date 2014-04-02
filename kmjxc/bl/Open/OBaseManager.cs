@@ -21,36 +21,33 @@ namespace KM.JXC.BL.Open
         {
             this.Mall_Type_ID = mall_type_id;
             this.Access_Token = token;
-            this.Open_Key = this.GetAppKey();
-            this.MallType = this.GetMallType();
+            this.Initialize();
             client = new DefaultTopClient(this.Open_Key.API_Main_Url, this.Open_Key.AppKey, this.Open_Key.AppSecret, "json");
         }
         public OBaseManager(int mall_type_id)
         {
-            this.Mall_Type_ID = mall_type_id;          
-            this.Open_Key = this.GetAppKey();
-            this.MallType = this.GetMallType();
+            this.Mall_Type_ID = mall_type_id;
+            this.Initialize();
             client = new DefaultTopClient(this.Open_Key.API_Main_Url, this.Open_Key.AppKey, this.Open_Key.AppSecret, "json");
         }
 
-        protected Open_Key GetAppKey()
+        protected void Initialize()
         {
-            Open_Key key = null;
             if (this.Mall_Type_ID <= 0)
             {
                 throw new Exception("Mall Type ID is invalid for open API");
             }
-
+            KuanMaiEntities db = new KuanMaiEntities();
             try
             {
-                KuanMaiEntities db = new KuanMaiEntities();
+                
                 var openKey = db.Open_Key.Where(p => p.Mall_Type_ID == this.Mall_Type_ID);
                 if (openKey != null)
                 {
                     List<Open_Key> keys = openKey.ToList<Open_Key>();
                     if (keys.Count == 1)
                     {
-                        key = keys[0];
+                        this.Open_Key = keys[0];
                     }
                     else
                     {
@@ -62,6 +59,12 @@ namespace KM.JXC.BL.Open
                     throw new Exception("Didn't find app key and secret for Mall Type ID:" + this.Mall_Type_ID);
                 }
 
+                var t = from tp in db.Mall_Type where tp.Mall_Type_ID == this.Mall_Type_ID select tp;
+                if (t.ToList<Mall_Type>().Count == 1)
+                {
+                    this.MallType = t.ToList<Mall_Type>()[0];
+                }
+
             }
             catch (Exception ex)
             {
@@ -69,10 +72,11 @@ namespace KM.JXC.BL.Open
             }
             finally
             {
-                //Nothing to do
+                if (db != null)
+                {
+                    db.Dispose();
+                }
             }
-
-            return key;
         }
 
         protected Mall_Type GetMallType()

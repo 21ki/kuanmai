@@ -29,25 +29,48 @@ namespace KM.JXC.Web.Controllers
             int mall=0;
 
             if (!int.TryParse(mall_type_id, out mall)) {
-                RedirectToAction("Login");
+                return RedirectToAction("Login");
             }
 
             if (string.IsNullOrEmpty(code))
             {
-                RedirectToAction("Login");
+                return RedirectToAction("Login");
             }
 
             AccessManager tokenManager = new AccessManager(mall);
-            Access_Token token = tokenManager.AuthorizationCallBack(code);
+            Access_Token token = null;
+            try
+            {
+                token = tokenManager.AuthorizationCallBack(code);
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException ex)
+            {
+                if (ex.Level == Common.KMException.ExceptionLevel.ERROR)
+                {
+                    return RedirectToAction("Login", new { message=ex.Message});
+                }
+            }
+
+            if (token == null)
+            {
+                return RedirectToAction("Login", new { message = "授权失败，请重新授权" });
+            }
+
             FormsAuthentication.RedirectFromLoginPage(token.User_ID.ToString(), false);
-            RedirectToAction("Index");
-            return View();
+            return RedirectToAction("Index");
+            //return View();
         }
 
         [AllowAnonymous]
-        public ActionResult Login()
-        {            
-            return View();
+        public ActionResult Login(string message)
+        {
+            SystemManager sysMgr = new SystemManager();
+            List<Open_Key> keys = sysMgr.GetOpenKeys();
+            if (!string.IsNullOrEmpty(message))
+            {
+                ViewData["message"] = message;
+            }
+            return View(keys);
         }
     }
 }

@@ -46,8 +46,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TopSdk">
-      <HintPath>..\..\..\..\..\Desktop\taobao-sdk-net-online_standard\TopSdk.dll</HintPath>
+    <Reference Include="TopSdk, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\third\TopSdk.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +96,7 @@
     <Compile Include="ShopManager.cs" />
     <Compile Include="StockManager.cs" />
     <Compile Include="SupplierManager.cs" />
+    <Compile Include="SystemManager.cs" />
     <Compile Include="UserManager.cs" />
   </ItemGroup>
   <ItemGroup>

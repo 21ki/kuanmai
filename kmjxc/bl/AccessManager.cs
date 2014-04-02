@@ -193,43 +193,43 @@ namespace KM.JXC.BL
                     if (shop != null && requester.Parent_ID == 0)
                     {
                         //sync mall sub users to system
-                        List<BUser> subUsers = this.MallUserManager.GetSubUsers(requester);
-                        if (subUsers != null && subUsers.Count > 0 && shop.Shop_ID > 0)
-                        {
-                            foreach (BUser user in subUsers)
-                            {
-                                User db1User = new User();
-                                db1User.Parent_Mall_ID = requester.Mall_ID;
-                                db1User.Parent_Mall_Name = requester.Mall_Name;
-                                db1User.Parent_User_ID = (int)requester.ID;
-                                db1User.Mall_Name = user.Mall_Name;
-                                db1User.Mall_ID = user.Mall_ID;
-                                db1User.Mall_Type = user.Type.Mall_Type_ID;
-                                db1User.Name = user.Name;
-                                db1User.Password = "";
-                                db.User.Add(db1User);
+                        //List<BUser> subUsers = this.MallUserManager.GetSubUsers(requester);
+                        //if (subUsers != null && subUsers.Count > 0 && shop.Shop_ID > 0)
+                        //{
+                        //    foreach (BUser user in subUsers)
+                        //    {
+                        //        User db1User = new User();
+                        //        db1User.Parent_Mall_ID = requester.Mall_ID;
+                        //        db1User.Parent_Mall_Name = requester.Mall_Name;
+                        //        db1User.Parent_User_ID = (int)requester.ID;
+                        //        db1User.Mall_Name = user.Mall_Name;
+                        //        db1User.Mall_ID = user.Mall_ID;
+                        //        db1User.Mall_Type = user.Type.Mall_Type_ID;
+                        //        db1User.Name = user.Name;
+                        //        db1User.Password = "";
+                        //        db.User.Add(db1User);
 
-                                db.SaveChanges();
+                        //        db.SaveChanges();
 
-                                if (db1User.User_ID > 0)
-                                {
-                                    //add shop user
-                                    Shop_User shop_User1 = new Shop_User();
-                                    shop_User1.User_ID = requester.ID;
-                                    shop_User1.Shop_ID = shop.Shop_ID;
-                                    db.Shop_User.Add(shop_User1);
+                        //        if (db1User.User_ID > 0)
+                        //        {
+                        //            //add shop user
+                        //            Shop_User shop_User1 = new Shop_User();
+                        //            shop_User1.User_ID = requester.ID;
+                        //            shop_User1.Shop_ID = shop.Shop_ID;
+                        //            db.Shop_User.Add(shop_User1);
 
-                                    if (user.EmployeeInfo != null)
-                                    {
-                                        user.EmployeeInfo.User_ID = db1User.User_ID;
-                                        db.Employee.Add(user.EmployeeInfo);
-                                        //db.SaveChanges();
-                                    }
-                                }
-                            }
+                        //            if (user.EmployeeInfo != null)
+                        //            {
+                        //                user.EmployeeInfo.User_ID = db1User.User_ID;
+                        //                db.Employee.Add(user.EmployeeInfo);
+                        //                //db.SaveChanges();
+                        //            }
+                        //        }
+                        //    }
 
-                            db.SaveChanges();
-                        }
+                        //    db.SaveChanges();
+                        //}
                     }
                 }
                 else

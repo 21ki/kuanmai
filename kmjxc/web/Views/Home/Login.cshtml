@@ -1,4 +1,10 @@
 ﻿<h2>Login</h2>
 <div>
-
+     @foreach (var key in Model)
+     {
+         string url = key.Auth_Main_Url + "/authorize?client_id=" + key.AppKey + "&response_type=code&redirect_uri=" + @Url.Encode(key.CallBack_Url);
+         <div>
+             <a href="@url">去淘宝授权</a>
+         </div>
+     }
 </div>
