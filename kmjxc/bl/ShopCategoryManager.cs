@@ -13,8 +13,8 @@ namespace KM.JXC.BL
 {
     public class ShopCategoryManager:BBaseManager
     {
-        public ShopCategoryManager(BUser user,int shop_id)
-            : base(user,shop_id)
+        public ShopCategoryManager(BUser user, int shop_id, Permission permission)
+            : base(user,shop_id,permission)
         {
             
             

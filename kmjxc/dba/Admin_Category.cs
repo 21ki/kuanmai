@@ -12,11 +12,10 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Back_Stock_Detail
+    public partial class Admin_Category
     {
-        public int Back_Stock_ID { get; set; }
-        public int Product_ID { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public int Created { get; set; }
     }
 }

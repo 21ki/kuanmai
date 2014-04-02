@@ -13,13 +13,13 @@ namespace KM.JXC.BL
 {
     public class BuyManager:BBaseManager
     {
-        public BuyManager(BUser user, int shop_id)
-            : base(user, shop_id)
+        public BuyManager(BUser user, int shop_id, Permission permission)
+            : base(user, shop_id,permission)
         {
         }
 
-        public BuyManager(BUser user)
-            : base(user)
+        public BuyManager(BUser user, Permission permission)
+            : base(user,permission)
         {
         }
 

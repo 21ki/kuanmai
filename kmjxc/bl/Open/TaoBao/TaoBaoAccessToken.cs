@@ -42,7 +42,7 @@ namespace KM.JXC.BL.Open.TaoBao
 
             string response = HttpRequester.PostHttpRequest(this.Open_Key.Auth_Main_Url + "/token", paras);
 
-            JObject json = new JObject(response);
+            JObject json = JObject.Parse(response);
            
             token.Access_Token1 = (string)json["access_token"];
             token.Expirse_In = (int)json["expires_in"];

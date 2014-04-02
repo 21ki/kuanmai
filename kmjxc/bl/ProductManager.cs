@@ -16,11 +16,11 @@ namespace KM.JXC.BL
     {
         private StockManager stockManager = null;
 
-        public ProductManager(BUser user, int shop_id)
-            : base(user,shop_id)
+        public ProductManager(BUser user, int shop_id, Permission permission)
+            : base(user,shop_id,permission)
         {
 
-            stockManager = new StockManager(user,shop_id);
+            stockManager = new StockManager(user,shop_id,permission);
         }
 
         /// <summary>

@@ -47,6 +47,7 @@ namespace KM.JXC.BL.Open.TaoBao
 
             if (response.Shop != null)
             {
+                shop = new Shop();
                 shop.Description = response.Shop.Desc;
                 shop.Name = response.Shop.Title;
                 shop.Mall_Shop_ID = response.Shop.Sid.ToString();

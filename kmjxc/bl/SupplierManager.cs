@@ -12,15 +12,15 @@ using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
     public class SupplierManager:BBaseManager
-    {        
-        public SupplierManager(BUser user,int shop_id)
-            : base(user, shop_id)
+    {
+        public SupplierManager(BUser user, int shop_id, Permission permission)
+            : base(user, shop_id,permission)
         {
 
         }
 
-        public SupplierManager(BUser user)
-            : base(user)
+        public SupplierManager(BUser user, Permission permission)
+            : base(user,permission)
         {
         }
 

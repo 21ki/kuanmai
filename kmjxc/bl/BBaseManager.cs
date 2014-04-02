@@ -22,10 +22,10 @@ namespace KM.JXC.BL
         public BUser MainUser { get; private set; }
         public int Shop_Id { get; private set; }
         public int Main_Shop_Id { get; private set; }
-        public Permission CurrentUserPermission = new Permission();
+        public Permission CurrentUserPermission {get;private set;}
         public PermissionManager permissionManager;
 
-        public BBaseManager(BUser user,int shop_id)
+        public BBaseManager(BUser user,int shop_id,Permission permission)
         {
             this.CurrentUser = user;
             this.Shop_Id = shop_id;
@@ -34,10 +34,11 @@ namespace KM.JXC.BL
                 this.FindUserShop();
             }
             permissionManager = new PermissionManager(shop_id);
+            this.CurrentUserPermission = permission;
             this.GetUserPermission();
         }
 
-        public BBaseManager(int user_id, int shop_id)
+        public BBaseManager(int user_id, int shop_id, Permission permission)
         {
             GetUserById(user_id);
             this.Shop_Id = shop_id;
@@ -45,44 +46,43 @@ namespace KM.JXC.BL
             {
                 this.FindUserShop();
             }
+            this.CurrentUserPermission = permission;
             this.GetUserPermission();
         }
 
-        public BBaseManager(int user_id)
+        public BBaseManager(int user_id, Permission permission)
         {
             GetUserById(user_id);
+            this.CurrentUserPermission = permission;
             this.GetUserPermission();
             this.FindUserShop();
         }
 
-        public BBaseManager(BUser user)
+        public BBaseManager(BUser user, Permission permission)
         {
+            this.CurrentUserPermission = permission;
             this.CurrentUser = user;           
             this.GetUserPermission();
             this.FindUserShop();
-        }
-
-        public BBaseManager()
-        {
-        }      
+        }       
 
         private void GetUserById(int user_id)
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                this.CurrentUser = (from us in db.User where us.User_ID == user_id 
+               var cu = from us in db.User where us.User_ID == user_id 
                                     select new BUser
                                     {
                                          EmployeeInfo=(from employee in db.Employee where employee.User_ID==us.User_ID select employee).FirstOrDefault<Employee>(),
                                          ID=us.User_ID,
                                          Mall_ID=us.Mall_ID,
                                          Mall_Name=us.Mall_Name,
-                                         Name=us.Name,
-                                         Parent=null,
+                                         Name=us.Name,                                        
                                          Parent_ID=(int)us.Parent_User_ID,
                                          Password=us.Password,
                                          Type= (from mtype in db.Mall_Type where mtype.Mall_Type_ID==us.Mall_Type select mtype).FirstOrDefault<Mall_Type>()
-                                    }).FirstOrDefault<BUser>();
+                                    };
+               this.CurrentUser = cu.ToList<BUser>()[0];
                 if (this.CurrentUser != null && this.CurrentUser.Parent_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent.Mall_ID))
                 {
                     this.MainUser = (from us in db.User
@@ -118,7 +118,10 @@ namespace KM.JXC.BL
                 //throw new KMJXCException("调用 " + this.GetType() + " 没有传入当前登录用户对象", ExceptionLevel.SYSTEM);
             }
 
-            CurrentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
+            if (this.CurrentUserPermission == null)
+            {
+                CurrentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
+            }
         }
 
         /// <summary>

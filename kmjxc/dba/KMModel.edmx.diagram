@@ -6,7 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="022ece02436b46bc88cca0b212632458" Name="KMDiagram" ShowGrid="false" ZoomLevel="94">
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Access_Token" Width="1.5" PointX="4.2267994062168519" PointY="6.7499215932329752" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Action" Width="1.5" PointX="2.551595411520263" PointY="6.571751225074637" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Action" Width="1.5" PointX="3.375" PointY="5" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role" Width="1.5" PointX="6.8623478817112495" PointY="19.898584688035111" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role_Action" Width="1.5" PointX="5.2167857164595208" PointY="27.61771981214067" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Super" Width="1.5" PointX="1.7657138918366813" PointY="22.936477478098347" />
@@ -48,6 +48,8 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Specifications" Width="1.5" PointX="0.0890035070893371" PointY="22.997826542238624" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_Detail" Width="1.5" PointX="1.5007066957190198" PointY="7.8168501741331307" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Class" Width="1.5" PointX="11.218122018137073" PointY="23.436478044575303" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="2.4915125269868934" PointY="19.904071861833369" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Stock_Waste" Width="1.5" PointX="0.52278327966238525" PointY="22.486056204180258" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

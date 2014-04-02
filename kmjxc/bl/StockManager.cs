@@ -16,13 +16,13 @@ namespace KM.JXC.BL
 {
     public class StockManager:BBaseManager
     {
-        public StockManager(BUser user,int shop_id)
-            : base(user, shop_id)
+        public StockManager(BUser user, int shop_id, Permission permission)
+            : base(user, shop_id,permission)
         {
         }
 
-        public StockManager(BUser user)
-            : base(user)
+        public StockManager(BUser user, Permission permission)
+            : base(user,permission)
         {
         }
 
@@ -89,7 +89,7 @@ namespace KM.JXC.BL
 
                         dbDetail = new Back_Stock_Detail();
                         dbDetail.Back_Stock_ID = dbBackStock.Back_Sock_ID;
-                        dbDetail.Price = detail.Price;
+                        dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
                         dbDetail.Product_ID = detail.Product.ID;
                         dbDetail.Quantity = detail.Quantity;
                         db.Back_Stock_Detail.Add(dbDetail);

@@ -19,5 +19,7 @@ namespace KM.JXC.DBA
         public int create_uid { get; set; }
         public long create_date { get; set; }
         public int shop_id { get; set; }
+        public string description { get; set; }
+        public Nullable<bool> enabled { get; set; }
     }
 }

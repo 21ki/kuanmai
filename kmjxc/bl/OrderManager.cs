@@ -17,13 +17,13 @@ namespace KM.JXC.BL
 {
     public class OrderManager:BBaseManager
     {
-        public OrderManager(BUser user,int shop_id)
-            : base(user, shop_id)
+        public OrderManager(BUser user, int shop_id, Permission permission)
+            : base(user, shop_id,permission)
         {
         }
 
-        public OrderManager(BUser user)
-            : base(user)
+        public OrderManager(BUser user, Permission permission)
+            : base(user,permission)
         {
         }
 

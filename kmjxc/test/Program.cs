@@ -18,7 +18,9 @@ namespace test
             //StockManager stockManager = new StockManager(new User { User_ID = 3 }, 1);
             int totalRecords = 0;
             //List<BEnterStock> stocks = stockManager.GetEnterStocks(0,0, 0, 0, 0, 1, 30, out totalRecords);
-            ProductManager pdtManager = new ProductManager(new User { User_ID = 3 }, 1);
+            PermissionManager pm = new PermissionManager(1);
+            Permission permission = pm.GetUserPermission(new BUser { ID = 3 });
+            ProductManager pdtManager = new ProductManager(new BUser { ID = 3 }, 1,permission);
             List<BProduct> products = pdtManager.GetProducts("", "", 0, 0, 0, 1, 30, out totalRecords);
         }
     }

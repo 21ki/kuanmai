@@ -68,7 +68,7 @@ namespace KM.JXC.BL.Open.TaoBao
         {
             BUser user=null;
             SubuserFullinfoGetRequest req = new SubuserFullinfoGetRequest();
-            req.Fields = "subuser_email,user_email,sub_id,sub_nick,user_nick,user_id,duty_name,duty_id,employee_name,entry_date,office_phone,sex,user_email,employee_id";
+            req.Fields = "user_email,sub_id,sub_nick,user_nick,user_id,duty_name,duty_id,employee_name,entry_date,office_phone,sex,employee_id";
             req.SubNick = user_name;
             SubuserFullinfoGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             if (response.IsError)
@@ -76,23 +76,26 @@ namespace KM.JXC.BL.Open.TaoBao
                 throw new KMJXCException("在"+this.MallType.Name+"没有找到用户"+user_name,ExceptionLevel.ERROR);
             }
 
-            user = new BUser();
-            user.Mall_Name = user_name;
-            user.Mall_ID = response.SubFullinfo.SubId.ToString();
-            user.Type = this.MallType;
-            user.Parent = new BUser();
-            user.Parent.Mall_ID = response.SubFullinfo.UserId.ToString();
-            user.Parent.Mall_Name = response.SubFullinfo.UserNick;
-            user.Parent.Type = this.MallType;
-            user.Parent.Parent = null;
-            Employee employee = new Employee(); ;
-            user.EmployeeInfo = employee;
-            employee.Department = response.SubFullinfo.DepartmentName;
-            employee.Duty = response.SubFullinfo.DutyName;
-            employee.Email = response.SubFullinfo.SubuserEmail;
-            employee.Gendar = response.SubFullinfo.Sex.ToString();
-            employee.Name = response.SubFullinfo.EmployeeName;
-            employee.Phone = response.SubFullinfo.OfficePhone;
+            if (response.SubFullinfo != null)
+            {
+                user = new BUser();
+                user.Mall_Name = user_name;
+                user.Mall_ID = response.SubFullinfo.SubId.ToString();
+                user.Type = this.MallType;
+                user.Parent = new BUser();
+                user.Parent.Mall_ID = response.SubFullinfo.UserId.ToString();
+                user.Parent.Mall_Name = response.SubFullinfo.UserNick;
+                user.Parent.Type = this.MallType;
+                user.Parent.Parent = null;
+                Employee employee = new Employee(); ;
+                user.EmployeeInfo = employee;
+                employee.Department = response.SubFullinfo.DepartmentName;
+                employee.Duty = response.SubFullinfo.DutyName;
+                employee.Email = response.SubFullinfo.SubuserEmail;
+                employee.Gendar = response.SubFullinfo.Sex.ToString();
+                employee.Name = response.SubFullinfo.EmployeeName;
+                employee.Phone = response.SubFullinfo.OfficePhone;
+            }
             return user;
         }
 
@@ -112,12 +115,15 @@ namespace KM.JXC.BL.Open.TaoBao
                 throw new KMJXCException(response.ErrMsg);
             }
 
-            foreach (Top.Api.Domain.SubAccountInfo subaccount in response.Subaccounts)
+            if (response.Subaccounts != null && response.Subaccounts.Count > 0)
             {
-                BUser u = new BUser();
-                u = this.GetSubUser(subaccount.SubId.ToString(), subaccount.SubNick);
-                u.Parent = mainUser;
-                users.Add(u);
+                foreach (Top.Api.Domain.SubAccountInfo subaccount in response.Subaccounts)
+                {
+                    BUser u = new BUser();
+                    u = this.GetSubUser(subaccount.SubId.ToString(), subaccount.SubNick);
+                    u.Parent = mainUser;
+                    users.Add(u);
+                }
             }
             return users;
         }

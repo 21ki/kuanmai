@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Entity.Validation;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
@@ -72,14 +73,14 @@ namespace KM.JXC.BL
             {
                 var db_user = from u in db.User
                               where u.Mall_ID == requester.Mall_ID && u.Mall_Name == requester.Mall_Name && u.Mall_Type == this.Mall_Type_ID
-                              select new BUser {
-                                  ID=u.User_ID,
+                              select new BUser
+                              {
+                                  ID = u.User_ID,
                                   Name = u.Name,
                                   Mall_Name = u.Mall_Name,
                                   Mall_ID = u.Mall_ID,
                                   Password = u.Password,
                                   Parent_ID = (int)u.Parent_User_ID,
-                                  Type = new Mall_Type { Mall_Type_ID = u.Mall_Type }
                               };
                 List<BUser> users = db_user.ToList<BUser>();
                 //Create user in local db with mall owner id
@@ -97,7 +98,7 @@ namespace KM.JXC.BL
                         else
                         {
                             //
-                            if (subUser.Parent==null || string.IsNullOrEmpty(subUser.Parent.Mall_Name))
+                            if (subUser.Parent == null || string.IsNullOrEmpty(subUser.Parent.Mall_Name))
                             {
                                 throw new KMJXCException("用户:" + requester.Mall_Name + " 没有对应的" + ((KM.JXC.BL.Open.OBaseManager)this.ShopManager).MallType.Description + ",并且不属于任何店铺的子账户", ExceptionLevel.ERROR);
                             }
@@ -114,7 +115,7 @@ namespace KM.JXC.BL
                                         Mall_ID = us.Mall_ID,
                                         Password = us.Password,
                                         Parent_ID = (int)us.Parent_User_ID,
-                                        Type = new Mall_Type { Mall_Type_ID=us.Mall_Type }
+                                        Type = new Mall_Type { Mall_Type_ID = us.Mall_Type }
                                     };
                             if (u.ToList<BUser>().Count() == 1)
                             {
@@ -128,10 +129,10 @@ namespace KM.JXC.BL
 
                             requester.Parent_ID = mainUser.ID;
                             requester.Parent = mainUser;
-                            requester.EmployeeInfo=subUser.EmployeeInfo;
-                           
+                            requester.EmployeeInfo = subUser.EmployeeInfo;
+
                         }
-                    }                   
+                    }
 
                     //create user in local db
                     requester.Name = requester.Mall_Name;
@@ -143,6 +144,12 @@ namespace KM.JXC.BL
                     dbUser.Mall_Name = requester.Mall_Name;
                     dbUser.Name = requester.Name;
                     dbUser.Mall_Type = requester.Type.Mall_Type_ID;
+                    dbUser.Parent_Mall_ID = "";
+                    dbUser.Parent_Mall_Name = "";
+                    dbUser.Parent_User_ID = 0;
+                    dbUser.Password = "";
+                    dbUser.Name = dbUser.Mall_Name;
+                   
                     if (requester.Parent != null)
                     {
                         dbUser.Parent_Mall_ID = requester.Parent.Mall_ID;
@@ -165,23 +172,29 @@ namespace KM.JXC.BL
                         db.Employee.Add(requester.EmployeeInfo);
                     }
 
-                    Shop_User shop_User = new Shop_User();
-                    shop_User.User_ID = requester.ID;
-                    shop_User.Shop_ID = shop.Shop_ID;
-                    db.Shop_User.Add(shop_User);
-                    db.SaveChanges();
-
-                    //create local shop information for the new main user
-                    if (shop != null && requester.Parent_ID==0)
+                    if (shop != null)
                     {
+                        //create local shop information for the new main user
                         shop.User_ID = requester.ID;
                         shop.Parent_Shop_ID = 0;
+                        shop.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        shop.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         db.Shop.Add(shop);
                         db.SaveChanges();
 
+                        //save shop user
+                        Shop_User shop_User = new Shop_User();
+                        shop_User.User_ID = requester.ID;
+                        shop_User.Shop_ID = shop.Shop_ID;
+                        db.Shop_User.Add(shop_User);
+                        db.SaveChanges();
+                    }
+
+                    if (shop != null && requester.Parent_ID == 0)
+                    {
                         //sync mall sub users to system
                         List<BUser> subUsers = this.MallUserManager.GetSubUsers(requester);
-                        if (subUsers != null && subUsers.Count > 0 && shop.Shop_ID>0)
+                        if (subUsers != null && subUsers.Count > 0 && shop.Shop_ID > 0)
                         {
                             foreach (BUser user in subUsers)
                             {
@@ -237,9 +250,13 @@ namespace KM.JXC.BL
                     }
                 }
             }
+            catch (DbEntityValidationException dbex)
+            {
+
+            }
             catch (Exception ex)
             {
-                throw new KMJXCException(ex.Message,ExceptionLevel.SYSTEM);
+                throw new KMJXCException(ex.Message, ExceptionLevel.SYSTEM);
             }
             finally
             {

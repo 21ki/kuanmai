@@ -52,6 +52,9 @@
     <Compile Include="Admin_Action.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Admin_Category.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Admin_Role.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
@@ -177,6 +180,9 @@
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Stock_Pile.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Stock_Waste.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Store_House.cs">

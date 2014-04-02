@@ -17,19 +17,20 @@ namespace KM.JXC.BL
     {
         public IOUserManager MallUserManager = null;
 
-        public UserManager(BUser user):base(user)
+        public UserManager(BUser user, Permission permission)
+            : base(user,permission)
         {
             
         }
 
-        public UserManager(int user_id)
-            : base(user_id)
+        public UserManager(int user_id, Permission permission)
+            : base(user_id,permission)
         {
             
         }
 
-        public UserManager(int user_id,IOUserManager manager)
-            : base(user_id)
+        public UserManager(int user_id, IOUserManager manager, Permission permission)
+            : base(user_id,permission)
         {
             this.MallUserManager = manager;
         }
