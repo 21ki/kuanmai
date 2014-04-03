@@ -16,7 +16,7 @@ namespace KM.JXC.Web.Controllers
         public ActionResult Index()
         {
             string user = HttpContext.User.Identity.Name;
-           
+            
             return View();
         }        
 
@@ -29,26 +29,30 @@ namespace KM.JXC.Web.Controllers
             int mall=0;
 
             if (!int.TryParse(mall_type_id, out mall)) {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", new { message = "商城类型丢失,请不要随意更改URL" });
             }
 
             if (string.IsNullOrEmpty(code))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", new { message = "商城授权码丢失，请不要随意更改URL" });
             }
 
-            AccessManager tokenManager = new AccessManager(mall);
+            AccessManager accessManager = new AccessManager(mall);
             Access_Token token = null;
             try
             {
-                token = tokenManager.AuthorizationCallBack(code);
+                token = accessManager.AuthorizationCallBack(code);
             }
             catch (KM.JXC.Common.KMException.KMJXCException ex)
             {
                 if (ex.Level == Common.KMException.ExceptionLevel.ERROR)
                 {
-                    return RedirectToAction("Login", new { message=ex.Message});
+                    return RedirectToAction("Login", new { message = ex.Message });
                 }
+            }
+            catch (Exception bex)
+            {
+                return RedirectToAction("Login", new { message = "未知错误，请重新授权" });
             }
 
             if (token == null)
@@ -57,13 +61,13 @@ namespace KM.JXC.Web.Controllers
             }
 
             FormsAuthentication.RedirectFromLoginPage(token.User_ID.ToString(), false);
-            return RedirectToAction("Index");
-            //return View();
+            return RedirectToAction("Index");            
         }
 
         [AllowAnonymous]
         public ActionResult Login(string message)
         {
+            ViewBag.Title = "宽迈进销存登录";
             SystemManager sysMgr = new SystemManager();
             List<Open_Key> keys = sysMgr.GetOpenKeys();
             if (!string.IsNullOrEmpty(message))

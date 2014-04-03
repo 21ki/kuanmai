@@ -47,26 +47,8 @@ namespace KM.JXC.BL
         /// <returns></returns>
         public Access_Token AuthorizationCallBack(string code)
         {
-            Access_Token request_token = null;            
-            request_token = TokenManager.RequestAccessToken(code);
-            if (request_token == null)
-            {
-                throw new KMJXCException("没有获取到Access token",ExceptionLevel.SYSTEM);
-            }
-
-            BUser requester = new BUser();
-            requester.Type = new Mall_Type(){ Mall_Type_ID= this.Mall_Type_ID};
-            requester.Mall_ID = request_token.Mall_User_ID;
-            requester.Mall_Name = request_token.Mall_User_Name;
-            requester.Parent_ID = 0;
-            requester.Parent = null;
-
-            this.InitializeMallManagers(request_token);
-
-            if (this.ShopManager == null)
-            {
-                throw new KMJXCException("IShopManager 实例为null", ExceptionLevel.SYSTEM);
-            }
+            Access_Token request_token = null;
+            BUser requester = new BUser();          
 
             KuanMaiEntities db = new KuanMaiEntities();
             try
@@ -86,6 +68,26 @@ namespace KM.JXC.BL
                 //Create user in local db with mall owner id
                 if (users.Count == 0)
                 {
+                    request_token = TokenManager.RequestAccessToken(code);
+                    if (request_token == null)
+                    {
+                        throw new KMJXCException("没有获取到Access token", ExceptionLevel.SYSTEM);
+                    }
+
+
+                    requester.Type = new Mall_Type() { Mall_Type_ID = this.Mall_Type_ID };
+                    requester.Mall_ID = request_token.Mall_User_ID;
+                    requester.Mall_Name = request_token.Mall_User_Name;
+                    requester.Parent_ID = 0;
+                    requester.Parent = null;
+
+                    this.InitializeMallManagers(request_token);
+
+                    if (this.ShopManager == null)
+                    {
+                        throw new KMJXCException("IShopManager 实例为null", ExceptionLevel.SYSTEM);
+                    }
+
                     //check if current user's shop is ready in system
                     Shop shop = this.ShopManager.GetShop(requester);
                     if (shop == null)
@@ -236,7 +238,7 @@ namespace KM.JXC.BL
                 {
                     //Verify if local db has non expried accesstoken
                     requester = users[0];
-                    request_token.User_ID = requester.ID;
+                    
                     Access_Token local_token = GetLocalToken(requester.ID, this.Mall_Type_ID);
                     if (local_token != null)
                     {
@@ -245,7 +247,13 @@ namespace KM.JXC.BL
                         //last access token is expried
                         if (timeNow >= local_token.Expirse_In + local_token.Request_Time)
                         {
+                            request_token = TokenManager.RequestAccessToken(code);
+                            request_token.User_ID = requester.ID;
                             UpdateLocalAccessToken(request_token);
+                        }
+                        else
+                        {
+                            request_token = local_token;
                         }
                     }
                 }
@@ -269,6 +277,32 @@ namespace KM.JXC.BL
             return request_token;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public Access_Token GetAccessToken(BUser loginUser)
+        {
+            Access_Token token = null;
+            token = this.GetLocalToken(loginUser.ID, this.Mall_Type_ID);
+            if (token != null)
+            {
+                int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+
+                //last access token is expried
+                if (timeNow >= token.Expirse_In + token.Request_Time)
+                {
+                    return null;
+                }
+                else
+                {
+                    return token;
+                }
+            }
+
+            return null;
+        }
         /// <summary>
         /// 
         /// </summary>

@@ -8,10 +8,14 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>  
-   
-    @RenderBody()
+   <div class="jxcMain">
+        @RenderBody()
 
-    @Scripts.Render("~/bundles/jquery")
-    @RenderSection("scripts", required: false)
+        @Scripts.Render("~/bundles/jquery")
+        @RenderSection("scripts", required: false)
+    </div>
+    <div class="jxcfoot">
+            <a class="item" href="#">关于我们</a>  <a class="item" href="#">联系我们</a>  <a class="item" href="#">使用帮助</a> <a class="item" href="#">缺陷报告</a> <a class="item" href="#">Blog</a>
+    </div>
 </body>
 </html>

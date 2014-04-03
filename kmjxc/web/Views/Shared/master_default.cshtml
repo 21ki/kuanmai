@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/themes/base/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/kmjxc")
+</head>
+<body>  
+   
+   <div class="jxcMain">TOP</div>
+   <div class="jxcMain">       
+       <div class="jxcLeftMenu">
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'buy','MenuContainer')">采购管理</a></div>
+           <div class="menuContainer" id="buyMenuContainer" style="display:none;">
+               <ul>
+                   <li>新建采购订单</li>
+                   <li>采购订单查询</li>
+                   <li>新建验货单</li>
+                   <li>验货单查询</li>
+                   <li>供应商管理</li>                
+               </ul>
+           </div>
+
+           <div class="menuItem"><a href="#">销售管理</a></div>
+           <div class="menuContainer" id="saleMenuContainer" style="display:none;">
+               <ul>
+                   <li>销售单查询</li>                   
+                   <li>退货单查询</li>    
+                   <li>换货单查询</li>   
+                   <li>客户管理</li>                            
+               </ul>
+           </div>
+
+           <div class="menuItem"><a href="#">库存管理</a></div>
+           <div class="menuContainer" id="stockMenuContainer" style="display:none;">
+               <ul>
+                   <li>库存查询</li> 
+                   <li>采购入库</li>                   
+                   <li>销售出库</li>    
+                   <li>销售退库</li>   
+                   <li>损耗</li>   
+                   <li>仓库管理</li>                         
+               </ul>
+           </div>
+
+           <div class="menuItem"><a href="#">产品管理</a></div>
+           <div class="menuContainer" id="productMenuContainer" style="display:none;">
+               <ul>
+                   <li>产品查询</li> 
+                   <li>添加产品</li>                   
+                   <li>产品分类</li>    
+                   <li>添加分类</li>    
+               </ul>
+           </div>
+
+           <div class="menuItem"><a href="#">权限管理</a></div>
+           <div class="menuContainer" id="permissionMenuContainer" style="display:none;">
+               <ul>
+                   <li>查看权限</li> 
+                   <li>分组管理</li>
+                   <li>用户权限</li>
+               </ul>
+           </div>
+           
+           <div class="menuItem"><a href="#">系统设置</a></div>
+           <div class="menuContainer" id="systemMenuContainer" style="display:none;">
+               <ul>
+                   <li>默认仓库</li> 
+                   <li>快递设置</li>                   
+               </ul>
+           </div>
+
+       </div>
+       <div class="jxcRight">
+        @RenderBody()
+       </div>
+        
+    </div>
+    <div class="jxcfoot">
+            <a class="item" href="#">关于我们</a>  <a class="item" href="#">联系我们</a>  <a class="item" href="#">使用帮助</a> <a class="item" href="#">缺陷报告</a> <a class="item" href="#">Blog</a>
+    </div>
+</body>
+</html>

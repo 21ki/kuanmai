@@ -24,24 +24,22 @@ namespace KM.JXC.Web.Filters
 
             if (user == null)
             {
-                //filterContext.HttpContext.Response.Redirect("Login");
+                filterContext.HttpContext.Response.Redirect("/Home/Login?message=登录信息丢失，请重新登录并授权");
             }
 
             //Verify if logon user already has access token in db
             KuanMaiEntities db = new KuanMaiEntities();
-            var token = from t in db.Access_Token where t.User_ID == user.ID && t.Mall_Type_ID == user.Type.Mall_Type_ID select t;
+            Access_Token token = (from t in db.Access_Token where t.User_ID == user.ID && t.Mall_Type_ID == user.Type.Mall_Type_ID select t).FirstOrDefault<Access_Token>();
 
             if (token == null) {
-                //filterContext.HttpContext.Response.Redirect("Login");
+                filterContext.HttpContext.Response.Redirect("/Home/Login?message=没有授权信息，请登录并授权");
             }
 
-            //Verify if the existed access token is expired
-            Access_Token access_token=token.ToList<Access_Token>()[0];
-
+            //Verify if the existed access token is expired          
             int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-            if (timeNow >= access_token.Request_Time+access_token.Expirse_In)
+            if (timeNow >= token.Request_Time + token.Expirse_In)
             {
-                //filterContext.HttpContext.Response.Redirect("Login");
+                filterContext.HttpContext.Response.Redirect("/Home/Login?message=授权信息已经过期，请重新登录并授权");
             }
         }
     }

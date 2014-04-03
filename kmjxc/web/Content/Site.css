@@ -1,8 +1,10 @@
 ﻿body {
-    font-size: .85em;
+    font-size: 12px;
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
     color: #232323;
     background-color: #fff;
+    background: url('/Content/images/main-bg.png') repeat;
+    line-height:22px;
 }
 
 header, footer, nav, section {
@@ -59,3 +61,87 @@ textarea {
 .validation-summary-valid {
     display: none;
 }
+
+
+.jxcMain,.jxcfoot {margin: 0 auto;width:1000px;overflow: hidden;}
+.jxcfoot {
+    text-align: center;
+}
+.jxcLeftMenu {
+    float:left;
+    padding-right:10px;
+}
+
+.jxcRight {
+    padding-left:10px;
+    float:left;
+}
+
+.jxcfoot .item{
+   display:inline-block;
+   text-decoration:none;
+   color:#232323;
+   padding:3px 10px 3px 10px;
+}
+    .jxcfoot .item:hover {
+        color:#0073B2;
+    }
+.jxcLogin {
+    width: 400px;
+    margin: 100px auto;
+    margin-top: 100px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0 0 3px 0 #E0E0E0;
+    background: #FFF;
+    padding-bottom: 30px;
+    padding:10px;
+}
+.jxcLogin .loginItem {
+    display:block;    
+    padding-top:10px;
+    padding-bottom:10px;
+    width:120px;
+    background-color:#7b9ebd;
+    margin:auto auto;
+}
+.jxcLogin .itemContainer {
+    text-align:center;
+}
+.jxcLogin .loginItem a {
+   display:block;
+   color:#FFFFFF;
+   text-decoration:none;
+   font-size:14px;
+   font-weight:bold;
+}
+
+.jxcLeftMenu ul {
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+    .jxcLeftMenu ul li {
+        display:block;
+    }
+.menuItem {
+    background-color: #7b9ebd;
+    border-radius: 2px;
+    text-align: center;
+    width: 100px;
+    margin-bottom:2px;
+    margin-top:4px;
+}
+    .menuItem a {
+        display: block;
+        text-decoration: none;
+        color: #FFFFFF;       
+        height: 30px;
+        line-height: 30px;
+        font-size: 14px;
+        text-align: center;
+    }
+.menuContainer {
+    padding-left:10px;
+}
+
