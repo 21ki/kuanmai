@@ -70,11 +70,13 @@ textarea {
 .jxcLeftMenu {
     float:left;
     padding-right:10px;
+    border-right:2px solid #7b9ebd;
 }
 
 .jxcRight {
     padding-left:10px;
     float:left;
+    
 }
 
 .jxcfoot .item{
@@ -96,6 +98,7 @@ textarea {
     background: #FFF;
     padding-bottom: 30px;
     padding:10px;
+    text-align:center;
 }
 .jxcLogin .loginItem {
     display:block;    
@@ -142,6 +145,30 @@ textarea {
         text-align: center;
     }
 .menuContainer {
-    padding-left:10px;
+    padding-left:0px;
 }
+    .menuContainer ul li {
+        padding-left:2px;
+        padding-right:2px;
+        /*background-color:#FFF;*/
+    }
+        .menuContainer ul li .link,.menuContainer ul li .links {
+              padding-left:15px;
+              display: block;
+              text-decoration: none;
+              height:25px;
+              line-height:25px;   
+              color:#555;    
+        }
+        .menuContainer ul li .links {
+            background-color: #7b9ebd;
+            color:#FFF;
+        }
+        .menuContainer ul li:hover {
+            
+        }
+            .menuContainer ul li .link:hover {
+                background-color: #7b9ebd;
+                color:#FFF;
+            }
 

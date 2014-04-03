@@ -12,22 +12,41 @@
     @Scripts.Render("~/bundles/kmjxc")
 </head>
 <body>  
-   
+   @{
+       string controller = ViewContext.RouteData.Values["controller"].ToString();
+       string action = ViewContext.RouteData.Values["action"].ToString();
+       string modelStyle = "";
+       string menuStyle = "class=link";
+    }
    <div class="jxcMain">TOP</div>
    <div class="jxcMain">       
        <div class="jxcLeftMenu">
-           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'buy','MenuContainer')">采购管理</a></div>
-           <div class="menuContainer" id="buyMenuContainer" style="display:none;">
+           <div class="menuItem" style="margin-top:0px;"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'buy','MenuContainer')">采购管理</a></div>
+           
+           <div class="menuContainer" id="buyMenuContainer"
+               @if (controller != "Buy") {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
                <ul>
-                   <li>新建采购订单</li>
-                   <li>采购订单查询</li>
-                   <li>新建验货单</li>
-                   <li>验货单查询</li>
-                   <li>供应商管理</li>                
+                   <li><a href="/Buy/NewOrder" 
+                       @if (action == "NewOrder")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle   
+                       
+                       >新建采购订单 </a></li>
+                   <li><a class="link" href="/Buy/OrderSearch">采购订单查询</a></li>
+                   <li><a class="link" href="/Buy/NewBuy">新建验货单</a></li>
+                   <li><a class="link" href="/Buy/BuySearch">验货单查询</a></li>
+                   <li><a class="link" href="/Buy/Supplier">供应商管理</a></li>                
                </ul>
            </div>
 
-           <div class="menuItem"><a href="#">销售管理</a></div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'sale','MenuContainer')">销售管理</a></div>
            <div class="menuContainer" id="saleMenuContainer" style="display:none;">
                <ul>
                    <li>销售单查询</li>                   
@@ -37,7 +56,7 @@
                </ul>
            </div>
 
-           <div class="menuItem"><a href="#">库存管理</a></div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'stock','MenuContainer')">库存管理</a></div>
            <div class="menuContainer" id="stockMenuContainer" style="display:none;">
                <ul>
                    <li>库存查询</li> 
@@ -49,17 +68,18 @@
                </ul>
            </div>
 
-           <div class="menuItem"><a href="#">产品管理</a></div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'product','MenuContainer')">产品管理</a></div>
            <div class="menuContainer" id="productMenuContainer" style="display:none;">
                <ul>
                    <li>产品查询</li> 
                    <li>添加产品</li>                   
                    <li>产品分类</li>    
-                   <li>添加分类</li>    
+                   <li>添加分类</li>  
+                   <li>属性管理</li>  
                </ul>
            </div>
 
-           <div class="menuItem"><a href="#">权限管理</a></div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'permission','MenuContainer')">权限管理</a></div>
            <div class="menuContainer" id="permissionMenuContainer" style="display:none;">
                <ul>
                    <li>查看权限</li> 
@@ -68,7 +88,7 @@
                </ul>
            </div>
            
-           <div class="menuItem"><a href="#">系统设置</a></div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'system','MenuContainer')">系统设置</a></div>
            <div class="menuContainer" id="systemMenuContainer" style="display:none;">
                <ul>
                    <li>默认仓库</li> 

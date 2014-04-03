@@ -11,10 +11,10 @@
         );
     }
 
-    this.LeftMenuClick = function (obj, category, prefix) {
-        $('$' + category + prefix).show();
-        $(obj).parent().find("div[id$='" + prefix + "']").each(function (index, item) {
-            var id = $(item).attr('id');
+    this.LeftMenuClick = function (obj, category, prefix) {       
+        $('#' + category + prefix).show();       
+        $(obj).parent().parent().find("div[id$='" + prefix + "']").each(function (index, item) {
+            var id = $(item).attr('id');            
             if (id != (category + prefix)) {
                 $(item).hide();
             }
