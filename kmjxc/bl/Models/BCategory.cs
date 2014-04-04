@@ -17,5 +17,6 @@ namespace KM.JXC.BL.Models
         public List<BCategory> Chindren { get; set; }
         public BCategory Parent { get; set; }
         public bool Enabled { get; set; }
+        public BUser Create_By { get; set; }
     }
 }

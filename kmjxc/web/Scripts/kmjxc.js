@@ -1,13 +1,15 @@
 ﻿function KMJXCBase() {
-    this.AjaxCall = function (url,params,callback) {
+    this.AjaxCall = function (url, params, callback) {        
+        
         $.post(
             url,
             params,
-            function (response) {
+            function (response) {                
                 if (callback && typeof (callback) == 'function') {
                     callback(response);
                 }
-            }
+            },
+            'json'
         );
     }
 
@@ -29,7 +31,15 @@ function KMJXCUserManager() {
 
 KMJXCProductManager.prototype = new KMJXCBase();
 function KMJXCProductManager() {
+    this.CreateCategory = function (postData, callback) {       
+        var _this = this;
+        _this.AjaxCall("/api/Categories/Add", postData, callback);
+    }
 
+    this.GetCategories = function (postData, callback) {
+        var _this = this;
+        _this.AjaxCall("/api/Categories/GetCategories/", postData, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();

@@ -91,6 +91,11 @@ namespace KM.JXC.BL
             this.Shop_Id = shop_id;
         }
 
+        public PermissionManager()
+        {
+
+        }
+
         /// <summary>
         /// Get all actions
         /// </summary>
@@ -274,24 +279,25 @@ namespace KM.JXC.BL
         {
             if (adminRole == null || string.IsNullOrEmpty(adminRole.role_name))
             {
-                throw new KMJXCException("");
+                throw new KMJXCException("输入信息有错误");
+            }
+            if (adminRole.shop_id <= 0)
+            {
+                throw new KMJXCException("创建权限角色时必须制定店铺");
             }
 
             Admin_Role role = null;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 role = (from adminrole in db.Admin_Role
-                        where adminrole.role_name == adminRole.role_name && adminrole.shop_id == this.Shop_Id 
+                        where adminrole.role_name == adminRole.role_name && adminrole.shop_id == adminRole.shop_id 
                                    select adminrole).FirstOrDefault<Admin_Role>();
 
                 if (role != null && role.id > 0)
                 {
                     throw new KMJXCException("名称为" + adminRole.role_name + "的管理角色已经存在");
                 }
-                if (adminRole.shop_id <= 0)
-                {
-                    adminRole.shop_id = this.Shop_Id;
-                }
+                
                 db.Admin_Role.Add(adminRole);
                 db.SaveChanges();
             }

@@ -61,6 +61,7 @@ namespace KM.JXC.Web.Controllers
             }
 
             FormsAuthentication.RedirectFromLoginPage(token.User_ID.ToString(), false);
+            
             return RedirectToAction("Index");            
         }
 

@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "添加产品分类";
+}
+<script>
+    $(document).ready(function () {
+        var cateMgr=new KMJXCProductManager();
+        $('#btnAddCategory').click(function () {
+            var name = $('#categoryName').val();
+            if ($.trim(name) == '') {
+                $('#savemessage').html("分类名称不能为空");
+                $('#savemessage').show();
+                return;
+            }
+            var pid = $('#cateParent').val();
+            cateMgr.CreateCategory({ 'name': name, 'parent_id': pid }, function (response) {
+                if (typeof (response) == 'object') {
+                    $('#savemessage').html(response.Message)
+                    $('#savemessage').show();
+                    if (response.Status == "ok") {
+                        if (pid == 0) {
+                            $('#cateParent').append("<option value=\"" + response.Item.ID + "\">" + name + "</option>");
+                        } else {
+                            $('#childrenCategory').append("<div style=\"padding-left:30px;\">" + name + "</div>");
+                        }  
+                    }
+                }
+            });
+        });
+
+        $('#categoryName').bind("propertychange", function () {
+            if ($('#categoryName').val() != '') {
+                $('#savemessage').hide();
+            } else {
+                $('#savemessage').html("分类名称不能为空");
+                $('#savemessage').show();
+            }
+        });
+
+        $('#cateParent').change(function () {
+            $('#savemessage').hide();
+            var parent_id = $('#cateParent').val();
+            if (parent_id != 0) {
+                cateMgr.GetCategories({ 'parent_id': parent_id }, function (response) {
+                    if (response != null && response != "" && typeof (response) == 'object' && response.length > 0) {
+                        $('#childrenCategory').html("");
+                        $(response).each(function (index, item) {
+                            $('#childrenCategory').append("<div style=\"padding-left:30px;\">" + item.Name + "</div>");
+                        });
+                        $('#childrenCategory').show();
+                    } else {
+                        $('#childrenCategory').hide();
+                    }
+                });
+            }
+        });
+    });
+
+</script>
+<div class="newCategory">
+    <div>产品分类只支持两级</div>
+    <div style="padding-top:10px;">
+        <div style="height:30px;line-height:30px;">
+            <label for="cateParent">父类:</label>
+            <select class="W_input" style="height:24px;" id="cateParent">
+                    <option value="0">----选择----</option>
+                    @foreach (var category in Model) { 
+                        <option value="@category.ID">@category.Name</option>
+                    }
+            </select>
+        </div>
+        <div id="childrenCategory" style="display:none;">
+        </div>
+        <div id="savemessage" class="savemessage" style="display:none;">
+           
+        </div>
+        <div style="height:30px;line-height:30px;">
+            <label for="categoryName">名称:</label>
+            <input class="W_input" type="text" id="categoryName" value="" />
+            <input class="W_input_btn"  id="btnAddCategory" type="button" value="添加"/>
+        </div>
+    </div>
+</div>

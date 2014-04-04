@@ -38,6 +38,16 @@ namespace KM.JXC.BL
             this.GetUserPermission();
         }
 
+        public BBaseManager(BUser user, Shop shop, Permission permission)
+        {
+            this.CurrentUser = user;
+            this.Shop = shop;
+            this.FindUserShop();
+            permissionManager = new PermissionManager(this.Shop.Shop_ID);
+            this.CurrentUserPermission = permission;
+            this.GetUserPermission();
+        }
+
         public BBaseManager(int user_id, int shop_id, Permission permission)
         {
             GetUserById(user_id);
@@ -54,17 +64,19 @@ namespace KM.JXC.BL
         public BBaseManager(int user_id, Permission permission)
         {
             GetUserById(user_id);
-            this.CurrentUserPermission = permission;
-            //this.GetUserPermission();
             this.FindUserShop();
+            permissionManager = new PermissionManager();
+            this.CurrentUserPermission = permission;
+            this.GetUserPermission();            
         }
 
         public BBaseManager(BUser user, Permission permission)
         {
+            permissionManager = new PermissionManager();
+            this.FindUserShop();
             this.CurrentUserPermission = permission;
             this.CurrentUser = user;
-            //this.GetUserPermission();
-            this.FindUserShop();
+            this.GetUserPermission();           
         }       
 
         private void GetUserById(int user_id)
@@ -123,6 +135,17 @@ namespace KM.JXC.BL
             {
                 CurrentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
             }
+
+            if (this.CurrentUser.ID == this.Main_Shop.User_ID)
+            {
+                //shop owner has full permissions
+                Type permission = typeof(Permission);
+                FieldInfo[] fields = permission.GetFields();
+                foreach (FieldInfo field in fields)
+                {
+                    field.SetValue(CurrentUserPermission, 1);
+                }
+            }
         }
 
         /// <summary>
@@ -132,25 +155,33 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Shop shop = (from s in db.Shop where s.User_ID == this.MainUser.ID select s).FirstOrDefault<Shop>();
-                if (shop == null)
+                if (this.Shop == null)
                 {
-                    shop = (from s in db.Shop
-                            from sp in db.Shop_User
-                            where s.Shop_ID == sp.Shop_ID && sp.User_ID == this.CurrentUser.ID
-                            select s).FirstOrDefault<Shop>();
-
+                    Shop shop = (from s in db.Shop where s.User_ID == this.MainUser.ID select s).FirstOrDefault<Shop>();
                     if (shop == null)
                     {
-                        throw new KMJXCException("你不是店铺掌柜，也不是任何店铺的子账户");
+                        shop = (from s in db.Shop
+                                from sp in db.Shop_User
+                                where s.Shop_ID == sp.Shop_ID && sp.User_ID == this.CurrentUser.ID
+                                select s).FirstOrDefault<Shop>();
+
+                        if (shop == null)
+                        {
+                            throw new KMJXCException("你不是店铺掌柜，也不是任何店铺的子账户");
+                        }
                     }
+
+                    this.Shop_Id = shop.Shop_ID;
+                    this.Shop = shop;                    
                 }
-                
-                this.Shop_Id = shop.Shop_ID;
-                this.Shop = shop;
-                if (shop.Parent_Shop_ID > 0)
+
+                if (this.Shop.Parent_Shop_ID > 0)
                 {
-                    this.Main_Shop = (from s in db.Shop where s.Shop_ID == shop.Parent_Shop_ID select s).FirstOrDefault<Shop>();
+                    this.Main_Shop = (from s in db.Shop where s.Shop_ID == this.Shop.Parent_Shop_ID select s).FirstOrDefault<Shop>();
+                }
+                else
+                {
+                    this.Main_Shop = this.Shop;
                 }
             }
         }

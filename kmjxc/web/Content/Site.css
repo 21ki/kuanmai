@@ -1,10 +1,37 @@
 ﻿body {
     font-size: 12px;
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-    color: #232323;
+    color: #555;
     background-color: #fff;
     background: url('/Content/images/main-bg.png') repeat;
     line-height:22px;
+}
+
+input,select {
+    margin:0px;
+}
+
+.W_input {
+border: 1px solid #ccc;
+border-radius: 2px;
+height: 20px;
+padding: 1px;
+margin-left: 0px;
+vertical-align: middle;
+color: #808080;
+-webkit-box-shadow: 0px 1px 1px 0px #eaeaea inset;
+-moz-box-shadow: 0px 1px 1px 0px #eaeaea inset;
+box-shadow: 0px 1px 1px 0px #eaeaea inset;
+}
+
+.W_input_btn {
+border: 1px solid #ccc;
+border-radius: 1px;
+height: 24px;
+margin-left: 0px;
+vertical-align: middle;
+color: #666;
+background-color:#f3f5f9;
 }
 
 header, footer, nav, section {
@@ -74,9 +101,12 @@ textarea {
 }
 
 .jxcRight {
+    margin-left:10px;
     padding-left:10px;
     float:left;
-    
+    width:860px;
+    background-color:#FFF;
+    min-height:600px;
 }
 
 .jxcfoot .item{
@@ -148,8 +178,7 @@ textarea {
     padding-left:0px;
 }
     .menuContainer ul li {
-        padding-left:2px;
-        padding-right:2px;
+        padding:1px 2px 1px 2px;
         /*background-color:#FFF;*/
     }
         .menuContainer ul li .link,.menuContainer ul li .links {
@@ -161,14 +190,27 @@ textarea {
               color:#555;    
         }
         .menuContainer ul li .links {
-            background-color: #7b9ebd;
+            background-color: #31a2e0;
             color:#FFF;
         }
         .menuContainer ul li:hover {
             
         }
             .menuContainer ul li .link:hover {
-                background-color: #7b9ebd;
+                background-color: #31a2e0;
                 color:#FFF;
             }
+.newCategory {
+}
+    .newCategory .savemessage {
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        color:#ed0e0e;
+        margin-top:5px;       
+        padding-left:30px;
+        background-color:#f8fbef;
+        padding-right:30px;
+        margin-left:30px;
+        width:150px;
+    }
 

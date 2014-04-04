@@ -48,7 +48,20 @@ namespace KM.JXC.BL
         public Access_Token AuthorizationCallBack(string code)
         {
             Access_Token request_token = null;
-            BUser requester = new BUser();          
+            BUser requester = new BUser();
+            //must get access token after mall authorization to identify user
+            request_token = TokenManager.RequestAccessToken(code);
+            if (request_token == null)
+            {
+                throw new KMJXCException("没有获取到Access token", ExceptionLevel.SYSTEM);
+            }
+
+
+            requester.Type = new Mall_Type() { Mall_Type_ID = this.Mall_Type_ID };
+            requester.Mall_ID = request_token.Mall_User_ID;
+            requester.Mall_Name = request_token.Mall_User_Name;
+            requester.Parent_ID = 0;
+            requester.Parent = null;
 
             KuanMaiEntities db = new KuanMaiEntities();
             try
@@ -68,19 +81,6 @@ namespace KM.JXC.BL
                 //Create user in local db with mall owner id
                 if (users.Count == 0)
                 {
-                    request_token = TokenManager.RequestAccessToken(code);
-                    if (request_token == null)
-                    {
-                        throw new KMJXCException("没有获取到Access token", ExceptionLevel.SYSTEM);
-                    }
-
-
-                    requester.Type = new Mall_Type() { Mall_Type_ID = this.Mall_Type_ID };
-                    requester.Mall_ID = request_token.Mall_User_ID;
-                    requester.Mall_Name = request_token.Mall_User_Name;
-                    requester.Parent_ID = 0;
-                    requester.Parent = null;
-
                     this.InitializeMallManagers(request_token);
 
                     if (this.ShopManager == null)

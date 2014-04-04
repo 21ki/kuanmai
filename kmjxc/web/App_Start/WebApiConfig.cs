@@ -9,9 +9,14 @@ namespace KM.JXC.Web
     {
         public static void Register(HttpConfiguration config)
         {
+            //config.Routes.MapHttpRoute(
+            //    name: "DefaultApi0",
+            //    routeTemplate: "api/{controller}/{action}",
+            //    defaults: new { }
+            //);
             config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
+                name: "DefaultApi1",
+                routeTemplate: "api/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
         }

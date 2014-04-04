@@ -20,6 +20,13 @@ namespace KM.JXC.BL
             
         }
 
+        public ShopCategoryManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
+        {
+
+
+        }
+
         /// <summary>
         /// Get single category information
         /// </summary>
@@ -95,7 +102,7 @@ namespace KM.JXC.BL
         /// Get all categories
         /// </summary>
         /// <returns></returns>
-        public List<BCategory> GetCategories()
+        public List<BCategory> GetCategories(int parentId)
         {
             List<BCategory> categories = new List<BCategory>();          
             
@@ -105,11 +112,11 @@ namespace KM.JXC.BL
                                         where pc.Shop_ID==this.Main_Shop.Shop_ID 
                                         select pc).ToList<Product_Class>();
 
-               List<Product_Class> pcs = (from p in allpcs where p.Parent_ID == 0 select p).ToList<Product_Class>();
+               List<Product_Class> pcs = (from p in allpcs where p.Parent_ID == parentId select p).ToList<Product_Class>();
 
                foreach (Product_Class ca in pcs)
                {
-                   BCategory category = new BCategory();
+                   BCategory category = new BCategory();                 
                    category.ID = ca.Product_Class_ID;
                    category.Mall_ID = ca.Mall_CID;
                    category.Mall_PID = ca.Mall_PCID;
@@ -129,6 +136,32 @@ namespace KM.JXC.BL
                                             Enabled = cate.Enabled,
                                             Created = cate.Create_Time
                                         }).ToList<BCategory>();
+                   if (ca.Parent_ID > 0)
+                   {
+                       category.Parent = (from cate in db.Product_Class
+                                          where cate.Product_Class_ID == ca.Parent_ID
+                                          select new BCategory
+                                          {                                              
+                                              Created = cate.Create_Time,
+                                              Enabled = cate.Enabled,
+                                              ID = cate.Product_Class_ID,
+                                              Name = cate.Name,
+                                              Mall_ID = cate.Mall_CID,
+                                              Mall_PID = cate.Mall_PCID,                                              
+                                          }).FirstOrDefault<BCategory>();
+                   }
+
+                   category.Create_By = (from u in db.User
+                                         where u.User_ID == ca.Create_User_ID
+                                         select new BUser 
+                                         {
+                                             ID=u.User_ID,
+                                             Name=u.Name,
+                                             Mall_ID=u.Mall_ID,
+                                             Mall_Name=u.Mall_Name,
+                                             EmployeeInfo =(from em in db.Employee where em.User_ID==ca.Create_User_ID select em).FirstOrDefault<Employee>()
+                                         }).FirstOrDefault<BUser>();
+                   categories.Add(category);
                }
             }
             
@@ -140,9 +173,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns>Product_Class list</returns>
-        public List<BCategory> GetEnabledCategories()
+        public List<BCategory> GetEnabledCategories(int parentId)
         {
-            return (from c in GetCategories() where c.Enabled == true select c).ToList<BCategory>();
+            return (from c in GetCategories(parentId) where c.Enabled == true select c).ToList<BCategory>();
         }
 
         /// <summary>
@@ -150,9 +183,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns></returns>
-        public List<BCategory> GetDisabledCategories(int shop_id)
+        public List<BCategory> GetDisabledCategories(int parentId)
         {
-            return (from c in GetCategories() where c.Enabled == false select c).ToList<BCategory>();
+            return (from c in GetCategories(parentId) where c.Enabled == false select c).ToList<BCategory>();
         }
 
         /// <summary>
@@ -195,8 +228,16 @@ namespace KM.JXC.BL
                 pc.Name = category.Name;
                 pc.Order = category.Order;
                 pc.Shop_ID = this.Main_Shop.Shop_ID;
+                if (category.Parent == null || category.Parent.ID <= 0)
+                {
+                    pc.Parent_ID = 0;
+                }
+                else {
+                    pc.Parent_ID = category.Parent.ID;
+                }
                 db.Product_Class.Add(pc);
                 db.SaveChanges();
+                category.ID = pc.Product_Class_ID;
                 result = true;
             }
             return result;
