@@ -17,6 +17,9 @@ namespace KM.JXC.Web
             bundles.Add(new ScriptBundle("~/bundles/kmjxc").Include(
                        "~/Scripts/kmjxc.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/third").Include(
+                      "~/Third/kindeditor/kindeditor.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.unobtrusive*",
                         "~/Scripts/jquery.validate*"));

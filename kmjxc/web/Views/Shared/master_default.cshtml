@@ -10,7 +10,9 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/kmjxc")
+    @Scripts.Render("~/bundles/third")
 </head>
+
 <body>  
    @{
        string controller = ViewContext.RouteData.Values["controller"].ToString();
@@ -102,7 +104,7 @@
                        } 
                        
                        @menuStyle
-                       >产品分类</a></li>    
+                       >产品类目</a></li>    
                    <li><a href="/Product/NewCategory"
                        @{menuStyle = "class=link"; }
                        @if (action == "NewCategory")
@@ -111,7 +113,7 @@
                        } 
                        
                        @menuStyle
-                       >添加分类</a></li>  
+                       >添加类目</a></li>  
                    <li><a href="/Product/Properties"
                        @{menuStyle = "class=link"; }
                        @if (action == "Properties")

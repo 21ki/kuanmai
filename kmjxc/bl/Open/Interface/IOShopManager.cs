@@ -12,6 +12,6 @@ namespace KM.JXC.BL.Open.Interface
     {
         KM.JXC.DBA.Shop GetShop(BUser user);
         List<Product_Class> GetCategories(BUser user);
-        List<Product_Spec> GetProperities(Product_Class category, Shop shop);
+        List<BProperty> GetProperities(Product_Class category, Shop shop);
     }
 }

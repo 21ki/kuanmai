@@ -20,6 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +30,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,23 +39,22 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
@@ -108,6 +109,7 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.1.0\lib\WebGrease.dll</HintPath>
@@ -216,6 +218,263 @@
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Third\kindeditor\asp.net\bin\LitJSON.dll" />
+    <Content Include="Third\kindeditor\asp.net\demo.aspx" />
+    <Content Include="Third\kindeditor\asp.net\README.txt" />
+    <Content Include="Third\kindeditor\asp\demo.asp" />
+    <Content Include="Third\kindeditor\asp\file_manager_json.asp" />
+    <Content Include="Third\kindeditor\asp\JSON_2.0.4.asp" />
+    <Content Include="Third\kindeditor\asp\UpLoad_Class.asp" />
+    <Content Include="Third\kindeditor\asp\upload_json.asp" />
+    <Content Include="Third\kindeditor\examples\auto-height.html" />
+    <Content Include="Third\kindeditor\examples\colorpicker.html" />
+    <Content Include="Third\kindeditor\examples\custom-plugin.html" />
+    <Content Include="Third\kindeditor\examples\custom-theme.html" />
+    <Content Include="Third\kindeditor\examples\default.html" />
+    <Content Include="Third\kindeditor\examples\dialog.html" />
+    <Content Include="Third\kindeditor\examples\dynamic-load.html" />
+    <Content Include="Third\kindeditor\examples\file-dialog.html" />
+    <Content Include="Third\kindeditor\examples\file-manager.html" />
+    <Content Include="Third\kindeditor\examples\filter-mode.html" />
+    <Content Include="Third\kindeditor\examples\image-dialog.html" />
+    <Content Include="Third\kindeditor\examples\index.css" />
+    <Content Include="Third\kindeditor\examples\index.html" />
+    <Content Include="Third\kindeditor\examples\jquery-ui.html" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-icons_222222_256x240.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-icons_454545_256x240.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-icons_888888_256x240.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\jquery-ui-1.9.2.custom.css" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\css\smoothness\jquery-ui-1.9.2.custom.min.css" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\js\jquery-ui-1.9.2.custom.js" />
+    <Content Include="Third\kindeditor\examples\jquery-ui\js\jquery-ui-1.9.2.custom.min.js" />
+    <Content Include="Third\kindeditor\examples\jquery.html" />
+    <Content Include="Third\kindeditor\examples\jquery.js" />
+    <Content Include="Third\kindeditor\examples\multi-image-dialog.html" />
+    <Content Include="Third\kindeditor\examples\multi-language.html" />
+    <Content Include="Third\kindeditor\examples\newline.html" />
+    <Content Include="Third\kindeditor\examples\node.html" />
+    <Content Include="Third\kindeditor\examples\paste-type.html" />
+    <Content Include="Third\kindeditor\examples\qqstyle.html" />
+    <Content Include="Third\kindeditor\examples\readonly.html" />
+    <Content Include="Third\kindeditor\examples\simple.html" />
+    <Content Include="Third\kindeditor\examples\uploadbutton.html" />
+    <Content Include="Third\kindeditor\examples\url-type.html" />
+    <Content Include="Third\kindeditor\examples\word-count.html" />
+    <Content Include="Third\kindeditor\jsp\lib\commons-fileupload-1.2.1.jar" />
+    <Content Include="Third\kindeditor\jsp\lib\commons-io-1.4.jar" />
+    <Content Include="Third\kindeditor\jsp\lib\json_simple-1.1.jar" />
+    <Content Include="Third\kindeditor\jsp\README.txt" />
+    <Content Include="Third\kindeditor\kindeditor-all-min.js" />
+    <Content Include="Third\kindeditor\kindeditor-all.js" />
+    <Content Include="Third\kindeditor\kindeditor-min.js" />
+    <Content Include="Third\kindeditor\kindeditor.js" />
+    <Content Include="Third\kindeditor\lang\ar.js" />
+    <Content Include="Third\kindeditor\lang\en.js" />
+    <Content Include="Third\kindeditor\lang\ko.js" />
+    <Content Include="Third\kindeditor\lang\zh_CN.js" />
+    <Content Include="Third\kindeditor\lang\zh_TW.js" />
+    <Content Include="Third\kindeditor\license.txt" />
+    <Content Include="Third\kindeditor\plugins\anchor\anchor.js" />
+    <Content Include="Third\kindeditor\plugins\autoheight\autoheight.js" />
+    <Content Include="Third\kindeditor\plugins\baidumap\baidumap.js" />
+    <Content Include="Third\kindeditor\plugins\baidumap\index.html" />
+    <Content Include="Third\kindeditor\plugins\baidumap\map.html" />
+    <Content Include="Third\kindeditor\plugins\clearhtml\clearhtml.js" />
+    <Content Include="Third\kindeditor\plugins\code\code.js" />
+    <Content Include="Third\kindeditor\plugins\code\prettify.css" />
+    <Content Include="Third\kindeditor\plugins\code\prettify.js" />
+    <Content Include="Third\kindeditor\plugins\emoticons\emoticons.js" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\0.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\1.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\10.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\100.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\101.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\102.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\103.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\104.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\105.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\106.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\107.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\108.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\109.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\11.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\110.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\111.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\112.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\113.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\114.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\115.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\116.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\117.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\118.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\119.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\12.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\120.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\121.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\122.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\123.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\124.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\125.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\126.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\127.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\128.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\129.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\13.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\130.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\131.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\132.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\133.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\134.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\14.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\15.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\16.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\17.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\18.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\19.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\2.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\20.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\21.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\22.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\23.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\24.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\25.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\26.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\27.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\28.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\29.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\3.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\30.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\31.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\32.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\33.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\34.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\35.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\36.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\37.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\38.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\39.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\4.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\40.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\41.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\42.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\43.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\44.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\45.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\46.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\47.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\48.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\49.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\5.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\50.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\51.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\52.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\53.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\54.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\55.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\56.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\57.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\58.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\59.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\6.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\60.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\61.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\62.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\63.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\64.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\65.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\66.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\67.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\68.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\69.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\7.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\70.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\71.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\72.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\73.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\74.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\75.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\76.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\77.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\78.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\79.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\8.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\80.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\81.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\82.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\83.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\84.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\85.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\86.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\87.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\88.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\89.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\9.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\90.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\91.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\92.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\93.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\94.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\95.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\96.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\97.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\98.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\99.gif" />
+    <Content Include="Third\kindeditor\plugins\emoticons\images\static.gif" />
+    <Content Include="Third\kindeditor\plugins\filemanager\filemanager.js" />
+    <Content Include="Third\kindeditor\plugins\filemanager\images\file-16.gif" />
+    <Content Include="Third\kindeditor\plugins\filemanager\images\file-64.gif" />
+    <Content Include="Third\kindeditor\plugins\filemanager\images\folder-16.gif" />
+    <Content Include="Third\kindeditor\plugins\filemanager\images\folder-64.gif" />
+    <Content Include="Third\kindeditor\plugins\filemanager\images\go-up.gif" />
+    <Content Include="Third\kindeditor\plugins\flash\flash.js" />
+    <Content Include="Third\kindeditor\plugins\image\image.js" />
+    <Content Include="Third\kindeditor\plugins\image\images\align_left.gif" />
+    <Content Include="Third\kindeditor\plugins\image\images\align_right.gif" />
+    <Content Include="Third\kindeditor\plugins\image\images\align_top.gif" />
+    <Content Include="Third\kindeditor\plugins\image\images\refresh.png" />
+    <Content Include="Third\kindeditor\plugins\insertfile\insertfile.js" />
+    <Content Include="Third\kindeditor\plugins\lineheight\lineheight.js" />
+    <Content Include="Third\kindeditor\plugins\link\link.js" />
+    <Content Include="Third\kindeditor\plugins\map\map.html" />
+    <Content Include="Third\kindeditor\plugins\map\map.js" />
+    <Content Include="Third\kindeditor\plugins\media\media.js" />
+    <Content Include="Third\kindeditor\plugins\multiimage\images\image.png" />
+    <Content Include="Third\kindeditor\plugins\multiimage\images\select-files-en.png" />
+    <Content Include="Third\kindeditor\plugins\multiimage\images\select-files-zh_CN.png" />
+    <Content Include="Third\kindeditor\plugins\multiimage\images\swfupload.swf" />
+    <Content Include="Third\kindeditor\plugins\multiimage\multiimage.js" />
+    <Content Include="Third\kindeditor\plugins\pagebreak\pagebreak.js" />
+    <Content Include="Third\kindeditor\plugins\plainpaste\plainpaste.js" />
+    <Content Include="Third\kindeditor\plugins\preview\preview.js" />
+    <Content Include="Third\kindeditor\plugins\quickformat\quickformat.js" />
+    <Content Include="Third\kindeditor\plugins\table\table.js" />
+    <Content Include="Third\kindeditor\plugins\template\html\1.html" />
+    <Content Include="Third\kindeditor\plugins\template\html\2.html" />
+    <Content Include="Third\kindeditor\plugins\template\html\3.html" />
+    <Content Include="Third\kindeditor\plugins\template\template.js" />
+    <Content Include="Third\kindeditor\plugins\wordpaste\wordpaste.js" />
+    <Content Include="Third\kindeditor\themes\common\anchor.gif" />
+    <Content Include="Third\kindeditor\themes\common\blank.gif" />
+    <Content Include="Third\kindeditor\themes\common\flash.gif" />
+    <Content Include="Third\kindeditor\themes\common\loading.gif" />
+    <Content Include="Third\kindeditor\themes\common\media.gif" />
+    <Content Include="Third\kindeditor\themes\common\rm.gif" />
+    <Content Include="Third\kindeditor\themes\default\background.png" />
+    <Content Include="Third\kindeditor\themes\default\default.css" />
+    <Content Include="Third\kindeditor\themes\default\default.png" />
+    <Content Include="Third\kindeditor\themes\qq\editor.gif" />
+    <Content Include="Third\kindeditor\themes\qq\qq.css" />
+    <Content Include="Third\kindeditor\themes\simple\simple.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -238,9 +497,19 @@
     <Content Include="Views\Product\NewCategory.cshtml" />
     <Content Include="Views\Product\Properties.cshtml" />
     <Content Include="Views\Product\NewProperty.cshtml" />
+    <Content Include="Third\kindeditor\asp.net\file_manager_json.ashx" />
+    <Content Include="Third\kindeditor\asp.net\upload_json.ashx" />
+    <Content Include="Third\kindeditor\jsp\demo.jsp" />
+    <Content Include="Third\kindeditor\jsp\file_manager_json.jsp" />
+    <Content Include="Third\kindeditor\jsp\upload_json.jsp" />
+    <Content Include="Third\kindeditor\php\demo.php" />
+    <Content Include="Third\kindeditor\php\file_manager_json.php" />
+    <Content Include="Third\kindeditor\php\JSON.php" />
+    <Content Include="Third\kindeditor\php\upload_json.php" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Third\kindeditor\attached\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

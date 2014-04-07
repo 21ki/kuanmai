@@ -58,13 +58,14 @@
     });
 
 </script>
+<h2>产品类目只支持两级</h2>
 <div class="newCategory">
-    <div>产品分类只支持两级</div>
+    
     <div style="padding-top:10px;">
-        <div style="height:30px;line-height:30px;">
+        <div class="row">
             <label for="cateParent">父类:</label>
-            <select class="W_input" style="height:24px;" id="cateParent">
-                    <option value="0">----选择----</option>
+            <select class="W_input" style="height:24px;text-align:center;" id="cateParent">
+                    <option value="0">-选择-</option>
                     @foreach (var category in Model) { 
                         <option value="@category.ID">@category.Name</option>
                     }
@@ -75,10 +76,14 @@
         <div id="savemessage" class="savemessage" style="display:none;">
            
         </div>
-        <div style="height:30px;line-height:30px;">
+        <div class="row">
             <label for="categoryName">名称:</label>
             <input class="W_input" type="text" id="categoryName" value="" />
             <input class="W_input_btn"  id="btnAddCategory" type="button" value="添加"/>
+        </div>
+        <div class="row">从店铺同步到进销存系统 <a href="#">获取店铺分类信息</a></div>
+        <div class="">
+
         </div>
     </div>
 </div>

@@ -16,8 +16,8 @@ namespace KM.JXC.BL
         public int Mall_Type { get; private set; }
       
         private UserManager userManager = null;
-        public ShopManager(BUser user, int mall_type, Permission permission)
-            : base(user,permission)
+        public ShopManager(BUser user,int shop_id, int mall_type, Permission permission)
+            : base(user, shop_id,permission)
         {
             this.Mall_Type = mall_type;
 

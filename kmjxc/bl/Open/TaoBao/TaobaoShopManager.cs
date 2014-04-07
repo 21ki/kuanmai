@@ -75,18 +75,21 @@ namespace KM.JXC.BL.Open.TaoBao
                 throw new KMJXCException(response.ErrMsg);
             }
 
-            foreach (TB.SellerCat cat in response.SellerCats)
+            if (response.SellerCats != null)
             {
-                Product_Class category = new Product_Class();
-                category.Create_Time=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                category.Create_User_ID=user.ID;
-                category.Enabled=true;
-                category.Mall_CID=cat.Cid.ToString();
-                category.Mall_PCID=cat.ParentCid.ToString();
-                category.Name=cat.Name;
-                category.Parent_ID=0;
-                category.Product_Class_ID=0;
-                categories.Add(category);
+                foreach (TB.SellerCat cat in response.SellerCats)
+                {
+                    Product_Class category = new Product_Class();
+                    category.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    category.Create_User_ID = user.ID;
+                    category.Enabled = true;
+                    category.Mall_CID = cat.Cid.ToString();
+                    category.Mall_PCID = cat.ParentCid.ToString();
+                    category.Name = cat.Name;
+                    category.Parent_ID = 0;
+                    category.Product_Class_ID = 0;
+                    categories.Add(category);
+                }
             }
             return categories;
         }
@@ -96,13 +99,20 @@ namespace KM.JXC.BL.Open.TaoBao
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public List<Product_Spec> GetProperities(Product_Class category,Shop shop)
+        public List<BProperty> GetProperities(Product_Class category,Shop shop)
         {
-            List<Product_Spec> properities = new List<Product_Spec>();
+            List<BProperty> properities = new List<BProperty>();
             ItempropsGetRequest req = new ItempropsGetRequest();
             req.Fields = "pid,name,must,multi,prop_values";
-            req.Cid = long.Parse(category.Mall_CID);  
-            req.IsKeyProp = true;
+            if (category != null && !string.IsNullOrEmpty(category.Mall_CID))
+            {
+                req.Cid = long.Parse(category.Mall_CID);
+            }
+            else 
+            {
+                req.Cid = 0;
+            }
+            //req.IsKeyProp = true;
             req.IsSaleProp = true;
             req.IsColorProp = true;
             req.IsEnumProp = true;
@@ -118,17 +128,29 @@ namespace KM.JXC.BL.Open.TaoBao
                 throw new KMJXCException(response.ErrMsg);
             }
 
-            foreach (TB.ItemProp prop in response.ItemProps)
+            if (response.ItemProps != null)
             {
-                Product_Spec spec = new Product_Spec();
-                spec.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                spec.Mall_PID = prop.Pid.ToString();
-                spec.Name = prop.Name;
-                spec.Product_Class_ID = category.Product_Class_ID;
-                spec.Product_Spec_ID = 0;
-                spec.Shop_ID = category.Shop_ID;
-                spec.User_ID = category.Create_User_ID;
-                properities.Add(spec);
+                foreach (TB.ItemProp prop in response.ItemProps)
+                {
+                    BProperty pro = new BProperty();
+                    pro.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    pro.MID = prop.Pid.ToString();
+                    pro.Name = prop.Name;
+                    pro.CategoryId = category.Product_Class_ID;
+                    pro.ID = 0;
+                    pro.Shop = new BShop() { ID = category.Shop_ID };
+                    pro.Created_By = new BUser() { ID = category.Create_User_ID };
+                    properities.Add(pro);
+                    if (prop.PropValues != null)
+                    {
+                        foreach (TB.PropValue pv in prop.PropValues)
+                        {
+                            Product_Spec_Value psv = new Product_Spec_Value();
+                            psv.Name = pv.Name;
+                            pro.Values.Add(psv);
+                        }
+                    }
+                }
             }
 
             return properities;

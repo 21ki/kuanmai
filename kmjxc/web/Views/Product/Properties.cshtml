@@ -1,5 +1,45 @@
 ﻿@{
-    ViewBag.Title = "产品属性";
+    ViewBag.Title = "产品属性管理";
 }
 
-<h2>Properties</h2>
+<script>
+    var cateMgr = new KMJXCProductManager();
+    $(document).ready(function () {
+        $('#pCategory').change(function () {
+            //alert($(this).attr('id'));
+            cateMgr.CategoryChange(this, 'cCategory')
+        });
+
+        $('#btnAddProperty').click(function () {
+            var pcid = $('#pCategory').val();
+            var cid = $('#cCategory').val();
+        });
+    });
+
+</script>
+
+<h2>产品属性管理</h2>
+
+<div class="properties">
+    @if (ViewData["mproperty"] != null)
+    {
+    <div class="row"><h3>关联主店铺产品属性</h3></div>
+    }
+
+    <div id="propertyList" style="display:none;">
+
+    </div>
+
+    <div class="row">
+        <label>类目:</label><select class="W_input" id="pCategory">
+             <option value="0">--选择--</option>
+                @if (ViewData["category"]!=null){
+                    foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
+                        <option value="@cate.ID">@cate.Name</option>
+                    }
+                }
+        </select> <select class="W_input" id="cCategory" style="display:none;"></select>
+    </div>
+    
+    <div><label>名称:</label><input class="W_input" value=""/> <input class="W_input_btn"  id="btnAddProperty" type="button" value="添加"/></div>
+</div>

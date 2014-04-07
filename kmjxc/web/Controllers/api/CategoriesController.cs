@@ -44,6 +44,19 @@ namespace KM.JXC.Web.Controllers.api
             return categories;
         }
 
+        [HttpGet]
+        public IEnumerable<BCategory> GetOnlineCategories()
+        {
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            List<BCategory> cates = cateMgr.GetOnlineCategories();
+            List<BProperty> props = cateMgr.GetOnlineProperties();
+            return cates;
+        }
+
         public BCategory Get(int id)
         {
             string user_id = User.Identity.Name;
@@ -54,6 +67,35 @@ namespace KM.JXC.Web.Controllers.api
             BCategory cate = cateMgr.GetCategory(id);
             
             return cate;
+        }
+
+        public List<BProperty> GetProperties(int categoryId)
+        {
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            List<BProperty> properties = cateMgr.GetProperties(categoryId);
+            return properties;
+        }
+
+        public BProperty CreateProperty()
+        {
+            BProperty property = new BProperty();
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string categoryId = request["category_id"];
+            string propName = request["prop_name"];
+            cateMgr.CreateProperty(int.Parse(categoryId), propName, null);
+
+           
+            return property;
         }
 
         [HttpPost]
@@ -97,6 +139,7 @@ namespace KM.JXC.Web.Controllers.api
         }
         public void Post([FromBody]string value)
         {
+
         }
     }
 }

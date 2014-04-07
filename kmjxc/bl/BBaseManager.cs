@@ -24,10 +24,12 @@ namespace KM.JXC.BL
         public int Main_Shop_Id { get; private set; }
         public Permission CurrentUserPermission {get;private set;}
         public PermissionManager permissionManager;
+        public Access_Token AccessToken { get; private set; }
 
         public BBaseManager(BUser user,int shop_id,Permission permission)
         {
             this.CurrentUser = user;
+            GetUserById(user.ID);
             this.Shop_Id = shop_id;
             if (this.Shop_Id == 0)
             {
@@ -41,6 +43,7 @@ namespace KM.JXC.BL
         public BBaseManager(BUser user, Shop shop, Permission permission)
         {
             this.CurrentUser = user;
+            GetUserById(user.ID);
             this.Shop = shop;
             this.FindUserShop();
             permissionManager = new PermissionManager(this.Shop.Shop_ID);
@@ -72,12 +75,13 @@ namespace KM.JXC.BL
 
         public BBaseManager(BUser user, Permission permission)
         {
+            GetUserById(user.ID);
             permissionManager = new PermissionManager();
             this.FindUserShop();
             this.CurrentUserPermission = permission;
             this.CurrentUser = user;
             this.GetUserPermission();           
-        }       
+        }        
 
         private void GetUserById(int user_id)
         {
@@ -145,6 +149,11 @@ namespace KM.JXC.BL
                 {
                     field.SetValue(CurrentUserPermission, 1);
                 }
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                this.AccessToken = (from at in db.Access_Token where at.User_ID == this.CurrentUser.ID select at).FirstOrDefault<Access_Token>();
             }
         }
 

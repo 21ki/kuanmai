@@ -1,8 +1,32 @@
 ﻿@{
     ViewBag.Title = "产品分类";
 }
+<script>
+    var cateMgr = new KMJXCProductManager();
+    function ExpandParentCattgory(obj,parentId,prefix) {
+        var containerId = prefix + "_" + parentId;
+        cateMgr.GetCategories({ 'parent_id': parentId }, function (response) {
+            
+            if (response != null && response != "" && typeof (response) == 'object') {
+                $("#" + containerId).html("");
+                $(response).each(function (index, item) {
+                    $("#" + containerId).append("<li>" + item.Name + "</li>");
+                   
+                });
 
-<div>
+                $("#" + containerId).show();
+
+                $(obj).parent().parent().find("ul[id^=" + prefix + "]").each(function (index, item) {
+                    var id = $(item).attr("id");
+                    if (id != containerId) {
+                        $(item).hide();
+                    }
+                });
+            }
+        });
+    }
+</script>
+<div class="categoryList">
 
     @if (Model != null)
     {
@@ -10,7 +34,8 @@
         foreach (var category in Model)
         {
             count++;
-            @category.Name
+            <div class="categoryItem"><a href="javascript:void(0);" onclick="ExpandParentCattgory(this,@category.ID,'children')">@category.Name</a></div>
+            <ul id="children_@category.ID" style="display:none;"></ul>
         }
         if (count == 0)
         {

@@ -23,6 +23,13 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult New()
         {
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            List<BCategory> categories = cateMgr.GetCategories(0);
+            ViewData["category"] = categories;
             return View();
         }
 
@@ -50,7 +57,15 @@ namespace KM.JXC.Web.Controllers
         }
         public ActionResult Properties()
         {
-           
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            List<BCategory> categories = cateMgr.GetCategories(0);
+            List<BProperty> properties = cateMgr.GetProperties(0,true);
+            ViewData["category"] = categories;
+            ViewData["mproperty"] = properties;
             return View();
         }
 

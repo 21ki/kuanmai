@@ -11,6 +11,8 @@ input,select {
     margin:0px;
 }
 
+
+
 .W_input {
 border: 1px solid #ccc;
 border-radius: 2px;
@@ -213,4 +215,24 @@ textarea {
         margin-left:30px;
         width:150px;
     }
+.row {
+        height:30px;line-height:30px;
+    }
+.categoryList {
+    padding-top:10px;
+}
+.product {
+    padding-top:10px;
+    float:left;
+}
+label {
+    text-align:center;
+    width:40px;
+    display:inline-block;
+}
+.title {
+    border-bottom:2px solid #7b9ebd;
+    font-size:14px;
+    font-weight:bold;
+}
 

@@ -40,6 +40,37 @@ function KMJXCProductManager() {
         var _this = this;
         _this.AjaxCall("/api/Categories/GetCategories/", postData, callback);
     }
+    this.PullOnLineShopCategories = function (callback) {
+        this.AjaxCall("/api/Categories/GetOnlineCategories/", "", callback);
+    }
+    this.GetProperties = function (params, callback) {
+        this.AjaxCall("/api/Categories/GetProperties/", "", callback);
+    }
+    this.CreateProperty = function (postData, callback) {
+        this.AjaxCall("/api/Categories/CreateProperty/", postData, callback);
+    }
+    this.CategoryChange = function (obj, childContainer) {
+        var _this = this;
+        var pID = $(obj).val();
+        
+        if (pID > 0) {
+            _this.GetCategories({ 'parent_id': pID }, function (response) {
+                
+                if (response != null && response != "" && typeof (response) == 'object') {
+                    
+                    $('#' + childContainer).html("");
+                    $('#' + childContainer).html("<option value=\"0\">--选择--</option>");
+                    $(response).each(function (index, item) {                       
+                        $('#' + childContainer).append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                    });
+
+                    $('#' + childContainer).show();
+                } else {
+                    $('#' + childContainer).hide();
+                }
+            });
+        }
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();

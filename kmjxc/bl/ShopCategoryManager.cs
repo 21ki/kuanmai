@@ -9,22 +9,24 @@ using KM.JXC.BL.Models;
 using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
+using KM.JXC.BL.Open.TaoBao;
+
 namespace KM.JXC.BL
 {
     public class ShopCategoryManager:BBaseManager
     {
+        IOShopManager mallShopManager = null;
         public ShopCategoryManager(BUser user, int shop_id, Permission permission)
             : base(user,shop_id,permission)
         {
-            
+            mallShopManager = new TaoBaoShopManager(this.AccessToken, this.Shop.Mall_Type_ID);
             
         }
 
         public ShopCategoryManager(BUser user, Shop shop, Permission permission)
             : base(user, shop, permission)
         {
-
-
+            mallShopManager = new TaoBaoShopManager(this.AccessToken, this.Shop.Mall_Type_ID);
         }
 
         /// <summary>
@@ -102,15 +104,25 @@ namespace KM.JXC.BL
         /// Get all categories
         /// </summary>
         /// <returns></returns>
-        public List<BCategory> GetCategories(int parentId)
+        public List<BCategory> GetCategories(int parentId,bool fromMailShop=false)
         {
             List<BCategory> categories = new List<BCategory>();          
             
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-               List<Product_Class> allpcs=(from pc in db.Product_Class 
-                                        where pc.Shop_ID==this.Main_Shop.Shop_ID 
-                                        select pc).ToList<Product_Class>();
+                List<Product_Class> allpcs=null;
+                if (!fromMailShop)
+                {
+                    allpcs = (from pc in db.Product_Class
+                              where pc.Shop_ID == this.Shop.Shop_ID
+                              select pc).ToList<Product_Class>();
+                }
+                else
+                {
+                    allpcs = (from pc in db.Product_Class
+                              where pc.Shop_ID == this.Main_Shop.Shop_ID
+                              select pc).ToList<Product_Class>();
+                }
 
                List<Product_Class> pcs = (from p in allpcs where p.Parent_ID == parentId select p).ToList<Product_Class>();
 
@@ -280,6 +292,215 @@ namespace KM.JXC.BL
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BCategory> GetOnlineCategories()
+        {
+            List<BCategory> categories = null;
+
+            List<Product_Class> classes= mallShopManager.GetCategories(this.MainUser);
+            if (classes != null && classes.Count > 0)
+            {
+                List<Product_Class> parents = (from p in classes where p.Mall_PCID == "0" select p).ToList<Product_Class>();
+                if (parents != null && parents.Count > 0)
+                {
+                    foreach (Product_Class pc in parents)
+                    {
+                        BCategory cate = new BCategory();
+                        cate.Name = pc.Name;
+                        cate.Mall_ID = pc.Mall_CID;
+                        cate.Mall_PID = pc.Mall_PCID;
+                        List<Product_Class> children = (from c in classes where c.Mall_PCID == pc.Mall_PCID select c).ToList<Product_Class>();
+                        if (children != null && children.Count > 0)
+                        {
+                            cate.Chindren = new List<BCategory>();
+                            foreach (Product_Class childCate in children)
+                            {
+                                BCategory child = new BCategory();
+                                child.Mall_ID = childCate.Mall_CID;
+                                child.Mall_PID = childCate.Mall_PCID;
+                                child.Name = childCate.Name;
+                                cate.Chindren.Add(child);
+                            }                            
+                        }
+                    }
+                }
+            }
+            return categories;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BProperty> GetOnlineProperties()
+        {
+            List<BProperty> properties = mallShopManager.GetProperities(new Product_Class() { Product_Class_ID=0,Create_User_ID=this.CurrentUser.ID,Shop_ID=this.Main_Shop.Shop_ID}, this.Main_Shop);
+            return properties;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyId"></param>
+        /// <param name="propName"></param>
+        /// <param name="propValues"></param>
+        /// <returns></returns>
+        public bool UpdateProperty(int propertyId, string propName, List<string> propValues)
+        {
+            bool result = false;
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="propName"></param>
+        /// <param name="propValues"></param>
+        /// <returns></returns>
+        public BProperty CreateProperty(int categoryId,string propName,List<string> propValues)
+        {
+            BProperty bproperty = null;
+            if (string.IsNullOrEmpty(propName))
+            {
+                throw new KMJXCException("属性名称不能为空");
+            }
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                Product_Spec property = new Product_Spec();
+                property.Product_Class_ID = categoryId;
+                property.Name = propName;
+                property.User_ID = this.CurrentUser.ID;
+                property.Shop_ID = this.Shop.Shop_ID;
+                property.Mall_PID = "";
+                property.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                db.Product_Spec.Add(property);
+                db.SaveChanges();
+                if (property.Product_Class_ID <= 0)
+                {
+                    throw new KMJXCException("产品属性创建失败");
+                }
+                bproperty = new BProperty();
+                bproperty.ID = property.Product_Spec_ID;
+                bproperty.Created_By = this.CurrentUser;
+                bproperty.Created = (int)property.Created;
+                bproperty.CategoryId = categoryId;
+                bproperty.MID = "";
+                bproperty.Name = propName;               
+
+                if (propValues != null)
+                {
+                    if (bproperty.Values == null)
+                    {
+                        bproperty.Values = new List<Product_Spec_Value>();
+                    }
+                    foreach (string v in propValues)
+                    {
+                        Product_Spec_Value psv = new Product_Spec_Value();
+                        psv.Mall_PVID = "";
+                        psv.Name = v;
+                        psv.Product_Spec_ID = property.Product_Spec_ID;
+                        psv.Product_Spec_Value_ID = 0;
+                        psv.User_ID = this.CurrentUser.ID;
+                        db.Product_Spec_Value.Add(psv);
+                        db.SaveChanges();
+                        bproperty.Values.Add(psv);
+                    }
+                }
+
+
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+            return bproperty;
+        }
+
+        public BProperty GetProperty(int propId)
+        {
+            BProperty prop = null;
+
+            return prop;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        public List<BProperty> GetProperties(int categoryId,bool fromMainShop=false)
+        {
+            List<BProperty> properties = new List<BProperty>();
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                if (!fromMainShop)
+                {
+                    var props = from prop in db.Product_Spec where prop.Shop_ID == this.Shop.Shop_ID select prop;
+                    if (categoryId > 0)
+                    {
+                        props = props.Where(a => a.Product_Class_ID == categoryId);
+                    }
+
+                    properties = (from p in props
+                                  select new BProperty
+                                  {
+                                      CategoryId = categoryId,
+                                      Created = (int)p.Created,
+                                      Created_By = (from u in db.User where u.User_ID == p.User_ID select new BUser { }).FirstOrDefault<BUser>(),
+                                      ID = p.Product_Spec_ID,
+                                      MID = p.Mall_PID,
+                                      Name = p.Name,
+                                      Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
+                                  }).ToList<BProperty>();
+                }
+                else
+                {
+                    var props = from prop in db.Product_Spec where prop.Shop_ID == this.Main_Shop.Shop_ID select prop;
+                    if (categoryId > 0)
+                    {
+                        props = props.Where(a => a.Product_Class_ID == categoryId);
+                    }
+
+                    properties = (from p in props
+                                  select new BProperty
+                                  {
+                                      CategoryId = categoryId,
+                                      Created = (int)p.Created,
+                                      Created_By = (from u in db.User where u.User_ID == p.User_ID select new BUser { }).FirstOrDefault<BUser>(),
+                                      ID = p.Product_Spec_ID,
+                                      MID = p.Mall_PID,
+                                      Name = p.Name,
+                                      Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
+                                  }).ToList<BProperty>();
+                }
+
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+            return properties;
         }
     }
 }
