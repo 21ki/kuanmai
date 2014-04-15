@@ -34,13 +34,14 @@ namespace KM.JXC.BL.Open.TaoBao
 
             String auth_host = this.Open_Key.Auth_Main_Url;
             NameValueCollection paras = new NameValueCollection();
-            paras.Add("client_id", this.Open_Key.AppKey);
-            paras.Add("client_secret", this.Open_Key.AppSecret);
             paras.Add("grant_type", "authorization_code");
             paras.Add("code", code);
+            paras.Add("client_id", this.Open_Key.AppKey);
+            paras.Add("client_secret", this.Open_Key.AppSecret);
             paras.Add("redirect_uri", this.Open_Key.CallBack_Url);
 
             string response = HttpRequester.PostHttpRequest(this.Open_Key.Auth_Main_Url + "/token", paras);
+            //string response = KM.JXC.Common.Util.HttpWebRequester.PostHttpRequest(this.Open_Key.Auth_Main_Url + "/token", paras);
 
             JObject json = JObject.Parse(response);
            
