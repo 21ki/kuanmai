@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "产品分类";
+    
 }
 <script>
     var cateMgr = new KMJXCProductManager();
@@ -25,17 +26,107 @@
             }
         });
     }
+
+    function ShowHideChildCates(id, obj) {
+        
+        if ($('#parent_' + id).is(":hidden")) {
+            $('#parent_' + id).show();
+            $(obj).html("隐藏子类目");
+        } else {
+            $('#parent_' + id).hide();
+            $(obj).html("查看子类目");
+        }
+    }
 </script>
-<div class="categoryList">
+<div class="normallist">
 
     @if (Model != null)
     {
-        int count=0;       
-        foreach (var category in Model)
+        List<KM.JXC.BL.Models.BCategory> cates=(List<KM.JXC.BL.Models.BCategory>)Model;
+        <div class="row">
+                @*<a href="javascript:void(0);" onclick="ExpandParentCattgory(this,@category.ID,'children')">@category.Name</a>*@
+
+                <dl>
+                    <dt class="f1 w1">
+                        名称
+                    </dt>
+                    <dd class="f1">
+                        创建日期
+                    </dd>
+                     <dd class="f1">
+                        创建者
+                    </dd>
+                     <dd class="f1 w2">
+                        启用
+                    </dd>
+                    <dd class="f1">
+                        子类目
+                    </dd>
+                </dl>
+            </div>
+        
+        int count = 0;
+        foreach (KM.JXC.BL.Models.BCategory category in cates)
         {
             count++;
-            <div class="categoryItem"><a href="javascript:void(0);" onclick="ExpandParentCattgory(this,@category.ID,'children')">@category.Name</a></div>
-            <ul id="children_@category.ID" style="display:none;"></ul>
+            <div class="row">
+                @*<a href="javascript:void(0);" onclick="ExpandParentCattgory(this,@category.ID,'children')">@category.Name</a>*@
+
+                <dl>
+                    <dt class="w1">
+                        @category.Name
+                    </dt>
+                    <dd>
+                        @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime((int)category.Created).ToString("yyyy-MM-dd H:mm")
+                    </dd>
+                     <dd>
+                        @category.Create_By.Name
+                    </dd>
+                     <dd class="w2">
+                         <input type="checkbox" value="" 
+                             @if(category.Enabled){
+                                @Html.Raw("checked")
+                             }
+                             />                      
+                    </dd>
+
+                    <dd >
+                    @if(category.Chindren!=null && category.Chindren.Count>0){
+                        <a href="javascript:void(0);" onclick="ShowHideChildCates(@category.ID,this)">查看子类目</a>
+                    }
+                    </dd>                   
+                </dl>
+                @if(category.Chindren!=null && category.Chindren.Count>0){
+                        <div id="@Html.Raw("parent_"+category.ID.ToString())" style="display:none;">
+                            @foreach(KM.JXC.BL.Models.BCategory ccate in category.Chindren){
+                                <div class="row">
+                                     <dl>
+                                        <dt class="w1">
+                                            <span class="cn1">@ccate.Name</span>
+                                        </dt>
+                                        <dd>
+                                            @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime((int)ccate.Created).ToString("yyyy-MM-dd H:mm")
+                                        </dd>
+                                         <dd>
+                                            @if(ccate.Create_By!=null){
+                                                @Html.Raw(ccate.Create_By.Name)
+                                            }
+                                        </dd>
+                                         <dd class="w2">
+                                             <input type="checkbox" value="" 
+                                                 @if(ccate.Enabled){
+                                                    @Html.Raw("checked")
+                                                 }
+                                                 />                      
+                                        </dd>
+                                        <dd >                                            
+                                        </dd>                   
+                                    </dl>
+                                </div>
+                            }
+                        </div>
+                }
+            </div>            
         }
         if (count == 0)
         {

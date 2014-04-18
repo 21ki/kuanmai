@@ -105,8 +105,9 @@ textarea {
 .jxcRight {
     margin-left:10px;
     padding-left:10px;
+    padding-right:10px;
     float:left;
-    width:860px;
+    width:850px;
     background-color:#FFF;
     min-height:600px;
 }
@@ -215,12 +216,50 @@ textarea {
         margin-left:30px;
         width:150px;
     }
-.row {
-        height:30px;line-height:30px;
-    }
-.categoryList {
-    padding-top:10px;
+
+.normallist {
+    padding:10px 10px;
 }
+.normallist .row {
+    overflow:hidden;
+    
+}
+    .normallist .row dl {
+        overflow:hidden;
+        margin:0px;
+        display:block;
+        height:35px;
+        line-height:35px;
+        border-bottom:1px solid #eaeaea;
+    }
+    .normallist .row dl dt {
+        margin:0;
+        float:left;
+        width:100px;
+        padding-right:20px;
+    }
+        .normallist .row dl dt .cn1 {
+            display:inline-block;
+            padding-left:25px;
+        }
+        
+    .normallist .row dl dd {
+        margin:0;
+        float:left;
+        width:100px;
+        padding-right:20px;
+    }
+
+        .normallist .row dl .w1 {
+            width:200px;
+        }
+        .normallist .row dl .w2 {
+            width:60px;
+        }
+        .normallist .row dl .f1 {
+            font-weight:bold;
+            font-size:13px;
+        }
 .product {
     padding-top:10px;
     float:left;

@@ -104,77 +104,87 @@ namespace KM.JXC.BL
         /// Get all categories
         /// </summary>
         /// <returns></returns>
-        public List<BCategory> GetCategories(int parentId,bool fromMailShop=false)
+        public List<BCategory> GetCategories(int? parentId,bool fromMailShop=false)
         {
-            List<BCategory> categories = new List<BCategory>();          
-            
+            List<BCategory> categories = new List<BCategory>();
+
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                List<Product_Class> allpcs=null;
+                var allpcs = (from pc in db.Product_Class
+                              select pc);
                 if (!fromMailShop)
                 {
-                    allpcs = (from pc in db.Product_Class
-                              where pc.Shop_ID == this.Shop.Shop_ID
-                              select pc).ToList<Product_Class>();
+                    allpcs = allpcs.Where(a => a.Shop_ID == Shop.Shop_ID);
                 }
                 else
                 {
-                    allpcs = (from pc in db.Product_Class
-                              where pc.Shop_ID == this.Main_Shop.Shop_ID
-                              select pc).ToList<Product_Class>();
+                    allpcs = allpcs.Where(a => a.Shop_ID == Main_Shop.Shop_ID);
                 }
+                if (parentId != null)
+                {
+                    allpcs = allpcs.Where(a => a.Parent_ID == parentId);
+                }
+                List<Product_Class> pcs = allpcs.ToList<Product_Class>();
 
-               List<Product_Class> pcs = (from p in allpcs where p.Parent_ID == parentId select p).ToList<Product_Class>();
-
-               foreach (Product_Class ca in pcs)
-               {
-                   BCategory category = new BCategory();                 
-                   category.ID = ca.Product_Class_ID;
-                   category.Mall_ID = ca.Mall_CID;
-                   category.Mall_PID = ca.Mall_PCID;
-                   category.Name = ca.Name;
-                   category.Order = (int)ca.Order;
-                   category.Enabled = ca.Enabled;
-                   category.Created = ca.Create_Time;
-                   category.Chindren = (from cate in allpcs
-                                        where cate.Parent_ID == ca.Product_Class_ID
-                                        select new BCategory
-                                        {
-                                            ID = cate.Product_Class_ID,
-                                            Mall_ID = cate.Mall_CID,
-                                            Mall_PID = cate.Mall_PCID,
-                                            Name = cate.Name,
-                                            Order = (int)cate.Order,
-                                            Enabled = cate.Enabled,
-                                            Created = cate.Create_Time
-                                        }).ToList<BCategory>();
-                   if (ca.Parent_ID > 0)
-                   {
-                       category.Parent = (from cate in db.Product_Class
-                                          where cate.Product_Class_ID == ca.Parent_ID
-                                          select new BCategory
-                                          {                                              
-                                              Created = cate.Create_Time,
-                                              Enabled = cate.Enabled,
-                                              ID = cate.Product_Class_ID,
-                                              Name = cate.Name,
-                                              Mall_ID = cate.Mall_CID,
-                                              Mall_PID = cate.Mall_PCID,                                              
-                                          }).FirstOrDefault<BCategory>();
-                   }
-
-                   category.Create_By = (from u in db.User
-                                         where u.User_ID == ca.Create_User_ID
-                                         select new BUser 
+                foreach (Product_Class ca in pcs)
+                {
+                    BCategory category = new BCategory();
+                    category.ID = ca.Product_Class_ID;
+                    category.Mall_ID = ca.Mall_CID;
+                    category.Mall_PID = ca.Mall_PCID;
+                    category.Name = ca.Name;
+                    category.Order = (int)ca.Order;
+                    category.Enabled = ca.Enabled;
+                    category.Created = ca.Create_Time;
+                    category.Chindren = (from cate in db.Product_Class
+                                         where cate.Parent_ID == ca.Product_Class_ID
+                                         select new BCategory
                                          {
-                                             ID=u.User_ID,
-                                             Name=u.Name,
-                                             Mall_ID=u.Mall_ID,
-                                             Mall_Name=u.Mall_Name,
-                                             EmployeeInfo =(from em in db.Employee where em.User_ID==ca.Create_User_ID select em).FirstOrDefault<Employee>()
-                                         }).FirstOrDefault<BUser>();
-                   categories.Add(category);
-               }
+                                             ID = cate.Product_Class_ID,
+                                             Mall_ID = cate.Mall_CID,
+                                             Mall_PID = cate.Mall_PCID,
+                                             Name = cate.Name,
+                                             Order = (int)cate.Order,
+                                             Enabled = cate.Enabled,
+                                             Created = cate.Create_Time,
+                                             Create_By = (from u in db.User
+                                                          where u.User_ID == cate.Create_User_ID
+                                                          select new BUser
+                                                          {
+                                                              ID = u.User_ID,
+                                                              Name = u.Name,
+                                                              Mall_ID = u.Mall_ID,
+                                                              Mall_Name = u.Mall_Name,
+                                                              //EmployeeInfo = (from em in db.Employee where em.User_ID == cate.Create_User_ID select em).FirstOrDefault<Employee>()
+                                                          }).FirstOrDefault<BUser>()
+                                         }).ToList<BCategory>();
+                    if (ca.Parent_ID > 0)
+                    {
+                        category.Parent = (from cate in db.Product_Class
+                                           where cate.Product_Class_ID == ca.Parent_ID
+                                           select new BCategory
+                                           {
+                                               Created = cate.Create_Time,
+                                               Enabled = cate.Enabled,
+                                               ID = cate.Product_Class_ID,
+                                               Name = cate.Name,
+                                               Mall_ID = cate.Mall_CID,
+                                               Mall_PID = cate.Mall_PCID,
+                                           }).FirstOrDefault<BCategory>();
+                    }
+
+                    category.Create_By = (from u in db.User
+                                          where u.User_ID == ca.Create_User_ID
+                                          select new BUser
+                                          {
+                                              ID = u.User_ID,
+                                              Name = u.Name,
+                                              Mall_ID = u.Mall_ID,
+                                              Mall_Name = u.Mall_Name,
+                                              EmployeeInfo = (from em in db.Employee where em.User_ID == ca.Create_User_ID select em).FirstOrDefault<Employee>()
+                                          }).FirstOrDefault<BUser>();
+                    categories.Add(category);
+                }
             }
             
             return categories;
