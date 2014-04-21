@@ -8,11 +8,14 @@ namespace KM.JXC.Common.Util
 {
     public class DateTimeUtil
     {
-        public static DateTime ConvertToDateTime(int time)
+        public static DateTime ConvertToDateTime(int time,string timeZone = "China Standard Time")
         {
+            TimeZoneInfo zoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
             DateTime minTime = DateTime.MinValue;
-            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970,1,1));
+            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            startTime = TimeZoneInfo.ConvertTimeToUtc(startTime);
             minTime = startTime.AddSeconds(time);
+            minTime = TimeZoneInfo.ConvertTimeFromUtc(minTime, zoneInfo);
             return minTime;
         }
 

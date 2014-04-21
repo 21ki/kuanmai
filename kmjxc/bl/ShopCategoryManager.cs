@@ -360,9 +360,52 @@ namespace KM.JXC.BL
         /// <param name="propName"></param>
         /// <param name="propValues"></param>
         /// <returns></returns>
-        public bool UpdateProperty(int propertyId, string propName, List<string> propValues)
+        public bool UpdatePropValue(int propertyId, string value)
         {
             bool result = false;
+            return result;
+        }
+
+        public bool AddNewPropValue(int propertyId, string value)
+        {
+            bool result = false;
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                Product_Spec ps = (from pc in db.Product_Spec where pc.Product_Spec_ID == propertyId select pc).FirstOrDefault<Product_Spec>();
+                if (ps == null)
+                {
+                    throw new KMJXCException("属性丢失,不能添加属性值");
+                }
+
+                Product_Spec_Value pv = (from psv in db.Product_Spec_Value where psv.Product_Spec_ID == propertyId && psv.Name == value select psv).FirstOrDefault<Product_Spec_Value>();
+                if (pv != null)
+                {
+                    throw new KMJXCException("此属性值已经存在，不能重复创建");
+                }
+
+                pv.Product_Spec_ID = propertyId;
+                pv.Name = value;
+                pv.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                pv.User_ID = this.CurrentUser.ID;
+                db.Product_Spec_Value.Add(pv);
+                if (pv.Product_Spec_Value_ID > 0)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+
             return result;
         }
 
@@ -383,6 +426,28 @@ namespace KM.JXC.BL
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
+                var existed = from props in db.Product_Spec where props.Name==propName select props;
+
+                if (categoryId > 0)
+                {
+                    existed = existed.Where(a=>a.Product_Class_ID==categoryId);
+                }
+
+                if (this.Shop.Parent_Shop_ID > 0)
+                {
+                    var pexisted = existed.Where(a=>a.Shop_ID==this.Main_Shop.Shop_ID);
+                    if (pexisted.FirstOrDefault<Product_Spec>() != null)
+                    {
+                        throw new KMJXCException("主店铺已经拥有此属性，你直接使用主店铺属性");
+                    }
+                }
+
+                existed = existed.Where(a => a.Shop_ID == this.Shop.Shop_ID);
+                if (existed.FirstOrDefault<Product_Spec>() != null)
+                {
+                    throw new KMJXCException("此属性已经存在，不能重复创建");
+                }
+
                 Product_Spec property = new Product_Spec();
                 property.Product_Class_ID = categoryId;
                 property.Name = propName;
@@ -392,9 +457,9 @@ namespace KM.JXC.BL
                 property.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.Product_Spec.Add(property);
                 db.SaveChanges();
-                if (property.Product_Class_ID <= 0)
+                if (property.Product_Spec_ID <= 0)
                 {
-                    throw new KMJXCException("产品属性创建失败");
+                    throw new KMJXCException("属性创建失败");
                 }
                 bproperty = new BProperty();
                 bproperty.ID = property.Product_Spec_ID;
@@ -418,13 +483,12 @@ namespace KM.JXC.BL
                         psv.Product_Spec_ID = property.Product_Spec_ID;
                         psv.Product_Spec_Value_ID = 0;
                         psv.User_ID = this.CurrentUser.ID;
-                        db.Product_Spec_Value.Add(psv);
-                        db.SaveChanges();
-                        bproperty.Values.Add(psv);
+                        psv.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        db.Product_Spec_Value.Add(psv);                       
                     }
+                    db.SaveChanges();
+                    bproperty.Values=(from pv in db.Product_Spec_Value where pv.Product_Spec_ID==property.Product_Spec_ID select pv).ToList<Product_Spec_Value>();
                 }
-
-
             }
             catch
             {
@@ -451,56 +515,70 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public List<BProperty> GetProperties(int categoryId,bool fromMainShop=false)
+        public List<BProperty> GetProperties(int categoryId)
         {
             List<BProperty> properties = new List<BProperty>();
             KuanMaiEntities db = new KuanMaiEntities();
 
             try
             {
-                if (!fromMainShop)
+                var props = from prop in db.Product_Spec where (prop.Shop_ID == this.Shop.Shop_ID || prop.Shop_ID == this.Main_Shop.Shop_ID) select prop;
+                if (categoryId > 0)
                 {
-                    var props = from prop in db.Product_Spec where prop.Shop_ID == this.Shop.Shop_ID select prop;
-                    if (categoryId > 0)
-                    {
-                        props = props.Where(a => a.Product_Class_ID == categoryId);
-                    }
-
-                    properties = (from p in props
-                                  select new BProperty
-                                  {
-                                      CategoryId = categoryId,
-                                      Created = (int)p.Created,
-                                      Created_By = (from u in db.User where u.User_ID == p.User_ID select new BUser { }).FirstOrDefault<BUser>(),
-                                      ID = p.Product_Spec_ID,
-                                      MID = p.Mall_PID,
-                                      Name = p.Name,
-                                      Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
-                                  }).ToList<BProperty>();
+                    props = props.Where(a => a.Product_Class_ID == categoryId);
                 }
-                else
-                {
-                    var props = from prop in db.Product_Spec where prop.Shop_ID == this.Main_Shop.Shop_ID select prop;
-                    if (categoryId > 0)
-                    {
-                        props = props.Where(a => a.Product_Class_ID == categoryId);
-                    }
 
-                    properties = (from p in props
-                                  select new BProperty
-                                  {
-                                      CategoryId = categoryId,
-                                      Created = (int)p.Created,
-                                      Created_By = (from u in db.User where u.User_ID == p.User_ID select new BUser { }).FirstOrDefault<BUser>(),
-                                      ID = p.Product_Spec_ID,
-                                      MID = p.Mall_PID,
-                                      Name = p.Name,
-                                      Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
-                                  }).ToList<BProperty>();
+                properties = (from p in props
+                              select new BProperty
+                              {
+                                  Shop = (from sp in db.Shop
+                                          where sp.Shop_ID == p.Shop_ID
+                                          select new BShop
+                                          {
+                                              ID = sp.Shop_ID,
+                                              Title = sp.Name,
+                                              Created = (int)sp.Created,
+                                              Description = sp.Description
+                                          }).FirstOrDefault<BShop>(),
+                                  CategoryId = categoryId,
+                                  Created = (int)p.Created,
+                                  Created_By = (from u in db.User
+                                                where u.User_ID == p.User_ID
+                                                select new BUser
+                                                {
+                                                    ID = u.User_ID,
+                                                    Name = u.Name,
+                                                    Mall_Name = u.Mall_Name
+                                                }).FirstOrDefault<BUser>(),
+                                  ID = p.Product_Spec_ID,
+                                  MID = p.Mall_PID,
+                                  Name = p.Name,
+                                  //Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
+                              }).ToList<BProperty>();
+
+                if (properties.Count > 0)
+                {
+                    foreach (BProperty p in properties)
+                    {
+                        p.Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.ID select ps).ToList<Product_Spec_Value>();
+                        Shop shop = (from sp in db.Shop where sp.Shop_ID == p.Shop.ID select sp).FirstOrDefault<Shop>();
+                        if (shop != null)
+                        {
+                            if (shop.Parent_Shop_ID > 0) {
+                                p.Shop.Parent = (from sp in db.Shop where sp.Shop_ID == shop.Parent_Shop_ID 
+                                                 select new BShop 
+                                                 {
+                                                     ID = sp.Shop_ID,
+                                                     Title = sp.Name,
+                                                     Created = (int)sp.Created,
+                                                 }).FirstOrDefault<BShop>();
+                            }
+                        }
+                    }
                 }
 
             }
-            catch
+            catch(Exception ex)
             {
             }
             finally

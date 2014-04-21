@@ -80,9 +80,11 @@ namespace KM.JXC.Web.Controllers.api
             return properties;
         }
 
-        public BProperty CreateProperty()
+        [HttpPost]
+        public ApiMessage CreateProperty()
         {
             BProperty property = new BProperty();
+            ApiMessage message = new ApiMessage();
             string user_id = User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
@@ -92,10 +94,64 @@ namespace KM.JXC.Web.Controllers.api
             HttpRequestBase request = context.Request;
             string categoryId = request["category_id"];
             string propName = request["prop_name"];
-            cateMgr.CreateProperty(int.Parse(categoryId), propName, null);
+            string propValue = request["prop_value"];
+            List<string> propValues = new List<string>();
+            if (!string.IsNullOrEmpty(propValue))
+            {
+                string[] vs = propValue.Split(',');
+                if (vs != null && vs.Length > 0)
+                {
+                    for (int i = 0; i < vs.Length; i++)
+                    {
+                        propValues.Add(vs[i]);
+                    }
+                }
+            }
 
+            try
+            {
+                property = cateMgr.CreateProperty(int.Parse(categoryId), propName, propValues);
+                message.Item = property;
+                message.Status = "ok";
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException ex)
+            {
+                message.Status = "failed";
+                message.Message = ex.Message;
+                message.Item = null;
+            }
+            catch (Exception nex)
+            {
+
+            }
            
-            return property;
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage AddNewPropValue()
+        {
+            ApiMessage message = new ApiMessage();
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string propId = request["prop_id"];
+            string propValue = request["prop_value"];
+            if (!string.IsNullOrEmpty(propValue))
+            {
+                if (cateMgr.AddNewPropValue(int.Parse(propId), propValue))
+                {
+                    message.Status = "ok";
+                }
+                else {
+                    message.Status = "failed";
+                }
+            }
+            return message;
         }
 
         [HttpPost]
@@ -137,6 +193,7 @@ namespace KM.JXC.Web.Controllers.api
 
             return message;
         }
+
         public void Post([FromBody]string value)
         {
 

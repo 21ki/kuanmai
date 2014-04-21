@@ -55,12 +55,12 @@ function KMJXCProductManager() {
         
         if (pID > 0) {
             _this.GetCategories({ 'parent_id': pID }, function (response) {
-                
+
                 if (response != null && response != "" && typeof (response) == 'object') {
-                    
+
                     $('#' + childContainer).html("");
                     $('#' + childContainer).html("<option value=\"0\">--选择--</option>");
-                    $(response).each(function (index, item) {                       
+                    $(response).each(function (index, item) {
                         $('#' + childContainer).append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
                     });
 
@@ -69,7 +69,14 @@ function KMJXCProductManager() {
                     $('#' + childContainer).hide();
                 }
             });
+        } else {
+            $('#' + childContainer).html("");
+            $('#' + childContainer).hide();
         }
+    }
+
+    this.AddNewPropValue = function (params, callback) {
+        this.AjaxCall("/api/Categories/AddNewPropValue/", postData, callback);
     }
 }
 

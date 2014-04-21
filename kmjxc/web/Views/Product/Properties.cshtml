@@ -1,45 +1,198 @@
-﻿@{
+﻿@{    
     ViewBag.Title = "产品属性管理";
+    List<KM.JXC.BL.Models.BProperty> properties = (List<KM.JXC.BL.Models.BProperty>)ViewData["mproperty"];
 }
 
 <script>
     var cateMgr = new KMJXCProductManager();
+    var valueRows = 0;
     $(document).ready(function () {
         $('#pCategory').change(function () {
             //alert($(this).attr('id'));
             cateMgr.CategoryChange(this, 'cCategory')
         });
 
+        valueRows = $('#propValueList li').size();       
+
         $('#btnAddProperty').click(function () {
             var pcid = $('#pCategory').val();
             var cid = $('#cCategory').val();
+            var propName = $('#propName').val();
+           
+            if ($.trim(propName)=='') {
+                $('#resultmessage').html("名称不能为空");
+                $('#resultmessage').show();
+            }
+            var categoryId = pcid;
+            if (cid > 0) {
+                categoryId = cid;
+            }
+
+            var propValue = "";
+            
+            for (var i = 1; i <= valueRows; i++) {
+                var pValue = $('#val' + i).find("input[type='text']").val();
+                if ($.trim(pValue)!='') {
+                    if (propValue == '') {
+                        propValue = pValue;
+                    } else {
+                        propValue = propValue + "," + pValue;
+                    }
+                }
+            }
+           
+            cateMgr.CreateProperty({ 'category_id': categoryId, 'prop_name': propName, 'prop_value': propValue }, function (res) {
+
+            })
         });
     });
+
+    function AddValueRow() {
+        valueRows++;
+        $('#propValueList').append("<li id=\"val" + valueRows + "\"><input class=\"W_input\" type=\"text\" value=\"\"/><span class=\"simg\"><img onclick=\"AddValueRow()\" src=\"/Content/images/add.png\"/></span><span class=\"simg\"><img onclick=\"RemoveValueRow('val" + valueRows + "')\" src=\"/Content/images/remove.gif\"/></span></li>")
+    }
+
+    function RemoveValueRow(id) {
+        $('#propValueList').find('#' + id).remove();
+        valueRows--;
+    }
+
+    function ShowHidePropValues(id, obj) {
+        if ($('#parent_' + id).is(":hidden")) {
+            $('#parent_' + id).show();
+            $(obj).html("隐藏属性值");
+        } else {
+            $('#parent_' + id).hide();
+            $(obj).html("查看属性值");
+        }
+    }
 
 </script>
 
 <h2>产品属性管理</h2>
 
-<div class="properties">
-    @if (ViewData["mproperty"] != null)
-    {
-    <div class="row"><h3>关联主店铺产品属性</h3></div>
-    }
+<div class="normallist"> 
 
-    <div id="propertyList" style="display:none;">
-
-    </div>
-
+    
+@if (properties != null)
+{ 
     <div class="row">
-        <label>类目:</label><select class="W_input" id="pCategory">
+                 <dl>
+                    <dt class="f1 w1">
+                        名称
+                    </dt>
+                    <dd class="f1">
+                        创建日期
+                    </dd>
+                     <dd class="f1">
+                        创建者
+                    </dd>                   
+                    <dd class="f1">
+                        属性值
+                    </dd>
+                    <dd class="f1">
+                        
+                    </dd>
+                </dl>
+    </div>
+    int count = 0;
+    foreach (KM.JXC.BL.Models.BProperty property in properties)
+    {
+        count++;
+            <div class="row">
+                @*<a href="javascript:void(0);" onclick="ExpandParentCattgory(this,@category.ID,'children')">@category.Name</a>*@
+
+                <dl>
+                    <dt class="w1">
+                        @property.Name
+                    </dt>
+                    <dd>
+                        @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime((int)property.Created).ToString("yyyy-MM-dd H:mm")
+                    </dd>
+                     <dd>
+                        @property.Created_By.Name
+                    </dd>                   
+
+                    <dd >
+                        @if (property.Values != null && property.Values.Count > 0)
+                        {
+                            <a class="l1" href="javascript:void(0);" onclick="ShowHidePropValues(@property.ID,this)">查看属性值</a>
+                        }
+                    </dd>   
+                    <dd>
+                        添加新属性值
+                    </dd>                
+                </dl>
+            </div>
+                if (property.Values.Count > 0)
+                {
+                    <div id="@Html.Raw("parent_"+property.ID.ToString())" style="display:none;">
+                    @foreach (KM.JXC.DBA.Product_Spec_Value val in property.Values)
+                    {
+                       <div class="row">
+                         <dl>
+                            <dt class="w1">
+                                <span class="cn1">@val.Name</span>
+                            </dt>
+                            <dd>
+                                @if (val.Created != null && val.Created>0)
+                                {
+                                    @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime((int)val.Created).ToString("yyyy-MM-dd H:mm")
+                                }else{
+                                    @Html.Raw("无创建日期")
+                                }
+                            </dd>
+                             <dd>
+                                 @property.Created_By.Name
+                            </dd>                   
+
+                            <dd >
+                      
+                            </dd>   
+                            <dd>
+                        
+                            </dd>                
+                        </dl>
+                      </div>
+                    }
+                  </div>
+                }
+            
+    }
+}
+   
+<div class="" style="padding-top:30px;">
+    <div class="row">
+        <label>类目:</label><select class="W_input sel1" id="pCategory">
              <option value="0">--选择--</option>
-                @if (ViewData["category"]!=null){
-                    foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
+                @if (ViewData["category"] != null)
+                {
+                    foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>)
+                    { 
                         <option value="@cate.ID">@cate.Name</option>
                     }
                 }
-        </select> <select class="W_input" id="cCategory" style="display:none;"></select>
+        </select> <select class="W_input sel1" id="cCategory" style="display:none;"></select>
     </div>
-    
-    <div><label>名称:</label><input class="W_input" value=""/> <input class="W_input_btn"  id="btnAddProperty" type="button" value="添加"/></div>
+   
+    <div class="row"><label>名称:</label><input class="W_input" value="" id="propName"/></div>
+    <div class="row" style="height:auto">
+        <label style="display:inline-block;float:left;">属性值:</label>
+        <ul class="row normalul" style="height:auto" id="propValueList">
+            <li  id="val1"><input class="W_input" type="text" value=""/></li>
+            <li  id="val2"><input class="W_input" type="text" value=""/></li>
+            <li  id="val3"><input class="W_input" type="text" value=""/></li>
+            <li  id="val4"><input class="W_input" type="text" value=""/></li>
+            <li  id="val5"><input class="W_input" type="text" value=""/><span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span></li>
+        </ul>
+
+    </div>
+    <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;">
+           
+    </div>
+    <div class="row" style="height:auto;padding-left:60px;">
+         <input class="W_input_btn btn1"  id="btnAddProperty" type="button" value="添加"/>
+    </div>
+   </div>
 </div>
+

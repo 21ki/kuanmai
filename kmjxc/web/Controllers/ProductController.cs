@@ -63,7 +63,7 @@ namespace KM.JXC.Web.Controllers
             Shop MainShop = userMgr.Main_Shop;
             ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
             List<BCategory> categories = cateMgr.GetCategories(0);
-            List<BProperty> properties = cateMgr.GetProperties(0,true);
+            List<BProperty> properties = cateMgr.GetProperties(0);
             ViewData["category"] = categories;
             ViewData["mproperty"] = properties;
             return View();

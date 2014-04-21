@@ -11,8 +11,16 @@ input,select {
     margin:0px;
 }
 
+a:hover {
+color:#0073B2;
+}
 
-
+ul {
+    list-style:none;
+    border:0;
+    margin:0;
+    padding:0;
+}
 .W_input {
 border: 1px solid #ccc;
 border-radius: 2px;
@@ -95,6 +103,14 @@ textarea {
 .jxcMain,.jxcfoot {margin: 0 auto;width:1000px;overflow: hidden;}
 .jxcfoot {
     text-align: center;
+}
+.btn1 {
+    padding-left:15px;padding-right:15px;
+    cursor:pointer;
+}
+
+.sel1 {
+    height:24px;
 }
 .jxcLeftMenu {
     float:left;
@@ -185,7 +201,7 @@ textarea {
         /*background-color:#FFF;*/
     }
         .menuContainer ul li .link,.menuContainer ul li .links {
-              padding-left:15px;
+              text-align:center;
               display: block;
               text-decoration: none;
               height:25px;
@@ -205,15 +221,14 @@ textarea {
             }
 .newCategory {
 }
-    .newCategory .savemessage {
+
+.message1 {
         border: 1px solid #ccc;
         border-radius: 2px;
         color:#ed0e0e;
-        margin-top:5px;       
-        padding-left:30px;
-        background-color:#f8fbef;
-        padding-right:30px;
-        margin-left:30px;
+        margin-bottom:5px;    
+        text-align:center;
+        background-color:#f8fbef;      
         width:150px;
     }
 
@@ -222,7 +237,19 @@ textarea {
 }
 .normallist .row {
     overflow:hidden;
-    
+    padding-top:0px;padding-bottom:5px;
+}
+
+.normallist .row label{
+    width:60px;
+}
+
+.nolabel1 {
+    padding-left:60px;
+}
+
+.nolabel2 {
+    margin-left:60px;
 }
     .normallist .row dl {
         overflow:hidden;
@@ -244,12 +271,22 @@ textarea {
         }
         
     .normallist .row dl dd {
+        display:inline-block;
         margin:0;
         float:left;
         width:100px;
         padding-right:20px;
     }
 
+        .normallist .row dl dd .l1 {
+            display:inline-block;
+            text-decoration:none;
+            color:#555;
+        }
+
+        .normallist .row dl dd .l1:hover {           
+            color:#0073B2;
+        }
         .normallist .row dl .w1 {
             width:200px;
         }
@@ -260,6 +297,26 @@ textarea {
             font-weight:bold;
             font-size:13px;
         }
+.normalul {
+    
+}
+    .normalul li {
+        padding-top:3px;
+        padding-bottom:3px;
+        height:25px;
+        line-height:25px;
+    }
+    .normalul first {        
+        padding-bottom:3px;
+    }
+    .normalul li .simg {
+        display:inline-block;
+        padding-left:5px;
+    }
+    .normalul li .simg img {
+        vertical-align:middle;
+        cursor:pointer;
+    }
 .product {
     padding-top:10px;
     float:left;

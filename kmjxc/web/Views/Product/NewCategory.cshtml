@@ -44,44 +44,48 @@
             if (parent_id != 0) {
                 cateMgr.GetCategories({ 'parent_id': parent_id }, function (response) {
                     if (response != null && response != "" && typeof (response) == 'object' && response.length > 0) {
-                        $('#childrenCategory').html("");
+                        $('#childrenCategory').find("ul").html("");
                         $(response).each(function (index, item) {
-                            $('#childrenCategory').append("<div style=\"padding-left:30px;\">" + item.Name + "</div>");
+                            $('#childrenCategory').find("ul").append("<li>" + item.Name + "</li>");
                         });
                         $('#childrenCategory').show();
                     } else {
                         $('#childrenCategory').hide();
                     }
                 });
+            } else {
+                $('#childrenCategory').find("ul").html("");
+                $('#childrenCategory').hide();
             }
         });
     });
 
 </script>
 <h2>产品类目只支持两级</h2>
-<div class="newCategory">
+<div class="normallist">
     
     <div style="padding-top:10px;">
         <div class="row">
-            <label for="cateParent">父类:</label>
-            <select class="W_input" style="height:24px;text-align:center;" id="cateParent">
+            <label for="cateParent">父类:</label><select class="W_input" style="height:24px;text-align:center;" id="cateParent">
                     <option value="0">-选择-</option>
                     @foreach (var category in Model) { 
                         <option value="@category.ID">@category.Name</option>
                     }
-            </select>
+            </select><span style="padding-left:5px;">创建父类目，请忽略此项</span>
         </div>
-        <div id="childrenCategory" style="display:none;">
+        <div id="childrenCategory" class="nolabel1" style="display:none;">
+            <ul style="padding-left:4px;">
+
+            </ul>
         </div>
-        <div id="savemessage" class="savemessage" style="display:none;">
+        <div id="savemessage" class="message1 nolabel2" style="display:none;">
            
         </div>
         <div class="row">
-            <label for="categoryName">名称:</label>
-            <input class="W_input" type="text" id="categoryName" value="" />
+            <label for="categoryName">名称:</label><input class="W_input" type="text" id="categoryName" value="" />
             <input class="W_input_btn"  id="btnAddCategory" type="button" value="添加"/>
         </div>
-        <div class="row">从店铺同步到进销存系统 <a href="#">获取店铺分类信息</a></div>
+        <div class="row">从店铺同步到进销存系统 <a href="#">获取店铺类目信息</a></div>
         <div class="">
 
         </div>
