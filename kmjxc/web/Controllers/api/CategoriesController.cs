@@ -103,7 +103,7 @@ namespace KM.JXC.Web.Controllers.api
             {
                 sortBy = request["dir"];
             }
-            List<BProperty> properties = cateMgr.GetProperties(categoryId,sortBy,dir);
+            List<BProperty> properties = cateMgr.GetProperties(categoryId,0,sortBy,dir);
             PQGridData grid = new PQGridData();
             grid.curPage = 1;
             grid.totalRecords = properties.Count;
@@ -111,6 +111,28 @@ namespace KM.JXC.Web.Controllers.api
             message.Item = grid;
             message.Status="ok";
             return grid;
+        }
+
+        [HttpPost]
+        public BProperty GetProperty()
+        {
+            BProperty property = new BProperty();
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            int propId = 0;
+            int.TryParse(request["prop_id"],out propId);
+            List<BProperty> properties = cateMgr.GetProperties(0,propId);
+            if (properties.Count == 1)
+            {
+                property = properties[0];
+            }
+
+            return property;
         }
 
         [HttpPost]

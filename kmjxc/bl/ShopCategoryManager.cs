@@ -516,7 +516,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public List<BProperty> GetProperties(int categoryId, string sortBy = null, string dir = null)
+        public List<BProperty> GetProperties(int categoryId, int propId=0, string sortBy = null, string dir = null)
         {
             List<BProperty> properties = new List<BProperty>();
             KuanMaiEntities db = new KuanMaiEntities();
@@ -529,6 +529,10 @@ namespace KM.JXC.BL
                     props = props.Where(a => a.Product_Class_ID == categoryId);
                 }
 
+                if (propId > 0)
+                {
+                    props=props.Where(a => a.Product_Spec_ID == propId);
+                }
                 properties = (from p in props orderby p.Product_Class_ID descending
                               select new BProperty
                               {

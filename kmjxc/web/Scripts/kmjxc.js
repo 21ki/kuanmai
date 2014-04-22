@@ -102,6 +102,10 @@ function KMJXCProductManager() {
     this.AddNewPropValue = function (params, callback) {
         this.AjaxCall("/api/Categories/AddNewPropValue/", postData, callback);
     }
+    this.GetProperty = function (params, callback) {
+       
+        this.AjaxCall("/api/Categories/GetProperty", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();

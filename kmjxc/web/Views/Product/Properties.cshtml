@@ -53,9 +53,9 @@
             $("<span>编辑</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
                 editRow();
             });
-            $("<span>删除</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-minus" } }).click(function () {
-                deleteRow();
-            });
+            //$("<span>删除</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-minus" } }).click(function () {
+            //    deleteRow();
+            //});
             $toolbar.disableSelection();
         });
 
@@ -117,14 +117,20 @@
             $frm.find("input").val("");
 
             $("#popup-dialog-crud").dialog({
+                open: function (event, ui) {
+                    $('#resultmessage').html("");
+                    $('#resultmessage').hide();
+                    CleanForm();
+                },
                 resizable: false,
                 title: "添加属性", buttons: {
                     "保存": function () {
                         var that = this;
                         var pcid = $('#pCategory').val();
-                        var cid = $('#cCategory').val();
+                        var cid = $('#cCategory').val(); 
                         var propName = $('#propName').val();
-
+                        //alert(propName);
+                        //return;
                         if ($.trim(propName) == '') {
                             $('#resultmessage').html("名称不能为空");
                             $('#resultmessage').show();
@@ -162,9 +168,7 @@
                     }
                 }
             });
-            $('#resultmessage').html("");
-            $('#resultmessage').hide();
-            CleanForm();
+           
             $("#popup-dialog-crud").dialog("open");
         }
         //delete Row.
@@ -189,10 +193,44 @@
                 var pName = row["Name"];
                
                 $("#popup-dialog-crud").dialog({
+                    open: function (event, ui) {
+
+                        $('#resultmessage').html("");
+                        $('#resultmessage').hide();
+                        CleanForm();
+
+                        cateMgr.GetProperty({ 'prop_id': pId }, function (res) {
+                            if (res != null && res != 'undefined' && typeof (res) == 'object') {
+                                $('#propName').val(pName);
+                                if (res.Values != null && typeof (res.Values) == 'object' && res.Values.length > 0) {
+                                    $(res.Values).each(function (index, item) {
+                                        if (index + 1 > 5) {
+                                            AddValueRow();
+                                        }
+
+                                        $('#val' + (index + 1)).find("input[type='text']").val(item.Name).attr("readonly", "readonly");
+                                    });
+
+                                    if (res.Category != null && res.Category != 'null') {
+                                        if (res.Category.Parent_ID <= 0) {
+                                            $('#pCategory').val(res.Category.Product_Class_ID);
+                                        } else {
+                                            $('#pCategory').val(res.Category.Parent_ID);
+                                            cateMgr.CategoryChange(document.getElementById('pCategory'), 'cCategory');
+                                            $('#cCategory').val(res.Category.Product_Class_ID);
+                                        }
+                                    }
+                                }
+                            }
+                        });                       
+                    },
                     resizable: false,
-                    title: "编辑 (" + pName + ")", buttons: {
+                    title: "编辑属性 (" + pName + ")", buttons: {
                         "保存": function () {
-                            
+                            var pcid = $('#pCategory').val();
+                            var cid = $('#cCategory').val();
+                            var propName = $('#propName').val();
+                            alert(propName);
                         },
                         "取消": function () {
                             $(this).dialog("close");
@@ -229,9 +267,11 @@
     });
 
     function CleanForm() {
+       
         var needremove = [];
         for (var i = 1; i <= valueRows; i++) {
-            $('#val' + i).find("input[type='text']").val("");
+            //alert($('#val' + i).find("input[type='text']").val());
+            $('#val' + i).find("input[type='text']").removeAttr("readonly").val("");
             if (i > 5) {
                 needremove.push(i);
             }
@@ -242,6 +282,7 @@
         }
 
         $('#propName').val("");
+        //alert($('#propName').val());
         $('#pCategory').val(0);
         $('#cCategory').empty();
         $('#cCategory').hide();

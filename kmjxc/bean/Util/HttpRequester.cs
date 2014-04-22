@@ -7,7 +7,11 @@ using System.Net.Http;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
-
+using System.Security;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
+using System.Net;
 namespace KM.JXC.Common.Util
 {  
     public class HttpRequester
@@ -16,6 +20,12 @@ namespace KM.JXC.Common.Util
         public HttpRequester()
         {
             
+        }
+
+        private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+
+            return true;
         }
 
         public static string PostHttpRequest(string url, NameValueCollection col)
@@ -40,7 +50,7 @@ namespace KM.JXC.Common.Util
                 }
 
                 HttpContent content = new FormUrlEncodedContent(postData);
-
+                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 var response = client.PostAsync(url, content).Result;
                 if (!response.IsSuccessStatusCode)
                 {
