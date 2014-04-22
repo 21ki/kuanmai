@@ -1,4 +1,25 @@
-﻿function KMJXCBase() {
+﻿function distanceOfTimeInWords(timestampInPage) {
+    var timestampNow = Math.round(new Date().getTime() / 1000);
+    var dif = timestampNow - timestampInPage;
+    var outPut = "";
+
+    if (dif <= 15) outPut = "刚才";
+    else if (dif < 60) outPut = dif + "秒前";
+    else if (dif < 3600) outPut = Math.round(dif / 60) + "分钟前";
+    else if (dif < 86400) outPut = Math.round(dif / 3600) + "小时前";
+    else {
+        var date = new Date(timestampInPage * 1000);
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        if (hours < 10) hours = "0" + hours;
+        if (minutes < 10) minutes = "0" + minutes;
+
+        outPut = date.getMonth() + 1 + "-" + (date.getDate() + 1) + " " + hours + ":" + minutes;
+    }
+    return outPut;
+}
+
+function KMJXCBase() {
     this.AjaxCall = function (url, params, callback) {        
         
         $.post(
@@ -45,6 +66,9 @@ function KMJXCProductManager() {
     }
     this.GetProperties = function (params, callback) {
         this.AjaxCall("/api/Categories/GetProperties/", "", callback);
+    }
+    this.GetProperties2 = function (params, callback) {
+        this.AjaxCall("/api/Categories/GetPropertiesT", params, callback);
     }
     this.CreateProperty = function (postData, callback) {
         this.AjaxCall("/api/Categories/CreateProperty/", postData, callback);
@@ -97,3 +121,7 @@ function KMJXManager() {
 }
 
 var manager = new KMJXManager();
+
+function PropertyGrid(tableId) {
+    
+}

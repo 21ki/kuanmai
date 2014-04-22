@@ -4,13 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <link href="/Third/pqgrid/pqgrid.min.css" rel="stylesheet">
+    <link href="/Third/jqueryui/css/redmond/jquery-ui-1.10.4.custom.min.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
-    @Styles.Render("~/Content/themes/base/css")
     @Scripts.Render("~/bundles/modernizr")
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jquery")   
     @Scripts.Render("~/bundles/kmjxc")
-    @Scripts.Render("~/bundles/third")
+    @Scripts.Render("~/Third/pqgrid")
+    @Scripts.Render("~/Third/kindeditor")
+     <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
+    <script src="/Third/pqgrid/pqgrid.dev.js" type="text/javascript"></script>
+     <script src="/Third/pqgrid/pqGridCurd.js" type="text/javascript"></script>
 </head>
 
 <body>  

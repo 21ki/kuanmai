@@ -4,15 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <link href="/Third/pqgrid/pqgrid.min.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    <script src="/Third/pqgrid/pqgrid.min.js" type="text/javascript"></script>
 </head>
 <body>  
    <div class="jxcMain">
         @RenderBody()
-
-        @Scripts.Render("~/bundles/jquery")
-        @RenderSection("scripts", required: false)
     </div>
     <div class="jxcfoot">
             <a class="item" href="#">关于我们</a>  <a class="item" href="#">联系我们</a>  <a class="item" href="#">使用帮助</a> <a class="item" href="#">缺陷报告</a> <a class="item" href="#">Blog</a>

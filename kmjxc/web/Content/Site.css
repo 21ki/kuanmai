@@ -235,12 +235,12 @@ textarea {
 .normallist {
     padding:10px 10px;
 }
-.normallist .row {
+.row {
     overflow:hidden;
     padding-top:0px;padding-bottom:5px;
 }
 
-.normallist .row label{
+.row label{
     width:60px;
 }
 
@@ -251,7 +251,7 @@ textarea {
 .nolabel2 {
     margin-left:60px;
 }
-    .normallist .row dl {
+    .row dl {
         overflow:hidden;
         margin:0px;
         display:block;
@@ -259,18 +259,18 @@ textarea {
         line-height:35px;
         border-bottom:1px solid #eaeaea;
     }
-    .normallist .row dl dt {
+    .row dl dt {
         margin:0;
         float:left;
         width:100px;
         padding-right:20px;
     }
-        .normallist .row dl dt .cn1 {
+        .row dl dt .cn1 {
             display:inline-block;
             padding-left:25px;
         }
         
-    .normallist .row dl dd {
+    .row dl dd {
         display:inline-block;
         margin:0;
         float:left;
@@ -278,22 +278,22 @@ textarea {
         padding-right:20px;
     }
 
-        .normallist .row dl dd .l1 {
+        .row dl dd .l1 {
             display:inline-block;
             text-decoration:none;
             color:#555;
         }
 
-        .normallist .row dl dd .l1:hover {           
+        .row dl dd .l1:hover {           
             color:#0073B2;
         }
-        .normallist .row dl .w1 {
+        .row dl .w1 {
             width:200px;
         }
-        .normallist .row dl .w2 {
+        .row dl .w2 {
             width:60px;
         }
-        .normallist .row dl .f1 {
+        .row dl .f1 {
             font-weight:bold;
             font-size:13px;
         }
@@ -330,5 +330,28 @@ label {
     border-bottom:2px solid #7b9ebd;
     font-size:14px;
     font-weight:bold;
+}
+
+.ui-dialog *
+{
+    font-family:Tahoma;
+    font-size:12px;
+}
+.ui-dialog form#crud-form
+{
+    margin-top:20px;
+}
+.ui-dialog form#crud-form input
+{
+    width:230px;
+    overflow:visible;/*fix for IE*/
+}
+.ui-dialog form#crud-form td.label
+{
+    font-weight:bold;padding-right:5px;
+}
+div.pq-grid-toolbar-crud
+{
+    text-align:center;
 }
 

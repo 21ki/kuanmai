@@ -81,6 +81,39 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public PQGridData GetPropertiesT()
+        {
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            ApiMessage message = new ApiMessage();
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            int categoryId = 0;
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            int.TryParse(request["cid"], out categoryId);
+            string sortBy = "";
+            string dir = "";
+            if (request["sortBy"] != null)
+            {
+                sortBy = request["sortBy"];
+            }
+            if (request["dir"] != null)
+            {
+                sortBy = request["dir"];
+            }
+            List<BProperty> properties = cateMgr.GetProperties(categoryId,sortBy,dir);
+            PQGridData grid = new PQGridData();
+            grid.curPage = 1;
+            grid.totalRecords = properties.Count;
+            grid.data = properties;
+            message.Item = grid;
+            message.Status="ok";
+            return grid;
+        }
+
+        [HttpPost]
         public ApiMessage CreateProperty()
         {
             BProperty property = new BProperty();

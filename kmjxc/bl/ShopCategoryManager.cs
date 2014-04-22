@@ -490,8 +490,9 @@ namespace KM.JXC.BL
                     bproperty.Values=(from pv in db.Product_Spec_Value where pv.Product_Spec_ID==property.Product_Spec_ID select pv).ToList<Product_Spec_Value>();
                 }
             }
-            catch
+            catch(KMJXCException ex)
             {
+                throw ex;
             }
             finally
             {
@@ -515,7 +516,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public List<BProperty> GetProperties(int categoryId)
+        public List<BProperty> GetProperties(int categoryId, string sortBy = null, string dir = null)
         {
             List<BProperty> properties = new List<BProperty>();
             KuanMaiEntities db = new KuanMaiEntities();
@@ -528,7 +529,7 @@ namespace KM.JXC.BL
                     props = props.Where(a => a.Product_Class_ID == categoryId);
                 }
 
-                properties = (from p in props
+                properties = (from p in props orderby p.Product_Class_ID descending
                               select new BProperty
                               {
                                   Shop = (from sp in db.Shop
@@ -540,7 +541,7 @@ namespace KM.JXC.BL
                                               Created = (int)sp.Created,
                                               Description = sp.Description
                                           }).FirstOrDefault<BShop>(),
-                                  CategoryId = categoryId,
+                                  CategoryId = p.Product_Class_ID,
                                   Created = (int)p.Created,
                                   Created_By = (from u in db.User
                                                 where u.User_ID == p.User_ID
@@ -554,6 +555,7 @@ namespace KM.JXC.BL
                                   MID = p.Mall_PID,
                                   Name = p.Name,
                                   //Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
+                                  Category=(from cate in db.Product_Class where cate.Product_Class_ID==p.Product_Class_ID select cate).FirstOrDefault<Product_Class>(),
                               }).ToList<BProperty>();
 
                 if (properties.Count > 0)

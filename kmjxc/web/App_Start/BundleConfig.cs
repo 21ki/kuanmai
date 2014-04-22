@@ -17,8 +17,12 @@ namespace KM.JXC.Web
             bundles.Add(new ScriptBundle("~/bundles/kmjxc").Include(
                        "~/Scripts/kmjxc.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/third").Include(
-                      "~/Third/kindeditor/kindeditor.js"));
+            bundles.Add(new ScriptBundle("~/Third/kindeditor").Include(
+                      "~/Third/kindeditor/kindeditor.js"
+                      ));
+            bundles.Add(new ScriptBundle("~/Third/pqgrid").Include(
+                     "~/Third/pqgrid/pqgrid.min.js"
+                     ));  
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.unobtrusive*",
@@ -30,7 +34,7 @@ namespace KM.JXC.Web
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
-
+            bundles.Add(new StyleBundle("~/Third/css").Include("~/Third/pqgrid/pqgrid.min.css"));           
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",
                         "~/Content/themes/base/jquery.ui.resizable.css",

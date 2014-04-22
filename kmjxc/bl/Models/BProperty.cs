@@ -17,5 +17,6 @@ namespace KM.JXC.BL.Models
         public string MID { get; set; }
         public List<Product_Spec_Value> Values { get; set; }
         public int CategoryId { get; set; }
+        public Product_Class Category { get; set; }
     }
 }

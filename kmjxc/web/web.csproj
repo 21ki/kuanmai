@@ -141,6 +141,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ApiMessage.cs" />
+    <Compile Include="Models\GridData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +221,27 @@
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Third\jqueryui\css\redmond\images\animated-overlay.gif" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_flat_55_fbec88_40x100.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_glass_75_d0e5f5_1x400.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_glass_85_dfeffc_1x400.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_gloss-wave_55_5c9ccc_500x100.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_inset-hard_100_f5f8f9_1x100.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-bg_inset-hard_100_fcfdfd_1x100.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_217bc0_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_469bdd_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_6da8d5_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_d8e7f3_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\images\ui-icons_f9bd01_256x240.png" />
+    <Content Include="Third\jqueryui\css\redmond\jquery-ui-1.10.4.custom.css" />
+    <Content Include="Third\jqueryui\css\redmond\jquery-ui-1.10.4.custom.min.css" />
+    <Content Include="Third\jqueryui\js\jquery-1.10.2.js" />
+    <Content Include="Third\jqueryui\js\jquery-ui-1.10.4.custom.js" />
+    <Content Include="Third\jqueryui\js\jquery-ui-1.10.4.custom.min.js" />
     <Content Include="Third\kindeditor\asp.net\bin\LitJSON.dll" />
     <Content Include="Third\kindeditor\asp.net\demo.aspx" />
     <Content Include="Third\kindeditor\asp.net\README.txt" />
@@ -477,6 +499,40 @@
     <Content Include="Third\kindeditor\themes\qq\editor.gif" />
     <Content Include="Third\kindeditor\themes\qq\qq.css" />
     <Content Include="Third\kindeditor\themes\simple\simple.css" />
+    <Content Include="Third\pqgrid\ChangeLog.txt" />
+    <Content Include="Third\pqgrid\GPL-LICENSE.txt" />
+    <Content Include="Third\pqgrid\images\cross.png" />
+    <Content Include="Third\pqgrid\images\horiz-bg.png" />
+    <Content Include="Third\pqgrid\images\horiz-slider-bg.png" />
+    <Content Include="Third\pqgrid\images\loading.gif" />
+    <Content Include="Third\pqgrid\images\page-first-gray.gif" />
+    <Content Include="Third\pqgrid\images\page-last-gray.gif" />
+    <Content Include="Third\pqgrid\images\page-next-gray.gif" />
+    <Content Include="Third\pqgrid\images\page-prev-gray.gif" />
+    <Content Include="Third\pqgrid\images\Refresh.gif" />
+    <Content Include="Third\pqgrid\images\sort_asc.gif" />
+    <Content Include="Third\pqgrid\images\sort_desc.gif" />
+    <Content Include="Third\pqgrid\images\sprite.png" />
+    <Content Include="Third\pqgrid\images\tick.png" />
+    <Content Include="Third\pqgrid\images\vert-bg.png" />
+    <Content Include="Third\pqgrid\images\vert-slider-bg.png" />
+    <Content Include="Third\pqgrid\index.htm" />
+    <Content Include="Third\pqgrid\localize\pq-localize-de.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-es.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-hu.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-it.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-ja.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-nl.js" />
+    <Content Include="Third\pqgrid\localize\pq-localize-zh.js" />
+    <Content Include="Third\pqgrid\pqGridCurd.js" />
+    <Content Include="Third\pqgrid\pqgrid.dev.css" />
+    <Content Include="Third\pqgrid\pqgrid.dev.js" />
+    <Content Include="Third\pqgrid\pqgrid.min.css" />
+    <Content Include="Third\pqgrid\pqgrid.min.js" />
+    <Content Include="Third\pqgrid\ReadMe.txt" />
+    <Content Include="Third\pqgrid\themes\Office\images\column-header-bg.png" />
+    <Content Include="Third\pqgrid\themes\Office\images\column-header-over-bg.gif" />
+    <Content Include="Third\pqgrid\themes\Office\pqgrid.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
