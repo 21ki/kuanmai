@@ -4,7 +4,21 @@
 }
 <script>
     var cateMgr = new KMJXCProductManager();
+
+    function UpdateStatus(cid) {
+        //alert(cid);
+        return;
+        cateMgr.DisableCategory({ 'cid': cid }, function (res) {
+            if (res.Status == "ok") {
+                alert("操作成功");
+            }
+        });
+    }
+
     $(document).ready(function () {
+
+       
+
         var obj = { width: 830, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' } };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
                         { title: "类目名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
@@ -30,13 +44,15 @@
                             
                         },
                         {
-                            title: "状态", width: 50, dataType: "boolean", dataIndx: "Enabled", editable: false,
+                            title: "状态", width: 50, dataType: "boolean", dataIndx: "Enabled", editable: true,
                             render: function (ui) {
-                                if (ui.rowData[ui.dataIndx]) {
-                                    return "<input type=\"checkbox\" checked/>";
-                                } else {
-                                    return "<input type=\"checkbox\"/>";
-                                }
+                                var cid = ui.rowData["ID"];
+                                //if (ui.rowData[ui.dataIndx]) {
+                                //    return "<input onchange=\"UpdateStatus(" + cid + ")\" type=\"checkbox\" checked/>";
+                                //} else {
+                                //    return "<input onchange=\"UpdateStatus(" + cid + ")\" type=\"checkbox\"/>";
+                                //}
+                                return "<input type=\"text\" value=\"\"/>";
                             }
                         },
                         { title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
@@ -98,7 +114,7 @@
                 pcid = row["ID"];
                 title = row["Name"]+" 的子类目列表";
             }
-            
+            evt.stopPropagation();
             $cgrid.pqGrid("option", "title", title);
         });
 

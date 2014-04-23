@@ -549,6 +549,49 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
+        public bool DisableCategory(int categoryId)
+        {
+            bool result = false;
+            if (this.CurrentUserPermission.DISABLE_CATEGORY == 0)
+            {
+                throw new KMJXCException("没有权限禁用类目");
+            }
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                Product_Class cate=(from pc in db.Product_Class where pc.Product_Class_ID==categoryId select pc).FirstOrDefault<Product_Class>();
+                if (cate == null)
+                {
+                    throw new KMJXCException("要操作的类目不存在");
+                }
+
+                cate.Enabled = false;
+                db.SaveChanges();
+                result = true;
+            }
+            catch (KMJXCException kex)
+            {
+                throw kex;
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
         public List<BProperty> GetProperties(int categoryId, int propId=0, string sortBy = null, string dir = null)
         {
             List<BProperty> properties = new List<BProperty>();

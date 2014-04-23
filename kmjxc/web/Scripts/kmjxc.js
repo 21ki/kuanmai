@@ -191,6 +191,9 @@ function KMJXCProductManager() {
     this.GetProperty = function (params, callback) {       
         this.AjaxCall("/api/Categories/GetProperty", params, callback);
     }
+    this.DisableCategory = function (params, callback) {
+        this.AjaxCall("/api/Categories/DisableCategory", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();

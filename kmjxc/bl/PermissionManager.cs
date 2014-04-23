@@ -80,6 +80,13 @@ namespace KM.JXC.BL
         public int ADD_ENTER_STOCK = 0;
         public int ADD_LEAVE_STOCK = 0;
         public int ADD_BACK_STOCK = 0;
+
+        //Category and Property
+        public int ADD_CATEGORY = 0;
+        public int UPDATE_CATEGORY = 0;
+        public int ADD_PORPERTY = 0;
+        public int UPDATE_PORPERTY = 0;
+        public int DISABLE_CATEGORY = 0;
     }
 
     public class PermissionManager
