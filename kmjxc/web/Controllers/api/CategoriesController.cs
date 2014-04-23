@@ -18,8 +18,9 @@ namespace KM.JXC.Web.Controllers.api
     public class CategoriesController : ApiController
     {
         [HttpPost]
-        public IEnumerable<BCategory> GetCategories()
-        {   
+        public PQGridData GetCategories()
+        {
+            PQGridData data = new PQGridData();
             string user_id = User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
@@ -36,12 +37,11 @@ namespace KM.JXC.Web.Controllers.api
             }
 
             List<BCategory> categories = new List<BCategory>();
-
-            if (id > 0)
-            {
-                categories = cateMgr.GetCategories(id);
-            }
-            return categories;
+            categories = cateMgr.GetCategories(id);
+            data.curPage = 1;
+            data.totalRecords = categories.Count;
+            data.data = categories;
+            return data;
         }
 
         [HttpGet]
@@ -195,15 +195,35 @@ namespace KM.JXC.Web.Controllers.api
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
             HttpRequestBase request = context.Request;
             string propId = request["prop_id"];
-            string propValue = request["prop_value"];
-            if (!string.IsNullOrEmpty(propValue))
+            string propValues = request["prop_values"];
+            if (!string.IsNullOrEmpty(propValues))
             {
-                if (cateMgr.AddNewPropValue(int.Parse(propId), propValue))
+                string[] values = propValues.Split(',');
+                List<string> vs = new List<string>();
+
+                if (values != null && values.Length > 0)
                 {
-                    message.Status = "ok";
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        vs.Add(values[i]);
+                    }
                 }
-                else {
+
+                try
+                {
+                    if (cateMgr.AddNewPropValue(int.Parse(propId), vs))
+                    {
+                        message.Status = "ok";
+                    }
+                    else
+                    {
+                        message.Status = "failed";
+                    }
+                }
+                catch (KM.JXC.Common.KMException.KMJXCException ex)
+                {
                     message.Status = "failed";
+                    message.Message = ex.Message;
                 }
             }
             return message;

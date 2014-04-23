@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
+    <title>@ViewBag.Title</title>    
+    <link href="/Third/jqueryui/css/flick/jquery-ui-1.10.4.custom.css" rel="stylesheet">
     <link href="/Third/pqgrid/pqgrid.min.css" rel="stylesheet">
-    <link href="/Third/jqueryui/css/redmond/jquery-ui-1.10.4.custom.min.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")   
@@ -109,7 +109,7 @@
                        
                        @menuStyle
                        >产品类目</a></li>    
-                   <li><a href="/Product/NewCategory"
+                  @* <li><a href="/Product/NewCategory"
                        @{menuStyle = "class=link"; }
                        @if (action == "NewCategory")
                        {
@@ -117,7 +117,7 @@
                        } 
                        
                        @menuStyle
-                       >添加类目</a></li>  
+                       >添加类目</a></li>  *@
                    <li><a href="/Product/Properties"
                        @{menuStyle = "class=link"; }
                        @if (action == "Properties")

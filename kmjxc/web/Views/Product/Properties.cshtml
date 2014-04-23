@@ -9,10 +9,21 @@
     $(document).ready(function () {
         valueRows = $('#propValueList li').size();
 
-        var obj = { width: 800, height: 600, title: "产品属性列表", flexHeight: true, sortable: false, selectionModel: { mode: 'single' } };
+        var obj = { width: 800, height: 600, title: "属性列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' } };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
-                        { title: "属性名称", width: 250, dataType: "string", dataIndx: "Name", editable: false },
-                        { title: "类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
+                        { title: "属性名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
+                        { title: "类目名称", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
+                        {
+                          title: "主店铺属性", width: 100, dataType: "string", dataIndx: "IsMainShopProp", editable: false,
+                            render: function (ui) {
+                                var cellData = ui.rowData[ui.dataIndx];
+                                if (!cellData) {
+                                    return "否";
+                                } else {
+                                    return "是";
+                                }
+                            },
+                        },
                         { title: "创建者", width: 200, dataType: "string", dataIndx: "Created_By.Name", editable: false },
                         { title: "创建日期", width: 200, dataType: "timestamp", dataIndx: "Created", editable: false },
         ];
@@ -121,6 +132,11 @@
                     $('#resultmessage').html("");
                     $('#resultmessage').hide();
                     CleanForm();
+                    $('#edittitle').hide();
+                    $('#prop_id').val("");
+                    $('#pCategory').removeAttr("disabled");
+                    $('#cCategory').removeAttr("disabled");
+                    $('#propName').removeAttr("readonly");
                 },
                 resizable: false,
                 title: "添加属性", buttons: {
@@ -129,29 +145,22 @@
                         var pcid = $('#pCategory').val();
                         var cid = $('#cCategory').val(); 
                         var propName = $('#propName').val();
-                        //alert(propName);
-                        //return;
+                       
                         if ($.trim(propName) == '') {
                             $('#resultmessage').html("名称不能为空");
                             $('#resultmessage').show();
                         }
+
+                        if (!verifyvalues()) {
+                            return;
+                        }
+
                         var categoryId = pcid;
                         if (cid > 0) {
                             categoryId = cid;
                         }
 
-                        var propValue = "";
-
-                        for (var i = 1; i <= valueRows; i++) {
-                            var pValue = $('#val' + i).find("input[type='text']").val();
-                            if ($.trim(pValue) != '') {
-                                if (propValue == '') {
-                                    propValue = pValue;
-                                } else {
-                                    propValue = propValue + "," + pValue;
-                                }
-                            }
-                        }
+                        var propValue = getpropValues();                       
 
                         cateMgr.CreateProperty({ 'category_id': categoryId, 'prop_name': propName, 'prop_value': propValue }, function (res) {
                             if (res.Status == 'ok') {
@@ -182,6 +191,82 @@
             }
         }
 
+        function checkduplicatedvalue(value, parentId) {
+            var found = false;
+            for (var i = 1; i <= valueRows; i++) {
+                var pValue = $('#val' + i).find("input[type='text']").val();
+               
+                if ($.trim(pValue) != '' && parentId!=("val"+i)) {
+                    if (pValue == value) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        function verifyvalues() {
+            var re = /\\|\$|\<|\&|\>|\'|\?|\;|\,|\/|\"/;
+            $('#resultmessage').html("");
+            $('#resultmessage').hide();
+            for (var i = 1; i <= valueRows; i++) {
+                var pValue = $('#val' + i).find("input[type='text']").val();
+                if ($.trim(pValue) != '') {                    
+                    if ($('#val' + i).find("input[type='text']").attr("readonly") != "readonly") {
+                        if (re.test(pValue)) {
+
+                            $('#resultmessage').html("属性值不能包含以下字符 $ < & > \'\" ? \ ; , \/");
+                            $('#resultmessage').show();                            
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function getpropValues() {
+            var propValue = "";          
+            for (var i = 1; i <= valueRows; i++) {
+                var pValue = $('#val' + i).find("input[type='text']").val();
+                if ($.trim(pValue) != '') {                    
+                    if ($('#val' + i).find("input[type='text']").attr("readonly") != "readonly") {                        
+                        if (propValue == "") {
+                            propValue = pValue;
+                        } else {
+                            propValue = propValue + "," + pValue;
+                        }
+                    } 
+                }
+            }
+
+            return propValue;
+        }
+
+        $('#propValueList').delegate("input[type='text']","blur", function () {
+           
+            var value = $(this).val();
+            var id = $(this).parent("li").attr("id");
+            //alert(id);
+            if (checkduplicatedvalue(value, id)) {
+                $(this).val("");
+                var error = $('#resultmessage').html();
+                if (error != "") {
+                    error = error + "<br/>属性值：" + value + " 已经存在";
+                } else {
+                    error = "属性值：" + value + " 已经存在";
+                }
+                $('#resultmessage').html("属性值：" + value + " 已经存在");
+                $('#resultmessage').show();
+            } else {
+                $('#resultmessage').html("");
+                $('#resultmessage').hide();
+            }
+        });
+
         function editRow() {
             var rowIndx = getRowIndx();
             if (rowIndx != null) {
@@ -192,25 +277,37 @@
                 var pId = row["ID"];
                 var pName = row["Name"];
                
+                var mainShopProp = row["IsMainShopProp"];
+                if (mainShopProp) {
+                    alert("不能修改主店铺属性");
+                    return;
+                }
+
                 $("#popup-dialog-crud").dialog({
                     open: function (event, ui) {
 
                         $('#resultmessage').html("");
                         $('#resultmessage').hide();
                         CleanForm();
-
+                        $('#edittitle').show();
+                        $('#prop_id').val(pId);
                         cateMgr.GetProperty({ 'prop_id': pId }, function (res) {
                             if (res != null && res != 'undefined' && typeof (res) == 'object') {
                                 $('#propName').val(pName);
+                                $('#propName').attr("readonly", "readonly");
                                 if (res.Values != null && typeof (res.Values) == 'object' && res.Values.length > 0) {
                                     $(res.Values).each(function (index, item) {
-                                        if (index + 1 > 5) {
+                                        if (index + 1 > 5) {                                           
+                                            $('#val' + (index)).find("span[id='remove" + index + "']").remove();
                                             AddValueRow();
                                         }
-
+                                        //alert(item.Name);
                                         $('#val' + (index + 1)).find("input[type='text']").val(item.Name).attr("readonly", "readonly");
+                                        $('#val' + (index+1)).find("span[id='remove" + (index+1) + "']").remove();
                                     });
 
+                                    $('#pCategory').attr("disabled", "disabled");
+                                    $('#cCategory').attr("disabled", "disabled");
                                     if (res.Category != null && res.Category != 'null') {
                                         if (res.Category.Parent_ID <= 0) {
                                             $('#pCategory').val(res.Category.Product_Class_ID);
@@ -220,17 +317,28 @@
                                             $('#cCategory').val(res.Category.Product_Class_ID);
                                         }
                                     }
+
+                                   
                                 }
                             }
                         });                       
                     },
                     resizable: false,
                     title: "编辑属性 (" + pName + ")", buttons: {
-                        "保存": function () {
-                            var pcid = $('#pCategory').val();
-                            var cid = $('#cCategory').val();
-                            var propName = $('#propName').val();
-                            alert(propName);
+                        "保存": function () {                            
+                            var that = this;
+                            if (!verifyvalues()) {
+                                return;
+                            }
+
+                            var values = getpropValues();
+                           
+                            cateMgr.AddNewPropValue({ prop_id: pId, prop_values: values }, function (res) {
+                                if (res.Status == 'ok') {
+                                    $grid.pqGrid("refreshDataAndView");
+                                    $(that).dialog("close");
+                                }
+                            });
                         },
                         "取消": function () {
                             $(this).dialog("close");
@@ -286,11 +394,12 @@
         $('#pCategory').val(0);
         $('#cCategory').empty();
         $('#cCategory').hide();
+        valueRows = $('#propValueList li').size();
     }
 
     function AddValueRow() {
         valueRows++;
-        $('#propValueList').append("<li id=\"val" + valueRows + "\"><input class=\"W_input\" type=\"text\" value=\"\"/><span class=\"simg\"><img onclick=\"AddValueRow()\" src=\"/Content/images/add.png\"/></span><span class=\"simg\"><img onclick=\"RemoveValueRow('val" + valueRows + "')\" src=\"/Content/images/remove.gif\"/></span></li>")
+        $('#propValueList').append("<li id=\"val" + valueRows + "\"><input class=\"W_input\" type=\"text\" value=\"\"/><span id=\"add" + valueRows + "\" class=\"simg\"><img onclick=\"AddValueRow()\" src=\"/Content/images/add.png\"/></span><span id=\"remove" + valueRows + "\" class=\"simg\"><img onclick=\"RemoveValueRow('val" + valueRows + "')\" src=\"/Content/images/remove.gif\"/></span></li>")
     }
 
     function RemoveValueRow(id) {
@@ -301,8 +410,10 @@
 <div class="normallist"> 
  <div id="propertyTable"></div> 
  <div id="popup-dialog-crud" style="width: auto; min-height: 48px; height: auto;" class="ui-dialog-content ui-widget-content" scrolltop="0" scrollleft="0">
-
+<form>
+ <input type="hidden" value="" id="prop_id"/>
  <div class="" style="padding-top:30px;">
+    <div id="edittitle" class="row nolabel2" style="display:none;color:red;">编辑属性时只能添加新属性值，不能修改原有数据</div>
     <div class="row">
         <label>类目:</label><select class="W_input sel1" id="pCategory">
              <option value="0">--选择--</option>
@@ -335,6 +446,7 @@
          <input class="W_input_btn btn1"  id="btnAddProperty" type="button" value="添加"/>
     </div>*@
   </div>
- </div>
+</form>
+</div>
 </div>
 

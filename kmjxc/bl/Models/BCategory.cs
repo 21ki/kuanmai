@@ -14,9 +14,11 @@ namespace KM.JXC.BL.Models
         public string Name { get; set; }
         public int Order { get; set; }
         public long Created { get; set; }       
-        public List<BCategory> Chindren { get; set; }
+        public List<BCategory> Children { get; set; }
         public BCategory Parent { get; set; }
         public bool Enabled { get; set; }
-        public BUser Create_By { get; set; }
+        public BUser Created_By { get; set; }
+        public bool IsMainShopProp { get; set; }
+        public BShop Shop { get; set; }
     }
 }

@@ -1,21 +1,53 @@
-﻿function distanceOfTimeInWords(timestampInPage) {
+﻿
+function GetJsonData(data, rowIndex, dataIndx) {
+    var rowData = data[rowIndex];
+    var cellData = "";
+    var obj;
+    if (dataIndx.indexOf('.') > -1) {
+        var indxs = dataIndx.split('.');
+        for (var i = 0; i < indxs.length; i++) {
+            if (i == 0) {
+                obj = rowData[indxs[i]];
+            } else {
+                obj = obj[indxs[i]];
+            }
+
+            if (i == indxs.length - 1) {
+                cellData = obj;
+            }
+        }
+    } else {
+        cellData = rowData[dataIndx];
+    }
+    return cellData;
+}
+
+function distanceOfTimeInWords(timestampInPage) {
     var timestampNow = Math.round(new Date().getTime() / 1000);
     var dif = timestampNow - timestampInPage;
     var outPut = "";
+    
+    //if (dif <= 15) outPut = "刚才";
+    //else if (dif < 60) outPut = dif + "秒前";
+    //else if (dif < 3600) outPut = Math.round(dif / 60) + "分钟前";
+    //else if (dif < 86400) outPut = Math.round(dif / 3600) + "小时前";
+    //else {
+    //    var date = new Date(timestampInPage * 1000);
+    //    var hours = date.getHours();
+    //    var minutes = date.getMinutes();
+    //    if (hours < 10) hours = "0" + hours;
+    //    if (minutes < 10) minutes = "0" + minutes;
 
-    if (dif <= 15) outPut = "刚才";
-    else if (dif < 60) outPut = dif + "秒前";
-    else if (dif < 3600) outPut = Math.round(dif / 60) + "分钟前";
-    else if (dif < 86400) outPut = Math.round(dif / 3600) + "小时前";
-    else {
-        var date = new Date(timestampInPage * 1000);
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        if (hours < 10) hours = "0" + hours;
-        if (minutes < 10) minutes = "0" + minutes;
+    //    outPut = date.getMonth() + 1 + "-" + (date.getDate()) + " " + hours + ":" + minutes;
+    //}
 
-        outPut = date.getMonth() + 1 + "-" + (date.getDate() + 1) + " " + hours + ":" + minutes;
-    }
+    var date = new Date(timestampInPage * 1000);
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    if (hours < 10) hours = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+
+    outPut = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + (date.getDate()) + " " + hours + ":" + minutes;
     return outPut;
 }
 
@@ -42,6 +74,60 @@ function KMJXCBase() {
                 $(item).hide();
             }
         });
+    }
+
+    this.GetJsonCellData = function (rowData,dataIndx) { 
+        var cellData = "";
+        var obj;
+        alert(dataIndx);
+        if (dataIndx.indexOf('.') > -1) {
+            var indxs = dataIndx.split('.');
+            for (var i = 0; i < indxs.length; i++) {               
+                if (i == 0) {
+                    obj = rowData[indxs[i]];
+                } else {
+                    obj = obj[indxs[i]];
+                }
+
+                if (i == indxs.length - 1) {
+                    cellData = obj;
+                }
+            }
+        } else {
+            cellData = rowData[dataIndx];
+        }
+        return cellData;
+    }
+    this.GetDateTime = function (timestampInPage) {
+        var timestampNow = Math.round(new Date().getTime() / 1000);
+        var dif = timestampNow - timestampInPage;
+        var outPut = "";
+
+        //if (dif <= 15) outPut = "刚才";
+        //else if (dif < 60) outPut = dif + "秒前";
+        //else if (dif < 3600) outPut = Math.round(dif / 60) + "分钟前";
+        //else if (dif < 86400) outPut = Math.round(dif / 3600) + "小时前";
+        //else {
+        //    var date = new Date(timestampInPage * 1000);
+        //    var hours = date.getHours();
+        //    var minutes = date.getMinutes();
+        //    if (hours < 10) hours = "0" + hours;
+        //    if (minutes < 10) minutes = "0" + minutes;
+
+        //    outPut = date.getMonth() + 1 + "-" + (date.getDate()) + " " + hours + ":" + minutes;
+        //}
+
+        var date = new Date(timestampInPage * 1000);
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        if (hours < 10) hours = "0" + hours;
+        if (minutes < 10) minutes = "0" + minutes;
+
+        outPut = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + (date.getDate()) + " " + hours + ":" + minutes;
+        return outPut;
+    }
+    this.Test = function () {
+        return "TEST";
     }
 }
 
@@ -84,7 +170,7 @@ function KMJXCProductManager() {
 
                     $('#' + childContainer).html("");
                     $('#' + childContainer).html("<option value=\"0\">--选择--</option>");
-                    $(response).each(function (index, item) {
+                    $(response.data).each(function (index, item) {
                         $('#' + childContainer).append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
                     });
 
@@ -100,10 +186,9 @@ function KMJXCProductManager() {
     }
 
     this.AddNewPropValue = function (params, callback) {
-        this.AjaxCall("/api/Categories/AddNewPropValue/", postData, callback);
+        this.AjaxCall("/api/Categories/AddNewPropValue/", params, callback);
     }
-    this.GetProperty = function (params, callback) {
-       
+    this.GetProperty = function (params, callback) {       
         this.AjaxCall("/api/Categories/GetProperty", params, callback);
     }
 }

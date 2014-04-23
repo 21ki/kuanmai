@@ -70,7 +70,7 @@ namespace KM.JXC.BL
                     }
                     category.Enabled = ca.Enabled;
                     category.Created = ca.Create_Time;
-                    category.Chindren = new List<BCategory>();
+                    category.Children = new List<BCategory>();
                     List<Product_Class> children = (from pc in db.Product_Class where pc.Parent_ID == category_id select pc).ToList<Product_Class>();
                     if (children.Count > 0)
                     {
@@ -84,7 +84,7 @@ namespace KM.JXC.BL
                             category1.Order = (int)ca.Order;
                             category1.Enabled = ca.Enabled;
                             category1.Created = ca.Create_Time;
-                            category.Chindren.Add(category1);
+                            category.Children.Add(category1);
                         }
                     }
                 }
@@ -127,7 +127,7 @@ namespace KM.JXC.BL
                 List<Product_Class> pcs = allpcs.ToList<Product_Class>();
 
                 foreach (Product_Class ca in pcs)
-                {
+                {                    
                     BCategory category = new BCategory();
                     category.ID = ca.Product_Class_ID;
                     category.Mall_ID = ca.Mall_CID;
@@ -136,7 +136,7 @@ namespace KM.JXC.BL
                     category.Order = (int)ca.Order;
                     category.Enabled = ca.Enabled;
                     category.Created = ca.Create_Time;
-                    category.Chindren = (from cate in db.Product_Class
+                    category.Children = (from cate in db.Product_Class
                                          where cate.Parent_ID == ca.Product_Class_ID
                                          select new BCategory
                                          {
@@ -147,7 +147,7 @@ namespace KM.JXC.BL
                                              Order = (int)cate.Order,
                                              Enabled = cate.Enabled,
                                              Created = cate.Create_Time,
-                                             Create_By = (from u in db.User
+                                             Created_By = (from u in db.User
                                                           where u.User_ID == cate.Create_User_ID
                                                           select new BUser
                                                           {
@@ -173,7 +173,7 @@ namespace KM.JXC.BL
                                            }).FirstOrDefault<BCategory>();
                     }
 
-                    category.Create_By = (from u in db.User
+                    category.Created_By = (from u in db.User
                                           where u.User_ID == ca.Create_User_ID
                                           select new BUser
                                           {
@@ -183,7 +183,23 @@ namespace KM.JXC.BL
                                               Mall_Name = u.Mall_Name,
                                               EmployeeInfo = (from em in db.Employee where em.User_ID == ca.Create_User_ID select em).FirstOrDefault<Employee>()
                                           }).FirstOrDefault<BUser>();
-                    categories.Add(category);
+
+                    category.Shop = (from sp in db.Shop
+                                     where sp.Shop_ID == ca.Shop_ID
+                                     select new BShop
+                                     {
+                                         ID = sp.Shop_ID,
+                                         Title = sp.Name,
+                                         Description = sp.Description,
+                                         Created = (int)sp.Created
+
+                                     }).FirstOrDefault<BShop>();
+
+                    if (this.Shop.Parent_Shop_ID > 0 && category.Shop.ID==this.Shop.Parent_Shop_ID)
+                    {
+                        category.IsMainShopProp = true;
+                    }
+                    categories.Add(category);                    
                 }
             }
             
@@ -327,14 +343,14 @@ namespace KM.JXC.BL
                         List<Product_Class> children = (from c in classes where c.Mall_PCID == pc.Mall_PCID select c).ToList<Product_Class>();
                         if (children != null && children.Count > 0)
                         {
-                            cate.Chindren = new List<BCategory>();
+                            cate.Children = new List<BCategory>();
                             foreach (Product_Class childCate in children)
                             {
                                 BCategory child = new BCategory();
                                 child.Mall_ID = childCate.Mall_CID;
                                 child.Mall_PID = childCate.Mall_PCID;
                                 child.Name = childCate.Name;
-                                cate.Chindren.Add(child);
+                                cate.Children.Add(child);
                             }                            
                         }
                     }
@@ -366,7 +382,7 @@ namespace KM.JXC.BL
             return result;
         }
 
-        public bool AddNewPropValue(int propertyId, string value)
+        public bool AddNewPropValue(int propertyId, List<string> values)
         {
             bool result = false;
             KuanMaiEntities db = new KuanMaiEntities();
@@ -378,25 +394,42 @@ namespace KM.JXC.BL
                 {
                     throw new KMJXCException("属性丢失,不能添加属性值");
                 }
-
-                Product_Spec_Value pv = (from psv in db.Product_Spec_Value where psv.Product_Spec_ID == propertyId && psv.Name == value select psv).FirstOrDefault<Product_Spec_Value>();
-                if (pv != null)
+                StringBuilder error = new StringBuilder();
+                if (values != null && values.Count > 0)
                 {
-                    throw new KMJXCException("此属性值已经存在，不能重复创建");
-                }
+                    
+                    foreach (string value in values)
+                    {
+                        Product_Spec_Value pv = (from psv in db.Product_Spec_Value where psv.Product_Spec_ID == propertyId && psv.Name == value select psv).FirstOrDefault<Product_Spec_Value>();
+                        if (pv != null)
+                        {
+                            error.Append("属性值:"+value+" 已经存在<br/>");
+                            continue;
+                        }
+                        pv = new Product_Spec_Value();
+                        pv.Product_Spec_ID = propertyId;
+                        pv.Name = value;
+                        pv.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        pv.User_ID = this.CurrentUser.ID;
+                        db.Product_Spec_Value.Add(pv);
+                    }
 
-                pv.Product_Spec_ID = propertyId;
-                pv.Name = value;
-                pv.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                pv.User_ID = this.CurrentUser.ID;
-                db.Product_Spec_Value.Add(pv);
-                if (pv.Product_Spec_Value_ID > 0)
-                {
+                    db.SaveChanges();
                     result = true;
+                    if (!string.IsNullOrEmpty(error.ToString()))
+                    {
+                        result = false;
+                        throw new KMJXCException(error.ToString());
+                    }
                 }
             }
-            catch (Exception ex)
+            catch (KMJXCException ex)
             {
+                throw ex;
+            }
+            catch (Exception nex)
+            {
+
             }
             finally
             {
@@ -430,7 +463,7 @@ namespace KM.JXC.BL
 
                 if (categoryId > 0)
                 {
-                    existed = existed.Where(a=>a.Product_Class_ID==categoryId);
+                    //existed = existed.Where(a=>a.Product_Class_ID==categoryId);
                 }
 
                 if (this.Shop.Parent_Shop_ID > 0)
@@ -533,6 +566,9 @@ namespace KM.JXC.BL
                 {
                     props=props.Where(a => a.Product_Spec_ID == propId);
                 }
+
+                props = props.OrderBy(a=>a.Shop_ID).OrderBy(b=>b.Created);
+
                 properties = (from p in props orderby p.Product_Class_ID descending
                               select new BProperty
                               {
@@ -570,14 +606,20 @@ namespace KM.JXC.BL
                         Shop shop = (from sp in db.Shop where sp.Shop_ID == p.Shop.ID select sp).FirstOrDefault<Shop>();
                         if (shop != null)
                         {
-                            if (shop.Parent_Shop_ID > 0) {
-                                p.Shop.Parent = (from sp in db.Shop where sp.Shop_ID == shop.Parent_Shop_ID 
-                                                 select new BShop 
+                            if (shop.Parent_Shop_ID > 0)
+                            {
+                                p.IsMainShopProp = true;
+                                p.Shop.Parent = (from sp in db.Shop
+                                                 where sp.Shop_ID == shop.Parent_Shop_ID
+                                                 select new BShop
                                                  {
                                                      ID = sp.Shop_ID,
                                                      Title = sp.Name,
                                                      Created = (int)sp.Created,
                                                  }).FirstOrDefault<BShop>();
+                            }
+                            else {
+                                p.IsMainShopProp = false;
                             }
                         }
                     }
