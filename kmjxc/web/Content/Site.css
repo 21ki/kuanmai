@@ -21,7 +21,16 @@ ul {
     margin:0;
     padding:0;
 }
-.W_input {
+img {
+    vertical-align:middle;
+    cursor:pointer;
+}
+label {
+    text-align:center;
+    width:60px;
+    display:inline-block;
+}
+.W_input,.W_inputsel {
 border: 1px solid #ccc;
 border-radius: 2px;
 height: 20px;
@@ -33,7 +42,9 @@ color: #808080;
 -moz-box-shadow: 0px 1px 1px 0px #eaeaea inset;
 box-shadow: 0px 1px 1px 0px #eaeaea inset;
 }
-
+.W_inputsel {
+height:24px;
+}
 .W_input_btn {
 border: 1px solid #ccc;
 border-radius: 1px;
@@ -321,11 +332,7 @@ textarea {
     padding-top:10px;
     float:left;
 }
-label {
-    text-align:center;
-    width:40px;
-    display:inline-block;
-}
+
 .title {
     border-bottom:2px solid #7b9ebd;
     font-size:14px;

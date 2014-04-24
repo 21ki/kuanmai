@@ -99,7 +99,16 @@
                        } 
                        
                        @menuStyle
-                       >添加产品</a></li>                   
+                       >添加产品</a></li>
+                  @* <li><a href="/Product/NewStock"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "NewStock")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle
+                       >添加库存产品</a></li>    *@                   
                    <li><a href="/Product/Categories"
                        @{menuStyle = "class=link"; }
                        @if (action == "Categories")

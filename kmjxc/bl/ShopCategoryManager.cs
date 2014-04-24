@@ -547,6 +547,23 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="property_id"></param>
+        /// <returns></returns>
+        public List<Product_Spec_Value> GetPropertyValues(int property_id)
+        {
+            List<Product_Spec_Value> values;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                values = (from pv in db.Product_Spec_Value where pv.Product_Spec_ID == property_id select pv).ToList<Product_Spec_Value>();
+            }
+
+            return values;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
         public bool DisableCategory(int categoryId)

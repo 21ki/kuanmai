@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "添加库存产品";
+}
+
+<script>
+    var cateMgr = new KMJXCProductManager();
+    $(document).ready(function () {
+        $('#pCategory').change(function () {
+            var parent_id = $('#pCategory option:selected').val();
+            
+            if (parent_id > 0) {
+                cateMgr.GetCategories({ 'parent_id': parent_id }, function (res) {
+
+                    if (res != null && res != "" && typeof (res) == 'object') {
+                        $('#cCategory').html("");
+                        $('#cCategory').html("<option value=\"0\">--选择--</option>");
+                        $(res.data).each(function (index, item) {
+                            $('#cCategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                        });
+
+                        $('#cCategory').show();
+                    } else {
+                        $('#cCategory').hide();
+                    }
+                });
+            } else {
+                $('#cCategory').html("");
+                $('#cCategory').hide();
+            }
+        });
+
+        $('#btnSaveProduct').click(function () {           
+            var pId = $('#pCategory option:selected').val();
+            
+            if (pId == 0) {
+                alert("第一级类别不允许为空");
+                return;
+            }
+        });
+
+        KindEditor.ready(function (K) {
+            editor = K.create('textarea[name="productDesc"]', {
+                resizeType: 0,
+                width: '500px',
+                minWidth:550,
+                height:'250px',
+                allowPreviewEmoticons: false,               
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist', '|', 'emoticons', 'link']
+            });
+
+            editor.html("");
+        });
+
+        $('.normallist').tabs();
+    });
+
+   
+</script>
+
+<div class="normallist">
+    <ul>
+        <li><a href="#product_basic">基本信息</a></li>
+        <li><a href="#product_prop">产品属性</a></li>
+        <li><a href="#product_pics">产品图片</a></li>
+    </ul>
+    <div id="product_basic">
+        <div class="row">
+            <label for="productName">名称:</label><input class="W_input" style="width:300px;" id="productName" />
+        </div>
+        <div class="row">
+            <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="pCategory">
+                <option value="0">--选择--</option>
+                    @if (ViewData["category"]!=null){
+                        foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
+                            <option value="@cate.ID">@cate.Name</option>
+                        }
+                    }
+                </select>
+                <select class="W_input" style="height:24px;display:none;" id="cCategory">
+
+                </select>
+        </div>
+        <div class="row" style="height:auto;">
+            <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
+            <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>
+        </div>
+    </div>
+    <div id="product_prop">
+
+    </div>
+     <div id="product_pics">
+
+    </div>
+</div>

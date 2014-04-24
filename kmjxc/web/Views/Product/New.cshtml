@@ -4,7 +4,133 @@
 
 <script>
     var cateMgr = new KMJXCProductManager();
+    var props = null;
+    var propRow = 1;
+    var groupCount = 1;
+    var propGroup = [];//Key-value {Name:xxx,Value:{Name:xxx,ID:xxx}}
+    var propGroups = [];
+    function AddValueRow() {
+        var pId = $('#pdtproplist1').find("select[id='p1']").val();        
+        var pText = $('#pdtproplist1').find("select[id='p1']").find("option:selected").text();
+        var vId = $('#pdtproplist1').find("select[id='v1']").val();
+        var vText = $('#pdtproplist1').find("select[id='v1']").find("option:selected").text();        
+
+        if (pId == 0 || vId == 0) {
+            alert("属性和属性值必须都选择");
+            return;
+        }
+
+        var buffer = [];
+        buffer.push("<li id=\"ap" + propRow + "\">");
+        buffer.push("<input type=\"hidden\" value=\"" + pId + "\"/>");
+        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + propRow + ")\" src=\"/Content/images/remove.gif\"/></span>");
+        buffer.push("</li>");
+        var json = {'pid':pId,'pvalue':pText,'vid':vId,'vvalue':vText};
+        propGroup[propRow] = json;
+       
+        //alert(propGroup);
+        propRow++;       
+        $('#pdtproplist1').find("select[id='p1']").val(0);
+        $('#pdtproplist1').find("select[id='p1']").find("option[value='" + pId + "']").remove();
+        var $selv1 = $('#pdtproplist1').find("select[id='v1']");
+        $selv1.empty();
+        $selv1.append("<option value=\"0\">--选择--</option>");
+        $('#popup-dialog-addedprops').append(buffer.join(""));
+    }
+
+    function RemoveValueRow(rowIndx) {
+        $('#popup-dialog-addedprops').find("#ap" + rowIndx).remove();
+        var json = propGroup[rowIndx];
+        var $sel1 = $('#pdtproplist1').find("select[id='p1']");
+        if (json != null) {
+            $sel1.append("<option value=\"" + json.pid + "\">" + json.pvalue + "</option>");
+        }
+        propGroup[rowIndx] = null;
+        propRow--;
+    }
+
+    function RenderP1(json) {
+        var $sel1 = $('#pdtproplist1').find("select[id='p1']");
+
+        $sel1.empty();
+        $sel1.append("<option value=\"0\">--选择--</option>");
+        $(json).each(function (index, item) {
+            $sel1.append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+        });
+
+        $sel1.change(function () {
+            var pid = $(this).val();
+            if (pid == 0) {
+                return;
+            }
+
+            cateMgr.GetPropertyValues({ 'pid': pid }, function (res) {
+                var $selv1 = $('#pdtproplist1').find("select[id='v1']");
+                $selv1.empty();
+                $selv1.append("<option value=\"0\">--选择--</option>");
+                $(res.data).each(function (index, item) {
+                    $selv1.append("<option value=\"" + item.Product_Spec_Value_ID + "\">" + item.Name + "</option>");
+                });
+            });
+        });
+    }
+
     $(document).ready(function () {
+
+        cateMgr.GetProperties2({}, function (res) {
+            props = res.data;
+            RenderP1(props);
+            $("#popup-dialog-props").dialog({
+                width: 400, modal: true,
+                open: function () { $(".ui-dialog").position({ of: "#grid_crud" }); },
+                autoOpen: false
+            });
+        });
+
+        function RenderPropGroup(propGroup) {
+            alert(groupCount);
+        }
+
+        $("#addstockprop").button().click(function (event) {
+            $("#popup-dialog-props").dialog({
+                open: function (event, ui) {
+                    RenderP1(props);                    
+                    var $selv1 = $('#pdtproplist1').find("select[id='v1']");
+                    $selv1.empty();
+                    $selv1.append("<option value=\"0\">--选择--</option>");
+                    $('#popup-dialog-addedprops').html("");
+
+                },
+                close: function (event, ui) {
+                    for (var i = 1; i < propRow - 1; i++) {
+                        propGroup[i] = null;
+                    }
+
+                    for (var j = 1; i < groupCount - 1; j++) {
+                        propGroups[j] = null;
+                    }
+
+                    propRow = 1;
+                    groupCount = 1;
+                },
+                resizable: false,
+                title: "添加一组库存属性",
+                buttons: {
+                    "确定": function () {
+                        propGroups[groupCount] = propGroup;
+                        RenderPropGroup(propGroup);
+                        groupCount++;
+                        $(this).dialog("close");
+                    },
+                    "取消": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#popup-dialog-props").dialog("open");
+        });
+
         $('#pCategory').change(function () {
             var parent_id = $('#pCategory option:selected').val();
             
@@ -14,7 +140,7 @@
                     if (res != null && res != "" && typeof (res) == 'object') {
                         $('#cCategory').html("");
                         $('#cCategory').html("<option value=\"0\">--选择--</option>");
-                        $(res).each(function (index, item) {
+                        $(res.data).each(function (index, item) {
                             $('#cCategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
                         });
 
@@ -53,33 +179,72 @@
 
             editor.html("");
         });
+
+        $('.normallist').tabs();
     });
 
    
 </script>
 
 <div class="normallist">
-    <div class="title" style="margin-bottom:10px;">基本信息</div>
-    <div class="row">
-        <label for="productName">名称:</label><input class="W_input" style="width:300px;" id="productName" />
-    </div>
-    <div class="row">
-        <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="pCategory">
-            <option value="0">--选择--</option>
-                @if (ViewData["category"]!=null){
-                    foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
-                        <option value="@cate.ID">@cate.Name</option>
+    <ul>
+        <li><a href="#product_basic">基本信息</a></li>
+       @* <li><a href="#product_prop">库存属性</a></li>*@
+        <li><a href="#product_pics">产品图片</a></li>
+    </ul>
+    <div id="product_basic">
+        <div class="row">
+            <label for="productName">名称:</label><input class="W_input" style="width:300px;" id="productName" />
+        </div>
+        <div class="row">
+            <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="pCategory">
+                <option value="0">--选择--</option>
+                    @if (ViewData["category"]!=null){
+                        foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
+                            <option value="@cate.ID">@cate.Name</option>
+                        }
                     }
-                }
-            </select>
-            <select class="W_input" style="height:24px;display:none;" id="cCategory">
+                </select>
+                <select class="W_input" style="height:24px;display:none;" id="cCategory">
 
-            </select>
+                </select>
+        </div>
+        <div class="row">
+            
+            <div id="popup-dialog-props"> 
+                <h4>对应商城的宝贝属性集合</h4>
+                <div id="pdtproplist1" class="row">
+                        <label>属性:</label><select id="p1" class="W_inputsel"></select><label>属性值:</label><select id="v1" class="W_inputsel"><option value="0">--选择--</option></select> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span>
+                </div>
+           
+                <ul id="popup-dialog-addedprops">
+                </ul>
+            </div>
+            <span style="margin-left:60px;" id="addstockprop">添加一组库存属性</span>
+
+        </div>
+        <div class="row" style="display:none;">
+            <ul id="addedprops">
+            </ul>
+        </div>
+        <div class="row" style="height:auto;">
+            <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
+            <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>
+        </div>
     </div>
-    <div class="row" style="height:auto;">
-        <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
-        <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>
+    @*<div id="product_prop">
+        <h4>库存属性是指同一个产品会对应不同的属性集，比如同一双鞋子，会有不同的颜色和尺码，则有尺码和颜色来对应库存</h4>
+        <div id="popup-dialog-props"> 
+            <div id="pdtproplist1" class="row">
+                    <label>属性:</label><select id="p1" class="W_inputsel"></select><label>属性值:</label><select id="v1" class="W_inputsel"><option value="0">--选择--</option></select> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span>
+            </div>
+           
+            <ul id="popup-dialog-addedprops">
+            </ul>
+        </div>
+        <span id="addstockprop">添加一组库存属性</span>
+    </div>*@
+     <div id="product_pics">
+         <h4>单个产品支持上载三张图片，每张图片大小不大于3M</h4>
     </div>
-    <div class="title" style="margin-bottom:10px;">产品属性</div>
-    <div class="row"><label for=""></label><input type="button" class="W_input_btn" id="btnSaveProduct" value="保存"/></div>
 </div>

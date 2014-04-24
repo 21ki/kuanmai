@@ -616,6 +616,7 @@
     <Content Include="Third\kindeditor\php\file_manager_json.php" />
     <Content Include="Third\kindeditor\php\JSON.php" />
     <Content Include="Third\kindeditor\php\upload_json.php" />
+    <Content Include="Views\Product\NewStock.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

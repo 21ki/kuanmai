@@ -33,6 +33,18 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult NewStock()
+        {
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            List<BCategory> categories = cateMgr.GetCategories(0);
+            ViewData["category"] = categories;
+            return View();
+        }
+
         public ActionResult Categories()
         {
             string user_id = HttpContext.User.Identity.Name;

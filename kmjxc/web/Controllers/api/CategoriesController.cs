@@ -81,6 +81,23 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public PQGridData GetPropertyValues()
+        {
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            PQGridData data = new PQGridData();
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            int property_id = 0;
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            int.TryParse(request["pid"], out property_id);
+            data.data = cateMgr.GetPropertyValues(property_id);
+            return data;
+        }
+
+        [HttpPost]
         public PQGridData GetPropertiesT()
         {
             string user_id = User.Identity.Name;

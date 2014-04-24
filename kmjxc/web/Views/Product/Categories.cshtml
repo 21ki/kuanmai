@@ -4,7 +4,10 @@
 }
 <script>
     var cateMgr = new KMJXCProductManager();
-
+    var $cgrid=null;
+    var $grid;
+    var cobj;
+    var selectedpcid = 0;
     function UpdateStatus(cid) {
         //alert(cid);
         return;
@@ -15,21 +18,33 @@
         });
     }
 
-    $(document).ready(function () {
+    function ShowChildrenCate(cid, cname) {
+        if (cid <= 0) {
+            return;
+        }
+        selectedpcid = cid;
+        $cgrid = $("#ccategoryList").pqGrid(cobj);
+        title = cname + " 的子类目列表";
+        $cgrid.pqGrid("option", "title", title);
+    }
 
-       
+    $(document).ready(function () {       
 
-        var obj = { width: 830, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' } };
+        var obj = { width: 830, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true } };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
                         { title: "类目名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
                         {
-                            title: "子类目数", width: 150, dataType: "string", dataIndx: "Children", editable: false,
+                            title: "子类目数", width: 150, dataType: "object", dataIndx: "Children", editable: false,
                             render: function (ui) {
                                 var children = ui.rowData[ui.dataIndx];
-                                
-                                if (children != null && children != 'undefined') {
-                                    return children.length;
-                                }                                
+                                var id=ui.rowData["ID"];
+                                var name = ui.rowData["Name"];                                
+
+                                if (children != null && children != 'undefined' && children.length > 0) {
+                                    return "<a class=\"\" href=\"javascript:void(0);\" onclick=\"ShowChildrenCate(" + id + ",'" + name + "')\">" + children.length + "</a>";
+                                } else {
+                                    return 0;
+                                }
                             }
                         },
                         {
@@ -44,15 +59,15 @@
                             
                         },
                         {
-                            title: "状态", width: 50, dataType: "boolean", dataIndx: "Enabled", editable: true,
+                            title: "状态", width: 50, dataType: "boolean", dataIndx: "Enabled", editable: false,
                             render: function (ui) {
                                 var cid = ui.rowData["ID"];
-                                //if (ui.rowData[ui.dataIndx]) {
-                                //    return "<input onchange=\"UpdateStatus(" + cid + ")\" type=\"checkbox\" checked/>";
-                                //} else {
-                                //    return "<input onchange=\"UpdateStatus(" + cid + ")\" type=\"checkbox\"/>";
-                                //}
-                                return "<input type=\"text\" value=\"\"/>";
+                                if (ui.rowData[ui.dataIndx]) {
+                                    return "已启用";
+                                } else {
+                                    return "已停用";
+                                }
+                                
                             }
                         },
                         { title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
@@ -61,7 +76,7 @@
         obj.dataModel = {
             location: "remote",
             sorting: "remote",
-            paging: "remote",
+            //paging: "remote",
             dataType: "JSON",
             method: "POST",
             curPage: 1,
@@ -89,38 +104,44 @@
         $("#pcategoryList").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
 
-            $("<span>添加类目</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">添加类目</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
                 AddNew();
             });
-            //$("<span>编辑</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
-            //    //editRow();
-            //});
-           
-            $toolbar.disableSelection();
-        });
-        var $cgrid;
-        var $grid = $("#pcategoryList").pqGrid(obj);
-        $grid.on("pqgridrowdblclick", function (evt, ui) {
-            
-            $cgrid = $("#ccategoryList").pqGrid(cobj);
-            var title = "";
-            var pcid = 0;
-            var prowIndex = getRowIndx();
-            //alert(prowIndex);
-            if (prowIndex != null) {
+            $("<span id=\"get_ccate\" style=\"display:none;\">查看子类目</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+                            
+                var rowIndx = getRowIndx(false);
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;
-                var row = data[prowIndex];
-                pcid = row["ID"];
-                title = row["Name"]+" 的子类目列表";
-            }
-            evt.stopPropagation();
-            $cgrid.pqGrid("option", "title", title);
-        });
-
+                var cid = 0;
+                var $frm = $("form#crud-form");
+                if (rowIndx != null) {
+                    var row = data[rowIndx];
+                    cid = row["ID"];
+                }
+                
+                var title = "添加类目";
+                if (cid > 0) {
+                    title = "给 " + row["Name"] + " 添加子类目";
+                }
+                selectedpcid = cid;
+                title = row["Name"] + " 的子类目列表";
+                $cgrid = $("#ccategoryList").pqGrid(cobj);               
+                $cgrid.pqGrid("option", "title", title);
+            });
+           
+            $toolbar.disableSelection();
+        }); 
+        
+        $grid = $("#pcategoryList").pqGrid(obj);
         $grid.on("pqgridrowunselect", function (evt, ui) {
-            //$cgrid.pgGrid("destory");
+            var $toolbar = $(".pq-grid-top");
+            $toolbar.find('#get_ccate').hide();
         });
+        $grid.on("pqgridrowselect", function (evt, ui) {
+           
+            var $toolbar = $(".pq-grid-top");           
+            $toolbar.find('#get_ccate').show();           
+        });       
 
         $("#popup-dialog-crud").dialog({
             width: 400, modal: true,
@@ -128,7 +149,8 @@
             autoOpen: false
         });
 
-        var cobj = obj;
+        cobj = obj;
+        cobj.rowDblClick = null;
         cobj.dataModel = {
             location: "remote",
             sorting: "remote",
@@ -140,23 +162,12 @@
             sortIndx: 2,
             sortDir: "up",
             rPPOptions: [1, 10, 20, 30, 40, 50, 100, 500, 1000],
-            getUrl: function () {
-                var sortDir = (this.sortDir == "up") ? "asc" : "desc";
-                var sort = ['ID', 'Name'];
-                var pcid = 0;
-                var prowIndex = getRowIndx();
-                if (prowIndex != null) {
-                    var DM = $grid.pqGrid("option", "dataModel");
-                    var data = DM.data;
-                    var row = data[prowIndex];
-                    pcid=row["ID"];
-                }
+            getUrl: function () {               
                 return {
-                    url: "/api/Categories/GetCategories", data: "parent_id=" + pcid
+                    url: "/api/Categories/GetCategories", data: "parent_id=" + selectedpcid
                 };
             },
-            getData: function (dataJSON) {
-                //alert(dataJSON.totalRecords);
+            getData: function (dataJSON) {                
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };
@@ -164,6 +175,7 @@
 
         function AddNew() {
             var rowIndx = getRowIndx(false);
+           
             var DM = $grid.pqGrid("option", "dataModel");
             var data = DM.data;
             var cid = 0;
@@ -172,19 +184,19 @@
                 var row = data[rowIndx];
                 cid = row["ID"];
             }
-
+            
             var title = "添加类目";
             if (cid > 0) {
-                title = "给 "+row["Name"] + " 添加子类目";
+                title = "给 " + row["Name"] + " 添加子类目";                
             }
             $("#popup-dialog-crud").dialog({
                 open: function (event, ui) {
                     $frm.find("#cateParent").val(0);
                     $frm.find('#categoryName').val("");
-                    $frm.find("#cateParent").removeAttr("disabled");
+                    //$frm.find("#cateParent").attr("disabled", false);
                     if (cid > 0) {
                         $frm.find("#cateParent").val(cid);
-                        $frm.find("#cateParent").attr("disabled",true);
+                        //$frm.find("#cateParent").attr("disabled",true);
                     }
                 },
                 resizable: false,
