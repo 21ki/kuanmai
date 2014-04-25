@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
+    <Compile Include="ImageManager.cs" />
     <Compile Include="Models\BBackSale.cs" />
     <Compile Include="Models\BBackSaleDetail.cs" />
     <Compile Include="Models\BBackStock.cs" />

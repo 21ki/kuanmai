@@ -21,8 +21,8 @@ namespace KM.JXC.BL
         {
         }
 
-        public StockManager(BUser user, Permission permission)
-            : base(user,permission)
+        public StockManager(BUser user, Shop shop, Permission permission)
+            : base(user,shop,permission)
         {
         }
 
@@ -624,10 +624,10 @@ namespace KM.JXC.BL
                 throw new KMJXCException("");
             }
 
-            if (stockPile.StockHouse_ID <= 0)
-            {
-                throw new KMJXCException("");
-            }
+            //if (stockPile.StockHouse_ID <= 0)
+            //{
+            //    throw new KMJXCException("");
+            //}
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {

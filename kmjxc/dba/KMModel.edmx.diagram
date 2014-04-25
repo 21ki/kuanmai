@@ -50,6 +50,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Class" Width="1.5" PointX="11.218122018137073" PointY="23.436478044575303" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="2.4915125269868934" PointY="19.904071861833369" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Stock_Waste" Width="1.5" PointX="0.52278327966238525" PointY="22.486056204180258" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Image" Width="1.5" PointX="9.7471036155461821" PointY="27.543031556318994" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

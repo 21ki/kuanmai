@@ -248,7 +248,7 @@ textarea {
 }
 .row {
     overflow:hidden;
-    padding-top:0px;padding-bottom:5px;
+    padding-top:3px;padding-bottom:3px;
 }
 
 .row label{
@@ -311,6 +311,36 @@ textarea {
 .normalul {
     
 }
+
+.propul {
+    margin-left:60px;
+    height:auto;
+
+}
+    .propul li {
+        padding-left:10px;
+        padding-right:10px;
+        border:1px solid #E0E0E0;
+        margin-right:4px;
+    }
+.piclist {
+    overflow:hidden;
+}
+    .piclist li {
+        float:left;
+        margin-right:5px;
+        margin-bottom:5px;
+        border:1px solid #E0E0E0;
+        padding:3px 3px;
+    }
+        .piclist li p {
+            text-align:center;
+            margin-top:2px;
+            margin-bottom:2px;
+        }
+        .piclist li img {
+            width:182px;
+        }
     .normalul li {
         padding-top:3px;
         padding-bottom:3px;

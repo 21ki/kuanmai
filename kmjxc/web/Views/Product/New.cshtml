@@ -9,14 +9,36 @@
     var groupCount = 1;
     var propGroup = [];//Key-value {Name:xxx,Value:{Name:xxx,ID:xxx}}
     var propGroups = [];
-    function AddValueRow() {
+    var images = [];
+    var editor;
+    function RemoveImage(obj, image_id) {
+
+        cateMgr.DeleteImage({ 'image_id': image_id }, function (res) {
+            if (res.Status == 'ok') {
+                $(obj).parent("p").parent("li").remove();
+                var tmp = [];
+                for (var i = 0; i < images.length; i++) {
+                    if (images[i] != null && images[i] != '' && images[i] != image_id) {
+                        tmp.push(images[i]);
+                    }
+                }
+                images = tmp;
+            }
+        });
+       
+    }
+
+    function AddValueRow(fromSubmit) {
         var pId = $('#pdtproplist1').find("select[id='p1']").val();        
         var pText = $('#pdtproplist1').find("select[id='p1']").find("option:selected").text();
         var vId = $('#pdtproplist1').find("select[id='v1']").val();
         var vText = $('#pdtproplist1').find("select[id='v1']").find("option:selected").text();        
 
         if (pId == 0 || vId == 0) {
-            alert("属性和属性值必须都选择");
+            if (!fromSubmit) {
+                $('#resultmessage').html("属性和属性值都不能为空");
+                $('#resultmessage').show();
+            }            
             return;
         }
 
@@ -75,6 +97,12 @@
         });
     }
 
+    function RemoveGroup(index, obj) {
+        propGroups[index] = null;
+        groupCount--;
+        $(obj).parent("li").parent("ul").remove();
+    }
+
     $(document).ready(function () {
 
         cateMgr.GetProperties2({}, function (res) {
@@ -85,11 +113,100 @@
                 open: function () { $(".ui-dialog").position({ of: "#grid_crud" }); },
                 autoOpen: false
             });
+        });      
+
+        function RenderPropGroup(propGroup,groupIndex) {           
+            
+            var buffer = [];
+            if (propRow > 1) {
+                buffer.push("<ul class=\"row propul\">");
+                for (var i = 0; i < propGroup.length; i++) {
+                    var json = propGroup[i];
+                    if (json != null && json != 'undefined' && typeof (json) == 'object') {
+                        buffer.push("<li style=\"float:left;display:inline-block;\">");
+                        buffer.push(json.pvalue + ":" + json.vvalue);
+                        buffer.push("</li>");
+                    }
+                }
+               
+                buffer.push("<li style=\"float:left;display:inline-block;border:0;\"><img onclick=\"RemoveGroup(" + groupIndex + ",this)\" src=\"/Content/images/remove.gif\"/></li>");
+                buffer.push("</ul>");
+            }
+            var str = buffer.join("");
+            if ($.trim(str) != '') {
+                $('#addedprops').append(str);
+                $('#addedprops').show();
+            }
+
+            propRow = 1;
+        }
+
+        $('#btnAddProduct').button().click(function (event) {
+            var buffer = "";            
+            for (var i = 0; i < propGroups.length; i++) {
+                var array = propGroups[i];
+                if (array != null) {
+                    if (buffer != "") {
+                        buffer = buffer + ";"
+                    }
+                    var gbuffer = "";
+                    for (var j = 0; j < array.length; j++) {
+                        var json = array[j];
+                        if (json != null && json != 'undefined') {
+                            if (gbuffer == "") {
+                                gbuffer = json.pid + ":" + json.vid;
+                            } else {
+                                gbuffer = gbuffer + "," + json.pid + ":" + json.vid;
+                            }
+                        }
+                    }
+                    buffer = buffer + gbuffer;
+                }
+            }
+            var frm = $("#pdtnewform");
+            var title = frm.find('#productName').val();
+            var desc = editor.html();
+            var cid = 0;
+            var pid = frm.find("#pCategory").val();
+            var ccid = frm.find("#cCategory").val();
+            if (ccid > 0) {
+                cid = ccid;
+            } else {
+                cid = pid;
+            }
+            var image_ids = "";
+            for (var i = 0; i < images.length; i++) {
+                if (images[i] != null && images[i] != "") {
+                    if (image_ids == "") {
+                        image_ids = images[i];
+                    } else {
+                        image_ids = image_ids+","+images[i];
+                    }
+                }
+            }
+
+            if ($.trim(title) == '') {
+                frm.find("#resultmessage3").html("请输入产品标题");
+                frm.find("#resultmessage3").show();
+                return;
+            }
+
+            if (cid == 0) {
+                frm.find("#resultmessage3").html("请选择产品类目，二级类目可不选");
+                frm.find("#resultmessage3").show();
+                return;
+            }
+            //if ($.trim(desc) == '') {
+            //    frm.find("#resultmessage3").html("请输入产品描述");
+            //    frm.find("#resultmessage3").show();
+            //    return;
+            //}
+            cateMgr.CreateProduct({ 'images': image_ids,'props':buffer,'title':title,'desc':desc,'cid':cid }, function (res) {
+
+            });
         });
 
-        function RenderPropGroup(propGroup) {
-            alert(groupCount);
-        }
+       
 
         $("#addstockprop").button().click(function (event) {
             $("#popup-dialog-props").dialog({
@@ -99,26 +216,23 @@
                     $selv1.empty();
                     $selv1.append("<option value=\"0\">--选择--</option>");
                     $('#popup-dialog-addedprops').html("");
+                    propRow = 1;
+                    propGroup = [];
+                    $('#resultmessage').html("");
+                    $('#resultmessage').hide();
 
                 },
                 close: function (event, ui) {
-                    for (var i = 1; i < propRow - 1; i++) {
-                        propGroup[i] = null;
-                    }
-
-                    for (var j = 1; i < groupCount - 1; j++) {
-                        propGroups[j] = null;
-                    }
-
-                    propRow = 1;
-                    groupCount = 1;
+                    propGroup = [];  
+                    propRow = 1;                    
                 },
                 resizable: false,
                 title: "添加一组库存属性",
                 buttons: {
                     "确定": function () {
+                        AddValueRow(true);
                         propGroups[groupCount] = propGroup;
-                        RenderPropGroup(propGroup);
+                        RenderPropGroup(propGroup, groupCount);
                         groupCount++;
                         $(this).dialog("close");
                     },
@@ -181,12 +295,79 @@
         });
 
         $('.normallist').tabs();
+
+        $('#upload_progressbar').progressbar({ value: 0 });
+        var progressbar = $("#upload_progressbar");
+        $('#file_upload').uploadify({
+            'buttonClass': 'uploadify_01',
+            'swf': '/Third/uploadify/uploadify.swf',
+            'uploader': "/Image/Upload",
+            //'buttonImage'	: 'images/uploadify/addatt.gif',
+            'buttonText': '上传图片',
+            'queueID': 'fileQueue',
+            'progressData': 'speed',
+            'auto': true,
+            'multi': true,
+            'method': 'post',
+            'fileTypeExts': '*.jpg;*.png;*.gif;*.jpeg',
+            'fileTypeDesc': '请选择图片文件(*.jpg;*.png;*.gif;*.jpeg)',
+            'height': 25,
+            'queueSizeLimit': 4,
+            'uploadLimit':4,
+            'fileSizeLimit': '3MB',
+            'wmode': 'transparent',
+            'formData': { 'authid': $('#authid').val() },
+
+            'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                $('#upload_progressbar').show();
+                $('#upload_progressbar').progressbar("option", "max", totalBytesTotal);
+                $('#upload_progressbar').progressbar("option", "value", totalBytesUploaded);
+            },
+            'onSelect': function (file) {
+                //imageUploadifySelectOnce();
+            },
+            'onUploadSuccess': function (file, data, result) {
+                //$('#upload_progressbar').hide();
+                if (data != null && data != "") {
+                    var json = eval("(" + data + ")");                    
+                    images.push(json.Item.ID);
+                    $('#pdtimagelist').append("<li><img src=\"" + json.Item.Path + "\"/><p><a href=\"javascript:void(0)\" onclick=\"RemoveImage(this," + json.Item.ID + ")\">删除</a></p></li>");
+                }                
+            },
+            'onError': function (event, queueID, fileObj) {
+                
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString) {
+                
+                switch (errorCode) {
+                    case -100:
+                        alert("上传的文件数量已经超出系统限制的" + $('#file_upload').uploadify('settings', 'queueSizeLimit') + "个文件！");
+                        break;
+                    case -110:
+                        alert("文件 [" + file.name + "] 大小超出系统限制的" + $('#file_upload').uploadify('settings', 'fileSizeLimit') + "大小！");
+                        break;
+                    case -120:
+                        alert("文件 [" + file.name + "] 大小异常！");
+                        break;
+                    case -130:
+                        alert("文件 [" + file.name + "] 类型不正确！");
+                        break;
+                }
+            },
+            'onQueueComplete': function (queueData) {
+                $('#upload_progressbar').hide();
+                //Boxy.get($('#image_loading')).hide();
+            },
+        });
+
     });
 
    
 </script>
 
 <div class="normallist">
+    <form id="pdtnewform">
+        <input type="hidden" id="authid"/>
     <ul>
         <li><a href="#product_basic">基本信息</a></li>
        @* <li><a href="#product_prop">库存属性</a></li>*@
@@ -211,7 +392,7 @@
         </div>
         <div class="row">
             
-            <div id="popup-dialog-props"> 
+            <div id="popup-dialog-props" style="display:none;"> 
                 <h4>对应商城的宝贝属性集合</h4>
                 <div id="pdtproplist1" class="row">
                         <label>属性:</label><select id="p1" class="W_inputsel"></select><label>属性值:</label><select id="v1" class="W_inputsel"><option value="0">--选择--</option></select> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span>
@@ -219,17 +400,21 @@
            
                 <ul id="popup-dialog-addedprops">
                 </ul>
+                <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
             </div>
             <span style="margin-left:60px;" id="addstockprop">添加一组库存属性</span>
 
         </div>
-        <div class="row" style="display:none;">
-            <ul id="addedprops">
-            </ul>
+        <div class="row" style="display:none;" id="addedprops">
+           
         </div>
         <div class="row" style="height:auto;">
             <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
             <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>
+        </div>
+        <div id="resultmessage3" class="message1 nolabel2" style="height:auto;display:none;"></div>
+        <div class="row">
+            <span style="margin-left:60px;" id="btnAddProduct">添加</span>
         </div>
     </div>
     @*<div id="product_prop">
@@ -244,7 +429,18 @@
         </div>
         <span id="addstockprop">添加一组库存属性</span>
     </div>*@
-     <div id="product_pics">
-         <h4>单个产品支持上载三张图片，每张图片大小不大于3M</h4>
+     <div id="product_pics" style="display:none;">
+         <h4>单个产品支持上载四张图片，每张图片大小不大于3M</h4>
+         <div class="row">
+             <input id="file_upload" type="file" />
+         </div>
+         <div id="upload_progressbar" style="width:300px;height:15px;display:none;"></div>
+         <div id="resultmessage2" class="message1 nolabel2" style="height:auto;display:none;"></div>
+         <div class="row" style="height:auto;">
+             <ul id="pdtimagelist" class="piclist">
+
+             </ul>
+         </div>
     </div>
+    </form>
 </div>

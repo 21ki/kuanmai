@@ -131,6 +131,7 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BuyController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\PermissionController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\SaleController.cs" />
@@ -585,6 +586,15 @@
     <Content Include="Third\pqgrid\themes\Office\images\column-header-bg.png" />
     <Content Include="Third\pqgrid\themes\Office\images\column-header-over-bg.gif" />
     <Content Include="Third\pqgrid\themes\Office\pqgrid.css" />
+    <Content Include="Third\uploadify\Change Log.txt" />
+    <Content Include="Third\uploadify\jquery.uploadify.js" />
+    <Content Include="Third\uploadify\jquery.uploadify.min.js" />
+    <Content Include="Third\uploadify\license.txt" />
+    <Content Include="Third\uploadify\uploadify-cancel.png" />
+    <Content Include="Third\uploadify\uploadify.css" />
+    <Content Include="Third\uploadify\uploadify.swf" />
+    <Content Include="Third\uploadify\__MACOSX\._Change Log.txt" />
+    <Content Include="Third\uploadify\__MACOSX\._uploadify.swf" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -617,6 +627,9 @@
     <Content Include="Third\kindeditor\php\JSON.php" />
     <Content Include="Third\kindeditor\php\upload_json.php" />
     <Content Include="Views\Product\NewStock.cshtml" />
+    <Content Include="Third\uploadify\check-exists.php" />
+    <Content Include="Third\uploadify\index.php" />
+    <Content Include="Third\uploadify\uploadify.php" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

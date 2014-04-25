@@ -115,6 +115,9 @@
     <Compile Include="Enter_Stock_Detail.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Image.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="KMModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

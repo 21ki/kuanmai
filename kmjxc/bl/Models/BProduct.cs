@@ -20,9 +20,14 @@ namespace KM.JXC.BL.Models
         public Shop Shop { get; set; }
         public BProduct Parent { get; set; }
         public List<Supplier> Suppliers { get; set; }
-        public string Code { get; set; }      
+        public string Code { get; set; }
+      
+        /// <summary>
+        /// this property used for child product
+        /// </summary>
         public List<BProductProperty> Properties { get; set; }
         public List<BProduct> Children { get; set; }
         public int Quantity { get; set; }
+        public List<Image> Images { get; set; }
     }
 }

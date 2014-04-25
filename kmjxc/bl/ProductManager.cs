@@ -23,6 +23,12 @@ namespace KM.JXC.BL
             stockManager = new StockManager(user,shop_id,permission);
         }
 
+        public ProductManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
+        {
+            stockManager = new StockManager(user, shop, permission);
+        }
+
         /// <summary>
         /// Input product is Parent product which doesn't have any chind products with Properties combination
         /// </summary>
@@ -151,10 +157,16 @@ namespace KM.JXC.BL
             dbProduct.Code = product.Code;
             dbProduct.Create_Time = product.CreateTime;
             dbProduct.Name = product.Title;
-            dbProduct.Product_Class_ID = product.Category.ID;
+            if (product.Category != null)
+            {
+                dbProduct.Product_Class_ID = product.Category.ID;
+            }
             dbProduct.Product_ID = 0; 
             dbProduct.Price = product.Price;
-            dbProduct.Product_Unit_ID = product.Unit.Product_Unit_ID;
+            if (product.Unit != null)
+            {
+                dbProduct.Product_Unit_ID = product.Unit.Product_Unit_ID;
+            }
             dbProduct.Shop_ID = this.Main_Shop.Shop_ID;
             dbProduct.User_ID = this.MainUser.ID;
 
@@ -185,14 +197,15 @@ namespace KM.JXC.BL
                 this.stockManager.CreateDefaultStockPile(stockPile);
 
                 if (product.Properties != null && product.Properties.Count > 0)
-                {
-                    Product_Specifications ps = new Product_Specifications();
+                {                    
                     foreach (BProductProperty pro in product.Properties)
                     {
+                        Product_Specifications ps = new Product_Specifications();
                         ps.Product_ID = dbProduct.Product_ID;
                         ps.Product_Spec_ID = pro.PID;
                         ps.Product_Spec_Value_ID = pro.PVID;
                         ps.User_ID = this.CurrentUser.ID;
+                        ps.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         db.Product_Specifications.Add(ps);
                     }
 

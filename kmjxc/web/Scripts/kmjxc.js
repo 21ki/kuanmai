@@ -198,6 +198,12 @@ function KMJXCProductManager() {
     this.GetPropertyValues = function (params, callback) {
         this.AjaxCall("/api/Categories/GetPropertyValues", params, callback);
     }
+    this.DeleteImage = function (params, callback) {
+        this.AjaxCall("/Image/Delete", params, callback);
+    }
+    this.CreateProduct = function (params, callback) {
+        this.AjaxCall("/api/Products/Create", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();
@@ -218,6 +224,6 @@ function KMJXManager() {
 
 var manager = new KMJXManager();
 
-function PropertyGrid(tableId) {
+function ProductGrid(tableId) {
     
 }

@@ -27,21 +27,21 @@
                         { title: "创建者", width: 200, dataType: "string", dataIndx: "Created_By.Name", editable: false },
                         { title: "创建日期", width: 200, dataType: "timestamp", dataIndx: "Created", editable: false },
         ];
+       
         obj.dataModel = {
             location: "remote",
             sorting: "remote",
-            paging: "remote",
+            //paging: "remote",
             dataType: "JSON",
             method: "POST",
-            curPage: 1,
-            rPP: 20,
+            //curPage: 1,
+            //rPP: 20,
             sortIndx: 2,
             sortDir: "up",
-            rPPOptions: [1, 10, 20, 30, 40, 50, 100, 500, 1000],
+            //rPPOptions: [1, 10, 20, 30, 40, 50, 100, 500, 1000],
             getUrl: function () {
                 var sortDir = (this.sortDir == "up") ? "asc" : "desc";
-                var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];
-
+                var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];                
                 return {
                     url: "/api/Categories/GetPropertiesT", data: "cid=0&sortBy=" + sort[this.sortIndx] + "&dir=" + sortDir
                 };
@@ -51,6 +51,7 @@
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };
+
         obj.cellSave = function (event, ui) {
 
         }

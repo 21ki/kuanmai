@@ -70,5 +70,6 @@ namespace KM.JXC.DBA
         public DbSet<Product_Class> Product_Class { get; set; }
         public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Stock_Waste> Stock_Waste { get; set; }
+        public DbSet<Image> Image { get; set; }
     }
 }
