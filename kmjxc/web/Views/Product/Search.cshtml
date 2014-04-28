@@ -2,4 +2,338 @@
     ViewBag.Title = "产品列表";
 }
 
-<h2>Search</h2>
+<script>
+    var cateMgr = new KMJXCProductManager();
+    var $searchform;
+    var $editform;
+    var editor;
+    function EditProduct(pdtId) {
+
+        $editform.find('#product_id').val(pdtId);
+
+        $("#pop_edit_product").dialog({
+            open: function (event, ui) {
+               
+                $editform.find('#resultmessage').html("");
+                $editform.find('#resultmessage').hide();
+
+            },
+            close: function (event, ui) {
+               
+            },
+            resizable: false,
+            title: "编辑产品",
+            buttons: {
+                "保存修改": function () {
+                   
+                },
+                "取消": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        $("#pop_edit_product").dialog("open");
+    }
+    $(document).ready(function () {        
+        $editform = $('#pdteditform');
+        KindEditor.ready(function (K) {
+            editor = K.create('textarea[name="productDesc"]', {
+                resizeType: 0,
+                width: '500px',
+                minWidth: 550,
+                height: '250px',
+                allowPreviewEmoticons: false,
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist', '|', 'emoticons', 'link']
+            });
+
+            editor.html("");
+        });
+        $('.normallist').tabs();
+        $("#pop_edit_product").dialog({
+            width:850,modal: true,
+            open: function () { $(".ui-dialog").position({ of: "#productTable" }); },
+            autoOpen: false
+        });
+        var obj = {
+            width: 830, height: 600, title: "产品列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+                //alert(obj.rowIndxPage);
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];
+                //alert(pdtId);
+            }
+        };
+       
+        obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+                        { title: "名称", width: 250, dataType: "string", dataIndx: "Title", editable: false },
+                        { title: "类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
+                        {
+                            title: "价格", width: 80, dataType: "double", dataIndx: "Price", editable: false,
+                            render: function (ui) {
+                                var cellData = ui.rowData[ui.dataIndx];
+                                if (cellData == 0) {
+                                    return "暂无入库单";
+                                }
+                            }
+                        },
+                        {
+                             title: "库存", width: 80, dataType: "double", dataIndx: "Quantity", editable: false,
+                             //render: function (ui) {
+                             //    return 0;
+                             //}
+                        },
+                        {
+                            title: "主店铺产品", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
+                            render: function (ui) {
+                                var cellData = ui.rowData[ui.dataIndx];
+                                if (cellData.Parent_ID == 0) {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            },
+                        },
+                        { title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
+                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
+                        {
+                            title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
+                            render: function (ui) {
+                                return "<input onclick=\"EditProduct("+ui.rowData["ID"]+")\" class=\"\" type=\"button\" value=\"修改\" />";
+                            }
+                        },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [1,30, 40, 50],
+            getUrl: function (prgrid) {
+                var sortDir = (this.sortDir == "up") ? "asc" : "desc";
+                var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];
+                var pid = $searchform.find("#pq-parent-cate").val();
+                var ccid = $searchform.find("#pq-child-cate").val();
+                var cid = "";
+                if (ccid > 0) {
+                    cid = ccid;
+                } else {
+                    if (pid > 0) {
+                        cid = pid;
+                    }
+                }
+                var keyword = $searchform.find('#pdt_key_word').val();
+                return {
+                    url: "/api/Products/SearchProducts", data: "cid=" + cid + "&keyword=" + keyword+"&page="+this.curPage+"&pageSize="+this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                //alert(dataJSON.totalRecords);
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }       
+
+        $("#productTable").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
+            $("<label>类目:</label>").appendTo($srow);
+            var $pcate=$("<select id='pq-parent-cate' class='W_input' style='height:24px;'>\
+            </select>").appendTo($srow).change(function () {
+                if ($(this).val() != 0) {
+                    var pid = $(this).val();
+                    cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                        if ($(res.data).size() > 0) {                           
+                            $ccate.empty();
+                            $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                            $(res.data).each(function (index, item) {
+                                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                            });
+                            $ccate.show();
+                        } else {
+                            $ccate.hide();
+                            $ccate.empty();
+                        }
+                    });
+                   
+                } else {
+                    $ccate.hide();
+                    $ccate.empty();
+                }
+            });
+
+            $("<option value=\"0\">--选择--</option>").appendTo($pcate);
+            cateMgr.GetCategories({'parent_id':0}, function (res) {
+                $(res.data).each(function (index, item) {
+                    $("<option value=\""+item.ID+"\">"+item.Name+"</option>").appendTo($pcate);
+                });
+            });            
+
+            var $ccate = $("<select id='pq-child-cate' class='W_input' style='height:24px;display:none;'>\
+            </select>").appendTo($srow).change(function () {
+
+            });
+
+            $("<label>关键字:</label>").appendTo($srow);
+            $("<input id=\"pdt_key_word\" title='关键字' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+                
+            });
+          
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                    .appendTo($srow)
+                    .button({text: true }).bind("click", function (evt) {
+                        $grid.pqGrid("refreshDataAndView");
+                    });
+            
+
+            //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
+            //$toolbar.disableSelection();
+        });
+
+        var $grid = $("#productTable").pqGrid(obj);
+
+        $('#upload_progressbar').progressbar({ value: 0 });
+        var progressbar = $("#upload_progressbar");
+        $('#file_upload').uploadify({
+            'buttonClass': 'uploadify_01',
+            'swf': '/Third/uploadify/uploadify.swf',
+            'uploader': "/Image/Upload",
+            //'buttonImage'	: 'images/uploadify/addatt.gif',
+            'buttonText': '上传图片',
+            'queueID': 'fileQueue',
+            'progressData': 'speed',
+            'auto': true,
+            'multi': true,
+            'method': 'post',
+            'fileTypeExts': '*.jpg;*.png;*.gif;*.jpeg',
+            'fileTypeDesc': '请选择图片文件(*.jpg;*.png;*.gif;*.jpeg)',
+            'height': 25,
+            'queueSizeLimit': 4,
+            'uploadLimit': 4,
+            'fileSizeLimit': '3MB',
+            'wmode': 'transparent',
+            'formData': { 'authid': $('#authid').val() },
+
+            'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                $('#upload_progressbar').show();
+                $('#upload_progressbar').progressbar("option", "max", totalBytesTotal);
+                $('#upload_progressbar').progressbar("option", "value", totalBytesUploaded);
+            },
+            'onSelect': function (file) {
+                //imageUploadifySelectOnce();
+            },
+            'onUploadSuccess': function (file, data, result) {
+                //$('#upload_progressbar').hide();
+                if (data != null && data != "") {
+                    var json = eval("(" + data + ")");
+                    images.push(json.Item.ID);
+                    $('#pdtimagelist').append("<li><img src=\"" + json.Item.Path + "\"/><p><a href=\"javascript:void(0)\" onclick=\"RemoveImage(this," + json.Item.ID + ")\">删除</a></p></li>");
+                }
+            },
+            'onError': function (event, queueID, fileObj) {
+
+            },
+            'onUploadError': function (file, errorCode, errorMsg, errorString) {
+
+                switch (errorCode) {
+                    case -100:
+                        alert("上传的文件数量已经超出系统限制的" + $('#file_upload').uploadify('settings', 'queueSizeLimit') + "个文件！");
+                        break;
+                    case -110:
+                        alert("文件 [" + file.name + "] 大小超出系统限制的" + $('#file_upload').uploadify('settings', 'fileSizeLimit') + "大小！");
+                        break;
+                    case -120:
+                        alert("文件 [" + file.name + "] 大小异常！");
+                        break;
+                    case -130:
+                        alert("文件 [" + file.name + "] 类型不正确！");
+                        break;
+                }
+            },
+            'onQueueComplete': function (queueData) {
+                $('#upload_progressbar').hide();
+                //Boxy.get($('#image_loading')).hide();
+            },
+        });
+    });
+</script>
+<div class="normallist">
+    <div id="productTable"></div>
+</div>
+<div id="pop_edit_product" class="normallist" style="display:none;">
+     <form id="pdteditform">
+     <input type="hidden" id="authid"/>
+     <input type="hidden" id="product_id"/>
+     <ul>
+        <li><a href="#product_basic">基本信息</a></li>      
+        <li><a href="#product_pics">产品图片</a></li>
+    </ul>
+    <div id="product_basic">
+        <div class="row">
+            <label for="productName">名称:</label><input class="W_input" style="width:300px;" id="productName" />
+        </div>
+        <div class="row">
+            <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="pCategory">
+                <option value="0">--选择--</option>
+                   @* @if (ViewData["category"]!=null){
+                        foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
+                            <option value="@cate.ID">@cate.Name</option>
+                        }
+                    }*@
+                </select>
+                <select class="W_input" style="height:24px;display:none;" id="cCategory">
+
+                </select>
+        </div>
+        <div class="row">
+            
+            <div id="popup-dialog-props" style="display:none;"> 
+                <h4>对应商城的宝贝属性集合</h4>
+                <div id="pdtproplist1" class="row">
+                        <label>属性:</label><select id="p1" class="W_inputsel"></select><label>属性值:</label><select id="v1" class="W_inputsel"><option value="0">--选择--</option></select> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span>
+                </div>
+           
+                <ul id="popup-dialog-addedprops">
+                </ul>
+                <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
+            </div>
+            <span style="margin-left:60px;" id="addstockprop">添加一组库存属性</span>
+
+        </div>
+        <div class="row" style="display:none;" id="addedprops">
+           
+        </div>
+        <div class="row" style="height:auto;">
+            <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
+            <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>
+        </div>
+        <div id="resultmessage3" class="message1 nolabel2" style="height:auto;display:none;"></div>
+       
+    </div>    
+     <div id="product_pics" style="display:none;">
+         <h4>单个产品支持上载四张图片，每张图片大小不大于3M</h4>
+         <div class="row">
+             <input id="file_upload" type="file" />
+         </div>
+         <div id="upload_progressbar" style="width:300px;height:15px;display:none;"></div>
+         <div id="resultmessage2" class="message1 nolabel2" style="height:auto;display:none;"></div>
+         <div class="row" style="height:auto;">
+             <ul id="pdtimagelist" class="piclist">
+
+             </ul>
+         </div>
+    </div>
+    </form>
+</div>

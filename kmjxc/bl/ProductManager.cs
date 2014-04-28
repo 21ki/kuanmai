@@ -155,7 +155,7 @@ namespace KM.JXC.BL
          
             Product dbProduct = new Product();
             dbProduct.Code = product.Code;
-            dbProduct.Create_Time = product.CreateTime;
+            dbProduct.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             dbProduct.Name = product.Title;
             if (product.Category != null)
             {
@@ -167,7 +167,7 @@ namespace KM.JXC.BL
             {
                 dbProduct.Product_Unit_ID = product.Unit.Product_Unit_ID;
             }
-            dbProduct.Shop_ID = this.Main_Shop.Shop_ID;
+            dbProduct.Shop_ID = this.Shop.Shop_ID;
             dbProduct.User_ID = this.MainUser.ID;
 
             if (product.Parent != null && product.Parent.ID > 0)
@@ -342,7 +342,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> GetProducts(string title, string description, int startTime, int endTime, int category_id, int pageIndex, int pageSize, out int total)
+        public List<BProduct> GetProducts(string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -360,7 +360,7 @@ namespace KM.JXC.BL
             {
                 var dbps = from product in db.Product
                            //join employee in db.Employee on product.User_ID equals employee.User_ID                           
-                           where product.Parent_ID == 0
+                           where product.Parent_ID == 0 && (product.Shop_ID==this.Shop.Shop_ID || product.Shop_ID==this.Main_Shop.Shop_ID)
                            select new
                            {
                                Pdt=product,
@@ -386,11 +386,23 @@ namespace KM.JXC.BL
                     dbps = dbps.Where(a => a.Pdt.Create_Time <= endTime);
                 }
 
-                if (category_id > 0)
+                if (category_id !=null)
                 {
-                    dbps = dbps.Where(a => a.Pdt.Product_Class_ID == category_id);
+                    Product_Class cate = (from ca in db.Product_Class where ca.Product_Class_ID == category_id select ca).FirstOrDefault<Product_Class>();
+                    if (cate != null)
+                    {
+                        if (cate.Parent_ID == 0)
+                        {
+                            int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
+                            dbps = dbps.Where(a =>ccids.Contains(a.Pdt.Product_Class_ID));
+                        }
+                        else 
+                        {
+                            dbps = dbps.Where(a => a.Pdt.Product_Class_ID == category_id);                            
+                        }
+                    }
                 }
-
+                dbps = dbps.OrderBy(a=>a.Pdt.Shop_ID).OrderBy(b=>b.Pdt.Create_Time);
                 total = dbps.Count();
                 if (total > 0)
                 {
@@ -398,12 +410,13 @@ namespace KM.JXC.BL
                               select new BProduct
                               {
                                   Description = bpss.Pdt.Description,
+                                  Shop=(from sp in db.Shop where sp.Shop_ID==bpss.Pdt.Shop_ID select sp).FirstOrDefault<Shop>(),
                                   Price = bpss.Pdt.Price,
                                   ID = bpss.Pdt.Product_ID,
                                   Title = bpss.Pdt.Name,
                                   CreateTime = bpss.Pdt.Create_Time,
                                   Code = bpss.Pdt.Code,
-                                  Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
+                                  //Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
                                   Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
                                               where bpss.Pdt.Product_Class_ID == c.Product_Class_ID
@@ -423,6 +436,15 @@ namespace KM.JXC.BL
                               };
 
                     products = bps.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();
+                }
+
+                foreach (BProduct product in products)
+                {
+                    decimal totalPrice = (from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price).Sum();
+                    int count=(from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es).Count();
+                    if (count != 0) {
+                        product.Price = totalPrice / count;
+                    }
                 }
             }
 

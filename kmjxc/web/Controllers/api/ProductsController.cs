@@ -84,5 +84,37 @@ namespace KM.JXC.Web.Controllers.api
 
             return message;
         }
+
+        [HttpPost]
+        public PQGridData SearchProducts()
+        {
+            PQGridData data = new PQGridData();
+            int page = 0;
+            int pageSize = 30;
+            int total = 0;
+            int? category_id = null;
+            string keyword = "";
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int.TryParse(request["page"],out page);
+            int.TryParse(request["pageSize"],out pageSize);
+            if (request["cid"] != null && request["cid"].ToString() != "" && request["cid"].ToString()!="0")
+            {
+                int cid = 0;
+                int.TryParse(request["cid"],out cid);
+                if (cid > 0) {
+                    category_id = cid;
+                }
+            }
+            keyword = request["keyword"];
+            data.data=pdtManager.GetProducts(keyword, "", 0, 0, category_id, page, pageSize, out total);
+            data.totalRecords = total;
+            data.curPage = page;
+            return data;
+        }
     }
 }

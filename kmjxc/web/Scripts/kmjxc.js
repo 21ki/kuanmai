@@ -204,6 +204,10 @@ function KMJXCProductManager() {
     this.CreateProduct = function (params, callback) {
         this.AjaxCall("/api/Products/Create", params, callback);
     }
+
+    this.SearchProducts = function (params, callback) {
+        this.AjaxCall("/api/Products/SearchProducts", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();
