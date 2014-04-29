@@ -6,36 +6,202 @@
     var cateMgr = new KMJXCProductManager();
     var $searchform;
     var $editform;
-    var editor;
+    var editor;  
+    var loadingBox = null;
+    var pcate = null;
+    var props = null;
+    var propGroup = [];
+    var propGroups = [];
+    var propRow = 1;
+    var groupCount = 1;
     function EditProduct(pdtId) {
-
         $editform.find('#product_id').val(pdtId);
+        loadingBox = ShowProgress('page_loading', function () { },"正在加载产品详细信息，请等待...");
+        cateMgr.GetProductFullInfo({ 'product_id': pdtId }, function (res) {
+            if (res.Status == 'ok' && res.Item != null) {
+                loadingBox.hide();
+                FillProductFields(res.Item);
+                $("#pop_edit_product").dialog({
+                    open: function (event, ui) {
+                        $editform.find('#resultmessage').html("");
+                        $editform.find('#resultmessage').hide();                       
 
-        $("#pop_edit_product").dialog({
-            open: function (event, ui) {
-               
-                $editform.find('#resultmessage').html("");
-                $editform.find('#resultmessage').hide();
+                    },
+                    close: function (event, ui) {
 
-            },
-            close: function (event, ui) {
-               
-            },
-            resizable: false,
-            title: "编辑产品",
-            buttons: {
-                "保存修改": function () {
-                   
-                },
-                "取消": function () {
-                    $(this).dialog("close");
+                    },
+                    resizable: false,
+                    title: "编辑产品",
+                    buttons: {
+                        "保存修改": function () {
+
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $("#pop_edit_product").dialog("open");
+            }
+        });        
+    }
+
+    function RemoveImage(image_id) {
+
+    };
+
+    function AddValueRow(fromSubmit) {
+        var pId =$editform.find('#pdtproplist1').find("select[id='p1']").val();
+        var pText = $editform.find('#pdtproplist1').find("select[id='p1']").find("option:selected").text();
+        var vId = $editform.find('#pdtproplist1').find("select[id='v1']").val();
+        var vText = $editform.find('#pdtproplist1').find("select[id='v1']").find("option:selected").text();
+
+        if (pId == 0 || vId == 0) {
+            if (!fromSubmit) {
+                $('#resultmessage').html("属性和属性值都不能为空");
+                $('#resultmessage').show();
+            }
+            return;
+        }
+
+        var buffer = [];
+        buffer.push("<li id=\"ap" + propRow + "\">");
+        buffer.push("<input type=\"hidden\" value=\"" + pId + "\"/>");
+        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + propRow + ")\" src=\"/Content/images/remove.gif\"/></span>");
+        buffer.push("</li>");
+        var json = {'pdtid':0,'pid': pId, 'pvalue': pText, 'vid': vId, 'vvalue': vText };
+        propGroup[propRow] = json;
+        propRow++;
+        $editform.find('#pdtproplist1').find("select[id='p1']").val(0);
+        $editform.find('#pdtproplist1').find("select[id='p1']").find("option[value='" + pId + "']").remove();
+        var $selv1 = $editform.find('#pdtproplist1').find("select[id='v1']");
+        $selv1.empty();
+        $selv1.append("<option value=\"0\">--选择--</option>");
+        $('#popup-dialog-addedprops').append(buffer.join(""));
+    }
+
+    function FillProductFields(ProductJson) {
+        $editform.find('#productName').val(ProductJson.Title);
+        $pcate = $editform.find("#pCategory");
+        $ccate = $editform.find("#cCategory");
+        $pcate.empty();
+        $ccate.empty();
+        if (pcate != null) {
+            $(pcate).each(function (index, item) {                
+                $("<option value=\""+item.ID+"\">"+item.Name+"</option>").appendTo($pcate);
+            });
+
+            if (ProductJson.Category != null) {
+                if (ProductJson.Category.ParentID > 0) {
+                    $pcate.val(ProductJson.Category.ParentID);
+                    cateMgr.GetCategories({ 'parent_id': ProductJson.Category.ParentID }, function (res) {
+                        if ($(res.data).size() > 0) {
+                            $ccate.empty();
+                            $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                            $(res.data).each(function (index, item) {
+                                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                            });
+
+                            $ccate.val(ProductJson.Category.ID);
+                            $ccate.show();
+                        } 
+                    });
+
+                } else {
+                    $pcate.val(ProductJson.Category.ID);
                 }
             }
+        }
+
+        editor.html("");
+
+        if (ProductJson.Description != null) {
+            editor.html(ProductJson.Description);
+        }
+
+        //render images
+        $editform.find('#pdtimagelist').empty();
+        if (ProductJson.Images != null && $(ProductJson.Images).size() > 0) {
+            
+            $(ProductJson.Images).each(function (index, item) {
+                $editform.find('#pdtimagelist').append("<li><img src=\"" + item.Path + "\"/><p><a href=\"javascript:void(0)\" onclick=\"RemoveImage(this," + item.ID + ")\">删除</a></p></li>");
+            });
+        }
+
+        //render props
+        $props = $editform.find('#addedprops');
+        $props.html("");
+        $props.hide();
+        if (ProductJson.Children != null) {
+
+            $(ProductJson.Children).each(function (index, item) {
+                var $ui = $("<ul class=\"row propul\"></ul>").appendTo($props);
+                var pdtId = item.ID;
+                if (item.Properties != null && $(item.Properties).size() > 0) {
+                    $(item.Properties).each(function (index, item) {
+                        var json = { 'pdtid': pdtId, 'pid': item.PID, 'pvalue': item.PName, 'vid': item.PVID, 'vvalue': item.PValue };
+                        propGroup[propRow] = json;
+                        propRow++;
+                        $("<li style=\"float:left;display:inline-block;\">" + item.PName + ":" + item.PValue + "</li>").appendTo($ui);
+                    });
+                    propGroups[groupCount] = propGroup;
+                    propGroup = [];
+                    propRow = 1;
+                } else
+                {
+                    propGroup = [];
+                    propRow = 1;
+                }
+            });
+            $props.show();
+        } else {
+            propGroups = [];
+            propGroup = [];
+            groupCount = 1;
+            propRow = 1;
+        }
+    }
+
+    function RenderP1(json) {
+        var $sel1 = $editform.find('#pdtproplist1').find("select[id='p1']");
+
+        $sel1.empty();
+        $sel1.append("<option value=\"0\">--选择--</option>");
+        $(json).each(function (index, item) {
+            $sel1.append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
         });
 
-        $("#pop_edit_product").dialog("open");
+        $sel1.change(function () {
+            var pid = $(this).val();
+            if (pid == 0) {
+                return;
+            }
+
+            cateMgr.GetPropertyValues({ 'pid': pid }, function (res) {
+                var $selv1 = $('#pdtproplist1').find("select[id='v1']");
+                $selv1.empty();
+                $selv1.append("<option value=\"0\">--选择--</option>");
+                $(res.data).each(function (index, item) {
+                    $selv1.append("<option value=\"" + item.Product_Spec_Value_ID + "\">" + item.Name + "</option>");
+                });
+            });
+        });
     }
-    $(document).ready(function () {        
+
+    $(document).ready(function () {
+        $('.normallist').tabs();
+
+        cateMgr.GetProperties2({}, function (res) {
+            props = res.data;
+            RenderP1(props);
+            $editform.find("#popup-dialog-props").dialog({
+                width: 400, modal: true,
+                open: function () { $(".ui-dialog").position({ of: "#grid_crud" }); },
+                autoOpen: false
+            });
+        });
+
         $editform = $('#pdteditform');
         KindEditor.ready(function (K) {
             editor = K.create('textarea[name="productDesc"]', {
@@ -52,12 +218,74 @@
 
             editor.html("");
         });
-        $('.normallist').tabs();
+        
         $("#pop_edit_product").dialog({
             width:850,modal: true,
             open: function () { $(".ui-dialog").position({ of: "#productTable" }); },
             autoOpen: false
         });
+
+        $pcate = $editform.find("#pCategory");
+        $pcate.change(function () {
+            $ccate = $editform.find("#cCategory");
+            var pcid = $(this).val();
+            if (pcid > 0) {
+                cateMgr.GetCategories({ 'parent_id': pcid }, function (res) {
+                    $ccate.empty();
+                    if ($(res.data).size() > 0) {
+                        
+                        $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                        $(res.data).each(function (index, item) {
+                            $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                        });
+                        $ccate.show();
+                    } else {
+                        $ccate.hide();
+                    }
+                });
+            } else {
+                $ccate.empty();
+                $ccate.hide();
+            }
+        });
+
+        $("#addstockprop").button().click(function (event) {
+            $("#popup-dialog-props").dialog({
+                open: function (event, ui) {
+                    RenderP1(props);
+                    var $selv1 = $('#pdtproplist1').find("select[id='v1']");
+                    $selv1.empty();
+                    $selv1.append("<option value=\"0\">--选择--</option>");
+                    $('#popup-dialog-addedprops').html("");
+                    propRow = 1;
+                    propGroup = [];
+                    $('#resultmessage').html("");
+                    $('#resultmessage').hide();
+
+                },
+                close: function (event, ui) {
+                    propGroup = [];
+                    propRow = 1;
+                },
+                resizable: false,modal:true,
+                title: "添加一组库存属性",
+                buttons: {
+                    "确定": function () {
+                        AddValueRow(true);
+                        propGroups[groupCount] = propGroup;
+                        RenderPropGroup(propGroup, groupCount);
+                        groupCount++;
+                        $(this).dialog("close");
+                    },
+                    "取消": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#popup-dialog-props").dialog("open");
+        });
+
         var obj = {
             width: 830, height: 600, title: "产品列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
@@ -155,7 +383,8 @@
                 if ($(this).val() != 0) {
                     var pid = $(this).val();
                     cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
-                        if ($(res.data).size() > 0) {                           
+                        if ($(res.data).size() > 0) {
+                           
                             $ccate.empty();
                             $("<option value=\"0\">--选择--</option>").appendTo($ccate);
                             $(res.data).each(function (index, item) {
@@ -175,7 +404,8 @@
             });
 
             $("<option value=\"0\">--选择--</option>").appendTo($pcate);
-            cateMgr.GetCategories({'parent_id':0}, function (res) {
+            cateMgr.GetCategories({ 'parent_id': 0 }, function (res) {
+                pcate = res.data;
                 $(res.data).each(function (index, item) {
                     $("<option value=\""+item.ID+"\">"+item.Name+"</option>").appendTo($pcate);
                 });
@@ -300,6 +530,7 @@
         <div class="row">
             
             <div id="popup-dialog-props" style="display:none;"> 
+                <input type="hidden" value=""/>
                 <h4>对应商城的宝贝属性集合</h4>
                 <div id="pdtproplist1" class="row">
                         <label>属性:</label><select id="p1" class="W_inputsel"></select><label>属性值:</label><select id="v1" class="W_inputsel"><option value="0">--选择--</option></select> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()" /></span>
@@ -309,7 +540,7 @@
                 </ul>
                 <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
             </div>
-            <span style="margin-left:60px;" id="addstockprop">添加一组库存属性</span>
+            <span style="margin-left:60px;" id="addstockprop">新加一组库存属性</span>
 
         </div>
         <div class="row" style="display:none;" id="addedprops">

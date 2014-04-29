@@ -44,6 +44,14 @@ namespace KM.JXC.Web.Controllers.api
                 product.Title = title;
                 product.Description = description;
                 product.Properties = null;
+                if (images != null)
+                {
+                    product.Images = new List<Image>();
+                    string[] ims = images.Split(',');
+                    foreach (string img in ims) {
+                        product.Images.Add(new Image() { ID=int.Parse(img) });
+                    }
+                }
                 if (!string.IsNullOrEmpty(props))
                 {
                     if (product.Children == null)
@@ -115,6 +123,32 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             data.curPage = page;
             return data;
+        }
+
+        [HttpPost]
+        public ApiMessage GetFullInfo()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok" };
+            BProduct product=null;
+            message.Item = product;
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int product_id = 0;
+            int.TryParse(request["product_id"],out product_id);
+            try
+            {
+                product = pdtManager.GetProductFullInfo(product_id);
+                message.Item = product;
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException kex)
+            {
+            }
+
+            return message;
         }
     }
 }

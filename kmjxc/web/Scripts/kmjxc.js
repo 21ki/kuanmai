@@ -208,6 +208,9 @@ function KMJXCProductManager() {
     this.SearchProducts = function (params, callback) {
         this.AjaxCall("/api/Products/SearchProducts", params, callback);
     }
+    this.GetProductFullInfo = function (params, callback) {
+        this.AjaxCall("/api/Products/GetFullInfo", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();
@@ -230,4 +233,153 @@ var manager = new KMJXManager();
 
 function ProductGrid(tableId) {
     
+}
+
+
+function MessageBox(message, time, width) {
+    //check if the dom already contains the message box dialog
+    box = Boxy.get($('#alertmsgbox'));
+    if (box != undefined) {
+        return;
+    }
+
+    var w = 200;
+    if (width) {
+        w = width;
+    }
+    new Boxy("<div id=\"alertmsgbox\" style=\"width:" + w + "px;text-align:center\">" + message + "</div>",
+              {
+                  modal: false,
+                  fixed: true,
+                  cache: true,
+                  draggable: true,
+                  center: true,
+                  unloadOnHide: true,
+                  // x:50,  
+                  //y:50,        
+                  afterDrop: function () { },
+                  afterShow: function () {
+                      var a = setTimeout(function () {
+                          var box = Boxy.get($('#alertmsgbox'));
+                          box.hide();
+                      }, time);
+                  },
+                  afterHide: function () { }
+              });
+}
+
+function ShowProgress(keyId, callback, text) {
+    if (!text || $.trim(text) == '') {
+        text = "正在加载,请耐心等待..........";
+    }
+    var loading = "<div style=\"padding-left:50px;padding-right:50px;\" id=\"" + keyId + "\"><span style=\"height:20px;line-height:20px;vertical-align: middle;\"><img style=\"vertical-align: middle;\" src=\"\\Content\\images\\loading.gif\"/> " + text + "</span> </div>";
+    var call = function (res) { };
+    if (callback) {
+        call = callback;
+    }
+    return ShowBox({ "content": loading, "callback": call });
+
+}
+
+function ShowDialog(dlgKey, model, options, text) {
+    var content = '';
+    if (!text || $.trim(text) == '') {
+        text = "正在加载,请耐心等待..........";
+    }
+    if (model == "ajax") {
+        if (options.url) {
+            var loading = "<div style=\"width:200px;\" id=\"" + dlgKey + "\"><span style=\"height:20px;line-height:20px;vertical-align: middle;\"><img style=\"vertical-align: middle;\" src=\"\\Content\\images\\loading.gif\"/> " + text + "</span> </div>";
+            box = ShowBox({
+                "content": loading, "title": options.title, "x": options.x, "y": options.y, "callback":
+                function () {
+                    $.post(
+                            options.url,
+                            { key: dlgKey },
+                            function (data) {
+                                if (is_json(data)) {
+                                    Boxy.get($('#' + dlgKey)).hide();
+                                    var json = eval("(" + data + ")");
+                                    if (json.status == "failed") {
+                                        if (json.login == 'no') {
+                                            modal_login();
+                                            return;
+                                        }
+                                    }
+                                } else {
+                                    if (data != '') {
+                                        var box = Boxy.get($('#' + dlgKey));
+                                        box.setContent(data);
+                                        box.center();
+                                    }
+
+                                    if (options.callback) {
+                                        options.callback();
+                                    }
+                                }
+                            }
+                            );
+                }
+            });
+
+        }
+    } else if (model == "html") {
+        content = options.html;
+        callback = function () { };
+        if (options.callback) {
+            callback = options.callback;
+        }
+
+        ShowBox({ "content": content, "title": options.title, "x": options.x, "y": options.y, "callback": callback() });
+    }
+}
+
+function ShowBox(options) {
+
+    var box;
+    if (options && (options.x != '' || options.y != '')) {
+
+        box = new Boxy(options.content, {
+            title: options.title,
+            closeText: "关闭",
+            closeable: true,
+            modal: true,
+            fixed: true,
+            //cache:true,    
+            x: options.x,
+            y: options.y,
+            draggable: true,
+            center: true,
+            unloadOnHide: true,
+            afterDrop: function () { },
+            afterShow: function () {
+                if (options.callback) {
+                    options.callback();
+                }
+            },
+            afterHide: function () { },
+            behaviours: function () { }
+        });
+    } else {
+        box = new Boxy(options.content, {
+            title: options.title,
+            closeText: "关闭",
+            closeable: true,
+            modal: true,
+            fixed: true,
+            cache: true,
+            draggable: true,
+            center: true,
+            unloadOnHide: true,
+            afterDrop: function () { },
+            afterShow: function () {
+                if (options.callback) {
+                    options.callback();
+                }
+            },
+            afterHide: function () { },
+            behaviours: function () { }
+        });
+    }
+
+    return box;
 }

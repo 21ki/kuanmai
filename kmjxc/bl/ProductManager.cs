@@ -157,6 +157,7 @@ namespace KM.JXC.BL
             dbProduct.Code = product.Code;
             dbProduct.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             dbProduct.Name = product.Title;
+            dbProduct.Description = product.Description;
             if (product.Category != null)
             {
                 dbProduct.Product_Class_ID = product.Category.ID;
@@ -184,6 +185,23 @@ namespace KM.JXC.BL
                     throw new KMJXCException("产品创建失败");
                 }
                 product.ID = dbProduct.Product_ID;
+                //Update product images
+                if (product.Images != null && product.Images.Count > 0)
+                {
+                    List<int> img_ids = new List<int>();
+                    foreach (Image img in product.Images)
+                    {
+                        img_ids.Add(img.ID);
+                    }
+
+                    List<Image> dbImages=(from img in db.Image where img_ids.Contains(img.ID) select img).ToList<Image>();
+                    foreach (Image image in dbImages)
+                    {
+                        image.ProductID = product.ID;
+                    }
+
+                    db.SaveChanges();
+                }
 
                 Stock_Pile stockPile = new Stock_Pile();
                 stockPile.LastLeave_Time = 0;
@@ -440,8 +458,14 @@ namespace KM.JXC.BL
 
                 foreach (BProduct product in products)
                 {
-                    decimal totalPrice = (from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price).Sum();
+                    var totalO = from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price;
+                    decimal totalPrice = 0;
+                    if (totalO.ToList<decimal>().Count > 0)
+                    {
+                        totalPrice = totalO.Sum();
+                    }
                     int count=(from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es).Count();
+                    
                     if (count != 0) {
                         product.Price = totalPrice / count;
                     }
@@ -449,6 +473,89 @@ namespace KM.JXC.BL
             }
 
             return products;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public BProduct GetProductFullInfo(int productId)
+        {
+            BProduct product = null;
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                product = (from pudt in db.Product
+                           where pudt.Product_ID == productId
+                           select new BProduct
+                           {
+                               Shop = (from sp in db.Shop where sp.Shop_ID == pudt.Shop_ID select sp).FirstOrDefault<Shop>(),
+                               ID = pudt.Product_ID,
+                               Description = pudt.Description,
+                               Title = pudt.Name,
+                               Code = pudt.Code,
+                               CreateTime = pudt.Create_Time,                              
+                               Category = (from c in db.Product_Class
+                                           where pudt.Product_Class_ID == c.Product_Class_ID
+                                           select new BCategory
+                                           {
+                                               Name = c.Name,
+                                               ID = c.Product_Class_ID,
+                                               ParentID=(int)c.Parent_ID
+                                           }).FirstOrDefault<BCategory>(),
+                               User = (from u in db.User
+                                       where u.User_ID == pudt.User_ID
+                                       select new BUser
+                                       {
+                                           ID = u.User_ID,
+                                           Mall_Name = u.Mall_Name,
+                                           Mall_ID = u.Mall_ID,
+                                       }).FirstOrDefault<BUser>()
+                             
+                           }).FirstOrDefault<BProduct>();
+
+                if (product != null)
+                {   
+                    product.Images = (from img in db.Image where img.ProductID == product.ID select img).ToList<Image>();
+                    List<BProductProperty> properties = (from pp in db.Product_Specifications
+                                                         where pp.Product_ID == product.ID
+                                                         select new BProductProperty
+                                                         {
+                                                             PID = pp.Product_Spec_ID,
+                                                             PName = (from prop in db.Product_Spec where prop.Product_Spec_ID == pp.Product_Spec_ID select prop.Name).FirstOrDefault<string>(),
+                                                             PVID = pp.Product_Spec_Value_ID,
+                                                             PValue = (from propv in db.Product_Spec_Value where propv.Product_Spec_Value_ID == pp.Product_Spec_Value_ID select propv.Name).FirstOrDefault<string>()
+                                                         }).ToList<BProductProperty>();
+                    product.Properties = properties;
+                    List<Product> children=(from p in db.Product where p.Parent_ID==product.ID select p).ToList<Product>();
+                    if (children != null && children.Count > 0)
+                    {
+                        if (product.Children == null)
+                        {
+                            product.Children = new List<BProduct>();
+                        }
+                        foreach (Product pdt in children)
+                        {
+                            product.Children.Add(GetProductFullInfo(pdt.Product_ID));
+                        }
+                    }
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                throw kex;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                db.Dispose();
+            }
+            return product;
         }
     }
 }

@@ -148,6 +148,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\images\add.png" />
+    <Content Include="Content\images\loading.gif" />
+    <Content Include="Content\images\loading2.gif" />
     <Content Include="Content\images\main-bg.png" />
     <Content Include="Content\images\remove.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -223,6 +225,16 @@
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Third\boxy\boxy-ne.png" />
+    <Content Include="Third\boxy\boxy-nw.png" />
+    <Content Include="Third\boxy\boxy-se.png" />
+    <Content Include="Third\boxy\boxy-sw.png" />
+    <Content Include="Third\boxy\boxy.css" />
+    <Content Include="Third\boxy\HTMLPage.htm" />
+    <Content Include="Third\boxy\jquery-1.5.js" />
+    <Content Include="Third\boxy\jquery.boxy.js" />
+    <Content Include="Third\boxy\Summer_B_2.jpg" />
+    <Content Include="Third\boxy\test.htm" />
     <Content Include="Third\jqueryui\css\flick\images\animated-overlay.gif" />
     <Content Include="Third\jqueryui\css\flick\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Third\jqueryui\css\flick\images\ui-bg_flat_0_eeeeee_40x100.png" />
