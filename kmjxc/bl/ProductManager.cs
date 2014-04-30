@@ -243,36 +243,137 @@ namespace KM.JXC.BL
                     }
                 }
             }
-        }
+        }        
 
         /// <summary>
-        /// Update product information, only for parent product
+        /// Update product information
         /// </summary>
         /// <param name="product"></param>
         /// <returns></returns>
-        public bool UpdateProduct(BProduct product)
+        public bool UpdateProduct(ref BProduct bproduct)
         {
+            BProduct product = bproduct;
             if (this.CurrentUserPermission.UPDATE_PRODUCT == 0)
             {
                 throw new KMJXCException("没有权限更新产品");
             }
 
             bool result = false;
-
-            Product dbProduct = GetProduct(product.ID);
-            if (dbProduct == null)
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
             {
-                throw new KMJXCException("此产品不存在");
-            }
+                Product dbProduct=(from pdt in db.Product where pdt.Product_ID==product.ID select pdt).FirstOrDefault<Product>();
+                if (dbProduct == null)
+                {
+                    throw new KMJXCException("此产品不存在");
+                }
 
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                db.Product.Attach(dbProduct);
                 dbProduct.Name = product.Title;
-                dbProduct.Price = product.Price;
                 dbProduct.Description = product.Description;
+                if (product.Category != null)
+                {
+                    dbProduct.Product_Class_ID = product.Category.ID;
+                }
+                dbProduct.Update_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                dbProduct.Update_User_ID = this.CurrentUser.ID;
+
+                //update images
+                if (product.Images!=null && product.Images.Count > 0)
+                {
+                    List<Image> existedImages=(from img in db.Image where img.ProductID==product.ID select img).ToList<Image>();
+                    //Update new uploaded images
+                    foreach (Image newimg in product.Images)
+                    {
+                        Image tmp = (from eted in existedImages where eted.ID == newimg.ID select eted).FirstOrDefault<Image>();
+                        if (tmp == null)
+                        {
+                            Image newone = (from ni in db.Image where ni.ID == newimg.ID select ni).FirstOrDefault<Image>();
+                            newone.ProductID = product.ID;
+                            db.Image.Add(newone);
+                        }
+                    }
+
+                    //Remove deleted images
+                    string rootPath = product.FileRootPath;  
+                    foreach (Image oldImg in existedImages)
+                    {
+
+                        Image tmp = (from eted in product.Images where eted.ID == oldImg.ID select eted).FirstOrDefault<Image>();
+                        if (tmp == null)
+                        {
+                            db.Image.Remove(oldImg);
+                            if (rootPath != null && System.IO.File.Exists(rootPath + oldImg.Path))
+                            {
+                                System.IO.File.Delete(rootPath + oldImg.Path);
+                            }
+                        }
+                    }
+                }
+
                 db.SaveChanges();
+                if (product.Children != null && product.Children.Count > 0)
+                {
+                    foreach (BProduct child in product.Children)
+                    {
+                        if (child.ID == 0)
+                        {
+                            //create new child product with properties
+                            child.Parent = product;
+                            child.Children = null;
+                            this.CreateProduct(child);
+                        }
+                        else
+                        {
+                            //Update properties
+                            if (child.Properties != null && child.Properties.Count > 0)
+                            {
+                                List<Product_Specifications> properties = (from prop in db.Product_Specifications
+                                                                           where prop.Product_ID == child.ID
+                                                                           select prop).ToList<Product_Specifications>();
+
+                                List<Product_Specifications> newProps = new List<Product_Specifications>();
+                                if (properties.Count > 0)
+                                {
+                                    //current just support edit existed property's value, doesn't support deleting property
+                                    foreach (BProductProperty p in child.Properties)
+                                    {
+                                        Product_Specifications psprop = (from ep in properties where ep.Product_Spec_ID == p.PID  select ep).FirstOrDefault<Product_Specifications>();
+                                        if (psprop == null)
+                                        {
+                                            //cretae new property for existed product
+                                            psprop = new Product_Specifications() { Product_ID=child.ID, Product_Spec_ID=p.PID, Product_Spec_Value_ID=p.PVID, Created=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), User_ID=this.CurrentUser.ID };
+                                            db.Product_Specifications.Add(psprop);
+                                        }
+                                        else 
+                                        {
+                                            //update existed property's value
+                                            if (psprop.Product_Spec_Value_ID != p.PVID)
+                                            {
+                                                psprop.Product_Spec_Value_ID = p.PVID;
+                                            }
+                                        }
+                                    }
+
+                                    db.SaveChanges();
+                                }
+                            }
+                        }
+                    }
+                }
+                bproduct = this.GetProductFullInfo(product.ID);
                 result = true;
+
+            }
+            catch (KMJXCException kex)
+            {
+                throw kex;
+            }
+            catch
+            {
+            }
+            finally
+            {
+                db.Dispose();
             }
             return result;
         }

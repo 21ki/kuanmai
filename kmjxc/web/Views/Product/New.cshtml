@@ -208,7 +208,7 @@
 
        
 
-        $("#addstockprop").button().click(function (event) {
+        $("#addstockprop").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (event) {
             $("#popup-dialog-props").dialog({
                 open: function (event, ui) {
                     RenderP1(props);                    

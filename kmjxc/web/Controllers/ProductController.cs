@@ -15,7 +15,7 @@ namespace KM.JXC.Web.Controllers
     {
         //
         // GET: /Product/
-
+       
         public ActionResult Search()
         {
             return View();

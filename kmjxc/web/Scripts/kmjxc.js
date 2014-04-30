@@ -204,7 +204,9 @@ function KMJXCProductManager() {
     this.CreateProduct = function (params, callback) {
         this.AjaxCall("/api/Products/Create", params, callback);
     }
-
+    this.UpdateProduct = function (params, callback) {
+        this.AjaxCall("/api/Products/UpdateProduct", params, callback);
+    }
     this.SearchProducts = function (params, callback) {
         this.AjaxCall("/api/Products/SearchProducts", params, callback);
     }

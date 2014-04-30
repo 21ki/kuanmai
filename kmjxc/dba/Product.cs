@@ -25,5 +25,7 @@ namespace KM.JXC.DBA
         public int Parent_ID { get; set; }
         public string Code { get; set; }
         public string Description { get; set; }
+        public Nullable<int> Update_Time { get; set; }
+        public Nullable<int> Update_User_ID { get; set; }
     }
 }

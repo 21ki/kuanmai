@@ -390,6 +390,8 @@
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="Parent_ID" Type="umediumint" Nullable="false" />
           <Property Name="Code" Type="varchar" MaxLength="45" />
+          <Property Name="Update_Time" Type="int" />
+          <Property Name="Update_User_ID" Type="mediumint" />
         </EntityType>
         <EntityType Name="Product_Class">
           <Key>
@@ -949,6 +951,8 @@
           <Property Type="Int32" Name="Parent_ID" Nullable="false" />
           <Property Type="String" Name="Code" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Update_Time" />
+          <Property Type="Int32" Name="Update_User_ID" />
         </EntityType>
         <EntityType Name="Product_Supplier">
           <Key>
@@ -1514,6 +1518,8 @@
           <EntitySetMapping Name="Product">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product">
               <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="Update_User_ID" ColumnName="Update_User_ID" />
+                <ScalarProperty Name="Update_Time" ColumnName="Update_Time" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Code" ColumnName="Code" />
                 <ScalarProperty Name="Parent_ID" ColumnName="Parent_ID" />

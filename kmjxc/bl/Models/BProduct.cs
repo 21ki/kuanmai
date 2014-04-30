@@ -29,5 +29,6 @@ namespace KM.JXC.BL.Models
         public List<BProduct> Children { get; set; }
         public int Quantity { get; set; }
         public List<Image> Images { get; set; }
+        public string FileRootPath { get; set; }
     }
 }
