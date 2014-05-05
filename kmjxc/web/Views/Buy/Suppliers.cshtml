@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 <script>
+    var buyMgr = new KMJXCBuyManager();
     $(function () {
         var obj = {
             width: 830, height: 600, title: "供应商列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
@@ -55,7 +56,39 @@
         }
 
         function AddNew() {
-            alert('add');
+            var title = "添加供应商";
+            $('#neweditsupplier').dialog({
+                width: 500,
+                open: function (event,ui) {
+                    buyMgr.GetAreas({'parent_id':0}, function (res) {
+                        if (res != null) {
+                            $(res).each(function (index, item) {
+                                $('#supplier_province').append("<option value=\""+item.ID+"\">"+item.Name+"</option>");
+                            });
+                        }
+                    });
+                },
+                resizable: false,
+                title: title,
+                modal:true,
+                buttons: {
+                    "保存": function () {
+                        var editform = $('#neweditform');
+                        var name = editform.find("#supplier_name").val();
+                        var address = editform.find("#supplier_address").val();
+                        var contact = editform.find("#supplier_contact").val();
+                        var phone = editform.find("#supplier_phone").val();
+                        var fax = editform.find("#supplier_fax").val();
+                        var postcode = editform.find("#supplier_postcode").val();
+                        alert(name);
+                    },
+                    "取消": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#popup-dialog-crud").dialog("open");
         }
 
         function Edit() {
@@ -77,21 +110,23 @@
 
 
         var $grid = $("#supplierstable").pqGrid(obj);
+
+        
     })
 </script>
 <div class="normallist">
     <div id="supplierstable"></div>
 </div>
 
-<div class="normallist">
+<div class="normallist" id="neweditsupplier" style="display:none;">
     <form id="neweditform">
          <input type="hidden" value="" id="supplier_id"/>
-         <div id="neweditsupplier">
+         <div>
              <div class="row">
                  <label>名称:</label><input type="text" value="" class="W_input" id="supplier_name" />
              </div>
              <div class="row">
-                 <label>省份:</label><select class="W_input"></select>
+                 <label>省份:</label><select class="W_input" id="supplier_province"></select>
              </div>
              <div class="row">
                  <label>地址:</label><input type="text" value="" class="W_input" id="supplier_address" />
@@ -107,6 +142,9 @@
              </div>
              <div class="row">
                  <label>邮编:</label><input type="text" value="" class="W_input" id="supplier_postcode" />
+             </div>
+             <div class="row" style="height:auto;">
+                 <label style="display:inline-block;float:left;">备注:</label><textarea id="supplier_remark" class="W_input"></textarea>
              </div>
          </div>
     </form>   

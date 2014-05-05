@@ -59,6 +59,10 @@ header, footer, nav, section {
     display: block;
 }
 
+textarea {
+    width:250px;
+    height:50px;
+}
 
 /* Styles for basic forms
 -----------------------------------------------------------*/
@@ -74,7 +78,7 @@ legend {
 }
 
 textarea {
-    min-height: 75px;
+    min-height: 75px;resize:none;
 }
 
 .editor-label {

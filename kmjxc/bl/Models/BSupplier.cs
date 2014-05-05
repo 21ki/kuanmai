@@ -22,5 +22,6 @@ namespace KM.JXC.BL.Models
         public Common_District Province { get; set; }
         public Common_District City { get; set; }
         public bool Enable { get;set; }
+        public string Remark { get; set; }
     }
 }

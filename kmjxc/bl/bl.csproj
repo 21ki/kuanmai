@@ -102,7 +102,7 @@
     <Compile Include="ShopManager.cs" />
     <Compile Include="StockManager.cs" />
     <Compile Include="SupplierManager.cs" />
-    <Compile Include="SystemManager.cs" />
+    <Compile Include="CommonManager.cs" />
     <Compile Include="UserManager.cs" />
   </ItemGroup>
   <ItemGroup>

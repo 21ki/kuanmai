@@ -587,8 +587,9 @@
           <Property Name="Create_Time" Type="uint" Nullable="false" />
           <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Contact_Person" Type="varchar" MaxLength="20" />
-          <Property Name="Shop_ID" Type="mediumint" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
           <Property Name="Enabled" Type="bool" />
+          <Property Name="Remark" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="Supplier_Shop">
           <Key>
@@ -1070,8 +1071,9 @@
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
           <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Contact_Person" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Shop_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Boolean" Name="Enabled" />
+          <Property Type="String" Name="Remark" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Supplier_Shop">
           <Key>
@@ -1644,6 +1646,7 @@
           <EntitySetMapping Name="Supplier">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Supplier">
               <MappingFragment StoreEntitySet="Supplier">
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Contact_Person" ColumnName="Contact_Person" />

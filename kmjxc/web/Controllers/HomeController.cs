@@ -69,7 +69,7 @@ namespace KM.JXC.Web.Controllers
         public ActionResult Login(string message)
         {
             ViewBag.Title = "宽迈进销存登录";
-            SystemManager sysMgr = new SystemManager();
+            CommonManager sysMgr = new CommonManager();
             List<Open_Key> keys = sysMgr.GetOpenKeys();
             if (!string.IsNullOrEmpty(message))
             {

@@ -72,6 +72,7 @@ namespace KM.JXC.BL
                                     ContactPerson = supplier.Contact_Person,
                                     Enable = (bool)supplier.Enabled,
                                     Name = supplier.Name,
+                                    Remark=supplier.Remark,
                                     Fax = supplier.Fax,
                                     Phone = supplier.Phone,
                                     PostalCode = supplier.PostalCode,

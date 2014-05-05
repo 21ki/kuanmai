@@ -129,6 +129,10 @@ function KMJXCBase() {
     this.Test = function () {
         return "TEST";
     }
+
+    this.GetAreas = function (params, callback) {
+        return this.AjaxCall("/api/Common/GetAreas", params, callback);
+    }
 }
 
 KMJXCUserManager.prototype = new KMJXCBase();
