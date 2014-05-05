@@ -75,6 +75,7 @@
     <Compile Include="Models\BProductProperty.cs" />
     <Compile Include="Models\BProperty.cs" />
     <Compile Include="Models\BShop.cs" />
+    <Compile Include="Models\BSupplier.cs" />
     <Compile Include="Models\BTrade.cs" />
     <Compile Include="Models\BUser.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />

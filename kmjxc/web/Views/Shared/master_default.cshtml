@@ -40,19 +40,38 @@
                }               
                >                    
                <ul>
-                   <li><a href="/Buy/NewOrder" 
-                       @if (action == "NewOrder")
+                   <li><a href="/Buy/Orders" 
+                       @if (action == "Orders")
+                       {                           
+                           @Html.Raw("class=links");                         
+                       }else{
+                           @Html.Raw("class=link");  
+                       }                        
+                       
+                       >采购单管理 </a></li>
+                 
+                   <li><a href="/Buy/Buy"
+                       
+                       @if (action == "Buy")
                        {
-                           menuStyle = "class=links";                          
-                       } 
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
                        
-                       @menuStyle   
-                       
-                       >新建采购订单 </a></li>
-                   <li><a class="link" href="/Buy/OrderSearch">采购订单查询</a></li>
-                   <li><a class="link" href="/Buy/NewBuy">新建验货单</a></li>
-                   <li><a class="link" href="/Buy/BuySearch">验货单查询</a></li>
-                   <li><a class="link" href="/Buy/Supplier">供应商管理</a></li>                
+                       >验货单管理</a></li>
+                   <li><a href="/Buy/Suppliers"
+                       @if (action == "Suppliers")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }  
+                       >供应商管理</a></li>                
                </ul>
            </div>
 

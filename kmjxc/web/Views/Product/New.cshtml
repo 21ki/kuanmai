@@ -43,15 +43,13 @@
         }
 
         var buffer = [];
+        var rowIndex = propGroup.length - 1;
         buffer.push("<li id=\"ap" + propRow + "\">");
         buffer.push("<input type=\"hidden\" value=\"" + pId + "\"/>");
-        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + propRow + ")\" src=\"/Content/images/remove.gif\"/></span>");
+        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + rowIndex + ")\" src=\"/Content/images/remove.gif\"/></span>");
         buffer.push("</li>");
         var json = {'pid':pId,'pvalue':pText,'vid':vId,'vvalue':vText};
-        propGroup[propRow] = json;
-       
-        //alert(propGroup);
-        propRow++;       
+        propGroup.push(json);   
         $('#pdtproplist1').find("select[id='p1']").val(0);
         $('#pdtproplist1').find("select[id='p1']").find("option[value='" + pId + "']").remove();
         var $selv1 = $('#pdtproplist1').find("select[id='v1']");
@@ -60,15 +58,21 @@
         $('#popup-dialog-addedprops').append(buffer.join(""));
     }
 
-    function RemoveValueRow(rowIndx) {
-        $('#popup-dialog-addedprops').find("#ap" + rowIndx).remove();
-        var json = propGroup[rowIndx];
+    function RemoveValueRow(row) {
+        $('#popup-dialog-addedprops').find("#ap" + row).remove();
+        var json = propGroup[row];
         var $sel1 = $('#pdtproplist1').find("select[id='p1']");
         if (json != null) {
             $sel1.append("<option value=\"" + json.pid + "\">" + json.pvalue + "</option>");
         }
-        propGroup[rowIndx] = null;
-        propRow--;
+        var tmp = [];
+
+        for (var i = 0; i < propGroup.length; i++) {
+            if (row != i && propGroup[i] != null) {
+                tmp.push(propGroup[i]);
+            }
+        }
+        propGroup = tmp;
     }
 
     function RenderP1(json) {
@@ -98,8 +102,13 @@
     }
 
     function RemoveGroup(index, obj) {
-        propGroups[index] = null;
-        groupCount--;
+        var tmp = [];
+        for (var i = 0; i < propGroups.length; i++) {
+            if (index != i && propGroups[i] != null) {
+                tmp.push(propGroups[i]);
+            }
+        }
+        propGroups = tmp;
         $(obj).parent("li").parent("ul").remove();
     }
 
@@ -116,29 +125,27 @@
         });      
 
         function RenderPropGroup(propGroup,groupIndex) {           
-            
-            var buffer = [];
-            if (propRow > 1) {
-                buffer.push("<ul class=\"row propul\">");
-                for (var i = 0; i < propGroup.length; i++) {
-                    var json = propGroup[i];
-                    if (json != null && json != 'undefined' && typeof (json) == 'object') {
-                        buffer.push("<li style=\"float:left;display:inline-block;\">");
-                        buffer.push(json.pvalue + ":" + json.vvalue);
-                        buffer.push("</li>");
-                    }
-                }
-               
-                buffer.push("<li style=\"float:left;display:inline-block;border:0;\"><img onclick=\"RemoveGroup(" + groupIndex + ",this)\" src=\"/Content/images/remove.gif\"/></li>");
-                buffer.push("</ul>");
+            if (propGroup.length <= 0) {
+                return;
             }
+            var buffer = [];
+            buffer.push("<ul class=\"row propul\">");
+            for (var i = 0; i < propGroup.length; i++) {
+                var json = propGroup[i];
+                if (json != null && json != 'undefined' && typeof (json) == 'object') {
+                    buffer.push("<li style=\"float:left;display:inline-block;\">");
+                    buffer.push(json.pvalue + ":" + json.vvalue);
+                    buffer.push("</li>");
+                }
+            }
+
+            buffer.push("<li style=\"float:left;display:inline-block;border:0;\"><img onclick=\"RemoveGroup(" + groupIndex + ",this)\" src=\"/Content/images/remove.gif\"/></li>");
+            buffer.push("</ul>");
             var str = buffer.join("");
             if ($.trim(str) != '') {
                 $('#addedprops').append(str);
                 $('#addedprops').show();
             }
-
-            propRow = 1;
         }
 
         $('#btnAddProduct').button().click(function (event) {
@@ -196,17 +203,11 @@
                 frm.find("#resultmessage3").show();
                 return;
             }
-            //if ($.trim(desc) == '') {
-            //    frm.find("#resultmessage3").html("请输入产品描述");
-            //    frm.find("#resultmessage3").show();
-            //    return;
-            //}
+          
             cateMgr.CreateProduct({ 'images': image_ids,'props':buffer,'title':title,'desc':desc,'cid':cid }, function (res) {
 
             });
-        });
-
-       
+        });       
 
         $("#addstockprop").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (event) {
             $("#popup-dialog-props").dialog({
@@ -231,9 +232,26 @@
                 buttons: {
                     "确定": function () {
                         AddValueRow(true);
-                        propGroups[groupCount] = propGroup;
-                        RenderPropGroup(propGroup, groupCount);
-                        groupCount++;
+
+                        var found = false;
+                        for (var i = 0; i < propGroups.length; i++) {
+                            var tmp = propGroups[i];
+                            if (tmp != null && tmp != "") {
+                                if (VerifyExistingProps(propGroup, tmp)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            propGroups.push(propGroup);
+                            RenderPropGroup(propGroup, propGroups.length - 1);
+                        } else {
+                            $('#resultmessage').html("所选属性组合已经存在");
+                            $('#resultmessage').show();
+                            return;
+                        }
+
                         $(this).dialog("close");
                     },
                     "取消": function () {

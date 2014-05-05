@@ -417,45 +417,6 @@
             }
         }
 
-        function VerifyExistingProps(props1, props) {
-            var tmp = [];
-            var tmp1 = [];
-            var found = false;
-            if (props1.length == 0 || props.length == 0) {
-                return found;
-            }
-            for (var i = 0; i < props1.length; i++) {
-                var prop1 = props1[i];
-                var startIndex = i + 1;
-                for (startIndex; startIndex < props1.length;) {
-                    tmp1.push(props1[startIndex]);
-                    startIndex++;
-                }
-                if (prop1 != null) {
-                    for (var j = 0; j < props.length; j++) {                        
-                        var prop2 = props[j];
-                        if (prop2 != null) {
-                            if (prop1.pid == prop2.pid && prop1.vid == prop2.vid) {
-                                found = true;                                
-                            } else {
-                                tmp.push(prop2);
-                            }
-                        }
-                    }
-                }
-
-                if (found) {
-                    if (i < props1.length - 1) {
-                        return VerifyExistingProps(tmp1, tmp);
-                    }
-                } else {
-                    break;
-                }
-            }
-
-            return found;
-        }
-
         $("#addstockprop").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (event) {
             $("#popup-dialog-props").dialog({
                 open: function (event, ui) {

@@ -622,7 +622,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Shared\master_default.cshtml" />
-    <Content Include="Views\Buy\NewOrder.cshtml" />
     <Content Include="Views\Product\New.cshtml" />
     <Content Include="Views\Product\Search.cshtml" />
     <Content Include="Views\Product\Categories.cshtml" />
@@ -642,6 +641,9 @@
     <Content Include="Third\uploadify\check-exists.php" />
     <Content Include="Third\uploadify\index.php" />
     <Content Include="Third\uploadify\uploadify.php" />
+    <Content Include="Views\Buy\Suppliers.cshtml" />
+    <Content Include="Views\Buy\Orders.cshtml" />
+    <Content Include="Views\Buy\Buy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

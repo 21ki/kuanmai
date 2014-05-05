@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "供应商管理";
+    Layout = "~/Views/Shared/master_default.cshtml";
+}
+<script>
+    $(function () {
+        var obj = {
+            width: 830, height: 600, title: "供应商列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+                
+            }
+        };
+
+        obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+                        { title: "名称", width: 250, dataType: "string", dataIndx: "Title", editable: false },                        
+                        {
+                            title: "主店铺供应商", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
+                            render: function (ui) {
+                                
+                            },
+                        },
+                        { title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
+                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
+                        {
+                            title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
+                            render: function (ui) {
+                               
+                            }
+                        },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [1, 30, 40, 50],
+            getUrl: function (prgrid) {               
+                return {
+                    url: "/api/Suppliers/GetSuppliers", data: ""
+                };
+            },
+            getData: function (dataJSON) {                
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+        function AddNew() {
+            alert('add');
+        }
+
+        function Edit() {
+        }
+
+        $("#supplierstable").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+
+            $("<span id=\"add_cate\">添加</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+                AddNew();
+            });
+            $("<span id=\"get_ccate\">编辑</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+
+                Edit();
+            });
+
+            $toolbar.disableSelection();
+        });
+
+
+        var $grid = $("#supplierstable").pqGrid(obj);
+    })
+</script>
+<div class="normallist">
+    <div id="supplierstable"></div>
+</div>
+
+<div class="normallist">
+    <form id="neweditform">
+         <input type="hidden" value="" id="supplier_id"/>
+         <div id="neweditsupplier">
+             <div class="row">
+                 <label>名称:</label><input type="text" value="" class="W_input" id="supplier_name" />
+             </div>
+             <div class="row">
+                 <label>省份:</label><select class="W_input"></select>
+             </div>
+             <div class="row">
+                 <label>地址:</label><input type="text" value="" class="W_input" id="supplier_address" />
+             </div>
+             <div class="row">
+                 <label>联系人:</label><input type="text" value="" class="W_input" id="supplier_contact" />
+             </div>
+             <div class="row">
+                 <label>电话:</label><input type="text" value="" class="W_input" id="supplier_phone" />
+             </div>
+             <div class="row">
+                 <label>传真:</label><input type="text" value="" class="W_input" id="supplier_fax" />
+             </div>
+             <div class="row">
+                 <label>邮编:</label><input type="text" value="" class="W_input" id="supplier_postcode" />
+             </div>
+         </div>
+    </form>   
+</div>
+

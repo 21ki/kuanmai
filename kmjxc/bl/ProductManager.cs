@@ -236,7 +236,7 @@ namespace KM.JXC.BL
                     {
                         if (p.Parent == null)
                         {
-                            p.Parent = product;
+                            p.Parent = new BProduct() {  ID=product.ID};
                         }
                         p.Children = null;
                         this.CreateProduct(p);

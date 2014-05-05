@@ -140,7 +140,7 @@ namespace KM.JXC.Web.Controllers.api
                 product.Title = title;
                 product.Description = description;
                 product.Properties = null;
-                if (images != null)
+                if (!string.IsNullOrEmpty(images))
                 {
                     product.Images = new List<Image>();
                     string[] ims = images.Split(',');

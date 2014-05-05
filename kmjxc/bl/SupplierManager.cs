@@ -19,9 +19,10 @@ namespace KM.JXC.BL
 
         }
 
-        public SupplierManager(BUser user, Permission permission)
-            : base(user,permission)
+        public SupplierManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
         {
+            
         }
 
         /// <summary>
@@ -32,35 +33,60 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecord"></param>
         /// <returns></returns>
-        public List<Supplier> GetShopSupplies(int shop_id,int pageIndex,int pageSize,out int totalRecord)
+        public List<BSupplier> GetSupplies(int product_id,int pageIndex, int pageSize, out int totalRecord)
         {
-            List<Supplier> supplies = new List<Supplier>();
+            List<BSupplier> supplies = new List<BSupplier>();
             totalRecord = 0;
-            int shop_Id = 0;
-            if (shop_id > 0)
+            if (pageIndex <= 0)
             {
-                shop_Id = shop_id;
+                pageIndex = 1;
             }
-            else
+            if (pageSize <= 0)
             {
-                shop_Id = this.Shop_Id;
+                pageSize = 30;
             }
-            using (KuanMaiEntities db = new KuanMaiEntities())            
-            {                
-                if (pageIndex == 0)
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] sids = null;
+                if (product_id > 0)
                 {
-                    pageIndex = 1;
+                    sids=(from ps in db.Product_Supplier where ps.Product_ID==product_id select ps.Supplier_ID).ToArray<int>();
                 }
-                totalRecord = db.Supplier.Count(sp => sp.Shop_ID == shop_Id);
-                if (totalRecord > 0)
+                var spps = from sp in db.Supplier
+                           where sp.Shop_ID==this.Shop.Shop_ID || sp.Shop_ID==this.Main_Shop.Shop_ID
+                           select sp;
+                if (sids != null && sids.Length > 0)
                 {
-                    var sps = from s in db.Supplier 
-                              where s.Shop_ID == shop_Id 
-                              orderby s.Supplier_ID ascending 
-                              select s;
-                    sps.Skip((pageIndex-1)*pageSize).Take(pageSize);
-                    supplies = sps.ToList<Supplier>();
-                }
+                    spps = spps.Where(a=>sids.Contains(a.Supplier_ID));
+                }                       
+                totalRecord = spps.Count();
+                spps = spps.OrderBy(a => a.Supplier_ID);
+                spps = spps.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+
+                supplies = (from supplier in spps
+                            select new BSupplier
+                                {
+                                    ID = supplier.Supplier_ID,
+                                    Created = (int)supplier.Create_Time,
+                                    Address = supplier.Address,
+                                    ContactPerson = supplier.Contact_Person,
+                                    Enable = (bool)supplier.Enabled,
+                                    Name = supplier.Name,
+                                    Fax = supplier.Fax,
+                                    Phone = supplier.Phone,
+                                    PostalCode = supplier.PostalCode,
+                                    City = (from c in db.Common_District where c.ID == supplier.City_ID select c).FirstOrDefault<Common_District>(),
+                                    Province = (from c in db.Common_District where c.ID == supplier.City_ID select c).FirstOrDefault<Common_District>(),
+                                    Created_By = (from u in db.User
+                                                  where u.User_ID == supplier.User_ID
+                                                  select new BUser
+                                                      {
+                                                          ID = u.User_ID,
+                                                          Name = u.Name,
+                                                          Mall_ID = u.Mall_ID,
+                                                          Mall_Name = u.Mall_Name
+                                                      }).FirstOrDefault<BUser>()
+                                }).ToList<BSupplier>();
             }
             
             return supplies;
@@ -74,31 +100,10 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecord"></param>
         /// <returns></returns>
-        public List<Supplier> GetProductSuppliers(int product_id, int pageIndex, int pageSize, out int totalRecord)
+        public List<BSupplier> GetProductSuppliers(int product_id, int pageIndex, int pageSize, out int totalRecord)
         {
-            List<Supplier> supplies = new List<Supplier>();
-            totalRecord = 0;           
-           
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                if (pageIndex == 0)
-                {
-                    pageIndex = 1;
-                }
-                totalRecord = db.Product_Supplier.Count(ps => ps.Product_ID==product_id);
-                if (totalRecord > 0)
-                {
-                    var sps = from s in db.Supplier
-                              from sp in db.Product_Supplier                              
-                              where sp.Product_ID==product_id && s.Supplier_ID==sp.Supplier_ID
-                              orderby s.Supplier_ID ascending
-                              select s;
-                    sps.Skip((pageIndex - 1) * pageSize).Take(pageSize);
-                    supplies = sps.ToList<Supplier>();
-                }
-            }
-
-            return supplies;
+            totalRecord = 0;
+            return this.GetSupplies(product_id,pageIndex,pageSize,out totalRecord);
         }
 
         /// <summary>
@@ -144,6 +149,11 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                var obj = (from sp in db.Supplier where (sp.Shop_ID == this.Shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID) && supplier.Name.Contains(sp.Name) select sp);
+                if (obj.ToList<Supplier>().Count > 0)
+                {
+                    throw new KMJXCException("供应商名称已经存在");
+                }
                 db.Supplier.Add(supplier);
                 db.SaveChanges();
                 result = true;
