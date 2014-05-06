@@ -242,9 +242,9 @@ textarea {
         border-radius: 2px;
         color:#ed0e0e;
         margin-bottom:5px;    
-        text-align:center;
-        background-color:#f8fbef;      
-        width:150px;
+        text-align:left;
+        background-color:#f8fbef;         
+        padding-left:10px;
     }
 
 .normallist {
@@ -395,4 +395,22 @@ div.pq-grid-toolbar-crud
 {
     text-align:center;
 }
+
+.ulchk {
+    
+}
+    .ulchk li {
+        padding: 5px 5px;
+        
+        display:block;
+    }
+        .ulchk li:hover {
+            background-color:#eeeeee;
+            cursor:pointer;
+        }
+        .ulchk li span {
+            margin-left:5px;
+            display:inline-block;
+        }
+
 

@@ -228,13 +228,12 @@
         </EntityType>
         <EntityType Name="Common_District">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
-          <Property Name="Level" Type="utinyint" Nullable="false" />
-          <Property Name="UPID" Type="uint" Nullable="false" />
-          <Property Name="Order" Type="utinyint" Nullable="false" />
+          <Property Name="id" Type="umediumint" Nullable="false" />
+          <Property Name="name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="level" Type="utinyint" Nullable="false" />
+          <Property Name="upid" Type="umediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -582,8 +581,8 @@
           <Property Name="Fax" Type="varchar" MaxLength="20" />
           <Property Name="Phone" Type="varchar" MaxLength="20" />
           <Property Name="PostalCode" Type="varchar" MaxLength="10" />
-          <Property Name="Province_ID" Type="umediumint" />
-          <Property Name="City_ID" Type="umediumint" />
+          <Property Name="Province_ID" Type="umediumint" Nullable="false" />
+          <Property Name="City_ID" Type="umediumint" Nullable="false" />
           <Property Name="Create_Time" Type="uint" Nullable="false" />
           <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Contact_Person" Type="varchar" MaxLength="20" />
@@ -633,7 +632,6 @@
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Buy_Detail" />
           <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Buy_Order" />
           <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Buy_Order_Detail" />
-          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
           <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Customer" />
           <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Customer_Shop" />
           <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Employee" />
@@ -664,6 +662,7 @@
           <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
           <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Stock_Waste" />
           <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Image" />
+          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -829,16 +828,6 @@
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
           <Property Type="Int32" Name="Status" />
-        </EntityType>
-        <EntityType Name="Common_District">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Type="Int64" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Byte" Name="Level" Nullable="false" />
-          <Property Type="Int64" Name="UPID" Nullable="false" />
-          <Property Type="Byte" Name="Order" Nullable="false" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -1066,8 +1055,8 @@
           <Property Type="String" Name="Fax" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="PostalCode" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Province_ID" />
-          <Property Type="Int32" Name="City_ID" />
+          <Property Type="Int32" Name="Province_ID" Nullable="false" />
+          <Property Type="Int32" Name="City_ID" Nullable="false" />
           <Property Type="Int64" Name="Create_Time" Nullable="false" />
           <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Contact_Person" MaxLength="20" FixedLength="false" Unicode="false" />
@@ -1224,6 +1213,15 @@
           <Property Type="String" Name="Path" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Created" />
           <Property Type="Int32" Name="UserID" />
+        </EntityType>
+        <EntityType Name="Common_District">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Type="Int32" Name="id" Nullable="false" />
+          <Property Type="String" Name="name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Byte" Name="level" Nullable="false" />
+          <Property Type="Int32" Name="upid" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1400,17 +1398,6 @@
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
                 <ScalarProperty Name="Buy_Order_ID" ColumnName="Buy_Order_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Common_District">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Common_District">
-              <MappingFragment StoreEntitySet="Common_District">
-                <ScalarProperty Name="Order" ColumnName="Order" />
-                <ScalarProperty Name="UPID" ColumnName="UPID" />
-                <ScalarProperty Name="Level" ColumnName="Level" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1815,6 +1802,16 @@
                 <ScalarProperty Name="FileName" ColumnName="FileName" />
                 <ScalarProperty Name="ProductID" ColumnName="ProductID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Common_District">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Common_District">
+              <MappingFragment StoreEntitySet="Common_District">
+                <ScalarProperty Name="upid" ColumnName="upid" />
+                <ScalarProperty Name="level" ColumnName="level" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

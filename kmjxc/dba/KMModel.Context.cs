@@ -40,7 +40,6 @@ namespace KM.JXC.DBA
         public DbSet<Buy_Detail> Buy_Detail { get; set; }
         public DbSet<Buy_Order> Buy_Order { get; set; }
         public DbSet<Buy_Order_Detail> Buy_Order_Detail { get; set; }
-        public DbSet<Common_District> Common_District { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Customer_Shop> Customer_Shop { get; set; }
         public DbSet<Employee> Employee { get; set; }
@@ -71,5 +70,6 @@ namespace KM.JXC.DBA
         public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Stock_Waste> Stock_Waste { get; set; }
         public DbSet<Image> Image { get; set; }
+        public DbSet<Common_District> Common_District { get; set; }
     }
 }

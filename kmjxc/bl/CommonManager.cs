@@ -43,7 +43,7 @@ namespace KM.JXC.BL
             List<Common_District> areas = null;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var a=(from ass in db.Common_District where ass.UPID==parent_id select ass);
+                var a=(from ass in db.Common_District where ass.upid==parent_id select ass);
               
                 areas = a.ToList<Common_District>();
             }

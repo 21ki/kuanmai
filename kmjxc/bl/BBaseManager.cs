@@ -18,6 +18,7 @@ namespace KM.JXC.BL
     {
         public Shop Shop { get; private set; }
         public Shop Main_Shop { get; private set; }
+        public List<Shop> ChildShops { get; set; }
         public BUser CurrentUser { get; private set; }
         public BUser MainUser { get; private set; }
         public int Shop_Id { get; private set; }
@@ -33,7 +34,7 @@ namespace KM.JXC.BL
             this.Shop_Id = shop_id;
             if (this.Shop_Id == 0)
             {
-                this.FindUserShop();
+                this.GetShops();
             }
             permissionManager = new PermissionManager(shop_id);
             this.CurrentUserPermission = permission;
@@ -45,7 +46,7 @@ namespace KM.JXC.BL
             this.CurrentUser = user;
             GetUserById(user.ID);
             this.Shop = shop;
-            this.FindUserShop();
+            this.GetShops();
             permissionManager = new PermissionManager(this.Shop.Shop_ID);
             this.CurrentUserPermission = permission;
             this.GetUserPermission();
@@ -57,7 +58,7 @@ namespace KM.JXC.BL
             this.Shop_Id = shop_id;
             if (this.Shop_Id == 0)
             {
-                this.FindUserShop();
+                this.GetShops();
             }
             permissionManager = new PermissionManager(shop_id);
             this.CurrentUserPermission = permission;
@@ -67,7 +68,7 @@ namespace KM.JXC.BL
         public BBaseManager(int user_id, Permission permission)
         {
             GetUserById(user_id);
-            this.FindUserShop();
+            this.GetShops();
             permissionManager = new PermissionManager();
             this.CurrentUserPermission = permission;
             this.GetUserPermission();            
@@ -77,7 +78,7 @@ namespace KM.JXC.BL
         {
             GetUserById(user.ID);
             permissionManager = new PermissionManager();
-            this.FindUserShop();
+            this.GetShops();
             this.CurrentUserPermission = permission;
             this.CurrentUser = user;
             this.GetUserPermission();           
@@ -160,7 +161,7 @@ namespace KM.JXC.BL
         /// <summary>
         /// Find shop for current login user
         /// </summary>
-        private void FindUserShop()
+        private void GetShops()
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
@@ -191,6 +192,7 @@ namespace KM.JXC.BL
                 else
                 {
                     this.Main_Shop = this.Shop;
+                    this.ChildShops = (from s in db.Shop where s.Parent_Shop_ID == this.MainUser.ID select s).ToList();
                 }
             }
         }

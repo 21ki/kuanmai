@@ -4,30 +4,47 @@
 }
 <script>
     var buyMgr = new KMJXCBuyManager();
+    var editform;
+    var $grid;
+    var provJsons;
     $(function () {
+        editform = $('#neweditform');
         var obj = {
             width: 830, height: 600, title: "供应商列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
                 
             }
         };
-
+        //initialize province data
+        buyMgr.GetAreas({ 'parent_id': 0 }, function (res) {
+            if (res != null) {
+                provJsons = res;
+            }
+        });
         obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
-                        { title: "名称", width: 250, dataType: "string", dataIndx: "Title", editable: false },                        
+                        { title: "名称", width: 250, dataType: "string", dataIndx: "Name", editable: false },
                         {
-                            title: "主店铺供应商", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
+                            title: "地址", width: 250, dataType: "string", dataIndx: "Address", editable: false,
                             render: function (ui) {
-                                
+                                var province = "";
+                                var city = "";
+                                if (ui.rowData["Province"] != null) {
+                                    province = ui.rowData["Province"]["Name"];
+                                }
+                                if (ui.rowData["City"] != null) {
+                                    city = ui.rowData["City"]["Name"];
+                                }
+                                var address = "";
+                                if (ui.rowData["Address"] != null) {
+                                    address = ui.rowData["Address"];
+                                }
+
+                                return province + city + address;
                             },
-                        },
-                        { title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
-                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
-                        {
-                            title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
-                            render: function (ui) {
-                               
-                            }
-                        },
+                        },                        
+                        { title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
+                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                       
         ];
 
         obj.dataModel = {
@@ -55,17 +72,34 @@
 
         }
 
+        //province change event
+        editform.find("#supplier_province").change(function () {
+            var pid = $(this).val();
+            var cityObj = editform.find("#supplier_city");
+            cityObj.empty();
+            if (pid != 0) {
+                cityObj.append("<option value=\"0\">--选择--</option>");
+                buyMgr.GetAreas({ 'parent_id': pid }, function (res) {
+                    $(res).each(function (index, item) {
+                        cityObj.append("<option value=\"" + item.id + "\">" + item.name + "</option>");
+                    });
+                });
+                
+                cityObj.show();
+            } else {
+                cityObj.hide();
+            }
+        });
+
         function AddNew() {
-            var title = "添加供应商";
+            var title = "新加供应商";
             $('#neweditsupplier').dialog({
                 width: 500,
-                open: function (event,ui) {
-                    buyMgr.GetAreas({'parent_id':0}, function (res) {
-                        if (res != null) {
-                            $(res).each(function (index, item) {
-                                $('#supplier_province').append("<option value=\""+item.ID+"\">"+item.Name+"</option>");
-                            });
-                        }
+                open: function (event, ui) {
+                    Initializeform(); 
+                    editform.find('#supplier_province').append("<option value=\"0\">--选择--</option>");
+                    $(provJsons).each(function (index, item) {
+                        editform.find('#supplier_province').append("<option value=\"" + item.id + "\">" + item.name + "</option>");
                     });
                 },
                 resizable: false,
@@ -73,14 +107,8 @@
                 modal:true,
                 buttons: {
                     "保存": function () {
-                        var editform = $('#neweditform');
-                        var name = editform.find("#supplier_name").val();
-                        var address = editform.find("#supplier_address").val();
-                        var contact = editform.find("#supplier_contact").val();
-                        var phone = editform.find("#supplier_phone").val();
-                        var fax = editform.find("#supplier_fax").val();
-                        var postcode = editform.find("#supplier_postcode").val();
-                        alert(name);
+                        var that = this;
+                        SaveSupplier(that);
                     },
                     "取消": function () {
                         $(this).dialog("close");
@@ -91,7 +119,165 @@
             $("#popup-dialog-crud").dialog("open");
         }
 
+        //fill form data when editing supplier
+        function FillSupplierData(json) {
+            editform.find("#supplier_id").val(json.ID);
+            editform.find("#resultmessage").html("").hide();
+            editform.find("#supplier_name").val(json.Name);
+            editform.find("#supplier_address").val(json.Address);
+            editform.find("#supplier_contact").val(json.ContactPerson);
+            editform.find("#supplier_phone").val(json.Phone);
+            editform.find("#supplier_fax").val(json.Fax);
+            editform.find("#supplier_postcode").val(json.PostalCode);
+            editform.find("#supplier_remark").val(json.Remark);
+            var cityObj = editform.find("#supplier_city");
+            if (json.Province != null) {
+                editform.find("#supplier_province").val(json.Province.ID);
+                var pid = json.Province.ID;                
+                cityObj.empty();
+                if (pid != 0) {
+                   
+                    cityObj.append("<option value=\"0\">--选择--</option>");
+                    buyMgr.GetAreas({ 'parent_id': pid }, function (res) {
+                        $(res).each(function (index, item) {
+                            cityObj.append("<option value=\"" + item.id + "\">" + item.name + "</option>");
+                        });
+
+                        if (json.City != null) {
+                            if (json.Province.ID != json.City.ID) {
+                                cityObj.val(json.City.ID).show();
+                            }
+                        }
+
+                        cityObj.show();
+                    });
+                    
+                } else {
+                    cityObj.hide();
+                }
+            }
+        }
+
+        function Initializeform() {
+            editform.find("#supplier_id").val("");
+            editform.find("#resultmessage").html("").hide();
+            editform.find("#supplier_name").val("");
+            editform.find("#supplier_address").val("");
+            editform.find("#supplier_contact").val("");
+            editform.find("#supplier_phone").val("");
+            editform.find("#supplier_fax").val("");
+            editform.find("#supplier_postcode").val("");
+            editform.find("#supplier_remark").val("");
+            editform.find("#supplier_province").empty();
+            editform.find("#supplier_city").empty().hide();            
+        }
+
+        function SaveSupplier(obj) {
+            var sid = editform.find("#supplier_id").val();
+            var messageObj = editform.find("#resultmessage");
+            var error = "";
+            var name = editform.find("#supplier_name").val();
+            var address = editform.find("#supplier_address").val();
+            var contact = editform.find("#supplier_contact").val();
+            var phone = editform.find("#supplier_phone").val();
+            var fax = editform.find("#supplier_fax").val();
+            var postcode = editform.find("#supplier_postcode").val();
+            var desc = editform.find("#supplier_remark").val();
+            var pid = editform.find("#supplier_province").val();
+            var cid = 0;
+            var did = 0;
+            if (pid == 1 || pid == 2 || pid == 9 || pid == 22) {
+                cid = pid;
+                did = editform.find("#supplier_city").val();
+            } else {
+                cid = editform.find("#supplier_city").val();
+            }
+
+            if ($.trim(name) == '') {
+                error = "供应商名称不能为空";
+            }
+            if (pid == 0 || cid == 0) {
+                if (error == "") {
+                    error = "供应商所在省份和城市不能为空";
+                } else {
+                    error += "<br/>供应商所在省份和城市不能为空";
+                }
+            }
+
+            if ($.trim(error) != '') {
+                messageObj.html(error);
+                messageObj.show();
+                return;
+            } else {
+                messageObj.html(error);
+                messageObj.hide();
+            }
+
+            buyMgr.UpdateSupplier(
+                {
+                    'id': sid,
+                    'address': address,
+                    'contact': contact,
+                    'fax': fax,
+                    'phone': phone,
+                    'name': name,
+                    'postcode': postcode,
+                    'province_id': pid,
+                    'city_id': cid,
+                    'district_id': did,
+                    'remark': desc
+                },
+                function (res) {
+                    if (res.Status == "ok") {
+                        $grid.pqGrid("refreshDataAndView");
+                        $(obj).dialog("close");
+                    } else {
+                        messageObj.html(res.Message);
+                        messageObj.show();
+                    }
+                }
+            );
+        }
+
         function Edit() {
+            var rowIndx = getRowIndx();
+            if (rowIndx == null) {
+                return;
+            }
+
+            var DM = $grid.pqGrid("option", "dataModel");
+            var data = DM.data;
+            var row = data[rowIndx];
+            var sid = row["ID"];
+            var sname = row["Name"];
+            var title = "编辑供应商 "+sname;
+            $('#neweditsupplier').dialog({
+                width: 500,
+                open: function (event, ui) {
+                    Initializeform();
+                    editform.find("#supplier_id").val(sid);
+                    editform.find('#supplier_province').empty();
+                    editform.find('#supplier_province').append("<option value=\"0\">--选择--</option>");
+                    $(provJsons).each(function (index, item) {
+                        editform.find('#supplier_province').append("<option value=\"" + item.id + "\">" + item.name + "</option>");
+                    });
+                    FillSupplierData(row);
+                },
+                resizable: false,
+                title: title,
+                modal: true,
+                buttons: {
+                    "保存": function () {
+                        var that = this;
+                        SaveSupplier(that);
+                    },
+                    "取消": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#popup-dialog-crud").dialog("open");
         }
 
         $("#supplierstable").on("pqgridrender", function (evt, obj) {
@@ -109,9 +295,21 @@
         });
 
 
-        var $grid = $("#supplierstable").pqGrid(obj);
+        $grid = $("#supplierstable").pqGrid(obj);
 
-        
+        function getRowIndx() {           
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
     })
 </script>
 <div class="normallist">
@@ -126,7 +324,7 @@
                  <label>名称:</label><input type="text" value="" class="W_input" id="supplier_name" />
              </div>
              <div class="row">
-                 <label>省份:</label><select class="W_input" id="supplier_province"></select>
+                 <label>省份:</label><select class="W_input W_inputsel" id="supplier_province"></select> <select class="W_input W_inputsel" id="supplier_city" style="display:none;"></select>
              </div>
              <div class="row">
                  <label>地址:</label><input type="text" value="" class="W_input" id="supplier_address" />
@@ -146,6 +344,7 @@
              <div class="row" style="height:auto;">
                  <label style="display:inline-block;float:left;">备注:</label><textarea id="supplier_remark" class="W_input"></textarea>
              </div>
+             <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
          </div>
     </form>   
 </div>

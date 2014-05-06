@@ -230,6 +230,19 @@ namespace KM.JXC.BL
                     db.SaveChanges();
                 }
 
+                if (product.Suppliers != null)
+                {
+                    foreach (Supplier su in product.Suppliers)
+                    {
+                        Product_Supplier ps = new Product_Supplier();
+                        ps.Product_ID = product.ID;
+                        ps.Supplier_ID = su.Supplier_ID;
+                        db.Product_Supplier.Add(ps);
+                    }
+
+                    db.SaveChanges();
+                }
+
                 if (product.Children != null)
                 {
                     foreach (BProduct p in product.Children)
@@ -461,7 +474,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> GetProducts(string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
+        public List<BProduct> SearchProducts(string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -477,14 +490,30 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                List<int> childShops = new List<int>();
+                if (this.Shop.Parent_Shop_ID == 0)
+                {
+                    childShops=(from shop in db.Shop where shop.Shop_ID==this.Shop.Shop_ID select shop.Shop_ID).ToList<int>();
+                }
+                int[] childshop_ids = childShops.ToArray<int>();
+
                 var dbps = from product in db.Product
                            //join employee in db.Employee on product.User_ID equals employee.User_ID                           
-                           where product.Parent_ID == 0 && (product.Shop_ID==this.Shop.Shop_ID || product.Shop_ID==this.Main_Shop.Shop_ID)
+                           where product.Parent_ID == 0 
+                           //&& (product.Shop_ID == this.Shop.Shop_ID || product.Shop_ID == this.Main_Shop.Shop_ID || childshop_ids.Contains(product.Shop_ID))
                            select new
                            {
                                Pdt=product,
                                //Emp=employee,                              
                            };
+                if (childshop_ids != null && childshop_ids.Length > 0)
+                {
+                    dbps = dbps.Where(a => a.Pdt.Shop_ID == this.Shop.Shop_ID || a.Pdt.Shop_ID == this.Main_Shop.Shop_ID || childshop_ids.Contains(a.Pdt.Shop_ID));
+                }
+                else 
+                {
+                    dbps = dbps.Where(a => a.Pdt.Shop_ID == this.Shop.Shop_ID || a.Pdt.Shop_ID == this.Main_Shop.Shop_ID);
+                }
                 if (!string.IsNullOrEmpty(title))
                 {
                     dbps = dbps.Where(a=>a.Pdt.Name.Contains(title));
@@ -535,7 +564,7 @@ namespace KM.JXC.BL
                                   Title = bpss.Pdt.Name,
                                   CreateTime = bpss.Pdt.Create_Time,
                                   Code = bpss.Pdt.Code,
-                                  //Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
+                                  Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
                                   Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
                                               where bpss.Pdt.Product_Class_ID == c.Product_Class_ID
@@ -559,16 +588,26 @@ namespace KM.JXC.BL
 
                 foreach (BProduct product in products)
                 {
-                    var totalO = from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price;
-                    decimal totalPrice = 0;
-                    if (totalO.ToList<decimal>().Count > 0)
-                    {
-                        totalPrice = totalO.Sum();
-                    }
-                    int count=(from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es).Count();
+                    //var totalO = from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price;
+                    //decimal totalPrice = 0;
+                    //if (totalO.ToList<decimal>().Count > 0)
+                    //{
+                    //    totalPrice = totalO.Sum();
+                    //}
+                    //int count=(from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es).Count();
                     
-                    if (count != 0) {
-                        product.Price = totalPrice / count;
+                    //if (count != 0) {
+                    //    product.Price = totalPrice / count;
+                    //}
+
+                    if (product.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        product.FromMainShop = true;
+                    }
+
+                    if (childShops != null && childShops.Count > 0 && childShops.Contains(product.Shop.Shop_ID))
+                    {
+                        product.FromChildShop = true;
                     }
                 }
             }

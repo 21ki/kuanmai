@@ -221,7 +221,15 @@ function KMJXCProductManager() {
 
 KMJXCBuyManager.prototype = new KMJXCBase();
 function KMJXCBuyManager() {
-
+    this.CreateSupplier = function (params, callback) {
+        this.AjaxCall("/api/Suppliers/Create", params, callback);
+    }
+    this.UpdateSupplier = function (params, callback) {
+        this.AjaxCall("/api/Suppliers/Save", params, callback);
+    }
+    this.GetSuppliers = function (params, callback) {
+        this.AjaxCall("/api/Suppliers/GetSuppliers", params, callback);
+    }
 }
 
 KMJXCStockManager.prototype = new KMJXCBase();

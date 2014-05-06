@@ -14,10 +14,9 @@ namespace KM.JXC.DBA
     
     public partial class Common_District
     {
-        public long ID { get; set; }
-        public string Name { get; set; }
-        public byte Level { get; set; }
-        public long UPID { get; set; }
-        public byte Order { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public byte level { get; set; }
+        public int upid { get; set; }
     }
 }

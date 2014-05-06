@@ -197,7 +197,7 @@ namespace KM.JXC.BL
 
                     if (this.Shop.Parent_Shop_ID > 0 && category.Shop.ID==this.Shop.Parent_Shop_ID)
                     {
-                        category.IsMainShopProp = true;
+                        category.FromMainShop = true;
                     }
                     categories.Add(category);                    
                 }
@@ -668,7 +668,7 @@ namespace KM.JXC.BL
                         {
                             if (shop.Parent_Shop_ID > 0)
                             {
-                                p.IsMainShopProp = true;
+                                p.FromMainShop = true;
                                 p.Shop.Parent = (from sp in db.Shop
                                                  where sp.Shop_ID == shop.Parent_Shop_ID
                                                  select new BShop
@@ -679,7 +679,7 @@ namespace KM.JXC.BL
                                                  }).FirstOrDefault<BShop>();
                             }
                             else {
-                                p.IsMainShopProp = false;
+                                p.FromMainShop = false;
                             }
                         }
                     }

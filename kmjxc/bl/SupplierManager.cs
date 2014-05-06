@@ -33,9 +33,9 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecord"></param>
         /// <returns></returns>
-        public List<BSupplier> GetSupplies(int product_id,int pageIndex, int pageSize, out int totalRecord)
+        public List<BSupplier> SearchSupplies(int product_id, int pageIndex, int pageSize, out int totalRecord)
         {
-            List<BSupplier> supplies = new List<BSupplier>();
+            List<BSupplier> suppliers = new List<BSupplier>();
             totalRecord = 0;
             if (pageIndex <= 0)
             {
@@ -45,52 +45,108 @@ namespace KM.JXC.BL
             {
                 pageSize = 30;
             }
-            using (KuanMaiEntities db = new KuanMaiEntities())
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
             {
                 int[] sids = null;
                 if (product_id > 0)
                 {
-                    sids=(from ps in db.Product_Supplier where ps.Product_ID==product_id select ps.Supplier_ID).ToArray<int>();
+                    sids = (from ps in db.Product_Supplier where ps.Product_ID == product_id select ps.Supplier_ID).ToArray<int>();
                 }
                 var spps = from sp in db.Supplier
-                           where sp.Shop_ID==this.Shop.Shop_ID || sp.Shop_ID==this.Main_Shop.Shop_ID
+                           //where sp.Shop_ID==this.Shop.Shop_ID || sp.Shop_ID==this.Main_Shop.Shop_ID
                            select sp;
                 if (sids != null && sids.Length > 0)
                 {
-                    spps = spps.Where(a=>sids.Contains(a.Supplier_ID));
-                }                       
+                    spps = spps.Where(a => sids.Contains(a.Supplier_ID));
+                }
+
+                if (this.ChildShops != null && this.ChildShops.Count > 0)
+                {
+                    int[] cshops = (from shop in this.ChildShops select shop.Shop_ID).ToArray<int>();
+                    spps = spps.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || cshops.Contains(a.Shop_ID));
+                }
+                else
+                {
+                    spps = spps.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID);
+                }
+
                 totalRecord = spps.Count();
-                spps = spps.OrderBy(a => a.Supplier_ID);
+                spps = spps.OrderBy(a => a.Shop_ID).OrderBy(a => a.Supplier_ID);
                 spps = spps.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
-                supplies = (from supplier in spps
-                            select new BSupplier
-                                {
-                                    ID = supplier.Supplier_ID,
-                                    Created = (int)supplier.Create_Time,
-                                    Address = supplier.Address,
-                                    ContactPerson = supplier.Contact_Person,
-                                    Enable = (bool)supplier.Enabled,
-                                    Name = supplier.Name,
-                                    Remark=supplier.Remark,
-                                    Fax = supplier.Fax,
-                                    Phone = supplier.Phone,
-                                    PostalCode = supplier.PostalCode,
-                                    City = (from c in db.Common_District where c.ID == supplier.City_ID select c).FirstOrDefault<Common_District>(),
-                                    Province = (from c in db.Common_District where c.ID == supplier.City_ID select c).FirstOrDefault<Common_District>(),
-                                    Created_By = (from u in db.User
-                                                  where u.User_ID == supplier.User_ID
-                                                  select new BUser
-                                                      {
-                                                          ID = u.User_ID,
-                                                          Name = u.Name,
-                                                          Mall_ID = u.Mall_ID,
-                                                          Mall_Name = u.Mall_Name
-                                                      }).FirstOrDefault<BUser>()
-                                }).ToList<BSupplier>();
+                var ss = from supplier in spps
+                         select new BSupplier
+                             {
+                                 ID = supplier.Supplier_ID,
+                                 Created = supplier.Create_Time,
+                                 Address = supplier.Address,
+                                 ContactPerson = supplier.Contact_Person,
+                                 Enable = (bool)supplier.Enabled,
+                                 Name = supplier.Name,
+                                 Remark = supplier.Remark,
+                                 Fax = supplier.Fax,
+                                 Phone = supplier.Phone,
+                                 PostalCode = supplier.PostalCode,
+                                 City = (from c in db.Common_District
+                                         where c.id == supplier.City_ID
+                                         select new BArea
+                                             {
+                                                 ID = c.id,
+                                                 Name = c.name
+                                             }).FirstOrDefault<BArea>(),
+                                 Province = (from c in db.Common_District
+                                             where c.id == supplier.Province_ID
+                                             select new BArea
+                                             {
+                                                 ID = c.id,
+                                                 Name = c.name
+                                             }).FirstOrDefault<BArea>(),
+                                 Created_By = (from u in db.User
+                                               where u.User_ID == supplier.User_ID
+                                               select new BUser
+                                                   {
+                                                       ID = u.User_ID,
+                                                       Name = u.Name,
+                                                       Mall_ID = u.Mall_ID,
+                                                       Mall_Name = u.Mall_Name
+                                                   }).FirstOrDefault<BUser>(),
+                                 Shop = (from sp in db.Shop
+                                         where sp.Shop_ID == supplier.Shop_ID
+                                         select new
+                                             BShop
+                                             {
+                                                 ID=sp.Shop_ID,
+                                                 Title=sp.Name,
+                                                 Description=sp.Description
+                                             }).FirstOrDefault<BShop>()
+                             };
+
+                suppliers = ss.ToList<BSupplier>();
+                List<int> cspids = (from csp in this.ChildShops select csp.Shop_ID).ToList<int>();
+                foreach (BSupplier sp in suppliers) 
+                {
+                    if (sp.Shop.ID != this.Shop.Shop_ID)
+                    {
+                        if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                        {
+                            if (cspids.Contains(sp.Shop.ID))
+                            {
+                                sp.FromChildShop = true;
+                            }
+                        }
+                        else
+                        {
+                            sp.FromMainShop = true;
+                        };
+                    }                   
+                }
             }
-            
-            return supplies;
+            catch (Exception ex)
+            {
+
+            }
+            return suppliers;
         }
 
         /// <summary>
@@ -104,7 +160,7 @@ namespace KM.JXC.BL
         public List<BSupplier> GetProductSuppliers(int product_id, int pageIndex, int pageSize, out int totalRecord)
         {
             totalRecord = 0;
-            return this.GetSupplies(product_id,pageIndex,pageSize,out totalRecord);
+            return this.SearchSupplies(product_id,pageIndex,pageSize,out totalRecord);
         }
 
         /// <summary>
@@ -127,6 +183,48 @@ namespace KM.JXC.BL
             }
 
             return supplier;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="supplier"></param>
+        /// <returns></returns>
+        public bool UpdateSupplier(Supplier supplier)
+        {
+            bool result = false;
+            if (string.IsNullOrEmpty(supplier.Name))
+            {
+                throw new KMJXCException("供应商名称不能为空");
+            }
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                Supplier existed = (from supp in db.Supplier where supp.Supplier_ID == supplier.Supplier_ID select supp).FirstOrDefault<Supplier>();
+                if (existed == null)
+                {
+                    throw new KMJXCException("要修改的供应商不存在");
+                }
+                var obj = (from sp in db.Supplier where (sp.Shop_ID == this.Shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID) && supplier.Name.Contains(sp.Name) && sp.Supplier_ID!=existed.Supplier_ID select sp);
+                if (obj.ToList<Supplier>().Count > 0)
+                {
+                    throw new KMJXCException("供应商名称已经存在");
+                }
+
+                this.UpdateProperties(existed, supplier);
+                db.SaveChanges();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                db.Dispose();
+            }
+            return result;
         }
 
         /// <summary>
@@ -198,30 +296,6 @@ namespace KM.JXC.BL
                 result = true;
             }
             return result;
-        }
-
-        /// <summary>
-        /// Update supplier information
-        /// </summary>
-        /// <param name="supplier">Supplier Object</param>
-        /// <returns>TRUE/FALSE</returns>
-        public bool UpdateSupplier(Supplier supplier)
-        {
-            bool result = false;
-
-            if (supplier == null || supplier.Supplier_ID<=0)
-            {
-                return result;
-            }
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                db.Supplier.Attach(supplier);
-                
-                db.SaveChanges();
-                result = true;
-            }
-            return result;
-        }
+        }        
     }
 }

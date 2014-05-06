@@ -126,11 +126,13 @@ namespace KM.JXC.Web.Controllers.api
             string props = "";
             string images = "";
             string title = "";
+            string suppliers = "";
             int.TryParse(request["cid"],out categoryId);
             description = request["desc"];
             title=request["title"];
             images = request["images"];
             props=request["props"];
+            suppliers = request["sids"];
 
             try
             {
@@ -148,6 +150,17 @@ namespace KM.JXC.Web.Controllers.api
                         product.Images.Add(new Image() { ID=int.Parse(img) });
                     }
                 }
+
+                if (!string.IsNullOrEmpty(suppliers))
+                {
+                    product.Suppliers = new List<Supplier>();
+                    string[] sids = suppliers.Split(',');
+                    foreach (string sid in sids) 
+                    {
+                        product.Suppliers.Add(new Supplier() { Supplier_ID=int.Parse(sid), Enabled=true});
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(props))
                 {
                     if (product.Children == null)
@@ -215,7 +228,7 @@ namespace KM.JXC.Web.Controllers.api
                 }
             }
             keyword = request["keyword"];
-            data.data=pdtManager.GetProducts(keyword, "", 0, 0, category_id, page, pageSize, out total);
+            data.data=pdtManager.SearchProducts(keyword, "", 0, 0, category_id, page, pageSize, out total);
             data.totalRecords = total;
             data.curPage = page;
             return data;

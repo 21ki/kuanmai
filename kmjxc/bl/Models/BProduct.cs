@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Models
 {
-    public class BProduct
+    public class BProduct:BModel
     {
         public int ID { get; set; }
         public BUser User { get; set; }

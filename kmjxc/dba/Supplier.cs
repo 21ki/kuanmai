@@ -20,8 +20,8 @@ namespace KM.JXC.DBA
         public string Fax { get; set; }
         public string Phone { get; set; }
         public string PostalCode { get; set; }
-        public Nullable<int> Province_ID { get; set; }
-        public Nullable<int> City_ID { get; set; }
+        public int Province_ID { get; set; }
+        public int City_ID { get; set; }
         public long Create_Time { get; set; }
         public int User_ID { get; set; }
         public string Contact_Person { get; set; }

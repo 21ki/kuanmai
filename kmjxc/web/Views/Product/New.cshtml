@@ -4,6 +4,7 @@
 
 <script>
     var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
     var props = null;
     var propRow = 1;
     var groupCount = 1;
@@ -11,6 +12,9 @@
     var propGroups = [];
     var images = [];
     var editor;
+    var newForm;
+    var allSuppliers;
+    var selectedSuppliers=[];
     function RemoveImage(obj, image_id) {
 
         cateMgr.DeleteImage({ 'image_id': image_id }, function (res) {
@@ -113,7 +117,7 @@
     }
 
     $(document).ready(function () {
-
+        newForm = $("#pdtnewform");
         cateMgr.GetProperties2({}, function (res) {
             props = res.data;
             RenderP1(props);
@@ -123,7 +127,9 @@
                 autoOpen: false
             });
         });      
-
+        buyMgr.GetSuppliers({}, function (res) {
+            allSuppliers = res.data;
+        })
         function RenderPropGroup(propGroup,groupIndex) {           
             if (propGroup.length <= 0) {
                 return;
@@ -203,11 +209,115 @@
                 frm.find("#resultmessage3").show();
                 return;
             }
+
+            var sids = "";
+            for (var i = 0; i < selectedSuppliers.length; i++) {
+                if (sids == "") {
+                    sids = selectedSuppliers[i].id;
+                } else {
+                    sids +=","+ selectedSuppliers[i].id;
+                }
+            }
           
-            cateMgr.CreateProduct({ 'images': image_ids,'props':buffer,'title':title,'desc':desc,'cid':cid }, function (res) {
+            cateMgr.CreateProduct({ 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
 
             });
         });       
+
+        newForm.find("#addsupplier").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("#popup-dialog-suppliers").dialog({
+                open: function (event, ui) {
+                    var ul = $(this).find("#popup-dialog-listsuppliers");
+                    ul.html("");
+                    $(allSuppliers).each(function (index, item) {
+                        var li = $("<li></li>");
+                        var check = null;
+                        var selected = false;
+                        for (var i = 0; i < selectedSuppliers.length; i++) {
+                            if (item.ID == selectedSuppliers[i].id) {
+                                selected = true;
+                                break;
+                            }
+                        }
+
+                        if (!selected) {
+                            check = $("<input style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
+                        } else {
+                            check = $("<input checked style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
+                        }                        
+                        check.change(function (event) {
+                            var checked = $(this).attr("checked");
+                            var id = $(this).attr("value");
+                            var value = $(this).next().html();
+                            
+                            var tmp = [];
+                            if (checked == 'checked') {
+                                var found = false;
+                                for (var i = 0; i < selectedSuppliers.length; i++) {
+                                    if (id == selectedSuppliers[i].id) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    selectedSuppliers.push({'id':id,'value':value});
+                                }
+                            } else {
+                                var found = false;
+                                for (var i = 0; i < selectedSuppliers.length; i++) {
+                                    if (id != selectedSuppliers[i].id) {
+                                        tmp.push(selectedSuppliers[i]);
+                                    }
+                                }
+
+                                selectedSuppliers = tmp;
+                            }
+                            
+                        });
+
+                        $("<span>" + item.Name + "</span>").appendTo(li);
+                       
+                        li.appendTo(ul);
+                    });
+                },
+                close: function (event, ui) {
+                    
+                },
+                width:350,
+                resizable: false,
+                title: "选择供应商",
+                modal: true,
+                autoOpen: false,
+                buttons: {
+                    "确定": function () {
+                        var that = this;
+                        var addedul = newForm.find("#addedsuppliers");
+                        addedul.html("");
+                        for (var i = 0; i < selectedSuppliers.length; i++) {
+                            var id = selectedSuppliers[i].id;
+                            var li = $("<li style=\"display:block;width:200px;margin-bottom:2px;border:0px;\"><span style=\"display:inline-block;\">" + selectedSuppliers[i].value + "</span></li>").appendTo(addedul);
+                            var span=$("<span style=\"display:inline-block;float:right;margin-right:2px;\"></span>").appendTo(li);
+                            $("<img value=\"" + id + "\" style=\"\" src=\"/Content/images/remove.gif\"/>").appendTo(span).click(function (evt) {
+                                var tmp = [];
+                                var sid = $(this).attr("value");                               
+                                for (var i = 0; i < selectedSuppliers.length; i++) {
+                                    if (sid != selectedSuppliers[i].id) {
+                                        tmp.push(selectedSuppliers[i]);
+                                    }
+                                }
+                                selectedSuppliers = tmp;
+                                $(this).parent().parent().remove();
+                            });
+                        }
+                        addedul.show();
+                        $(this).dialog("close");
+                    },
+                }
+            });
+
+            $("#popup-dialog-suppliers").dialog("open");
+        });
 
         $("#addstockprop").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (event) {
             $("#popup-dialog-props").dialog({
@@ -419,12 +529,23 @@
                 </ul>
                 <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
             </div>
-            <span style="margin-left:60px;" id="addstockprop">添加一组库存属性</span>
+            <label>属性:</label><span id="addstockprop">添加库存属性</span>
 
         </div>
         <div class="row" style="display:none;" id="addedprops">
            
         </div>
+        <div class="row" style="height:auto;">
+            <div id="popup-dialog-suppliers" style="display:none;">
+                <h4>选择供应商，可多选</h4>
+                <ul id="popup-dialog-listsuppliers" class="ulchk">
+                </ul>
+            </div>
+            <label for="productName">供应商:</label><span id="addsupplier">选择供应商</span>
+        </div>
+        <ul class="row propul" style="display:none;border:0;" id="addedsuppliers">
+           
+        </ul>
         <div class="row" style="height:auto;">
             <label for="productDesc" style="display:inline-block;float:left;">描述:</label>
             <textarea style="width:500px;" name="productDesc" id="productDesc"></textarea>

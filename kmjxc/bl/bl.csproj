@@ -58,6 +58,7 @@
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
     <Compile Include="ImageManager.cs" />
+    <Compile Include="Models\Area.cs" />
     <Compile Include="Models\BBackSale.cs" />
     <Compile Include="Models\BBackSaleDetail.cs" />
     <Compile Include="Models\BBackStock.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Models\BEnterStock.cs" />
     <Compile Include="Models\BEnterStockDetail.cs" />
     <Compile Include="Models\BMallProduct.cs" />
+    <Compile Include="Models\BModel.cs" />
     <Compile Include="Models\BOrder.cs" />
     <Compile Include="Models\BProduct.cs" />
     <Compile Include="Models\BProductProperty.cs" />
