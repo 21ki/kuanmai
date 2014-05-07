@@ -321,9 +321,20 @@ namespace KM.JXC.BL
                             }
                         }
                     }
+                }                
+
+                //update suppliers
+                if (product.Suppliers != null) 
+                {
+                    foreach (Supplier s in product.Suppliers)
+                    {
+                        Product_Supplier ps = new Product_Supplier() { Product_ID = product.ID, Supplier_ID = s.Supplier_ID };
+                        db.Product_Supplier.Add(ps);
+                    }
                 }
 
                 db.SaveChanges();
+
                 if (product.Children != null && product.Children.Count > 0)
                 {
                     foreach (BProduct child in product.Children)
@@ -657,8 +668,13 @@ namespace KM.JXC.BL
                            }).FirstOrDefault<BProduct>();
 
                 if (product != null)
-                {   
+                {
                     product.Images = (from img in db.Image where img.ProductID == product.ID select img).ToList<Image>();
+                    product.Suppliers = (from sp in db.Supplier
+                                         join ps in db.Product_Supplier on sp.Supplier_ID equals ps.Supplier_ID
+                                         where ps.Product_ID == product.ID
+                                         select sp
+                                      ).ToList<Supplier>();
                     List<BProductProperty> properties = (from pp in db.Product_Specifications
                                                          where pp.Product_ID == product.ID
                                                          select new BProductProperty
@@ -669,7 +685,7 @@ namespace KM.JXC.BL
                                                              PValue = (from propv in db.Product_Spec_Value where propv.Product_Spec_Value_ID == pp.Product_Spec_Value_ID select propv.Name).FirstOrDefault<string>()
                                                          }).ToList<BProductProperty>();
                     product.Properties = properties;
-                    List<Product> children=(from p in db.Product where p.Parent_ID==product.ID select p).ToList<Product>();
+                    List<Product> children = (from p in db.Product where p.Parent_ID == product.ID select p).ToList<Product>();
                     if (children != null && children.Count > 0)
                     {
                         if (product.Children == null)

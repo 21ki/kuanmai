@@ -18,5 +18,6 @@ namespace KM.JXC.BL.Models
         public string Password { get; set; }
         public Employee EmployeeInfo { get; set; }
         public BUser Parent { get; set; }
+        public long Created { get; set; }
     }
 }

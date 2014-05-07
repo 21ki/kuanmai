@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
+using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
+
 namespace KM.JXC.BL
 {
     public class SupplierManager:BBaseManager
@@ -212,6 +214,8 @@ namespace KM.JXC.BL
                     throw new KMJXCException("供应商名称已经存在");
                 }
 
+                supplier.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                supplier.Modified_By = this.CurrentUser.ID;
                 this.UpdateProperties(existed, supplier);
                 db.SaveChanges();
                 result = true;

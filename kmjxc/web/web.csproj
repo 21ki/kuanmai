@@ -129,6 +129,7 @@
     <Compile Include="Controllers\api\CommonController.cs" />
     <Compile Include="Controllers\api\ProductsController.cs" />
     <Compile Include="Controllers\api\SuppliersController.cs" />
+    <Compile Include="Controllers\api\UsersController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BuyController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -624,7 +625,7 @@
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Shared\master_default.cshtml" />
     <Content Include="Views\Product\New.cshtml" />
-    <Content Include="Views\Product\Search.cshtml" />
+    <Content Include="Views\Product\List.cshtml" />
     <Content Include="Views\Product\Categories.cshtml" />
     <Content Include="Views\Product\NewCategory.cshtml" />
     <Content Include="Views\Product\Properties.cshtml" />

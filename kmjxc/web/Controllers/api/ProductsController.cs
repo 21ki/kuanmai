@@ -39,6 +39,7 @@ namespace KM.JXC.Web.Controllers.api
             title = request["title"];
             images = request["images"];
             props = request["props"];
+            string suppliers = request["sids"];
             try
             {
                 BProduct product = new BProduct();
@@ -63,6 +64,17 @@ namespace KM.JXC.Web.Controllers.api
                         }
                     }
                 }
+
+                if (!string.IsNullOrEmpty(suppliers))
+                {
+                    product.Suppliers = new List<Supplier>();
+                    string[] sids = suppliers.Split(',');
+                    foreach (string sid in sids)
+                    {
+                        product.Suppliers.Add(new Supplier() { Supplier_ID = int.Parse(sid), Enabled = true });
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(props))
                 {
                     if (product.Children == null)
@@ -258,6 +270,26 @@ namespace KM.JXC.Web.Controllers.api
             }
 
             return message;
+        }
+
+        [HttpPost]
+        public PQGridData GetBuyOrders()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int total = 0;
+            int page = 1;
+            int pageSize = 30;
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"],out pageSize);
+            data.data = buyManager.GetBuyOrders(null, null, null, 0, 0, page, pageSize, out total);
+            data.totalRecords = total;
+            return data;
         }
     }
 }

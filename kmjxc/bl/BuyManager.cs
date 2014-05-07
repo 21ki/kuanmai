@@ -18,9 +18,109 @@ namespace KM.JXC.BL
         {
         }
 
-        public BuyManager(BUser user, Permission permission)
-            : base(user,permission)
+        public BuyManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
+        {            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <param name="user_ids"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BBuyOrder> GetBuyOrders(int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords) 
         {
+            List<BBuyOrder> buyOrders = new List<BBuyOrder>();
+            totalRecords = 0;
+            if (pageIndex <= 0)
+            {
+                pageIndex = 1;
+            }
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var bo = from buyOrder in db.Buy_Order select buyOrder ;
+                int[] spids=(from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                if (spids != null && spids.Length > 0)
+                {
+                    bo = bo.Where(a=>a.Shop_ID==this.Shop.Shop_ID || a.Shop_ID==this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
+                }
+
+                if (user_ids !=null && user_ids.Length>0)
+                {
+                    bo = bo.Where(a=>user_ids.Contains(a.User_ID));
+                }
+
+                if (supplier_ids != null && supplier_ids.Length > 0)
+                {
+                    bo = bo.Where(a => supplier_ids.Contains(a.Supplier_ID));
+                }
+
+                if (product_ids != null && product_ids.Length > 0)
+                {
+                    int[] buyOrderIds=(from buyo in db.Buy_Order_Detail where product_ids.Contains(buyo.Product_ID) select buyo.Buy_Order_ID).Distinct<int>().ToArray<int>();
+                    if (buyOrderIds != null && buyOrderIds.Length > 0)
+                    {
+                        bo = bo.Where(a => buyOrderIds.Contains(a.Buy_Order_ID));
+                    }
+                }
+
+                if (startTime > 0)
+                {
+                    bo = bo.Where(a=>a.Create_Date>=startTime);
+                }
+
+                if (endTime > 0)
+                {
+                    bo = bo.Where(a => a.Create_Date <= endTime);
+                }
+                totalRecords = bo.Count();
+                if (totalRecords > 0)
+                {
+                    buyOrders = (from border in bo
+                                 select new BBuyOrder
+                                     {
+                                         ID = border.Buy_Order_ID,
+                                         Created = border.Create_Date,
+                                         Description = border.Description,
+                                         EndTime = (long)border.End_Date,
+                                         InsureTime = (long)border.Insure_Date,
+                                         WriteTime=(long)border.Write_Date,
+                                         OrderUser = (from u in db.User
+                                                      where u.User_ID == border.Order_User_ID
+                                                      select new BUser
+                                                      {
+                                                          ID = u.User_ID,
+                                                          Mall_ID = u.Mall_ID,
+                                                          Mall_Name = u.Mall_Name,
+                                                          Name = u.Name
+                                                      }).FirstOrDefault<BUser>(),
+                                         Status = (int)border.Status,
+                                         Supplier = (from sp in db.Supplier where sp.Supplier_ID == border.Supplier_ID select sp).FirstOrDefault<Supplier>(),
+                                         Created_By = (from u in db.User
+                                                       where u.User_ID == border.User_ID
+                                                       select new BUser
+                                                       {
+                                                           ID = u.User_ID,
+                                                           Mall_ID = u.Mall_ID,
+                                                           Mall_Name = u.Mall_Name,
+                                                           Name = u.Name
+                                                       }).FirstOrDefault<BUser>(),                                         
+                                     }).ToList<BBuyOrder>();
+                }
+            }
+
+            return buyOrders;
         }
 
         /// <summary>
@@ -34,20 +134,10 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuy> GetBuy(int shop_id,int user_id,int startTime,int endTime,int pageIndex,int pageSize, out int totalRecords)
+        public List<BBuy> GetBuy(int user_id,int startTime,int endTime,int pageIndex,int pageSize, out int totalRecords)
         {
             List<KM.JXC.BL.Models.BBuy> verifications = new List<Models.BBuy>();
-            totalRecords = 0;
-            int shop_Id;
-            if (shop_id > 0)
-            {
-                shop_Id = shop_id;
-            }
-            else
-            {
-                shop_Id = this.Shop_Id;
-            }
-
+            totalRecords = 0;            
 
             if (pageIndex <= 0)
             {
@@ -57,7 +147,7 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var vbo = from vb in db.Buy 
-                          where vb.Shop_ID == shop_Id 
+                          where vb.Shop_ID == this.Shop.Shop_ID || vb.Shop_ID==this.Main_Shop.Shop_ID 
                           select vb;
 
                 totalRecords = vbo.Count();
@@ -385,7 +475,7 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有权限创建采购单合同");
             }
 
-            if (buy_Order.Shop == null || buy_Order.Shop.Shop_ID<=0 || buy_Order.Supplier==null || buy_Order.Supplier.Supplier_ID==0)
+            if (buy_Order.Shop == null || buy_Order.Shop.ID<=0 || buy_Order.Supplier==null || buy_Order.Supplier.Supplier_ID==0)
             {
                 throw new KMJXCException("Buy_Order 对象属性值不全，缺少店铺ID和供应商ID",ExceptionLevel.SYSTEM);
             }
@@ -415,7 +505,7 @@ namespace KM.JXC.BL
 
                 if (buy_Order.Shop != null)
                 {
-                    order.Shop_ID = buy_Order.Shop.Shop_ID;
+                    order.Shop_ID = buy_Order.Shop.ID;
                 }
                 else
                 {

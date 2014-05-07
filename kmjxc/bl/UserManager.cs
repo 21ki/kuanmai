@@ -341,10 +341,32 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<BUser> GetUsers(string department,string duty,int pageInde,int pageSize,out int total)
+        public List<BUser> GetUsers(int page,int pageSize,out int total)
         {
             List<BUser> users = new List<BUser>();
             total = 0;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var usersobj = from user in db.User
+                               where user.Shop_ID == this.Shop.Shop_ID
+                               select new BUser
+                               {
+                                   ID = user.User_ID,
+                                   Name = user.Name,
+                                   Mall_Name = user.Mall_Name,
+                                   Mall_ID = user.Mall_ID,                                   
+                                   EmployeeInfo = (from employee in db.Employee where employee.User_ID == user.User_ID select employee).FirstOrDefault<Employee>(),
+                                   Parent_ID = (int)user.Parent_User_ID,
+                                   Password = user.Password,
+                                   Type = (from type in db.Mall_Type where type.Mall_Type_ID == user.Mall_Type select type).FirstOrDefault<Mall_Type>()
+                               };
+
+                total = usersobj.Count();
+                usersobj = usersobj.OrderBy(a => a.ID).Skip((page-1)*pageSize).Take(pageSize);
+                users = usersobj.ToList<BUser>();
+            }
+
             return users;
         }
     }

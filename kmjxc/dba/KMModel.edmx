@@ -589,6 +589,8 @@
           <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
           <Property Name="Enabled" Type="bool" />
           <Property Name="Remark" Type="varchar" MaxLength="500" />
+          <Property Name="Modified" Type="int" Nullable="false" />
+          <Property Name="Modified_By" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Supplier_Shop">
           <Key>
@@ -602,7 +604,7 @@
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="User_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Parent_Mall_ID" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
@@ -611,6 +613,10 @@
           <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
           <Property Name="Parent_User_ID" Type="mediumint" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Created" Type="int" />
+          <Property Name="Modified" Type="int" />
+          <Property Name="Modified_By" Type="mediumint" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -1063,6 +1069,8 @@
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Boolean" Name="Enabled" />
           <Property Type="String" Name="Remark" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Modified" Nullable="false" />
+          <Property Type="Int32" Name="Modified_By" Nullable="false" />
         </EntityType>
         <EntityType Name="Supplier_Shop">
           <Key>
@@ -1085,6 +1093,10 @@
           <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Parent_User_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="Modified" />
+          <Property Type="Int32" Name="Modified_By" />
         </EntityType>
         <EntityType Name="Mall_Product">
           <Key>
@@ -1633,6 +1645,8 @@
           <EntitySetMapping Name="Supplier">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Supplier">
               <MappingFragment StoreEntitySet="Supplier">
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
@@ -1661,6 +1675,10 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="Name" ColumnName="Name" />

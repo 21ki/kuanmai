@@ -133,6 +133,9 @@ function KMJXCBase() {
     this.GetAreas = function (params, callback) {
         return this.AjaxCall("/api/Common/GetAreas", params, callback);
     }
+    this.GetUsers = function (params, callback) {
+        return this.AjaxCall("/api/Users/GetUsers", params, callback);
+    }
 }
 
 KMJXCUserManager.prototype = new KMJXCBase();
@@ -229,6 +232,9 @@ function KMJXCBuyManager() {
     }
     this.GetSuppliers = function (params, callback) {
         this.AjaxCall("/api/Suppliers/GetSuppliers", params, callback);
+    }
+    this.GetBuyOrders = function (params, callback) {
+        this.AjaxCall("/api/Products/GetBuyOrders", params, callback);
     }
 }
 

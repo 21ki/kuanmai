@@ -28,5 +28,7 @@ namespace KM.JXC.DBA
         public int Shop_ID { get; set; }
         public Nullable<bool> Enabled { get; set; }
         public string Remark { get; set; }
+        public int Modified { get; set; }
+        public int Modified_By { get; set; }
     }
 }

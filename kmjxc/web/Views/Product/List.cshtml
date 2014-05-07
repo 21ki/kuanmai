@@ -16,42 +16,10 @@
     var propRow = 1;
     var groupCount = 1;
     var images = [];    
-    var allSuppliers;
+    var allSuppliers=[];
     var selectedSuppliers = [];
-    function EditProduct(pdtId) {
-        $editform.find('#product_id').val(pdtId);
-        loadingBox = ShowProgress('page_loading', function () { },"正在加载产品详细信息，请等待...");
-        cateMgr.GetProductFullInfo({ 'product_id': pdtId }, function (res) {
-            if (res.Status == 'ok' && res.Item != null) {
-                loadingBox.hide();
-                FillProductFields(res.Item);
-                $("#pop_edit_product").dialog({
-                    open: function (event, ui) {
-                        $editform.find('#resultmessage').html("");
-                        $editform.find('#resultmessage').hide();                       
 
-                    },
-                    close: function (event, ui) {
-
-                    },
-                    resizable: false,
-                    title: "编辑产品",
-                    buttons: {
-                        "保存修改": function () {
-                            SaveProduct();
-                        },
-                        "取消": function () {
-                            $(this).dialog("close");
-                        }
-                    }
-                });
-
-                $("#pop_edit_product").dialog("open");
-            }
-        });        
-    }
-
-    function SaveProduct() {
+    function SaveProduct(obj) {
         var buffer = "";
         var product_id = $editform.find("#productNumber").html().trim();
 
@@ -111,6 +79,17 @@
             }
         }
 
+        var sids = "";
+        for (var i = 0; i < selectedSuppliers.length; i++) {
+            if (selectedSuppliers[i] != null && selectedSuppliers[i].type=='new') {
+                if (sids == "") {
+                    sids = selectedSuppliers[i].id;
+                } else {
+                    sids += "," + selectedSuppliers[i].id;
+                }
+            }
+        }
+
         if ($.trim(title) == '') {
             frm.find("#resultmessage3").html("请输入产品标题");
             frm.find("#resultmessage3").show();
@@ -122,20 +101,35 @@
             frm.find("#resultmessage3").show();
             return;
         }
-        loadingBox = ShowProgress('page_loading', function () { }, "正在更新产品信息，请等待...");
-        cateMgr.UpdateProduct({ 'product_id': product_id, 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid }, function (res) {
-            if (res.Status == 'ok') {
-                groupCount = 1;
-                propRow = 1;
-                propGroup = [];
-                propGroups = [];
-                FillProductFields(res.Item);
-                loadingBox.hide();
-            } else {
-                frm.find("#resultmessage3").html(res.Message);
-                frm.find("#resultmessage3").show();
-            }
-        });
+        if (product_id == "" || product_id == "0") {
+            loadingBox = ShowProgress('page_loading', function () { }, "正在创建新产品，请等待...");
+            cateMgr.CreateProduct({ 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
+                if (res.Status == 'ok') {                  
+                    propGroup = [];
+                    propGroups = [];                    
+                    loadingBox.hide();
+                    $(obj).dialog("close");
+                } else {
+                    frm.find("#resultmessage3").html(res.Message);
+                    frm.find("#resultmessage3").show();
+                }
+            });
+        } else {
+            loadingBox = ShowProgress('page_loading', function () { }, "正在更新产品信息，请等待...");
+            cateMgr.UpdateProduct({ 'product_id': product_id, 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
+                if (res.Status == 'ok') {                  
+                    propGroup = [];
+                    propGroups = [];                    
+                    loadingBox.hide();
+                    $(obj).dialog("close");
+                } else {
+                    frm.find("#resultmessage3").html(res.Message);
+                    frm.find("#resultmessage3").show();
+                }
+            });
+        }
+
+        $grid.pqGrid("refreshDataAndView");
     }
 
     function RemoveImage(obj,image_id, del) {
@@ -214,91 +208,7 @@
         $selv1.empty();
         $selv1.append("<option value=\"0\">--选择--</option>");
         $('#popup-dialog-addedprops').append(buffer.join(""));
-    }
-
-    function FillProductFields(ProductJson) {
-        $editform.find('#productName').val(ProductJson.Title);
-        $pcate = $editform.find("#pCategory");
-        $ccate = $editform.find("#cCategory");
-        $pcate.empty();
-        $ccate.empty();
-        if (pcate != null) {
-            $(pcate).each(function (index, item) {                
-                $("<option value=\""+item.ID+"\">"+item.Name+"</option>").appendTo($pcate);
-            });
-
-            if (ProductJson.Category != null) {
-                if (ProductJson.Category.ParentID > 0) {
-                    $pcate.val(ProductJson.Category.ParentID);
-                    cateMgr.GetCategories({ 'parent_id': ProductJson.Category.ParentID }, function (res) {
-                        if ($(res.data).size() > 0) {
-                            $ccate.empty();
-                            $("<option value=\"0\">--选择--</option>").appendTo($ccate);
-                            $(res.data).each(function (index, item) {
-                                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
-                            });
-
-                            $ccate.val(ProductJson.Category.ID);
-                            $ccate.show();
-                        } 
-                    });
-
-                } else {
-                    $pcate.val(ProductJson.Category.ID);
-                }
-            }
-        }
-
-        editor.html("");
-
-        if (ProductJson.Description != null) {
-            editor.html(ProductJson.Description);
-        }
-
-        $editform.find('#productNumber').html(ProductJson.ID);
-
-        //render images
-        $editform.find('#pdtimagelist').html("");
-        if (ProductJson.Images != null && $(ProductJson.Images).size() > 0) {
-            images = [];
-            $(ProductJson.Images).each(function (index, item) {
-                images.push(item.ID);
-                $editform.find('#pdtimagelist').append("<li><img src=\"" + item.Path + "\"/><p><a href=\"javascript:void(0)\" onclick=\"RemoveImage(this," + item.ID + ")\">删除</a></p></li>");
-            });
-        }
-
-        //render props
-        $props = $editform.find('#addedprops');
-        $props.html("");
-        $props.hide();
-        if (ProductJson.Children != null) {
-            $(ProductJson.Children).each(function (index, item) {
-                var $ui = $("<ul id=\"propGroup_" + item.ID+ "\" class=\"row propul\"></ul>").appendTo($props);
-                var pdtId = item.ID;
-                if (item.Properties != null && $(item.Properties).size() > 0) {
-                    $("<li style=\"float:left;display:inline-block;\">编号:" + pdtId + "</li>").appendTo($ui);
-                    $(item.Properties).each(function (index, item) {
-                        var json = { 'pdtid': pdtId, 'pid': item.PID, 'pvalue': item.PName, 'vid': item.PVID, 'vvalue': item.PValue };
-                        propGroup.push(json);                        
-                        $("<li style=\"float:left;display:inline-block;\">" + item.PName + ":" + item.PValue + "</li>").appendTo($ui);
-                    });                  
-
-                    propGroups.push(propGroup);                   
-                    propGroup = [];                    
-                    
-                } else
-                {
-                    propGroup = [];                   
-                }
-
-                
-            });
-            $props.show();
-        } else {
-            propGroups = [];
-            propGroup = [];           
-        }
-    }
+    }  
 
     function RenderP1(json) {
         var $sel1 = $('#pdtproplist1').find("select[id='p1']");
@@ -336,7 +246,6 @@
         propGroups = tmp;
         $(obj).parent("li").parent("ul").remove();
     }
-
 
     $(document).ready(function () {
         $('#pop_edit_product').tabs();
@@ -433,21 +342,31 @@
                 open: function (event, ui) {
                     var ul = $(this).find("#popup-dialog-listsuppliers");
                     ul.html("");
+                    var that = this;
                     $(allSuppliers).each(function (index, item) {
                         var li = $("<li></li>");
                         var check = null;
                         var selected = false;
+                        var pdtId = $editform.find('#productNumber').html();
                         for (var i = 0; i < selectedSuppliers.length; i++) {
                             if (item.ID == selectedSuppliers[i].id) {
                                 selected = true;
                                 break;
                             }
                         }
-
+                        if (pdtId != "") {
+                            $(that).find("#editmessage").html("编辑产品时，原有供应商信息不能删除或修改").show();
+                        } else {
+                            $(that).find("#editmessage").html("").hide();
+                        }
                         if (!selected) {
                             check = $("<input style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
                         } else {
-                            check = $("<input checked style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
+                            if (pdtId == "") {
+                                check = $("<input checked style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
+                            } else {
+                                check = $("<input disabled checked style=\"vertical-align:middle;\" type=\"checkbox\" value=\"" + item.ID + "\"/>").appendTo(li);
+                            }
                         }
                         check.change(function (event) {
                             var checked = $(this).attr("checked");
@@ -465,7 +384,7 @@
                                 }
 
                                 if (!found) {
-                                    selectedSuppliers.push({ 'id': id, 'value': value });
+                                    selectedSuppliers.push({ 'id': id, 'value': value,'type':'new' });
                                 }
                             } else {
                                 var found = false;
@@ -496,25 +415,7 @@
                 buttons: {
                     "确定": function () {
                         var that = this;
-                        var addedul = $editform.find("#addedsuppliers");
-                        addedul.html("");
-                        for (var i = 0; i < selectedSuppliers.length; i++) {
-                            var id = selectedSuppliers[i].id;
-                            var li = $("<li style=\"display:block;width:200px;margin-bottom:2px;border:0px;\"><span style=\"display:inline-block;\">" + selectedSuppliers[i].value + "</span></li>").appendTo(addedul);
-                            var span = $("<span style=\"display:inline-block;float:right;margin-right:2px;\"></span>").appendTo(li);
-                            $("<img value=\"" + id + "\" style=\"\" src=\"/Content/images/remove.gif\"/>").appendTo(span).click(function (evt) {
-                                var tmp = [];
-                                var sid = $(this).attr("value");
-                                for (var i = 0; i < selectedSuppliers.length; i++) {
-                                    if (sid != selectedSuppliers[i].id) {
-                                        tmp.push(selectedSuppliers[i]);
-                                    }
-                                }
-                                selectedSuppliers = tmp;
-                                $(this).parent().parent().remove();
-                            });
-                        }
-                        addedul.show();
+                        RenderSuppliers(false);
                         $(this).dialog("close");
                     },
                 }
@@ -522,6 +423,150 @@
 
             $("#popup-dialog-suppliers").dialog("open");
         });
+
+        function RenderSuppliers(isEdit) {            
+            var addedul = $editform.find("#addedsuppliers");
+            addedul.html("");
+            for (var i = 0; i < selectedSuppliers.length; i++) {
+                var id = selectedSuppliers[i].id;
+                var type = selectedSuppliers[i].type;
+                var li = $("<li style=\"display:block;width:200px;margin-bottom:2px;border:0px;\"><span style=\"display:inline-block;\">" + selectedSuppliers[i].value + "</span></li>").appendTo(addedul);
+                var span = $("<span style=\"display:inline-block;float:right;margin-right:2px;\"></span>").appendTo(li);
+                if (!isEdit && type=='new') {
+                    $("<img value=\"" + id + "\" style=\"\" src=\"/Content/images/remove.gif\"/>").appendTo(span).click(function (evt) {
+                        var tmp = [];
+                        var sid = $(this).attr("value");
+                        for (var i = 0; i < selectedSuppliers.length; i++) {
+                            if (sid != selectedSuppliers[i].id) {
+                                tmp.push(selectedSuppliers[i]);
+                            }
+                        }
+                        selectedSuppliers = tmp;
+                        $(this).parent().parent().remove();
+                    });
+                }
+            }
+            addedul.show();
+        }
+
+        function FillProductFields(ProductJson) {
+            $editform.find('#productName').val(ProductJson.Title);
+            $pcate = $editform.find("#pCategory");
+            $ccate = $editform.find("#cCategory");
+            $pcate.empty();
+            $ccate.empty();
+            if (pcate != null) {
+                $(pcate).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
+                });
+
+                if (ProductJson.Category != null) {
+                    if (ProductJson.Category.ParentID > 0) {
+                        $pcate.val(ProductJson.Category.ParentID);
+                        cateMgr.GetCategories({ 'parent_id': ProductJson.Category.ParentID }, function (res) {
+                            if ($(res.data).size() > 0) {
+                                $ccate.empty();
+                                $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                                $(res.data).each(function (index, item) {
+                                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                                });
+
+                                $ccate.val(ProductJson.Category.ID);
+                                $ccate.show();
+                            }
+                        });
+
+                    } else {
+                        $pcate.val(ProductJson.Category.ID);
+                    }
+                }
+            }
+
+            editor.html("");
+
+            if (ProductJson.Description != null) {
+                editor.html(ProductJson.Description);
+            }
+
+            $editform.find('#productNumber').html(ProductJson.ID);
+
+            //render images
+            $editform.find('#pdtimagelist').html("");
+            if (ProductJson.Images != null && $(ProductJson.Images).size() > 0) {
+                images = [];
+                $(ProductJson.Images).each(function (index, item) {
+                    images.push(item.ID);
+                    $editform.find('#pdtimagelist').append("<li><img src=\"" + item.Path + "\"/><p><a href=\"javascript:void(0)\" onclick=\"RemoveImage(this," + item.ID + ")\">删除</a></p></li>");
+                });
+            }
+
+            //render props
+            $props = $editform.find('#addedprops');
+            $props.html("");
+            $props.hide();
+            if (ProductJson.Children != null) {
+                $(ProductJson.Children).each(function (index, item) {
+                    var $ui = $("<ul id=\"propGroup_" + item.ID + "\" class=\"row propul\"></ul>").appendTo($props);
+                    var pdtId = item.ID;
+                    if (item.Properties != null && $(item.Properties).size() > 0) {
+                        $("<li style=\"float:left;display:inline-block;\">编号:" + pdtId + "</li>").appendTo($ui);
+                        $(item.Properties).each(function (index, item) {
+                            var json = { 'pdtid': pdtId, 'pid': item.PID, 'pvalue': item.PName, 'vid': item.PVID, 'vvalue': item.PValue };
+                            propGroup.push(json);
+                            $("<li style=\"float:left;display:inline-block;\">" + item.PName + ":" + item.PValue + "</li>").appendTo($ui);
+                        });
+
+                        propGroups.push(propGroup);
+                        propGroup = [];
+
+                    } else {
+                        propGroup = [];
+                    }
+
+
+                });
+                $props.show();
+            } else {
+                propGroups = [];
+                propGroup = [];
+            }
+            selectedSuppliers = [];
+
+            if (ProductJson.Suppliers != null) {
+                $(ProductJson.Suppliers).each(function (index, item) {
+                    selectedSuppliers.push({ 'id': item.Supplier_ID, 'value': item.Name,'type':'old' });
+                });
+
+                RenderSuppliers(true);
+            }
+        }
+
+        function CleanFormFields() {
+            $editform.find('#productName').val("");
+            $pcate = $editform.find("#pCategory");
+            $ccate = $editform.find("#cCategory");
+            $pcate.empty();
+            $ccate.empty();
+            $ccate.hide();
+            if (pcate != null) {
+                $("<option value=\"0\">--选择--</option>").appendTo($pcate);
+                $(pcate).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
+                });
+            }
+
+            editor.html("");
+            
+            $editform.find('#productNumber').html("");
+            $editform.find('#pdtimagelist').html("");
+            $props = $editform.find('#addedprops');
+            $props.html("");
+            $props.hide();
+            $editform.find("#addedsuppliers").html("").hide();
+            propGroups = [];
+            propGroup = [];
+            selectedSuppliers = [];
+        }
 
         $("#addstockprop").button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (event) {
             $("#popup-dialog-props").dialog({
@@ -618,12 +663,12 @@
                         },
                         { title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
                         { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
-                        {
-                            title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
-                            render: function (ui) {
-                                return "<input onclick=\"EditProduct("+ui.rowData["ID"]+")\" class=\"\" type=\"button\" value=\"修改\" />";
-                            }
-                        },
+                        //{
+                        //    title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
+                        //    render: function (ui) {
+                        //        return "<input onclick=\"EditProduct("+ui.rowData["ID"]+")\" class=\"\" type=\"button\" value=\"修改\" />";
+                        //    }
+                        //},
         ];
 
         obj.dataModel = {
@@ -636,7 +681,7 @@
             rPP: 30,
             sortIndx: 2,
             sortDir: "up",
-            rPPOptions: [1,30, 40, 50],
+            rPPOptions: [40,50,60,100],
             getUrl: function (prgrid) {
                 var sortDir = (this.sortDir == "up") ? "asc" : "desc";
                 var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];
@@ -723,8 +768,10 @@
 
             $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
                 //AddNew();
+                $('#pop_edit_product').tabs({ active: 0 });
                 $("#pop_edit_product").dialog({
                     open: function (event, ui) {
+                        CleanFormFields();
                         $editform.find('#resultmessage').html("");
                         $editform.find('#resultmessage').hide();
 
@@ -736,7 +783,7 @@
                     title: "添加产品",
                     buttons: {
                         "保存": function () {
-                            SaveProduct();
+                            SaveProduct(this);
                         },
                         "取消": function () {
                             $(this).dialog("close");
@@ -748,6 +795,7 @@
 
             });
             $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {                
+                $('#pop_edit_product').tabs({ active: 0 });
                 var rowIndx = getRowIndx();
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;
@@ -771,8 +819,8 @@
                             resizable: false,
                             title: "编辑产品",
                             buttons: {
-                                "保存修改": function () {
-                                    SaveProduct();
+                                "保存": function () {
+                                    SaveProduct(this);
                                 },
                                 "取消": function () {
                                     $(this).dialog("close");
@@ -877,7 +925,7 @@
 <div id="pop_edit_product" class="normallist" style="display:none;">
      <form id="pdteditform">
      <input type="hidden" id="authid"/>
-     <input type="hidden" id="product_id"/>
+     <input type="hidden" id="product_id" value=""/>
      <ul>
         <li><a href="#product_basic">基本信息</a></li>      
         <li><a href="#product_pics">产品图片</a></li>
@@ -924,6 +972,7 @@
         <div class="row" style="height:auto;">
             <div id="popup-dialog-suppliers" style="display:none;">
                 <h4>选择供应商，可多选</h4>
+                <p id="editmessage" style="display:none;"></p>
                 <ul id="popup-dialog-listsuppliers" class="ulchk">
                 </ul>
             </div>

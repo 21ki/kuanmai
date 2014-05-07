@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Models
 {
-    public class BBuy
+    public class BBuy:BModel
     {
         public int ID { get; set; }
         public long ComeDate { get; set; }
