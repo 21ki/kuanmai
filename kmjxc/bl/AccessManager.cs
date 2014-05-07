@@ -189,6 +189,9 @@ namespace KM.JXC.BL
                         shop_User.User_ID = requester.ID;
                         shop_User.Shop_ID = shop.Shop_ID;
                         db.Shop_User.Add(shop_User);
+                        
+                        //update dbuser
+                        dbUser.Shop_ID = shop.Shop_ID;
                         db.SaveChanges();
                     }
 
