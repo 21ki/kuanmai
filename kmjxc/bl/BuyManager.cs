@@ -34,7 +34,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuyOrder> GetBuyOrders(int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords) 
+        public List<BBuyOrder> SearchBuyOrders(int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords) 
         {
             List<BBuyOrder> buyOrders = new List<BBuyOrder>();
             totalRecords = 0;
@@ -95,7 +95,7 @@ namespace KM.JXC.BL
                                          Description = border.Description,
                                          EndTime = (long)border.End_Date,
                                          InsureTime = (long)border.Insure_Date,
-                                         WriteTime=(long)border.Write_Date,
+                                         WriteTime=(long)border.Write_Date,                                         
                                          OrderUser = (from u in db.User
                                                       where u.User_ID == border.Order_User_ID
                                                       select new BUser
@@ -115,8 +115,14 @@ namespace KM.JXC.BL
                                                            Mall_ID = u.Mall_ID,
                                                            Mall_Name = u.Mall_Name,
                                                            Name = u.Name
-                                                       }).FirstOrDefault<BUser>(),                                         
+                                                       }).FirstOrDefault<BUser>(),     
+                                       
                                      }).ToList<BBuyOrder>();
+
+                    foreach (BBuyOrder o in buyOrders)
+                    {
+                        o.Details=(from od in db.Buy_Order_Detail where od.Buy_Order_ID=);
+                    }
                 }
             }
 
@@ -459,7 +465,17 @@ namespace KM.JXC.BL
 
                 db.SaveChanges();
             }
-        }        
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buy_Order"></param>
+        /// <returns></returns>
+        public bool CreateNewBuyOrder(BBuyOrder buy_Order)
+        {
+            return this.CreateNewBuyOrder(buy_Order, buy_Order.Details);
+        }
 
         /// <summary>
         /// Add new buy order
@@ -640,7 +656,7 @@ namespace KM.JXC.BL
                         Buy_Order order = (Buy_Order)o;
                         if (order.Status != 0)
                         {
-                            throw new KMJXCException("此采购单已经验货或者验货未通过，所以不能继续添加采购合同产品信息");
+                            throw new KMJXCException("此采购单已经验货或者验货未通过，不能继续添加采购合同产品信息");
                         }
 
                         buyOrderId = order.Buy_Order_ID;

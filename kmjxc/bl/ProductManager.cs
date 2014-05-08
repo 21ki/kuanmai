@@ -485,7 +485,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> SearchProducts(string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
+        public List<BProduct> SearchProducts(int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -543,6 +543,15 @@ namespace KM.JXC.BL
                 if (endTime > 0)
                 {
                     dbps = dbps.Where(a => a.Pdt.Create_Time <= endTime);
+                }
+
+                if (suppliers != null && suppliers.Length > 0)
+                {
+                    int[] pdtIds=(from ps in db.Product_Supplier where suppliers.Contains(ps.Supplier_ID) select ps.Product_ID).ToArray<int>();
+                    if (pdtIds != null && pdtIds.Length > 0)
+                    {
+                        dbps = dbps.Where(a => pdtIds.Contains(a.Pdt.Product_ID));
+                    }
                 }
 
                 if (category_id !=null)

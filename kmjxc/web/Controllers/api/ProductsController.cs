@@ -240,7 +240,18 @@ namespace KM.JXC.Web.Controllers.api
                 }
             }
             keyword = request["keyword"];
-            data.data=pdtManager.SearchProducts(keyword, "", 0, 0, category_id, page, pageSize, out total);
+            int[] sids = null;
+            string suppliers = request["suppliers"];
+            if (!string.IsNullOrEmpty(suppliers))
+            {
+                string[] ss = suppliers.Split(',');
+                sids = new int[ss.Length];
+                for (int i = 0; i < ss.Length; i++)
+                {
+                    sids[i] = int.Parse(ss[i]);
+                }
+            }
+            data.data = pdtManager.SearchProducts(sids, keyword, "", 0, 0, category_id, page, pageSize, out total);
             data.totalRecords = total;
             data.curPage = page;
             return data;
@@ -287,9 +298,101 @@ namespace KM.JXC.Web.Controllers.api
             int pageSize = 30;
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"],out pageSize);
-            data.data = buyManager.GetBuyOrders(null, null, null, 0, 0, page, pageSize, out total);
+            data.data = buyManager.SearchBuyOrders(null, null, null, 0, 0, page, pageSize, out total);
             data.totalRecords = total;
             return data;
+        }
+
+        [HttpPost]
+        public ApiMessage CreateBuyOrder()
+        {
+            ApiMessage message = new ApiMessage();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                long writedate=0;
+                long issuedate = 0;
+                long enddate = 0;
+                int supplier_id = 0;
+                int order_user = 0;
+                string odetails = request["order_products"];
+                string desc=request["description"];
+                
+                if (!string.IsNullOrEmpty(request["writedate"]))
+                {
+                    writedate = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(request["writedate"]));
+                }
+                
+                if (!string.IsNullOrEmpty(request["issuedate"]))
+                {
+                    issuedate = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(request["issuedate"]));
+                }
+                
+                if (!string.IsNullOrEmpty(request["enddate"]))
+                {
+                    enddate = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(request["enddate"]));
+                }
+
+                int.TryParse(request["supplier"],out supplier_id);
+                int.TryParse(request["order_user"],out order_user);
+                BBuyOrder order = new BBuyOrder();
+                order.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                order.Created_By = new BUser() { ID = buyManager.CurrentUser.ID };
+                order.Description = desc;
+                order.EndTime = enddate;
+                order.InsureTime = issuedate;
+                order.OrderUser = new BUser() { ID=order_user};
+                order.Shop = new BShop() { ID=buyManager.Shop.Shop_ID};
+                order.Status = 0;
+                order.Supplier = new Supplier() {  Supplier_ID=supplier_id};
+                order.WriteTime = writedate;
+                if (!string.IsNullOrEmpty(odetails))
+                {
+                    order.Details = new List<BBuyOrderDetail>();
+                    string[] details = odetails.Split(';');
+                    foreach (string detail in details)
+                    {
+                        string[] items = detail.Split(',');
+                        BBuyOrderDetail oDetail = new BBuyOrderDetail();
+                        oDetail.Price = decimal.Parse(items[2]);
+                        oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
+                        oDetail.Quantity = int.Parse(items[1]);
+                        oDetail.Status = 0;
+                        order.Details.Add(oDetail);
+                    }
+                }
+
+                bool result = buyManager.CreateNewBuyOrder(order);
+                if (result)
+                {
+                    message.Status = "ok";
+                }
+                else {
+                    message.Status = "failed";
+                    message.Message = "创建失败";
+                }
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = ex.Message;
+            }
+            finally
+            {
+
+            }
+
+            return message;
         }
     }
 }

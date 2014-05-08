@@ -276,6 +276,10 @@ textarea {
 .nolabel2 {
     margin-left:60px;
 }
+
+.nolabel90 {
+    margin-left:90px;
+}
     .row dl {
         overflow:hidden;
         margin:0px;
@@ -443,3 +447,13 @@ div.pq-grid-toolbar-crud
         }
 
 
+.floatlistclose {
+    cursor:pointer;
+    width:15px;
+    height:15px;
+    position:absolute;
+    right:5px;
+    top:5px;
+    background-position: -97px -127px;
+    background-image: url("/Third/jqueryui/css/flick/images/ui-icons_666666_256x240.png");
+}
