@@ -8,18 +8,31 @@ using System.Web.Mvc;
 using System.Web;
 namespace KM.JXC.Web.Controllers.api
 {
-    public class BaseApiController : ApiController, IActionFilter
+    public class BaseApiController : ApiController
     {
-        protected HttpRequestBase HttpRequest { get; set; }
-
-        public virtual void OnActionExecuted(ActionExecutedContext filterContext)
+        public int[] ConvertToIntArrar(string str)
         {
-            
-        }
+            int[] ids = null;
 
-        public virtual void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            this.HttpRequest = filterContext.HttpContext.Request;
+            if (string.IsNullOrEmpty(str))
+            {
+                return null;
+            }
+
+            string[] ss = str.Split(',');
+            if (ss.Length > 0)
+            {
+                ids=new int[ss.Length];
+                for (int i = 0; i < ss.Length; i++)
+                {
+                    int id = 0;
+                    int.TryParse(ss[i],out id);
+                    ids[i] = id;
+                }
+               
+            }
+
+            return ids;
         }
     }
 }

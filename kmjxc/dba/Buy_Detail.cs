@@ -16,9 +16,9 @@ namespace KM.JXC.DBA
     {
         public int Buy_ID { get; set; }
         public int Product_ID { get; set; }
-        public int Buy_Order_ID { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
         public long Create_Date { get; set; }
+        public int Buy_Order_ID { get; set; }
     }
 }

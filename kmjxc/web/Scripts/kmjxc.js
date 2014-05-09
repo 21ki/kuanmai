@@ -98,7 +98,10 @@ function KMJXCBase() {
         }
         return cellData;
     }
-    this.GetDateTime = function (timestampInPage) {
+    this.GetDateTime = function (timestampInPage,noTime) {
+        if (timestampInPage==null || timestampInPage == 0 || timestampInPage == "") {
+            return "";
+        }
         var timestampNow = Math.round(new Date().getTime() / 1000);
         var dif = timestampNow - timestampInPage;
         var outPut = "";
@@ -123,7 +126,13 @@ function KMJXCBase() {
         if (hours < 10) hours = "0" + hours;
         if (minutes < 10) minutes = "0" + minutes;
 
-        outPut = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + (date.getDate()) + " " + hours + ":" + minutes;
+        if (noTime && noTime==true) {
+            outPut = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + (date.getDate());
+        }
+        else {
+            outPut = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + (date.getDate()) + " " + hours + ":" + minutes;
+        }
+        
         return outPut;
     }
     this.Test = function () {
@@ -238,6 +247,15 @@ function KMJXCBuyManager() {
     }
     this.CreateBuyOrder = function (params, callback) {
         this.AjaxCall("/api/Products/CreateBuyOrder", params, callback);
+    }
+    this.UpdateBuyOrder = function (params, callback) {
+        this.AjaxCall("/api/Products/UpdateBuyOrder", params, callback);
+    }
+    this.VerifyOrder = function (params, callback) {
+        this.AjaxCall("/api/Products/VerifyOrder", params, callback);
+    }
+    this.GetBuys = function (params, callback) {
+        this.AjaxCall("/api/Products/GetBuys", params, callback);
     }
 }
 

@@ -25,5 +25,15 @@ namespace KM.JXC.Web.Controllers
         {
             return View();
         }
+
+        public ActionResult BuyOrderDetail(int id)
+        {
+            return View();
+        }
+
+        public ActionResult BuyDetail(int id)
+        {
+            return View();
+        }
     }
 }

@@ -62,6 +62,7 @@ namespace KM.JXC.BL
         public int ADD_BUY = 0;        
         public int VIEW_BUY_ORDER;
         public int ADD_BUY_ORDER = 0;
+        public int UPDATE_BUY_ORDER = 0;
         public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
         public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted       
 
