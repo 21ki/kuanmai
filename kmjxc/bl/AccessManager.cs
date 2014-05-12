@@ -193,6 +193,14 @@ namespace KM.JXC.BL
                         //update dbuser
                         dbUser.Shop_ID = shop.Shop_ID;
                         db.SaveChanges();
+                        //create default stock house
+                        Store_House shouse = new Store_House();
+                        shouse.Shop_ID = shop.Shop_ID;
+                        shouse.Title = "默认仓库";
+                        shouse.User_ID = requester.ID;
+                        shouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        db.Store_House.Add(shouse);
+                        db.SaveChanges();
                     }
 
                     if (shop != null && requester.Parent_ID == 0)

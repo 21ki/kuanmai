@@ -162,7 +162,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuy> SearchBuys(int[] order_ids,int[] user_ids, int[] supplier_ids, int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBuy> SearchBuys(int[] buyids, int[] order_ids, int[] user_ids, int[] supplier_ids, int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
         {
             List<KM.JXC.BL.Models.BBuy> verifications = new List<Models.BBuy>();
             totalRecords = 0;            
@@ -201,6 +201,12 @@ namespace KM.JXC.BL
                 {
                     vbo = vbo.Where(vb1 => vb1.Create_Date <= endTime);
                 }
+
+                if (buyids != null && buyids.Length > 0)
+                {
+                    vbo = vbo.Where(vb1 => buyids.Contains(vb1.Buy_ID));
+                }
+
                 totalRecords = vbo.Count();
                 if (totalRecords > 0)
                 {
@@ -238,7 +244,23 @@ namespace KM.JXC.BL
                         List<BBuyOrder> orders = this.SearchBuyOrders(orderIds, null, null, null, 0, 0, 1, orderIds.Length, out total);
                         foreach (BBuy b in verifications)
                         {
-                            b.Order=(from ods in orders where ods.ID==b.Order.ID select ods).FirstOrDefault<BBuyOrder>();
+                            b.Order = (from ods in orders where ods.ID == b.Order.ID select ods).FirstOrDefault<BBuyOrder>();
+                            b.Details = (from bd in db.Buy_Detail
+                                         where bd.Buy_ID == b.ID
+                                         select new BBuyDetail
+                                         {
+                                             Buy_Order_ID = b.Order.ID,
+                                             CreateDate = bd.Create_Date,
+                                             Price = bd.Price,
+                                             Quantity = bd.Quantity,
+                                             Product = (from pdt in db.Product
+                                                        where pdt.Product_ID == bd.Product_ID
+                                                        select new BProduct
+                                                        {
+                                                            ID = pdt.Product_ID,
+                                                            Title = pdt.Name,
+                                                        }).FirstOrDefault<BProduct>()
+                                         }).ToList<BBuyDetail>();
                         }
                     }
                 }
@@ -265,64 +287,24 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                var byo = from b in db.Buy
-                          where b.Buy_ID == buy_id
-                          select new BBuy
-                          {
-                              ComeDate = b.Come_Date,
-                              Description = b.Description,
-                              Created = b.Create_Date,
-                              ID = b.Buy_ID,
-                              User = (from u in db.User
-                                      where u.User_ID == b.User_ID
-                                      select new BUser
-                                      {
-                                          ID = u.User_ID,
-                                          EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).ToList<Employee>()[0],
-                                          Mall_ID = u.Mall_ID,
-                                          Mall_Name = u.Mall_Name,
-                                          Parent_ID = (int)u.Parent_User_ID,
-                                          Name = u.Name,
-                                          Password = u.Password,
-                                          Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).ToList<Mall_Type>()[0]
-                                      }).FirstOrDefault<BUser>(),
-                              Shop = (from s in db.Shop
-                                      where s.Shop_ID == b.Shop_ID
-                                      select new BShop
-                                          {
-                                              ID = s.Shop_ID,
-                                              Created = (int)s.Created,
-                                              Description = s.Description,
-                                              Title = s.Name,
-                                              Mall_ID=s.Mall_Shop_ID,                                              
-                                          }).FirstOrDefault<BShop>(),
-                          };
-                if (byo.ToList<BBuy>().Count == 1)
+                int total = 0;
+                List<BBuy> buys = this.SearchBuys(new int[] { buy_id }, null, null, null, null, 0, 0, 1, 1, out total);
+                if (buys == null || buys.Count <= 0)
                 {
-                    buy = byo.ToList<BBuy>()[0];
+                    throw new KMJXCException("没有找到编号为:"+buy_id+"的验货单");
                 }
+                buy = buys[0];
 
-                if (buy == null)
+                ProductManager pdtManager = new ProductManager(this.CurrentUser, this.Shop, this.CurrentUserPermission);
+
+                foreach (BBuyDetail detail in buy.Details)
                 {
-                    throw new KMJXCException("没有找到对应的验货单");
+                    if (detail.Product != null)
+                    {
+                        detail.Product = pdtManager.GetProductFullInfo(detail.Product.ID);                       
+                    }
+                    details.Add(detail);
                 }
-
-                var bydo = from bb in db.Buy_Detail
-                           where bb.Buy_ID == buy_id
-                           select new BBuyDetail
-                           {
-                               Buy = buy,
-                               Buy_Order_ID = bb.Buy_Order_ID,
-                               CreateDate = bb.Create_Date,
-                               Price = bb.Price,
-                               Quantity=bb.Quantity,
-                               Product = (from p in db.Product
-                                          where p.Product_ID == bb.Product_ID
-                                          select new BProduct
-                                          {
-                                              ID=bb.Product_ID
-                                          }).ToList<BProduct>()[0],
-                           };
             }
 
             return details;

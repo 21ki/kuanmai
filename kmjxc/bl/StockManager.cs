@@ -323,7 +323,7 @@ namespace KM.JXC.BL
             }
 
             if (stock.BuyID <= 0) {
-                throw new KMJXCException("入库单未包含任何采购单信息");
+                throw new KMJXCException("入库单未包含验货单信息");
             }
 
             if (stock.Shop==null)
@@ -333,7 +333,7 @@ namespace KM.JXC.BL
 
             if (stock.StoreHouse ==null)
             {
-                throw new KMJXCException("入库单未包含任何仓库信息");
+                throw new KMJXCException("入库单未包含仓库信息");
             }
 
             if (stock.User == null)
@@ -362,8 +362,11 @@ namespace KM.JXC.BL
                 {
                     throw new KMJXCException("入库单创建失败");
                 }
-
                 result = true;
+                if (stock.Details != null)
+                {
+                    result = result&this.EnterStockDetails(dbStock.Enter_Stock_ID, stock.Details);
+                }               
             }
 
             return result;
@@ -395,6 +398,7 @@ namespace KM.JXC.BL
             KuanMaiEntities db = new KuanMaiEntities();
             List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == this.Shop.Shop_ID select sp).ToList<Stock_Pile>();
             Enter_Stock stock = (from st in db.Enter_Stock where st.Enter_Stock_ID == stockId select st).FirstOrDefault<Enter_Stock>();
+           
             if (stock == null)
             {
                 throw new KMJXCException("");

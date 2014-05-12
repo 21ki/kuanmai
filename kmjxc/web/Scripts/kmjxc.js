@@ -257,6 +257,9 @@ function KMJXCBuyManager() {
     this.GetBuys = function (params, callback) {
         this.AjaxCall("/api/Products/GetBuys", params, callback);
     }
+    this.GetBuyDetails = function (params, callback) {
+        this.AjaxCall("/api/Products/GetBuyDetails", params, callback);
+    }
 }
 
 KMJXCStockManager.prototype = new KMJXCBase();

@@ -6,6 +6,7 @@
     var buyMgr = new KMJXCBuyManager();
     var pdtMgr = new KMJXCProductManager();
     var $grid = null;
+    var loadingBox = null;
     $(function () {
 
         var obj = {
@@ -26,6 +27,17 @@
                            render: function (ui) {
                                return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["Order"]["ID"] + "\">" + ui.rowData["Order"]["ID"] + "</a>";
                            }
+                       },
+                       {
+                            title: "总金额", width: 150, dataType: "json", dataIndx: "Details", editable: false, render: function (ui) {
+                                var details = ui.rowData["Details"];
+                                var total = 0;
+                                $(details).each(function (index, item) {
+                                    total += (item.Quantity * item.Price);
+                                });
+
+                                return total;
+                            }
                        },
                        { title: "采购员", width: 150, dataType: "string", dataIndx: "Order.Created_By.Mall_Name", editable: false },
                        { title: "验货人", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },                       
@@ -73,6 +85,109 @@
                 var row = data[rowIndx];
                 var oid = row["ID"]
                 var status = row["Status"];
+                var order = row.Order;
+                var bDetails = null;
+                $('#popup-enter-stock').dialog({
+                    position: { my: "top", at: "top", of: $("#buytable") },
+                    width: 650,
+                    //height:550,
+                    resizable: false,
+                    title: "采购验货单入库",
+                    modal: true,
+                    open: function (evt) {
+                        var that = this;
+                        $(that).html('');
+                        loadingBox = ShowProgress('page_loading', function () { }, "正在加载验货单信息，请等待...");
+                        buyMgr.GetBuyDetails({ buy_id: oid }, function (res) {
+                            loadingBox.hide();
+                            $(that).append("<h4>可以到产品管理-产品信息-编辑 <a href=\"/Product/List\">添加库存属性</a></h4>");
+                            $(that).append("<div class=\"row\"><dl class=\"dltitle\"><dt>产品/库存属性</dt><dd>数量</dd></dl></div>");
+
+                            $(res).each(function (index1, item) {
+                                var $divDetail = $("<div id=\"bd_" + oid + "_" + item .Product.ID+ "\" class=\"row\" style=\"height:auto;\"></div>").appendTo(that);
+                                var $product = $("<dl id=\"m" + item.Product.ID + "_" + item.Price + "\" class=\"row\"></dl>").appendTo($divDetail);
+                                $("<dt>"+item.Product.Title+"</dt>").appendTo($product);
+                                $("<dd><input id=\"pdt_m_" + item.Product.ID +"\" class=\"W_input\" style=\"width:50px;\" value=\"" + item.Quantity + "\" readonly/><dd>").appendTo($product);
+                                if (item.Product.Children != null) {                                   
+                                    $(item.Product.Children).each(function (index2, child) {
+                                        $p = $("<dl id=\"c" +child.ID + "\" class=\"row\"></dl>").appendTo($divDetail);
+                                        if (child.Properties != null) {
+                                            var propStrs = "";
+                                            $(child.Properties).each(function (index3, prop) {                                                
+                                                if (propStrs == "") {
+                                                    propStrs =prop.PName+":"+ prop.PValue;
+                                                } else {
+                                                    propStrs += " " + prop.PName + ":" + prop.PValue;
+                                                }
+                                            });
+                                        }
+                                        $("<dt class=\"c\">" + propStrs + "</dt>").appendTo($p);
+                                        var pQuantity = 0;
+                                       
+                                        if ($(item.Product.Children).size() == 1) {
+                                            pQuantity = item.Quantity;
+                                        }
+
+                                        $("<dd><input id=\"pdt_m_" + child.ID + "\" class=\"W_input\" style=\"width:50px;\" value=\"" + pQuantity + "\"/><dd>").appendTo($p);
+                                    });
+                                }
+                            });
+
+                            $("<div id=\"update_stock\" class=\"row\"><span>更新库存<span>: <input class=\"W_input\" type=\"checkbox\"> 入库信息无误,并且以后不需要修改,可以直接更新库存</div>").appendTo(that);
+                        });
+                    },
+                    close: function (evt) {
+                        
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var stocks = "";
+                            var verified = true;
+                            $($(that).find("div[id^='bd_']")).each(function (index, detail) {
+                                var totalQuantity = $(detail).find("dl[id^='m']").find("input").val();
+                                var price = $(detail).find("dl[id^='m']").attr("id").split('_')[1];
+                                var props = $(detail).find("dl[id^='c']");
+                               
+                                var inputTotal = 0;
+                                var stock = "";
+                                $(props).each(function (index1, prop) {
+                                    if (isNaN($(prop).find("input").val())) {
+                                        alert("数量必须是整数");
+                                        verified = false;
+                                        return;
+                                    }
+                                    inputTotal += parseInt($(prop).find("input").val());
+                                    if (stock != "") {
+                                        stock += "," + $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                    } else {
+                                        stock = $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                    }
+                                });
+                                
+                                if (!verified) {
+                                    return;
+                                }
+                                if (stocks == "") {
+                                    stocks = stock;
+                                } else {
+                                    stocks +=";"+ stock;
+                                }
+                                if (inputTotal != totalQuantity) {
+                                    alert("所有库存数量之和必须和验货单商品数量一致");
+                                    verified= false;
+                                }
+                            });
+
+                            if (verified) {
+                                alert(stocks);
+                            }
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
             });
         });
 
@@ -95,4 +210,7 @@
 </script>
 <div class="normallist">
      <div id="buytable"></div>
+     <div id="popup-enter-stock" style="display:none;" class="ddlist">
+        
+     </div>
 </div>

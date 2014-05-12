@@ -457,3 +457,37 @@ div.pq-grid-toolbar-crud
     background-position: -97px -127px;
     background-image: url("/Third/jqueryui/css/flick/images/ui-icons_666666_256x240.png");
 }
+
+.ddlist {
+}
+
+    .ddlist dl {
+        width:600px;
+        display:block;
+        overflow:hidden;
+    }
+    .ddlist dl dt {
+        display:block;
+        float:left;
+        width:350px;
+        text-align:left;
+        margin:0;
+    }
+    .ddlist dl .c {
+        padding-left:20px;
+        display:block;
+        float:left;
+        width:330px;
+        text-align:left;
+        margin:0;
+    }
+    .ddlist dl dd {
+
+        margin:0;
+        text-align:left;
+        float:left;
+        display:block;
+    }
+.dltitle {
+    font-weight:bold;
+}

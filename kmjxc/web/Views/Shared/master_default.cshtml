@@ -4,8 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>    
-    <link href="/Third/jqueryui/css/flick/jquery-ui-1.10.4.custom.css" rel="stylesheet">
-    <link href="/Third/pqgrid/pqgrid.min.css" rel="stylesheet">
+    <link href="/Third/jqueryui/css/pepper-grinder/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
+    <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
     <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
     <link href="/Third/boxy/boxy.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
@@ -61,7 +62,7 @@
                            @Html.Raw("class=link");
                        }                         
                        
-                       >验货单查询</a></li>
+                       >验货单管理</a></li>
                    <li><a href="/Buy/Suppliers"
                        @if (action == "Suppliers")
                        {
@@ -107,7 +108,7 @@
                <ul>
                    <li><a href="/Product/List"
                        @{menuStyle = "class=link"; }
-                       @if (action == "Search")
+                       @if (action == "List")
                        {
                            menuStyle = "class=links";                          
                        } 
