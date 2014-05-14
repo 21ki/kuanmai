@@ -157,6 +157,7 @@ namespace KM.JXC.BL
             dbProduct.Code = product.Code;
             dbProduct.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             dbProduct.Name = product.Title;
+            dbProduct.Quantity = 0;
             dbProduct.Description = product.Description;
             if (product.Category != null)
             {
@@ -203,16 +204,16 @@ namespace KM.JXC.BL
                     db.SaveChanges();
                 }
 
-                Stock_Pile stockPile = new Stock_Pile();
-                stockPile.LastLeave_Time = 0;
-                stockPile.Price = 0;
-                stockPile.Product_ID = product.ID;
-                stockPile.Quantity = 0;
-                stockPile.Shop_ID = this.Shop.Shop_ID;
-                stockPile.StockHouse_ID = 0;
-                stockPile.StockPile_ID = 0;
+                //Stock_Pile stockPile = new Stock_Pile();
+                //stockPile.LastLeave_Time = 0;
+                //stockPile.Price = 0;
+                //stockPile.Product_ID = product.ID;
+                //stockPile.Quantity = 0;
+                //stockPile.Shop_ID = this.Shop.Shop_ID;
+                //stockPile.StockHouse_ID = 0;
+                //stockPile.StockPile_ID = 0;
 
-                this.stockManager.CreateDefaultStockPile(stockPile);
+                //this.stockManager.CreateDefaultStockPile(stockPile);
 
                 if (product.Properties != null && product.Properties.Count > 0)
                 {                    
@@ -584,7 +585,7 @@ namespace KM.JXC.BL
                                   Title = bpss.Pdt.Name,
                                   CreateTime = bpss.Pdt.Create_Time,
                                   Code = bpss.Pdt.Code,
-                                  Quantity = (from sp in db.Stock_Pile where sp.Product_ID == bpss.Pdt.Product_ID select sp.Quantity).FirstOrDefault<int>(),                                  
+                                  Quantity = (int)bpss.Pdt.Quantity,                 
                                   Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
                                               where bpss.Pdt.Product_Class_ID == c.Product_Class_ID
@@ -608,18 +609,6 @@ namespace KM.JXC.BL
 
                 foreach (BProduct product in products)
                 {
-                    //var totalO = from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es.Price;
-                    //decimal totalPrice = 0;
-                    //if (totalO.ToList<decimal>().Count > 0)
-                    //{
-                    //    totalPrice = totalO.Sum();
-                    //}
-                    //int count=(from es in db.Enter_Stock_Detail where es.Product_ID == product.ID select es).Count();
-                    
-                    //if (count != 0) {
-                    //    product.Price = totalPrice / count;
-                    //}
-
                     if (product.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                     {
                         product.FromMainShop = true;

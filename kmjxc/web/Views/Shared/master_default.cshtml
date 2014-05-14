@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>    
-    <link href="/Third/jqueryui/css/pepper-grinder/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/jqueryui/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
     <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
     <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
     <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
@@ -87,14 +87,76 @@
            </div>
 
            <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'stock','MenuContainer')">库存管理</a></div>
-           <div class="menuContainer" id="stockMenuContainer" style="display:none;">
+           <div class="menuContainer" id="stockMenuContainer"
+               
+               @if (controller != "Stock") {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               } 
+               >
                <ul>
-                   <li>库存查询</li> 
-                   <li>采购入库</li>                   
-                   <li>销售出库</li>    
-                   <li>销售退库</li>   
-                   <li>损耗</li>   
-                   <li>仓库管理</li>                         
+                   <li><a href="/Stock/Search"
+                        @if (action == "Search")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >库存查询</a></li> 
+                   <li><a href="/Stock/Enter"
+                       @if (action == "Enter")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       
+                       >入库查询</a></li>                   
+                   <li><a href="/Stock/Leave"
+                       
+                        @if (action == "Leave")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >销售出库</a></li>    
+                   <li><a href="/Stock/Back"
+                       @if (action == "Back")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >销售退库</a></li>   
+                   <li><a href="/Stock/Waste"
+                       @if (action == "Waste")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >损耗</a></li>   
+                   <li><a href="/Stock/Stores"
+                        @if (action == "Stores")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >仓库管理</a></li>                         
                </ul>
            </div>
 

@@ -18,5 +18,10 @@ namespace KM.JXC.BL.Models
         public int EnterTime { get; set; }
         public List<BEnterStockDetail> Details { get; set; }
         public Store_House StoreHouse { get; set; }
+
+        /// <summary>
+        /// This field only used for create enter stock
+        /// </summary>
+        public bool UpdateStock { get; set; }
     }
 }

@@ -20,5 +20,6 @@ namespace KM.JXC.DBA
         public int StoreHouse_ID { get; set; }
         public int User_ID { get; set; }
         public Nullable<int> Buy_ID { get; set; }
+        public Nullable<int> Status { get; set; }
     }
 }

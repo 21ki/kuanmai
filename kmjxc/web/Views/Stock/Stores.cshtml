@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "仓库管理";
+}
+
+<script>
+
+    var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
+    var stockMgr = new KMJXCStockManager();
+    var $grid = null; 
+    var $form = null;
+    $(function () {
+        $form = $('#editnewform');
+        var obj = {
+            width: 830, height: 600, title: "仓库列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {               
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];               
+            }
+        };
+
+        obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+                        { title: "名称", width: 200, dataType: "string", dataIndx: "Name", editable: false },
+                        { title: "地址", width: 150, dataType: "string", dataIndx: "Address", editable: false },
+                        { title: "电话", width: 120, dataType: "string", dataIndx: "Phone", editable: false },
+                        {
+                            title: "默认仓库", width: 80, dataType: "bool", dataIndx: "IsDefault", editable: false,
+                            render: function (ui) {
+                                if (ui.rowData["IsDefault"] == "true") {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            }
+                        },
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {                               
+                                if (ui.rowData["FromMainShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 主店铺";
+                                } else if (ui.rowData["FromChildShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 子店铺";
+                                } else {                                   
+                                    return ui.rowData["Shop"].Title;
+                                }
+                            }
+                        },
+                        { title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
+                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            //paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 50, 60, 100],
+            getUrl: function (prgrid) {               
+                return {
+                    url: "/api/Stock/GetStoreHouses", data: ""
+                };
+            },
+            getData: function (dataJSON) {                
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+        function RenderForm(houseJson) {
+            var $div = $('#popup_editnewdiv');
+            var title = "";
+            var address = "";
+            var phone = "";
+            var isdefault = "";
+            var guard = "";
+            $("<div class=\"row\"><label>名称:</label><input id=\"house_name\" class=\"W_input\" value=\"" + title + "\"/></div>").appendTo($div);
+            $("<div class=\"row\"><label>地址:</label><input id=\"house_address\" class=\"W_input\" value=\"" + address + "\"/></div>").appendTo($div);
+            $("<div class=\"row\"><label>电话:</label><input id=\"house_phone\" class=\"W_input\" value=\"" + phone + "\"/></div>").appendTo($div);
+            $("<div class=\"row\"><label>仓管:</label><select id=\"house_title\" class=\"W_inputsel\"></select></div>").appendTo($div);
+        }
+
+        $("#storeHouseTable").on("pqgridrender", function (evt, obj) {
+            //var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this)); 
+           
+            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+                $('#popup_editnewdiv').dialog({
+                    position: { my: "top", at: "top", of: $("#storeHouseTable") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "添加新仓库",
+                    modal: true,
+                    open: function () {
+                        RenderForm(null);
+                    },
+                    close: function () {
+                        $(this).html("");
+                    },
+                    buttons: {
+                        "保存": function () { },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup_editnewdiv').dialog("open");
+            });
+            $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+
+            });
+            $("<span id=\"get_ccate\">设为默认仓库</span>").appendTo($menubar).button().click(function (evt) {
+
+            });
+
+            //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
+            //$toolbar.disableSelection();
+        });
+
+        $grid = $("#storeHouseTable").pqGrid(obj);
+
+
+        function getRowIndx() {
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
+    });
+
+</script>
+
+<div class="normallist">
+    <div id="storeHouseTable"></div>
+    <form id="editnewform">
+        <div id="popup_editnewdiv">
+
+        </div>
+    </form>
+    
+</div>
+

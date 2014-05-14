@@ -128,6 +128,7 @@
     <Compile Include="Controllers\api\CategoriesController.cs" />
     <Compile Include="Controllers\api\CommonController.cs" />
     <Compile Include="Controllers\api\ProductsController.cs" />
+    <Compile Include="Controllers\api\StockController.cs" />
     <Compile Include="Controllers\api\SuppliersController.cs" />
     <Compile Include="Controllers\api\UsersController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -306,6 +307,22 @@
     <Content Include="Third\jqueryui\css\redmond\images\ui-icons_f9bd01_256x240.png" />
     <Content Include="Third\jqueryui\css\redmond\jquery-ui-1.10.4.custom.css" />
     <Content Include="Third\jqueryui\css\redmond\jquery-ui-1.10.4.custom.min.css" />
+    <Content Include="Third\jqueryui\css\smoothness\images\animated-overlay.gif" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-icons_222222_256x240.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-icons_454545_256x240.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-icons_888888_256x240.png" />
+    <Content Include="Third\jqueryui\css\smoothness\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Third\jqueryui\css\smoothness\jquery-ui-1.10.4.custom.css" />
+    <Content Include="Third\jqueryui\css\smoothness\jquery-ui-1.10.4.custom.min.css" />
     <Content Include="Third\jqueryui\js\jquery-1.10.2.js" />
     <Content Include="Third\jqueryui\js\jquery-ui-1.10.4.custom.js" />
     <Content Include="Third\jqueryui\js\jquery-ui-1.10.4.custom.min.js" />
@@ -648,6 +665,13 @@
     <Content Include="Views\Buy\Buy.cshtml" />
     <Content Include="Views\Buy\BuyOrderDetail.cshtml" />
     <Content Include="Views\Buy\BuyDetail.cshtml" />
+    <Content Include="Views\Stock\Search.cshtml" />
+    <Content Include="Views\Stock\Enter.cshtml" />
+    <Content Include="Views\Stock\Leave.cshtml" />
+    <Content Include="Views\Stock\Back.cshtml" />
+    <Content Include="Views\Stock\Waste.cshtml" />
+    <Content Include="Views\Stock\Stores.cshtml" />
+    <Content Include="Views\Stock\StockDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

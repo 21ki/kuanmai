@@ -53,7 +53,11 @@ namespace KM.JXC.BL
                 int[] spids=(from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
                 if (spids != null && spids.Length > 0)
                 {
-                    bo = bo.Where(a=>a.Shop_ID==this.Shop.Shop_ID || a.Shop_ID==this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
+                    bo = bo.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
+                }
+                else
+                {
+                    bo = bo.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID);
                 }
 
                 if (user_ids !=null && user_ids.Length>0)

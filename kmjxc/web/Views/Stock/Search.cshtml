@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "库存查询";
+}
+
+<script>
+
+    var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
+    var stockMgr = new KMJXCStockManager();
+    var $grid = null; 
+   
+    $(function () {
+
+        
+
+        var obj = {
+            width: 830, height: 600, title: "库存列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+                //alert(obj.rowIndxPage);
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];
+                //alert(pdtId);
+            }
+        };
+
+        obj.colModel = [{ title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+                        { title: "产品名称", width: 220, dataType: "string", dataIndx: "Title", editable: false },
+                        { title: "产品类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
+                        //{
+                        //    title: "价格", width: 80, dataType: "double", dataIndx: "Price", editable: false,
+                        //    render: function (ui) {
+                        //        var cellData = ui.rowData[ui.dataIndx];
+                        //        if (cellData == 0) {
+                        //            return "暂无入库单";
+                        //        }
+                        //    }
+                        //},
+                        {
+                            title: "库存", width: 80, dataType: "double", dataIndx: "Quantity", editable: false,
+                            render: function (ui) {
+                                return "<a href=\"/Stock/StockDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["Quantity"] + "</a>";
+                            }
+                        },
+                        
+                        {
+                             title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Name", editable: false
+                            
+                        },
+                        {
+                            title: "主店铺产品", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
+                            render: function (ui) {
+                                var cellData = ui.rowData[ui.dataIndx];
+                                if (cellData.Parent_ID == 0) {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            },
+                        },
+                        //{ title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
+                        //{ title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
+                        //{
+                        //    title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
+                        //    render: function (ui) {
+                        //        return "<input onclick=\"EditProduct("+ui.rowData["ID"]+")\" class=\"\" type=\"button\" value=\"修改\" />";
+                        //    }
+                        //},
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 50, 60, 100],
+            getUrl: function (prgrid) {
+                var sortDir = (this.sortDir == "up") ? "asc" : "desc";
+                var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];
+                var pid = $searchform.find("#pq-parent-cate").val();
+                var ccid = $searchform.find("#pq-child-cate").val();
+                var cid = "";
+                if (ccid > 0) {
+                    cid = ccid;
+                } else {
+                    if (pid > 0) {
+                        cid = pid;
+                    }
+                }
+                var keyword = $searchform.find('#pdt_key_word').val();
+                var house = $searchform.find('#pq-storehouse').val();
+                return {
+                    url: "/api/Stock/SearchProductsStore", data: "cid=" + cid + "&keyword=" + keyword + "&page=" + this.curPage + "&pageSize=" + this.rPP + "&house=" + house
+                };
+            },
+            getData: function (dataJSON) {
+                //alert(dataJSON.totalRecords);
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+        $("#stockTable").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
+            $("<label>仓库:</label>").appendTo($srow);
+
+            var $storeHouse = $("<select id='pq-storehouse' class='W_input' style='height:24px;'></select>").appendTo($srow);
+            $("<option value=\"0\">--选择--</option>").appendTo($storeHouse);
+
+            stockMgr.GetStoreHouses({}, function (res) {
+                $(res).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($storeHouse);
+                });
+            });
+           
+            $("<label>类目:</label>").appendTo($srow);
+            var $pcate = $("<select id='pq-parent-cate' class='W_input' style='height:24px;'>\
+            </select>").appendTo($srow).change(function () {
+                if ($(this).val() != 0) {
+                    var pid = $(this).val();
+                    cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                        if ($(res.data).size() > 0) {
+
+                            $ccate.empty();
+                            $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                            $(res.data).each(function (index, item) {
+                                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                            });
+                            $ccate.show();
+                        } else {
+                            $ccate.hide();
+                            $ccate.empty();
+                        }
+                    });
+
+                } else {
+                    $ccate.hide();
+                    $ccate.empty();
+                }
+            });
+
+            $("<option value=\"0\">--选择--</option>").appendTo($pcate);
+            cateMgr.GetCategories({ 'parent_id': 0 }, function (res) {
+                pcate = res.data;
+                $(res.data).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
+                });
+            });
+
+            var $ccate = $("<select id='pq-child-cate' class='W_input' style='height:24px;display:none;'>\
+            </select>").appendTo($srow).change(function () {
+
+            });
+          
+            $("<label>关键字:</label>").appendTo($srow);
+            $("<input id=\"pdt_key_word\" title='关键字' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                    .appendTo($srow)
+                    .button({ text: true }).bind("click", function (evt) {
+                        $grid.pqGrid("refreshDataAndView");
+                    });
+
+
+            //$("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+
+
+            //});
+            $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+
+            });
+
+
+            //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
+            //$toolbar.disableSelection();
+        });
+
+        $grid = $("#stockTable").pqGrid(obj);
+
+
+        function getRowIndx() {
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
+    });
+
+</script>
+
+<div class="normallist">
+    <div id="stockTable"></div>
+</div>

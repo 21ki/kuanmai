@@ -264,7 +264,12 @@ function KMJXCBuyManager() {
 
 KMJXCStockManager.prototype = new KMJXCBase();
 function KMJXCStockManager() {
-
+    this.EnterStockFromBuy = function (params, callback) {
+        this.AjaxCall("/api/Stock/EnterStockFromBuy", params, callback);
+    }
+    this.GetStoreHouses = function (params, callback) {
+        this.AjaxCall("/api/Stock/GetStoreHouses", params, callback);
+    }
 }
 
 KMJXManager.prototype = new KMJXCBase();

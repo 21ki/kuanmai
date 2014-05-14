@@ -174,7 +174,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize">page size</param>
         /// <param name="totalRecords">total records fitting the input conditions</param>
         /// <returns>a list of enter stock</returns>
-        public List<BEnterStock> GetEnterStocks(int enter_stock_id,int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
+        public List<BEnterStock> SearchEnterStocks(int enter_stock_id,int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
         {            
             List<BEnterStock> stocks = new List<BEnterStock>();
             totalRecords = 0;
@@ -263,7 +263,7 @@ namespace KM.JXC.BL
         {
             List<BEnterStockDetail> details = new List<BEnterStockDetail>();
             int stockCount=0;
-            List<BEnterStock> stocks = this.GetEnterStocks(enter_stock_id, 0, 0, 0, 0, 1, 1, out stockCount);
+            List<BEnterStock> stocks = this.SearchEnterStocks(enter_stock_id, 0, 0, 0, 0, 1, 1, out stockCount);
             if (stockCount == 0)
             {
                 throw new KMJXCException("此入库单不存在");
@@ -314,7 +314,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="stock">Instance of Enter_Stock object</param>
         /// <returns></returns>
-        public bool EnterStock(BEnterStock stock)
+        public bool CreateEnterStock(BEnterStock stock)
         {
             bool result = false;
             if (stock == null)
@@ -348,6 +348,17 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                //update buy
+                Buy dbBuy = (from buy in db.Buy where buy.Buy_ID == stock.BuyID select buy).FirstOrDefault<Buy>();
+                if (dbBuy == null)
+                {
+                    throw new KMJXCException("编号为:"+stock.BuyID+" 的验货单没有找到");
+                }
+
+                if (dbBuy.Status == 1)
+                {
+                    throw new KMJXCException("编号为:" + stock.BuyID + " 的验货单已经入库，不能再次入库");
+                }
                 Enter_Stock dbStock = new Enter_Stock();
 
                 dbStock.Buy_ID = stock.BuyID;
@@ -365,7 +376,15 @@ namespace KM.JXC.BL
                 result = true;
                 if (stock.Details != null)
                 {
-                    result = result&this.EnterStockDetails(dbStock.Enter_Stock_ID, stock.Details);
+                    result = result&this.CreateEnterStockDetails(dbStock, stock.Details,stock.UpdateStock);
+                    if (result)
+                    {
+                        if (dbBuy != null)
+                        {
+                            dbBuy.Status = 1;
+                            db.SaveChanges();
+                        }
+                    }
                 }               
             }
 
@@ -377,7 +396,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="stock"></param>
         /// <returns></returns>
-        public bool EnterStockDetails(int stockId,List<BEnterStockDetail> details)
+        public bool CreateEnterStockDetails(Enter_Stock dbstock,List<BEnterStockDetail> details,bool updateStock=false)
         {
             bool result = false;
             if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
@@ -385,7 +404,7 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有新增入库单产品信息的权限");
             }
 
-            if (stockId <= 0)
+            if (dbstock.Enter_Stock_ID <= 0)
             {
                 throw new KMJXCException("");
             }
@@ -397,43 +416,57 @@ namespace KM.JXC.BL
 
             KuanMaiEntities db = new KuanMaiEntities();
             List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == this.Shop.Shop_ID select sp).ToList<Stock_Pile>();
-            Enter_Stock stock = (from st in db.Enter_Stock where st.Enter_Stock_ID == stockId select st).FirstOrDefault<Enter_Stock>();
-           
-            if (stock == null)
-            {
-                throw new KMJXCException("");
-            }
+          
+            int totalQuantity = 0;
             foreach (BEnterStockDetail detail in details)
             {
                 Enter_Stock_Detail dbDetail = new Enter_Stock_Detail();
                 dbDetail.Create_Date = detail.Created;
-                dbDetail.Enter_Stock_ID = stockId;
+                dbDetail.Enter_Stock_ID = dbstock.Enter_Stock_ID;
                 dbDetail.Have_Invoice = detail.Invoiced;
                 dbDetail.Invoice_Amount = decimal.Parse(detail.InvoiceAmount.ToString("0.00"));
                 dbDetail.Invoice_Num = detail.InvoiceNumber;
                 dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
                 dbDetail.Product_ID = detail.Product.ID;
                 dbDetail.Quantity = (int)detail.Quantity;
-                db.Enter_Stock_Detail.Add(dbDetail);   
-             
-                //update stock pile
-                Stock_Pile stockPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
-                if (stockPile != null)
-                {
-                    stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
-                    stockPile.Price = dbDetail.Price;
-                    if (stockPile.First_Enter_Time == 0)
+                db.Enter_Stock_Detail.Add(dbDetail);
+                totalQuantity += dbDetail.Quantity;
+                if (updateStock)
+                {                    
+                    //update stock pile
+                    Stock_Pile stockPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == dbstock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                    if (stockPile == null)
                     {
+                        stockPile = new Stock_Pile();
+                        stockPile.Product_ID = dbDetail.Product_ID;
+                        stockPile.Shop_ID = this.Shop.Shop_ID;
+                        stockPile.StockHouse_ID = dbstock.StoreHouse_ID;
+                        stockPile.Quantity = dbDetail.Quantity;
+                        stockPile.Price = dbDetail.Price;
                         stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        db.Stock_Pile.Add(stockPile);
+                    }
+                    else
+                    {
+                        stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
+                        stockPile.Price = dbDetail.Price;                        
+                    }
+
+                    Product product=(from p in db.Product 
+                                     join p1 in db.Product on p.Product_ID equals p1.Parent_ID 
+                                     where p1.Product_ID==dbDetail.Product_ID
+                                     select p).FirstOrDefault<Product>();
+                    if (product != null)
+                    {
+                        product.Quantity += dbDetail.Quantity;
                     }
                 }
             }
-
-            db.SaveChanges();
-
+            
             try
             {
                 db.SaveChanges();
+                result = true;
             }
             catch(Exception ex)
             {
@@ -669,15 +702,193 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<Store_House> GetStoreHouses()
+        public List<BStoreHouse> GetStoreHouses()
         {
-            List<Store_House> houses = new List<Store_House>();
+            List<BStoreHouse> houses = new List<BStoreHouse>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                houses = (from house in db.Store_House where house.Shop_ID == this.Main_Shop_Id select house).ToList<Store_House>();
+                int[] spids = (from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                var hs = from house in db.Store_House select house;
+                if (spids != null && spids.Length > 0)
+                {
+                    hs = hs.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
+                }
+                else
+                {
+                    hs = hs.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID);
+                }
+
+                houses = (from hos in hs
+                          select new BStoreHouse
+                          {
+                              ID = hos.StoreHouse_ID,
+                              Name = hos.Title,
+                              Created = (int)hos.Create_Time,
+                              Address=hos.Address,
+                              Phone=hos.Phone,
+                              IsDefault=(bool)hos.Default,
+                              Guard = (from user in db.User
+                                       where user.User_ID == hos.User_ID
+                                       select new BUser
+                                       {
+                                           ID = user.User_ID,
+                                           Mall_ID = user.Mall_ID,
+                                           Mall_Name = user.Mall_Name,
+                                           Name = user.Name
+                                       }).FirstOrDefault<BUser>(),
+                              Created_By = (from user in db.User
+                                            where user.User_ID == hos.User_ID
+                                            select new BUser
+                                                {
+                                                    ID = user.User_ID,
+                                                    Mall_ID = user.Mall_ID,
+                                                    Mall_Name = user.Mall_Name,
+                                                    Name = user.Name
+                                                }).FirstOrDefault<BUser>(),
+                              Shop = (from shop in db.Shop
+                                      where shop.Shop_ID == hos.Shop_ID
+                                      select new BShop
+                                          {
+                                              ID=shop.Shop_ID,
+                                              Title=shop.Name
+                                          }).FirstOrDefault<BShop>()
+                          }).ToList<BStoreHouse>();
+
+                foreach (BStoreHouse house in houses)
+                {
+                    if (house.Shop.ID != this.Shop.Shop_ID)
+                    {
+                        if (house.Shop.ID == this.Main_Shop.Shop_ID)
+                        {
+                            house.FromMainShop = true;
+                        }
+                        else
+                        {
+                            house.FromChildShop = true;
+                        }
+                    }
+                    else
+                    {
+                        house.FromMainShop = false;
+                        house.FromChildShop = false;
+                    }
+                }
             }
 
             return houses;
+        }        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="product_ids"></param>
+        /// <param name="categories"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="total"></param>
+        /// <returns></returns>
+        public List<BProduct> SearchProductStocks(int[] product_ids, int category_id, int storeHouse, string keywords, int page, int pageSize, out int total)
+        {
+            total = 0;
+            List<BProduct> stocks = new List<BProduct>();
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child_ids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (child_ids == null)
+                {
+                    child_ids = new int[] { 0 };
+                }
+
+                var products = from product in db.Product
+                               where product.Parent_ID==0 && (product.Shop_ID == this.Shop.Shop_ID || product.Shop_ID == this.Main_Shop.Shop_ID || child_ids.Contains(product.Shop_ID))
+                               select product;
+
+                if (category_id >0)
+                {
+                    Product_Class cate = (from ca in db.Product_Class where ca.Product_Class_ID == category_id select ca).FirstOrDefault<Product_Class>();
+                    if (cate != null)
+                    {
+                        if (cate.Parent_ID == 0)
+                        {
+                            int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
+                            products = products.Where(a => ccids.Contains(a.Product_Class_ID));
+                        }
+                        else
+                        {
+                            products = products.Where(a => a.Product_Class_ID == category_id);
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(keywords))
+                {
+                    products = products.Where(a=>keywords.Contains(a.Name));
+                }
+
+                if (product_ids != null)
+                {
+                    products = products.Where(a=>product_ids.Contains(a.Product_ID));
+                }
+
+                if (storeHouse > 0)
+                {
+                    int[] pids = (from stock in db.Stock_Pile
+                                  from pdt in db.Product
+                                  where stock.Product_ID == pdt.Product_ID && stock.StockHouse_ID==storeHouse
+                                  from pdt1 in db.Product
+                                  where pdt.Parent_ID == pdt1.Product_ID
+                                  select pdt1.Product_ID).ToArray<int>();
+
+                    products = products.Where(a => pids.Contains(a.Product_ID));
+                }
+
+                products = products.OrderBy(a=>a.Shop_ID);
+
+                total = products.Count();
+
+                if (total > 0)
+                {
+                    stocks = (from Pdt in products
+                              select new BProduct
+                              {
+                                  Description = Pdt.Description,
+                                  Shop = (from sp in db.Shop where sp.Shop_ID == Pdt.Shop_ID select sp).FirstOrDefault<Shop>(),
+                                  Price = Pdt.Price,
+                                  ID = Pdt.Product_ID,
+                                  Title = Pdt.Name,
+                                  CreateTime = Pdt.Create_Time,
+                                  Code = Pdt.Code,
+                                  Quantity = (int)Pdt.Quantity,
+                                  Unit = (from u in db.Product_Unit where u.Product_Unit_ID == Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
+                                  Category = (from c in db.Product_Class
+                                              where Pdt.Product_Class_ID == c.Product_Class_ID
+                                              select new BCategory
+                                              {
+                                                  Name = c.Name,
+                                                  ID = c.Product_Class_ID,
+                                              }).FirstOrDefault<BCategory>(),
+                                  User = (from u in db.User
+                                          where u.User_ID == Pdt.User_ID
+                                          select new BUser
+                                          {
+                                              ID = u.User_ID,
+                                              Mall_Name = u.Mall_Name,
+                                              Mall_ID = u.Mall_ID,
+                                          }).FirstOrDefault<BUser>()
+                              }).OrderBy(a=>a.ID).Skip((page-1)*pageSize).Take(pageSize).ToList<BProduct>();
+                }
+            }
+
+            return stocks;
         }
     }
 }

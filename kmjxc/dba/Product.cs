@@ -27,5 +27,6 @@ namespace KM.JXC.DBA
         public string Description { get; set; }
         public Nullable<int> Update_Time { get; set; }
         public Nullable<int> Update_User_ID { get; set; }
+        public Nullable<int> Quantity { get; set; }
     }
 }
