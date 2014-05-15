@@ -270,6 +270,15 @@ function KMJXCStockManager() {
     this.GetStoreHouses = function (params, callback) {
         this.AjaxCall("/api/Stock/GetStoreHouses", params, callback);
     }
+    this.CreateStoreHouse = function (params, callback) {
+        this.AjaxCall("/api/Stock/CreateStoreHouse", params, callback);
+    }
+    this.UpdateStoreHouse = function (params, callback) {
+        this.AjaxCall("/api/Stock/UpdateStoreHouse", params, callback);
+    }
+    this.SearchEnterStock = function (params, callback) {
+        this.AjaxCall("/api/Stock/SearchEnterStock", params, callback);
+    }
 }
 
 KMJXManager.prototype = new KMJXCBase();

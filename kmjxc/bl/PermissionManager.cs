@@ -81,6 +81,7 @@ namespace KM.JXC.BL
         public int ADD_ENTER_STOCK = 0;
         public int ADD_LEAVE_STOCK = 0;
         public int ADD_BACK_STOCK = 0;
+        public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
 
         //Category and Property
         public int ADD_CATEGORY = 0;

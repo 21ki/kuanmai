@@ -1,5 +1,135 @@
 ﻿@{
-    ViewBag.Title = "Enter";
+    ViewBag.Title = "采购入库单查询";
 }
 
-<h2>Enter</h2>
+<script>
+
+    var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
+    var stockMgr = new KMJXCStockManager();
+    var $grid = null; 
+    var $form = null;
+    $(function () {
+        $form = $('#editnewform');
+        var obj = {
+            width: 830, height: 600, title: "采购入库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {               
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];               
+            }
+        };
+
+        obj.colModel = [
+                        {
+                            title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
+                            render: function (ui) {
+                                return "<a href=\"/Stock/EnterDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
+                            }
+                        },
+                        {
+                            title: "状态", width: 100, dataType: "integer", dataIndx: "Status", editable: false,
+                            render: function (ui) {
+                                if (ui.rowData.Status == 1) {
+                                    return "已更新库存";
+                                } else {
+                                    return "未更新库存";
+                                }
+                            }
+                        },
+                        { title: "仓库", width: 100, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },
+                        { title: "仓库地址", width: 100, dataType: "string", dataIndx: "StoreHouse.Address", editable: false },
+                        { title: "仓库电话", width: 100, dataType: "string", dataIndx: "StoreHouse.Phone", editable: false },
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {                               
+                                if (ui.rowData["FromMainShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 主店铺";
+                                } else if (ui.rowData["FromChildShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 子店铺";
+                                } else {                                   
+                                    return ui.rowData["Shop"].Title;
+                                }
+                            }
+                        },
+                        { title: "入库员", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
+                        { title: "入库日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            //paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 50, 60, 100],
+            getUrl: function (prgrid) {               
+                return {
+                    url: "/api/Stock/SearchEnterStock", data: ""
+                };
+            },
+            getData: function (dataJSON) {                
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+       
+
+        $("#enterStockTable").on("pqgridrender", function (evt, obj) {
+            //var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this)); 
+           
+            $("<span id=\"add_cate\">更新到库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+                var rowIndx = getRowIndx();
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var row = data[rowIndx];
+                var oid = row["ID"]
+                var status = row["Status"];
+                if (status == 1) {
+                    alert("此入库单已经更新到库存");
+                    return;
+                }
+            });
+           
+        
+            //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
+            //$toolbar.disableSelection();
+        });
+
+        $grid = $("#enterStockTable").pqGrid(obj);
+
+
+        function getRowIndx() {
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
+    });
+
+</script>
+
+<div class="normallist">
+    <div id="enterStockTable"></div>
+    <form id="editnewform">
+        <div id="popup_editnewdiv">
+
+        </div>
+    </form>
+    
+</div>
+

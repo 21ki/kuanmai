@@ -174,7 +174,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize">page size</param>
         /// <param name="totalRecords">total records fitting the input conditions</param>
         /// <returns>a list of enter stock</returns>
-        public List<BEnterStock> SearchEnterStocks(int enter_stock_id,int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
+        public List<BEnterStock> SearchEnterStocks(int enter_stock_id,int buy_order_id,int buy_id,int user_id,int startTime,int endTime,int storeHouseId, int pageIndex,int pageSize,out int totalRecords)
         {            
             List<BEnterStock> stocks = new List<BEnterStock>();
             totalRecords = 0;
@@ -182,11 +182,22 @@ namespace KM.JXC.BL
             {
                 pageIndex = 1;
             }
+            if (pageSize == 0)
+            {
+                pageSize = 30;
+            }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var os = from o in db.Enter_Stock
                          select o;  
-                os=os.Where(o1=>o1.Shop_ID==this.Shop_Id);
+
+                int[] cshop_ids=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (cshop_ids == null)
+                {
+                    cshop_ids = new int[0];
+                }
+
+                os=os.Where(o1=>o1.Shop_ID==this.Shop_Id || o1.Shop_ID==this.Main_Shop.Shop_ID || cshop_ids.Contains(o1.Shop_ID));
 
                 if (enter_stock_id > 0)
                 {
@@ -200,53 +211,53 @@ namespace KM.JXC.BL
 
                 if (startTime > 0)
                 {
-                    os=os.Where(o11=>o11.Enter_Date>startTime);
+                    os=os.Where(o11=>o11.Enter_Date>=startTime);
                 }
 
                 if (endTime > 0)
                 {
-                    os = os.Where(o11 => o11.Enter_Date < endTime);
+                    os = os.Where(o11 => o11.Enter_Date <= endTime);
                 }
 
                 totalRecords = os.Count();
                 var oos = from o2 in os
-                          orderby o2.Enter_Date descending
                           select new BEnterStock()
                           {
                               ID = (int)o2.Enter_Stock_ID,
+                              Status = (int)o2.Status,
                               Shop = (from sp in db.Shop
                                       where sp.Shop_ID == o2.Shop_ID
                                       select new BShop
                                       {
-                                          Chindren = null,
                                           Created = (int)sp.Created,
                                           Description = sp.Description,
                                           ID = sp.Shop_ID,
                                           Mall_ID = sp.Mall_Shop_ID,
-                                          Parent = null,
-                                          Synced = (int)sp.Synced,
                                           Title = sp.Name,
-                                          Type = null,
-
                                       }).FirstOrDefault<BShop>(),
-                              User = (from u in db.User
-                                      where u.User_ID == o2.User_ID
-                                      select new BUser
-                                      {
-                                          ID = u.User_ID,
-                                          //EmployeeInfo=(from e in db.Employee where e.User_ID==u.User_ID select e).ToList<Employee>()[0],
-                                          Mall_ID = u.Mall_ID,
-                                          Mall_Name = u.Mall_Name,
-                                          Parent_ID = (int)u.Parent_User_ID,
-                                          Name = u.Name,
-                                          Password = u.Password,
-                                          //Type = (from t in db.Mall_Type where t.Mall_Type_ID==u.Mall_Type select t).ToList<Mall_Type>()[0]
-                                      }).FirstOrDefault<BUser>(),
+                              Created_By = (from u in db.User
+                                            where u.User_ID == o2.User_ID
+                                            select new BUser
+                                            {
+                                                ID = u.User_ID,
+                                                Mall_ID = u.Mall_ID,
+                                                Mall_Name = u.Mall_Name,
+                                                Name = u.Name,
+                                                Password = u.Password,
+                                            }).FirstOrDefault<BUser>(),
                               BuyID = (int)o2.Buy_ID,
-                              EnterTime = (int)o2.Enter_Date
+                              Created = (int)o2.Enter_Date,
+                              StoreHouse = (from house in db.Store_House where house.StoreHouse_ID == o2.StoreHouse_ID 
+                                            select new BStoreHouse
+                                            {
+                                                ID=house.StoreHouse_ID,
+                                                Name=house.Title,
+                                                Phone=house.Phone,
+                                                Address=house.Address
+                                            }).FirstOrDefault<BStoreHouse>()
                           };
                                 
-                oos.Skip((pageIndex-1)*pageSize).Take(pageSize);
+                oos.OrderBy(a=>a.ID).OrderBy(a=>a.Status).Skip((pageIndex-1)*pageSize).Take(pageSize);
 
                 stocks = oos.ToList<BEnterStock>();
             }
@@ -263,7 +274,7 @@ namespace KM.JXC.BL
         {
             List<BEnterStockDetail> details = new List<BEnterStockDetail>();
             int stockCount=0;
-            List<BEnterStock> stocks = this.SearchEnterStocks(enter_stock_id, 0, 0, 0, 0, 1, 1, out stockCount);
+            List<BEnterStock> stocks = this.SearchEnterStocks(enter_stock_id,0,0,0,0,0,0,1,1,out stockCount);
             if (stockCount == 0)
             {
                 throw new KMJXCException("此入库单不存在");
@@ -310,6 +321,82 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public BEnterStock GetEnterStockFullInfo(int id)
+        {
+            BEnterStock bstock = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+
+                bstock = (from stock in db.Enter_Stock
+                          where stock.Enter_Stock_ID == id
+                          select new BEnterStock
+                          {
+                              ID = stock.Enter_Stock_ID,
+                              Created = (long)stock.Enter_Date,
+                              Created_By = (from user in db.User
+                                            where user.User_ID == stock.User_ID
+                                            select new BUser
+                                            {
+                                                ID=user.User_ID,
+                                                Name=user.Name,
+                                                Mall_ID=user.Mall_ID,
+                                                Mall_Name=user.Mall_Name
+                                            }).FirstOrDefault<BUser>(),
+                              Shop = (from shop in db.Shop
+                                      where shop.Shop_ID == stock.Shop_ID
+                                      select new BShop
+                                      {
+                                          ID = shop.Shop_ID,
+                                          Mall_ID = shop.Mall_Shop_ID,
+                                          Created = (int)shop.Created,
+                                          Description = shop.Description,
+                                          Title = shop.Name
+                                      }).FirstOrDefault<BShop>(),
+                              Status = (int)stock.Status,
+                              StoreHouse = (from house in db.Store_House
+                                            where house.StoreHouse_ID == stock.StoreHouse_ID
+                                            select new BStoreHouse
+                                            {
+                                                ID=house.StoreHouse_ID,
+                                                Name=house.Title,
+                                                Phone=house.Phone,
+                                                Address=house.Address
+                                            }).FirstOrDefault<BStoreHouse>(),
+                              BuyID = (int)stock.Buy_ID
+
+                              
+
+                          }).FirstOrDefault<BEnterStock>();
+
+                if (bstock != null)
+                {
+                    BuyManager buyManager = new BuyManager(this.CurrentUser,this.Shop,this.CurrentUserPermission);
+                    int totalRecords = 0;
+                    int[] buyIds = new int[1];
+                    buyIds[0] = bstock.BuyID;
+                    bstock.Buy = buyManager.SearchBuys(buyIds, null, null, null, null, 0, 0, 1, 1, out totalRecords, true)[0];
+                    bstock.Details = (from detail in db.Enter_Stock_Detail
+                                      where detail.Enter_Stock_ID == id
+                                      select new BEnterStockDetail
+                                      {
+                                          Created = (int)detail.Create_Date,
+                                          InvoiceAmount = (double)detail.Invoice_Amount,
+                                          Invoiced = (bool)detail.Have_Invoice,
+                                          InvoiceNumber = detail.Invoice_Num,
+                                          Price = (double)detail.Price,
+                                          Quantity = detail.Quantity,
+                                          StockProductId = detail.Product_ID
+                                      }).ToList<BEnterStockDetail>();
+                }                           
+            }
+            return bstock;
+        }
+
+        /// <summary>
         /// Add new enter stock record
         /// </summary>
         /// <param name="stock">Instance of Enter_Stock object</param>
@@ -336,9 +423,9 @@ namespace KM.JXC.BL
                 throw new KMJXCException("入库单未包含仓库信息");
             }
 
-            if (stock.User == null)
+            if (stock.Created_By == null)
             {
-                stock.User = this.CurrentUser;
+                stock.Created_By = this.CurrentUser;
             }
 
             if (this.CurrentUserPermission.ADD_ENTER_STOCK == 0)
@@ -362,12 +449,13 @@ namespace KM.JXC.BL
                 Enter_Stock dbStock = new Enter_Stock();
 
                 dbStock.Buy_ID = stock.BuyID;
-                dbStock.Enter_Date = stock.EnterTime;
+                dbStock.Enter_Date = stock.Created;
                 dbStock.Enter_Stock_ID = 0;
-                dbStock.Shop_ID = stock.Shop.ID;
-                dbStock.StoreHouse_ID = stock.StoreHouse.StoreHouse_ID;
-                dbStock.User_ID = stock.User.ID;
-                db.Enter_Stock.Add(dbStock);
+                dbStock.Shop_ID = this.Shop.Shop_ID;
+                dbStock.StoreHouse_ID = stock.StoreHouse.ID;
+                dbStock.User_ID = stock.Created_By.ID;
+                dbStock.Status = 0;
+                db.Enter_Stock.Add(dbStock);               
                 db.SaveChanges();
                 if (dbStock.Enter_Stock_ID <= 0)
                 {
@@ -379,6 +467,11 @@ namespace KM.JXC.BL
                     result = result&this.CreateEnterStockDetails(dbStock, stock.Details,stock.UpdateStock);
                     if (result)
                     {
+                        if (stock.UpdateStock)
+                        {
+                            dbStock.Status = 1;
+                        }
+
                         if (dbBuy != null)
                         {
                             dbBuy.Status = 1;
@@ -481,6 +574,65 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool UpdateProductStockByEnterStock(int id)
+        {
+            bool result = false;
+            if (this.CurrentUserPermission.UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK == 0)
+            {
+                throw new KMJXCException("没有权限更新入库单到库存");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Enter_Stock stock=(from dbstock in db.Enter_Stock where dbstock.Enter_Stock_ID==id select dbstock).FirstOrDefault<Enter_Stock>();
+                if (stock == null)
+                {
+                    throw new KMJXCException("编号为:"+id+" 的入库单不存在");
+                }
+
+                List<Enter_Stock_Detail> details=(from d in db.Enter_Stock_Detail where d.Enter_Stock_ID==id select d).ToList<Enter_Stock_Detail>();
+                foreach (Enter_Stock_Detail eDetail in details)
+                {
+                    Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == eDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                    if (stockPile == null)
+                    {
+                        stockPile = new Stock_Pile();
+                        stockPile.Product_ID = eDetail.Product_ID;
+                        stockPile.Shop_ID = this.Shop.Shop_ID;
+                        stockPile.StockHouse_ID = stock.StoreHouse_ID;
+                        stockPile.Quantity = eDetail.Quantity;
+                        stockPile.Price = eDetail.Price;
+                        stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        db.Stock_Pile.Add(stockPile);
+                    }
+                    else
+                    {
+                        stockPile.Quantity = stockPile.Quantity + eDetail.Quantity;
+                        stockPile.Price = eDetail.Price;
+                    }
+
+                    Product product = (from p in db.Product
+                                       join p1 in db.Product on p.Product_ID equals p1.Parent_ID
+                                       where p1.Product_ID == eDetail.Product_ID
+                                       select p).FirstOrDefault<Product>();
+                    if (product != null)
+                    {
+                        product.Quantity += eDetail.Quantity;
+                    }
+                }
+
+                db.SaveChanges();
+                result = true;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Add one enter stock detail record
         /// </summary>
         /// <param name="detail"></param>
@@ -502,7 +654,7 @@ namespace KM.JXC.BL
             if (stockId > 0)
             {                
                 Enter_Stock dbStock= (from st in db.Enter_Stock where st.Enter_Stock_ID == stockId select st).FirstOrDefault<Enter_Stock>();
-                detail.EnterStock = new BEnterStock() { ID = stockId, StoreHouse = new Store_House() { StoreHouse_ID = dbStock.StoreHouse_ID } };
+                detail.EnterStock = new BEnterStock() { ID = stockId, StoreHouse = new BStoreHouse() { ID = dbStock.StoreHouse_ID } };
             }
             else
             {
@@ -537,7 +689,7 @@ namespace KM.JXC.BL
                 db.SaveChanges();
 
                 //update stock pile
-                Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID==detail.EnterStock.StoreHouse.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID==detail.EnterStock.StoreHouse.ID select sp).FirstOrDefault<Stock_Pile>();
                 if (stockPile != null)
                 {
                     stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
@@ -679,7 +831,7 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <param name="house"></param>
-        public void CreateStoreHouse(Store_House house)
+        public void CreateStoreHouse(BStoreHouse house)
         {
             if (this.CurrentUserPermission.ADD_STORE_HOUSE == 0)
             {
@@ -688,14 +840,79 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int existing = (from h in db.Store_House where h.Title == house.Title select h).Count();
+                Store_House dbHouse = new Store_House();
+                int existing = (from h in db.Store_House where house.Name.Contains(h.Title) select h).Count();
                 if (existing > 0)
                 {
-                    throw new KMJXCException("此仓库名字已经存在");
+                    throw new KMJXCException("类似的仓库名称已经存在");
                 }
-                db.Store_House.Add(house);
+
+                dbHouse.Phone = house.Phone;
+                dbHouse.Title = house.Name;
+                dbHouse.Address = house.Address;
+                dbHouse.Guard = 0;
+                dbHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                dbHouse.User_ID = this.CurrentUser.ID;
+                dbHouse.Default = house.IsDefault;
+                dbHouse.Shop_ID = this.Shop.Shop_ID;
+                if ((bool)dbHouse.Default)
+                {
+                    Store_House defaultHouse=(from hu in db.Store_House where hu.Default==true select hu).FirstOrDefault<Store_House>();
+                    if (defaultHouse != null)
+                    {
+                        defaultHouse.Default = false;
+                    }
+                }
+                db.Store_House.Add(dbHouse);               
                 db.SaveChanges();
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="house"></param>
+        public void UpdateStoreHouse(BStoreHouse house)
+        {
+            if (this.CurrentUserPermission.UPDATE_STORE_HOUSE == 0)
+            {
+                throw new KMJXCException("没有创建仓库的权限");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Store_House dbHouse = (from huse in db.Store_House where huse.StoreHouse_ID==house.ID select huse).FirstOrDefault<Store_House>();
+
+                if (dbHouse == null) 
+                {
+                    throw new KMJXCException("编辑的仓库不存在");
+                }
+
+                int existing = (from h in db.Store_House where house.Name.Contains(h.Title) && h.StoreHouse_ID!=house.ID select h).Count();
+                if (existing > 0)
+                {
+                    throw new KMJXCException("类似的仓库名称已经存在");
+                }
+
+                dbHouse.Phone = house.Phone;
+                dbHouse.Title = house.Name;
+                dbHouse.Address = house.Address;
+                dbHouse.Guard = 0;
+                dbHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                dbHouse.User_ID = this.CurrentUser.ID;
+                dbHouse.Default = house.IsDefault;
+                dbHouse.Shop_ID = this.Shop.Shop_ID;
+                if ((bool)dbHouse.Default)
+                {
+                    Store_House defaultHouse = (from hu in db.Store_House where hu.Default == true select hu).FirstOrDefault<Store_House>();
+                    if (defaultHouse != null)
+                    {
+                        defaultHouse.Default = false;
+                    }
+                }                
+                db.SaveChanges();
+            }
+
         }
 
         /// <summary>
@@ -752,7 +969,7 @@ namespace KM.JXC.BL
                                               ID=shop.Shop_ID,
                                               Title=shop.Name
                                           }).FirstOrDefault<BShop>()
-                          }).ToList<BStoreHouse>();
+                          }).OrderBy(a=>a.ID).ToList<BStoreHouse>();
 
                 foreach (BStoreHouse house in houses)
                 {

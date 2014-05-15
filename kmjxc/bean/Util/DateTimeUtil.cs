@@ -19,6 +19,17 @@ namespace KM.JXC.Common.Util
             return minTime;
         }
 
+        public static DateTime ConvertToDateTime(long time, string timeZone = "China Standard Time")
+        {
+            TimeZoneInfo zoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+            DateTime minTime = DateTime.MinValue;
+            DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            startTime = TimeZoneInfo.ConvertTimeToUtc(startTime);
+            minTime = startTime.AddSeconds(time);
+            minTime = TimeZoneInfo.ConvertTimeFromUtc(minTime, zoneInfo);
+            return minTime;
+        }
+
         public static int ConvertDateTimeToInt(DateTime time)
         {
             double ret = 0;

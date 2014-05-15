@@ -12,6 +12,7 @@ using KM.JXC.DBA;
 using Newtonsoft.Json.Linq;
 using KM.JXC.Web.Models;
 using KM.JXC.Common.Util;
+using KM.JXC.Common.KMException;
 
 namespace KM.JXC.Web.Controllers.api
 {
@@ -41,8 +42,8 @@ namespace KM.JXC.Web.Controllers.api
             {
                 BEnterStock stock = new BEnterStock();
                 stock.BuyID = buy_id;
-                stock.EnterTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                stock.StoreHouse = new Store_House() { Shop_ID = stockManager.Shop.Shop_ID, StoreHouse_ID = shouseId };
+                stock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                stock.StoreHouse = new BStoreHouse() { ID = shouseId, Shop = new BShop() { ID = stockManager.Shop.Shop_ID} };
                 if (updateStock == 1)
                 {
                     stock.UpdateStock = true;
@@ -103,6 +104,92 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public ApiMessage CreateStoreHouse()
+        {
+            ApiMessage message = new ApiMessage();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+
+            try
+            {
+                BStoreHouse house = new BStoreHouse();
+                house.Name=request["name"];
+                house.Address=request["address"];
+                house.Phone=request["phone"];
+                house.IsDefault = false;
+                if (!string.IsNullOrEmpty(request["isdefault"]))
+                {
+                    if (request["isdefault"] == "1")
+                    {
+                        house.IsDefault = true;
+                    }                 
+                }
+                stockManager.CreateStoreHouse(house);
+                message.Status = "ok";
+                message.Message = "创建成功";
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage UpdateStoreHouse()
+        {
+            ApiMessage message = new ApiMessage();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+
+            try
+            {
+                BStoreHouse house = new BStoreHouse();
+                house.ID = int.Parse(request["id"]);
+                house.Name = request["name"];
+                house.Address = request["address"];
+                house.Phone = request["phone"];
+                house.IsDefault = false;
+                if (!string.IsNullOrEmpty(request["isdefault"]))
+                {
+                    if (request["isdefault"] == "1")
+                    {
+                        house.IsDefault = true;
+                    }
+                }
+                stockManager.UpdateStoreHouse(house);
+                message.Status = "ok";
+                message.Message = "修改成功";
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+            return message;
+        }
+        
+
+        [HttpPost]
         public PQGridData SearchProductsStore()
         {
             PQGridData data = new PQGridData();
@@ -125,6 +212,34 @@ namespace KM.JXC.Web.Controllers.api
             string keyword = request["keyword"];
             int total = 0;
             data.data=stockManager.SearchProductStocks(null, category, storeHouse, keyword, page, pageSize, out total);
+            data.curPage = page;
+            data.totalRecords = total;
+            return data;
+        }
+
+        [HttpPost]
+        public PQGridData SearchEnterStock()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int pageSize = 30;
+            int category = 0;
+            int storeHouse = 0;
+
+            int.TryParse(request["cid"], out category);
+            int.TryParse(request["house"], out storeHouse);
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            string keyword = request["keyword"];
+            int total = 0;
+            data.data = stockManager.SearchEnterStocks(0,0,0,0,0,0,storeHouse,page,pageSize,out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;

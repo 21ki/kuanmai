@@ -166,11 +166,11 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuy> SearchBuys(int[] buyids, int[] order_ids, int[] user_ids, int[] supplier_ids, int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBuy> SearchBuys(int[] buyids, int[] order_ids, int[] user_ids, int[] supplier_ids, int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords,bool getFullProductInfo=false)
         {
             List<KM.JXC.BL.Models.BBuy> verifications = new List<Models.BBuy>();
             totalRecords = 0;            
-
+            ProductManager pdtManager=new ProductManager(this.CurrentUser,this.Shop,this.CurrentUserPermission);
             if (pageIndex <= 0)
             {
                 pageIndex = 1;
@@ -257,6 +257,7 @@ namespace KM.JXC.BL
                                              CreateDate = bd.Create_Date,
                                              Price = bd.Price,
                                              Quantity = bd.Quantity,
+                                             ProductId = bd.Product_ID,
                                              Product = (from pdt in db.Product
                                                         where pdt.Product_ID == bd.Product_ID
                                                         select new BProduct
@@ -265,6 +266,14 @@ namespace KM.JXC.BL
                                                             Title = pdt.Name,
                                                         }).FirstOrDefault<BProduct>()
                                          }).ToList<BBuyDetail>();
+
+                            if (getFullProductInfo)
+                            {
+                                foreach (BBuyDetail d in b.Details)
+                                {
+                                    d.Product = pdtManager.GetProductFullInfo(d.ProductId);
+                                }
+                            }
                         }
                     }
                 }

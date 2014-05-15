@@ -1,0 +1,299 @@
+﻿@{
+    ViewBag.Title = "入库单详细信息";
+    Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.BL.Models.BEnterStock stock = (KM.JXC.BL.Models.BEnterStock)Model;
+}
+<script>
+    var mgr = new KMJXCBase();
+</script>
+<h3>入库单信息</h3>
+<div class="normallist b1 f1">
+    <table class="infolist">
+        <tr>
+            <td>入库单编号:
+            </td>
+            <td>
+                @stock.ID
+            </td>
+            <td>入库员:
+            </td>
+            <td>
+                @stock.Created_By.Name
+            </td>
+        </tr>
+        <tr>
+            <td>入库日期:
+            </td>
+            <td>
+                @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Created).ToString("yyyy-MM-dd HH:mm")
+            </td>
+            <td>入库仓库:
+            </td>
+            <td>
+                @stock.StoreHouse.Name
+            </td>
+        </tr>
+        <tr>
+            <td>状态:
+            </td>
+            <td colspan="3" style="color: red; font-weight: bold;">
+                @{
+                    if (stock.Status == 1)
+                    {
+                    @Html.Raw("已经更新到库存")
+                    }
+                    else
+                    {
+                    @Html.Raw("未更新到库存") 
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+    @{
+        if (stock.Details != null && stock.Buy.Details != null)
+        {
+            
+        @Html.Raw("<table class=\"infolist s1 t1\" id=\"order_products\">")
+        @Html.Raw("<tr class=\"header\">")
+        @Html.Raw("<td>库存编号")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>产品名称")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>库存属性")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>单价")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>数量")
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            
+            foreach (KM.JXC.BL.Models.BBuyDetail bDetail in stock.Buy.Details)
+            {
+
+                //find child products by EnterStock Detail
+
+                var ds = from estockDetail in stock.Details
+                         join ebuydetail in bDetail.Product.Children on estockDetail.StockProductId equals ebuydetail.ID
+                         select new
+                         {
+                             PID = estockDetail.StockProductId,
+                             Price = estockDetail.Price,
+                             Quantity = estockDetail.Quantity,
+                             Props = ebuydetail.Properties
+                         };
+                foreach (var dss in ds)
+                {
+                    if (dss.Quantity > 0)
+                    {
+                        @Html.Raw("<tr>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(dss.PID)
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(bDetail.Product.Title)
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        if (dss.Props != null)
+                        {
+                            string stockName = "";
+                            foreach (var prop in dss.Props)
+                            {
+                                if (stockName == "")
+                                {
+                                    stockName = prop.PName + ":" + prop.PValue;
+                                }
+                                else
+                                {
+                                    stockName += " " + prop.PName + ":" + prop.PValue;
+                                }
+                            }
+                            @Html.Raw("<span>")
+                                                @Html.Raw(stockName)
+                                                @Html.Raw("</span>")
+                        }
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(dss.Price.ToString("0.00"))
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(dss.Quantity)
+                        @Html.Raw("</td>")
+                        @Html.Raw("</tr>")
+                    }
+                }
+            }
+
+           
+        @Html.Raw("</table>")
+        }
+    }
+</div>
+<h3>验货单信息</h3>
+<div class="normallist b1 f1">
+    <table class="infolist">
+        <tr>
+            <td>验货单编号:
+            </td>
+            <td>
+                @stock.Buy.ID
+            </td>
+            <td>验货员:
+            </td>
+            <td>
+                @stock.Buy.User.Name
+            </td>
+        </tr>
+        <tr>
+            <td>到货日期:
+            </td>
+            <td>
+                @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.ComeDate).ToString("yyyy-MM-dd")
+            </td>
+            <td>录入日期:
+            </td>
+            <td>
+                @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Created).ToString("yyyy-MM-dd HH:mm")
+            </td>
+        </tr>
+        <tr>
+            <td>备注:
+            </td>
+            <td>
+                @stock.Buy.Description
+            </td>
+            <td>状态:
+            </td>
+            <td style="color: red; font-weight: bold;">
+
+                @{
+                    if (stock.Buy.Status == 1)
+                    {
+                    @Html.Raw("已经入库")
+                    }
+                    else
+                    {
+                    @Html.Raw("暂未入库") 
+                    }
+                }
+            </td>
+        </tr>
+    </table>
+    @{
+        if (stock.Buy.Details != null)
+        {
+        @Html.Raw("<table class=\"infolist s1 t1\" id=\"order_products\">")
+        @Html.Raw("<tr class=\"header\">")
+        @Html.Raw("<td>产品编号")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>产品名称")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>单价")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>数量")
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            foreach (KM.JXC.BL.Models.BBuyDetail oDetail in stock.Buy.Details)
+            {
+        @Html.Raw("<tr>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Product.ID)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Product.Title)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Price)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Quantity)
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            }
+        @Html.Raw("</table>")
+        }
+    }
+</div>
+<h3>采购单信息</h3>
+<div class="normallist b1 f1">
+    <table class="infolist">
+        <tr>
+            <td>采购单编号:</td>
+            <td>@stock.Buy.Order.ID</td>
+            <td>采购员:</td>
+            <td>@stock.Buy.Order.OrderUser.Name</td>
+            <td>供应商:</td>
+            <td>@stock.Buy.Order.Supplier.Name</td>
+
+        </tr>
+        <tr>
+            <td>签订日期:</td>
+            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.WriteTime).ToString("yyyy-MM-dd")</td>
+            <td>生效日期:</td>
+            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.InsureTime).ToString("yyyy-MM-dd")</td>
+            <td>截止日期:</td>
+            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.EndTime).ToString("yyyy-MM-dd")</td>
+        </tr>
+        <tr>
+            <td>录入员:</td>
+            <td>@stock.Buy.Order.Created_By.Name</td>
+            <td>录入日期:</td>
+            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.Created).ToString("yyyy-MM-dd HH:mm")</td>
+            <td>状态:
+            </td>
+            <td style="color: red; font-weight: bold;">
+
+                @{
+                    if (stock.Buy.Order.Status == 1)
+                    {
+                    @Html.Raw("已经验货")
+                    }
+                    else
+                    {
+                    @Html.Raw("暂未验货") 
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>备注:</td>
+            <td colspan="5">@stock.Buy.Order.Description</td>
+
+        </tr>
+    </table>
+    @{
+        if (stock.Buy.Order.Details != null)
+        {
+        @Html.Raw("<table class=\"infolist s1 t1\" id=\"order_products\">")
+        @Html.Raw("<tr class=\"header\">")
+        @Html.Raw("<td>产品编号")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>产品名称")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>单价")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>数量")
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            foreach (KM.JXC.BL.Models.BBuyOrderDetail oDetail in stock.Buy.Order.Details)
+            {
+        @Html.Raw("<tr>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Product.ID)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Product.Title)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Price)
+        @Html.Raw("</td>")
+        @Html.Raw("<td>")
+        @Html.Raw(oDetail.Quantity)
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            }
+        @Html.Raw("</table>")
+        }
+    }
+</div>
+

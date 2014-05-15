@@ -117,7 +117,7 @@
             $("<option value=\"0\">--选择--</option>").appendTo($storeHouse);
 
             stockMgr.GetStoreHouses({}, function (res) {
-                $(res).each(function (index, item) {
+                $(res.data).each(function (index, item) {
                     $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($storeHouse);
                 });
             });

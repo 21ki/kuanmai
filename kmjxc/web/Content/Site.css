@@ -261,12 +261,19 @@ textarea {
     overflow:hidden;
     padding-top:3px;padding-bottom:3px;
 }
-
+.b1 {
+    border-bottom: 1px dotted #666666;
+}
+.f1 {
+    font-size:13px;
+}
 .row label{
-    width:60px;
+    width:55px;
+    text-align:right;
+    padding-right:5px;
 }
 .row .label1{
-    width:90px;
+    width:85px;
 }
 
 .nolabel1 {
@@ -491,3 +498,34 @@ div.pq-grid-toolbar-crud
 .dltitle {
     font-weight:bold;
 }
+.infolist {
+    
+}
+td.tdc {
+    padding-left:10px;
+}
+.s1 {
+    margin-top:10px;
+    margin-bottom:10px;
+}
+.header {
+    font-weight:bold;
+}
+    .infolist tr {
+        padding-top:3px;
+        padding-bottom:3px;
+    }
+        .infolist tr td {
+            padding-left:5px;
+            padding-right:25px;
+        }
+.orders {
+    margin-left:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.t1 {
+    border-radius:4px;
+    border:1px solid #ccc;
+}
+   

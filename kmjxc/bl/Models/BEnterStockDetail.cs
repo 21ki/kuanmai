@@ -11,6 +11,7 @@ namespace KM.JXC.BL.Models
     {
         public BEnterStock EnterStock { get; set; }
         public BProduct Product { get; set; }
+        public int StockProductId { get; set; }
         public long Quantity { get; set; }
         public double Price { get; set; }
         public bool Invoiced { get; set; }

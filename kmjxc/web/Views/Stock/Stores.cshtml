@@ -25,7 +25,8 @@
                         {
                             title: "默认仓库", width: 80, dataType: "bool", dataIndx: "IsDefault", editable: false,
                             render: function (ui) {
-                                if (ui.rowData["IsDefault"] == "true") {
+                                
+                                if (ui.rowData["IsDefault"] == true) {
                                     return "是";
                                 } else {
                                     return "否";
@@ -78,12 +79,25 @@
             var title = "";
             var address = "";
             var phone = "";
-            var isdefault = "";
+            var isdefault = false;
             var guard = "";
-            $("<div class=\"row\"><label>名称:</label><input id=\"house_name\" class=\"W_input\" value=\"" + title + "\"/></div>").appendTo($div);
-            $("<div class=\"row\"><label>地址:</label><input id=\"house_address\" class=\"W_input\" value=\"" + address + "\"/></div>").appendTo($div);
-            $("<div class=\"row\"><label>电话:</label><input id=\"house_phone\" class=\"W_input\" value=\"" + phone + "\"/></div>").appendTo($div);
-            $("<div class=\"row\"><label>仓管:</label><select id=\"house_title\" class=\"W_inputsel\"></select></div>").appendTo($div);
+            var id = 0;
+            if (houseJson != null) {
+                id = houseJson.ID;
+                title = houseJson.Name;
+                address = houseJson.Address;
+                phone = houseJson.Phone;
+                isdefault = houseJson.IsDefault;
+            }
+            $("<input type=\"hidden\" id=\"house_id\" value=\"" + id + "\">").appendTo($div);
+            $("<div class=\"row\"><label>仓库名称:</label><input type=\"text\" id=\"house_name\" class=\"W_input\" value=\"" + title + "\"/></div>").appendTo($div);
+            $("<div class=\"row\"><label>联系地址:</label><input type=\"text\" id=\"house_address\" class=\"W_input\" value=\"" + address + "\"/></div>").appendTo($div);
+            $("<div class=\"row\"><label>联系电话:</label><input type=\"text\" id=\"house_phone\" class=\"W_input\" value=\"" + phone + "\"/></div>").appendTo($div);
+            if (!isdefault) {
+                $("<div class=\"row\"><label>设为默认:</label><input type=\"checkbox\" id=\"house_default\" class=\"W_input\"/></div>").appendTo($div);
+            } else {
+                $("<div class=\"row\"><label>设为默认:</label><input checked type=\"checkbox\" id=\"house_default\" class=\"W_input\"/></div>").appendTo($div);
+            }
         }
 
         $("#storeHouseTable").on("pqgridrender", function (evt, obj) {
@@ -105,7 +119,35 @@
                         $(this).html("");
                     },
                     buttons: {
-                        "保存": function () { },
+                        "保存": function () {
+                            var that = this;
+                            
+                            var name = $(this).find("#house_name").val();
+                            var address = $(this).find('#house_address').val();
+                            var phone = $(this).find("#house_phone").val();
+                            if ($.trim(name) == '') {
+                                alert("请输入仓库名称");
+                                return;
+                            }
+
+                            if ($.trim(address) == '') {
+                                alert("请输入仓库地址");
+                                return;
+                            }
+
+                            var isDefault = 0;
+                            if ($(this).find('#house_default').attr("checked") == "checked") {
+                                isDefault = 1;
+                            }
+                            var params = { 'name': name, 'address': address, 'phone': phone, "isdefault": isDefault };
+                            
+                            stockMgr.CreateStoreHouse(params, function (res) {
+                                if (res.Status == 'ok') {
+                                    $(that).dialog("close");
+                                    $grid.pqGrid("refreshDataAndView");
+                                }
+                            });
+                        },
                         "取消": function () {
                             $(this).dialog("close");
                         }
@@ -115,7 +157,62 @@
                 $('#popup_editnewdiv').dialog("open");
             });
             $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+                var rowIndx = getRowIndx();
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var row = data[rowIndx];
+                var id = row["ID"]
+               
+                $('#popup_editnewdiv').dialog({
+                    position: { my: "top", at: "top", of: $("#storeHouseTable") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "编辑仓库",
+                    modal: true,
+                    open: function () {
+                        RenderForm(row);
+                    },
+                    close: function () {
+                        $(this).html("");
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var id = $(this).find('#house_id').val();
+                            var name = $(this).find("#house_name").val();
+                            var address = $(this).find('#house_address').val();
+                            var phone = $(this).find("#house_phone").val();
+                            if ($.trim(name) == '') {
+                                alert("请输入仓库名称");
+                                return;
+                            }
 
+                            if ($.trim(address) == '') {
+                                alert("请输入仓库地址");
+                                return;
+                            }
+
+                            var isDefault = 0;
+                            if ($(this).find('#house_default').attr("checked") == "checked") {
+                                isDefault = 1;
+                            }
+                            var params = {'id':id, 'name': name, 'address': address, 'phone': phone, "isdefault": isDefault };
+
+                            stockMgr.UpdateStoreHouse(params, function (res) {
+                                if (res.Status == 'ok') {
+                                    $(that).dialog("close");
+                                    $grid.pqGrid("refreshDataAndView");
+                                }
+                            });
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup_editnewdiv').dialog("open");
             });
             $("<span id=\"get_ccate\">设为默认仓库</span>").appendTo($menubar).button().click(function (evt) {
 
