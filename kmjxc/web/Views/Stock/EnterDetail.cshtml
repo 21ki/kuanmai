@@ -4,11 +4,31 @@
     KM.JXC.BL.Models.BEnterStock stock = (KM.JXC.BL.Models.BEnterStock)Model;
 }
 <script>
-    var mgr = new KMJXCBase();
+    var stockMgr = new KMJXCStockManager();
+    var eStatus =@stock.Status
+    eId=@stock.ID
+    $(function () {
+        $('#enterStockTable').find('#update_to_stock').button().click(function (e) {
+            var that = this;
+            if (eStatus == 1) {
+                alert("此入库单已经更新到库存");
+                return;
+            }
+            stockMgr.UpdateStockByEnter({ enter_id: eId }, function (res) {
+                if (res.Status == 'ok') {
+                    eStatus = 1;
+                    $(that).prev("span").html("已经更新到库存");
+                    $(that).remove();
+                } else {
+                    alert(res.Message);
+                }
+            });
+        });
+    });
 </script>
 <h3>入库单信息</h3>
 <div class="normallist b1 f1">
-    <table class="infolist">
+    <table class="infolist" id="enterStockTable">
         <tr>
             <td>入库单编号:
             </td>
@@ -36,15 +56,15 @@
         <tr>
             <td>状态:
             </td>
-            <td colspan="3" style="color: red; font-weight: bold;">
+            <td colspan="3" >
                 @{
                     if (stock.Status == 1)
                     {
-                    @Html.Raw("已经更新到库存")
+                    @Html.Raw("<span style=\"color: red; font-weight: bold;\">已经更新到库存</span>")
                     }
                     else
                     {
-                    @Html.Raw("未更新到库存") 
+                    @Html.Raw("<span style=\"color: red; font-weight: bold;margin-right:10px;\">未更新到库存</span><span id=\"update_to_stock\">更新到库存</span>") 
                     }
                 }
             </td>

@@ -1,5 +1,145 @@
 ﻿@{
-    ViewBag.Title = "Leave";
+    ViewBag.Title = "销售出库单查询";
 }
 
-<h2>Leave</h2>
+<script>
+
+    var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
+    var stockMgr = new KMJXCStockManager();
+    var $grid = null; 
+    var $form = null;
+    var $searchform = null;
+    $(function () {
+        $form = $('#editnewform');
+        var obj = {
+            width: 830, height: 600, title: "销售出库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {               
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];               
+            }
+        };
+
+        obj.colModel = [
+                        {
+                            title: "出库单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
+                            render: function (ui) {
+                                return "<a href=\"/Stock/EnterDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
+                            }
+                        },                     
+                       
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {                               
+                                if (ui.rowData["FromMainShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 主店铺";
+                                } else if (ui.rowData["FromChildShop"] == "true") {
+                                    return ui.rowData["Shop"].Title + " 子店铺";
+                                } else {                                   
+                                    return ui.rowData["Shop"].Title;
+                                }
+                            }
+                        },
+                        { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale.Mall_Trade_ID", editable: false },
+                        { title: "订单总金额", width: 150, dataType: "string", dataIndx: "Sale.Amount", editable: false },
+                        { title: "买家", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Mall_Name", editable: false },
+                        { title: "买家电话", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Phone", editable: false },
+                        { title: "买家地址", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Address", editable: false },
+                        { title: "出库员", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
+                        { title: "出库日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 50, 60, 100],
+            getUrl: function (prgrid) {
+                var sale_id = $($searchform).find("#sale_id").val();
+                var sdate = $($searchform).find("#leave_sdate").val();
+                var edate = $($searchform).find("#leave_edate").val();
+                return {
+                    url: "/api/Stock/SearchLeaveStock", data: "page="+this.curPage+"&pageSize="+this.rPP+"&sale_id="+sale_id+"&sdate="+sdate+"&edate="+edate
+                };
+            },
+            getData: function (dataJSON) {                
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+       
+
+        $("#leaveStockTable").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            //var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this)); 
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
+            $("<label class=\"label1\">销售单号:</label>").appendTo($srow);
+            $("<input id=\"sale_id\" title='销售单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+            $("<label class=\"label1 searchField\">出库日期范围:</label>").appendTo($srow);
+            $("<input id=\"leave_sdate\" title='开始日期' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).datepicker(
+                {
+                    currentText: "Now",
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                });
+            $("<input id=\"leave_edate\" title='结束日期' type='text' class='W_input searchField' style='height:22px;'/>").appendTo($srow).datepicker(
+                {
+                    currentText: "Now",
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                });
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                   .appendTo($srow)
+                   .button({ text: true }).bind("click", function (evt) {
+                       $grid.pqGrid("refreshDataAndView");
+                   });
+        });
+
+        $grid = $("#leaveStockTable").pqGrid(obj);
+
+
+        function getRowIndx() {
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
+    });
+
+</script>
+
+<div class="normallist">
+    <div id="leaveStockTable"></div>
+    <form id="editnewform">
+        <div id="popup_editnewdiv">
+
+        </div>
+    </form>
+    
+</div>
+

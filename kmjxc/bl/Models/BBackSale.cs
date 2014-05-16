@@ -9,12 +9,16 @@ namespace KM.JXC.BL.Models
     public class BBackSale
     {
         public int ID { get; set; }
-        public int Date { get; set; }
-        public BTrade Trade { get; set; }
-        public BUser CreatedBy { get; set; }
-        public Store_House StoreHouse { get; set; }
+        public int BackTime { get; set; }
+        public int Created { get; set; }
+        public BSale Sale { get; set; }
+        public BUser CreatedBy { get; set; }        
         public string Description { get; set;}
         public BShop Shop { get; set; }
         public List<BBackSaleDetail> Details { get; set; }
+        
+        //Internal used only
+        public bool GenerateBackStock { get; set; }
+        public bool UpdateStock { get; set; }
     }
 }

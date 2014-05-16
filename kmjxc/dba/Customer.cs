@@ -22,5 +22,7 @@ namespace KM.JXC.DBA
         public string Address { get; set; }
         public Nullable<int> City_ID { get; set; }
         public Nullable<int> Province_ID { get; set; }
+        public string Mall_ID { get; set; }
+        public string Mall_Name { get; set; }
     }
 }

@@ -12,10 +12,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Super" Width="1.5" PointX="1.7657138918366813" PointY="22.936477478098347" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_User_Action" Width="1.5" PointX="7.6901360394852869" PointY="21.873020227008045" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_User_Role" Width="1.5" PointX="6.4918072049002191" PointY="10.646459137390581" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Sale" Width="1.5" PointX="9.82277255962732" PointY="15.022932223520677" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Sale_Detail" Width="1.5" PointX="11.383272075738418" PointY="19.809532994315742" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock" Width="1.5" PointX="1.419978144308542" PointY="3.2630518541033622" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" Width="1.5" PointX="4.0952516273107618" PointY="30.963527291530522" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy" Width="1.5" PointX="1.445611334147682" PointY="30.458954586861168" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Order" Width="1.5" PointX="1.0254165143824259" PointY="7.7208705580424848" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Order_Detail" Width="1.5" PointX="2.8077289605549209" PointY="13.636876306327467" />
@@ -24,13 +21,11 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Employee" Width="1.5" PointX="7.0813470627560031" PointY="28.667075572846027" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Enter_Stock" Width="1.5" PointX="4.5507926924856346" PointY="18.806503110940803" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Enter_Stock_Detail" Width="1.5" PointX="0.074256425758011835" PointY="13.842261678465764" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Leave_Stock" Width="1.5" PointX="12" PointY="1.25" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Type" Width="1.5" PointX="3.8782201930313462" PointY="0.33397281185443178" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Open_Key" Width="1.5" PointX="1.1379794111186543" PointY="21.614505688480335" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product" Width="1.5" PointX="6.6139943313850065" PointY="2.2928677211948054" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Supplier" Width="1.5" PointX="6.3852771662107095" PointY="20.520593459029026" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Unit" Width="1.5" PointX="0.67996679650618086" PointY="12.307937791714416" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale" Width="1.5" PointX="1.0856092633146837" PointY="8.3452998438595323" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Shop" Width="1.5" PointX="6.4365527436307408" PointY="6.1905580191829044" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Shop_Child_Request" Width="1.5" PointX="7.5489159689978305" PointY="23.071694071903682" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Shop_User" Width="1.5" PointX="11.0317601408026" PointY="18.056393885079956" />
@@ -43,7 +38,6 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Spec" Width="1.5" PointX="11.75" PointY="4.875" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Spec_Value" Width="1.5" PointX="4.1041493807472982" PointY="28.596722735369916" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Specifications" Width="1.5" PointX="0.0890035070893371" PointY="22.997826542238624" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_Detail" Width="1.5" PointX="1.5007066957190198" PointY="7.8168501741331307" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Class" Width="1.5" PointX="11.218122018137073" PointY="23.436478044575303" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="2.4915125269868934" PointY="19.904071861833369" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Stock_Waste" Width="1.5" PointX="0.52278327966238525" PointY="22.486056204180258" />
@@ -51,6 +45,13 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Common_District" Width="1.5" PointX="5.913490413647839" PointY="13.979062936258996" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Detail" Width="1.5" PointX="10.579144113966796" PointY="7.1897338215213891" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Store_House" Width="1.5" PointX="4.3376745620452208" PointY="16.27809131903485" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Leave_Stock" Width="1.5" PointX="9.3850265039992653" PointY="8.9085232805966044" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Leave_Stock_Detail" Width="1.5" PointX="11.619784349398588" PointY="24.154549207610334" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale" Width="1.5" PointX="0.64922200359833526" PointY="12.009800335396919" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_Detail" Width="1.5" PointX="6.4726357303898014" PointY="7.0232997867387255" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock" Width="1.5" PointX="10.308249172898126" PointY="29.998914658091458" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" Width="1.5" PointX="2.3069765690280946" PointY="16.492073633005877" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Sale" Width="1.5" PointX="3.6049511896469406" PointY="13.865696868796691" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

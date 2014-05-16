@@ -136,6 +136,9 @@
     <Compile Include="Leave_Stock.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Leave_Stock_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Mall_Product.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

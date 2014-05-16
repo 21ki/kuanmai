@@ -57,6 +57,9 @@
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
+    <Compile Include="Models\BCustomer.cs" />
+    <Compile Include="Models\BLeaveStock.cs" />
+    <Compile Include="Models\BLeaveStockDetail.cs" />
     <Compile Include="Models\BProductStoreProperty.cs" />
     <Compile Include="ImageManager.cs" />
     <Compile Include="Models\Area.cs" />
@@ -81,7 +84,7 @@
     <Compile Include="Models\BShop.cs" />
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />
-    <Compile Include="Models\BTrade.cs" />
+    <Compile Include="Models\BSale.cs" />
     <Compile Include="Models\BUser.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="BuyManager.cs" />
@@ -100,7 +103,7 @@
     <Compile Include="Open\TaoBao\TaoBaoUserManager.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />
-    <Compile Include="OrderManager.cs" />
+    <Compile Include="SalesManager.cs" />
     <Compile Include="ProductManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShopCategoryManager.cs" />

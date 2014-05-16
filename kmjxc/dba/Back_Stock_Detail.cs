@@ -17,6 +17,8 @@ namespace KM.JXC.DBA
         public int Back_Stock_ID { get; set; }
         public int Product_ID { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
+        public int Parent_Product_ID { get; set; }
+        public Nullable<int> StoreHouse_ID { get; set; }
     }
 }

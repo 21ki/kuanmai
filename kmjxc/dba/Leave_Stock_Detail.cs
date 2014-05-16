@@ -12,20 +12,13 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Sale_Detail
+    public partial class Leave_Stock_Detail
     {
-        public int Sale_DID { get; set; }
-        public int Sale_ID { get; set; }
+        public int Leave_Stock_ID { get; set; }
         public int Product_ID { get; set; }
         public int Parent_Product_ID { get; set; }
-        public string Mall_PID { get; set; }
-        public string Mall_Order_ID { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
-        public Nullable<decimal> Discount { get; set; }
-        public string Status { get; set; }
-        public Nullable<double> Amount { get; set; }
-        public Nullable<int> Supplier_ID { get; set; }
-        public Nullable<int> StockStatus { get; set; }
+        public int StoreHouse_ID { get; set; }
     }
 }
