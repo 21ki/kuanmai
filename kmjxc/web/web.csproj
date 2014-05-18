@@ -128,6 +128,7 @@
     <Compile Include="Controllers\api\CategoriesController.cs" />
     <Compile Include="Controllers\api\CommonController.cs" />
     <Compile Include="Controllers\api\ProductsController.cs" />
+    <Compile Include="Controllers\api\SaleController.cs" />
     <Compile Include="Controllers\api\StockController.cs" />
     <Compile Include="Controllers\api\SuppliersController.cs" />
     <Compile Include="Controllers\api\UsersController.cs" />
@@ -673,6 +674,10 @@
     <Content Include="Views\Stock\Stores.cshtml" />
     <Content Include="Views\Stock\StockDetail.cshtml" />
     <Content Include="Views\Stock\EnterDetail.cshtml" />
+    <Content Include="Views\Sale\Search.cshtml" />
+    <Content Include="Views\Sale\Back.cshtml" />
+    <Content Include="Views\Sale\Change.cshtml" />
+    <Content Include="Views\Sale\Customer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -17,16 +17,200 @@ namespace KM.JXC.BL
 {
     public class SalesManager:BBaseManager
     {
+        private StockManager stockManager = null;
         public SalesManager(BUser user, int shop_id, Permission permission)
             : base(user, shop_id,permission)
         {
         }
 
-        public SalesManager(BUser user, Permission permission)
-            : base(user,permission)
+       public SalesManager(BUser user, Shop shop, Permission permission)
+            : base(user,shop,permission)
+       {
+           stockManager = new StockManager(user,shop,permission);
+       }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sale_ids"></param>
+        /// <param name="user_ids"></param>
+        /// <param name="stime"></param>
+        /// <param name="etime"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BBackSale> SearchBackSales(int[] sale_ids, int[] user_ids, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
         {
+            List<BBackSale> backSales = new List<BBackSale>();
+            totalRecords = 0;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (cspids == null)
+                {
+                    cspids = new int[] { 0 };
+                }
+                var dbBackSales = from sale in db.Back_Sale
+                                  where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
+                                  select sale;
+
+                if (sale_ids != null && sale_ids.Length > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => sale_ids.Contains(s.Sale_ID));
+                }
+
+                if (user_ids != null && user_ids.Length > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => user_ids.Contains(s.User_ID));
+                }
+
+                if (stime > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => s.Back_Date >= stime);
+                }
+
+                if (etime > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => s.Back_Date <= etime);
+                }
+
+                backSales = (from sale in dbBackSales
+                             join user in db.User on sale.User_ID equals user.User_ID
+                             join mtype in db.Mall_Type on user.Mall_Type equals mtype.Mall_Type_ID
+                             join order in db.Sale on sale.Sale_ID equals order.Sale_ID
+                             join customer in db.Customer on order.Buyer_ID equals customer.Customer_ID
+                             join shop in db.Shop on sale.Shop_ID equals shop.Shop_ID
+                             select new BBackSale
+                             {
+                                 BackTime = (int)sale.Back_Date,
+                                 Created = sale.Created,
+                                 CreatedBy = new BUser
+                                 {
+                                     ID = user.User_ID,
+                                     Mall_ID = user.Mall_ID,
+                                     Mall_Name = user.Mall_Name,
+                                     Created = (int)user.Created,
+                                     Type = mtype
+                                 },
+                                 Description = sale.Description,
+                                 ID = sale.Back_Sale_ID,
+                                 Sale = new BSale
+                                 {
+                                     Amount = order.Amount,
+                                     Buyer = new BCustomer
+                                     {
+                                         ID = customer.Customer_ID,
+                                         Mall_ID = customer.Mall_ID,
+                                         Mall_Name = customer.Mall_Name,
+                                         Type = mtype
+                                     },
+                                     Created = (int)order.Created,
+                                     ID = order.Sale_ID,
+                                     Mall_Trade_ID = order.Mall_Trade_ID,
+                                     Modified = (int)order.Modified,
+                                     Post_Fee = (double)order.Post_Fee,
+                                     Status = order.Status,
+                                     Synced = (int)order.Synced
+
+                                 },
+
+                                 Shop = new BShop
+                                 {
+                                     ID = shop.Shop_ID,
+                                     Title = shop.Name,
+                                     Mall_ID = shop.Mall_Shop_ID,
+                                     Type = mtype
+                                 }
+
+                             }).OrderBy(a => a.ID).OrderBy(a => a.Shop.ID).ToList<BBackSale>();
+
+
+                int[] bsaleids = (from bsale in backSales select bsale.ID).ToArray<int>();
+                List<BBackSaleDetail> details = (from detail in db.Back_Sale_Detail
+                                                 where bsaleids.Contains(detail.Back_Sale_ID)
+                                                 select
+                                                     new BBackSaleDetail
+                                                     {
+
+                                                     }).ToList<BBackSaleDetail>();
+            }
+            return backSales;
         }
-      
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backSale"></param>
+        /// <param name="details"></param>
+        public void CreateBackSale(BBackSale backSale)
+        {
+            if (backSale == null)
+            {
+                return;
+            }
+
+            List<BBackSaleDetail> details = backSale.Details;
+
+            if (this.CurrentUserPermission.ADD_BACK_STOCK == 0)
+            {
+                throw new KMJXCException("没有权限进行退货操作");
+            }
+            if (backSale.Sale == null || backSale.Sale.ID <= 0)
+            {
+                throw new KMJXCException("请选择一个销售单进行退货");
+            }
+
+            if (details == null)
+            {
+                throw new KMJXCException("");
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                List<Product> products = (from p in db.Product where p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(p.Shop_ID) select p).ToList<Product>();
+                Back_Sale dbbackSale = new Back_Sale();
+                dbbackSale.Back_Date = backSale.BackTime;
+                dbbackSale.Back_Sale_ID = 0;
+                dbbackSale.Description = backSale.Description;
+                dbbackSale.Sale_ID = backSale.Sale.ID;
+                dbbackSale.Shop_ID = this.Shop.Shop_ID;
+                dbbackSale.User_ID = this.CurrentUser.ID;
+                db.Back_Sale.Add(dbbackSale);
+                if (dbbackSale.Back_Sale_ID <= 0)
+                {
+                    throw new KMJXCException("退货单创建失败");
+                }
+
+                List<BBackStockDetail> bdetails = new List<BBackStockDetail>();
+                foreach (BBackSaleDetail sDetail in details)
+                {
+                    Back_Sale_Detail dbSaleDetail = new Back_Sale_Detail();
+                    dbSaleDetail.Back_Sale_ID = dbbackSale.Back_Sale_ID;
+                    dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbSaleDetail.Description = sDetail.Description;
+                    dbSaleDetail.Parent_Product_ID = sDetail.ParentProductID;
+                    if (dbSaleDetail.Parent_Product_ID == 0)
+                    {
+                        dbSaleDetail.Parent_Product_ID = (from p in products where p.Product_ID == sDetail.ProductID select p.Parent_ID).FirstOrDefault<int>();
+                    }
+                    dbSaleDetail.Price = sDetail.Price;
+                    dbSaleDetail.Product_ID = sDetail.ProductID;
+                    dbSaleDetail.Quantity = sDetail.Quantity;
+                    dbSaleDetail.Status = 0;
+                    db.Back_Sale_Detail.Add(dbSaleDetail);
+                }
+                db.SaveChanges();
+
+                if (backSale.GenerateBackStock)
+                {
+                    stockManager.CreateBackStock(dbbackSale.Back_Sale_ID, backSale.UpdateStock);
+                }
+
+                db.SaveChanges();
+            }
+        }       
+
         /// <summary>
         /// 
         /// </summary>

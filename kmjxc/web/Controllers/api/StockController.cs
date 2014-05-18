@@ -247,7 +247,7 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
-        public PQGridData SearchBackStock()
+        public PQGridData SearchLeaveStock()
         {
             PQGridData data = new PQGridData();
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
@@ -295,7 +295,7 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
-        public PQGridData SearchLeaveStock()
+        public PQGridData SearchBackStock()
         {
             PQGridData data = new PQGridData();
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
@@ -336,7 +336,22 @@ namespace KM.JXC.Web.Controllers.api
             int.TryParse(request["back_id"], out back_id);
             int.TryParse(request["user_id"], out uid);
             int total = 0;
-            data.data = stockManager.SearchBackStocks(new int[] { back_id }, new int[] { sale_id }, new int[] { uid }, stime, etime, page, pageSize, out total);
+            int[] backids = null;
+            if (back_id > 0)
+            {
+                backids = new int[] { back_id};
+            }
+            int[] userids = null;
+            if (uid > 0)
+            {
+                userids = new int[] { uid};
+            }
+            int[] saleids = null;
+            if (sale_id > 0)
+            {
+                saleids = new int[] { sale_id};
+            }
+            data.data = stockManager.SearchBackStocks(backids, saleids, userids, stime, etime, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;

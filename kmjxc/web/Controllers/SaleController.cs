@@ -11,10 +11,22 @@ namespace KM.JXC.Web.Controllers
         //
         // GET: /Sale/
 
-        public ActionResult Index()
+        public ActionResult Search()
         {
             return View();
         }
 
+        public ActionResult Back()
+        {
+            return View();
+        }
+        public ActionResult Change()
+        {
+            return View();
+        }
+        public ActionResult Customer()
+        {
+            return View();
+        }
     }
 }

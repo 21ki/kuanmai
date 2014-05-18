@@ -77,12 +77,75 @@
            </div>
 
            <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'sale','MenuContainer')">销售管理</a></div>
-           <div class="menuContainer" id="saleMenuContainer" style="display:none;">
+           <div class="menuContainer" id="saleMenuContainer" 
+                @if (controller != "Sale") {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }    
+               >
                <ul>
-                   <li>销售单查询</li>                   
-                   <li>退货单查询</li>    
-                   <li>换货单查询</li>   
-                   <li>客户管理</li>                            
+                   <li>
+                       <a href="/Sale/Search"
+                       
+                       @if (action == "Search")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       销售单查询</a>
+
+                   </li>                   
+                   <li>
+                       <a href="/Sale/Back"
+                       
+                       @if (action == "Back")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       退货单查询</a>
+
+                   </li>    
+                   <li>
+                       <a href="/Sale/Change"
+                       
+                       @if (action == "Change")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       换货单查询</a>
+
+                   </li>   
+                   <li>
+                       <a href="/Sale/Customer"
+                       
+                       @if (action == "Customer")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       客户管理</a></li>                            
                </ul>
            </div>
 
