@@ -18,6 +18,7 @@ namespace KM.JXC.BL.Models
         public decimal Price { get; set; }
         public long CreateTime { get; set; }
         public Shop Shop { get; set; }
+        public BShop BShop { get; set; }
         public BProduct Parent { get; set; }
         public List<Supplier> Suppliers { get; set; }
         public string Code { get; set; }

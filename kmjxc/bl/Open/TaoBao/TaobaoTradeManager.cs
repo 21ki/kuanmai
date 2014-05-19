@@ -28,5 +28,14 @@ namespace KM.JXC.BL.Open.TaoBao
         {
            
         }
+
+        public void SyncSingleTrade(string trade_id)
+        {
+        }
+
+        public List<TB.Trade> SyncTrades(string sDate, string eDate, string status)
+        {
+            return new List<TB.Trade>();
+        }
     }
 }

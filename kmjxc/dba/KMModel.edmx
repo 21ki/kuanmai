@@ -581,6 +581,7 @@
           <Property Name="Stock_Waste_ID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
           <Property Name="Product_ID" Type="mediumint" Nullable="false" />
+          <Property Name="Parent_ProductID" Type="mediumint" Nullable="false" />
           <Property Name="Quantity" Type="mediumint" Nullable="false" />
           <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
         </EntityType>
@@ -1141,6 +1142,7 @@
           <Property Type="Int32" Name="Product_ID" Nullable="false" />
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
+          <Property Type="Int32" Name="Parent_ProductID" Nullable="false" />
         </EntityType>
         <EntityType Name="Image">
           <Key>
@@ -1218,7 +1220,7 @@
             <PropertyRef Name="Sale_ID" />
           </Key>
           <Property Type="Int32" Name="Sale_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Type="Int64" Name="Sale_Time" Nullable="false" />
+          <Property Type="Int32" Name="Sale_Time" Nullable="false" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Int32" Name="Buyer_ID" />
           <Property Type="String" Name="Mall_Trade_ID" MaxLength="30" FixedLength="false" Unicode="false" />
@@ -1752,6 +1754,7 @@
           <EntitySetMapping Name="Stock_Waste">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Waste">
               <MappingFragment StoreEntitySet="Stock_Waste">
+                <ScalarProperty Name="Parent_ProductID" ColumnName="Parent_ProductID" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />

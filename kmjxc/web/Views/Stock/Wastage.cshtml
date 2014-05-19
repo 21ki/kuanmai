@@ -1,0 +1,181 @@
+﻿@{
+    ViewBag.Title = "商品损耗";
+}
+
+<script>
+
+    var cateMgr = new KMJXCProductManager();
+    var buyMgr = new KMJXCBuyManager();
+    var stockMgr = new KMJXCStockManager();
+    var $grid = null; 
+    var $form = null;
+    var $searchform = null;
+    $(function () {
+        $form = $('#editnewform');
+        var obj = {
+            width: 830, height: 600, title: "商品损耗列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {               
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];               
+            }
+        };
+
+        obj.colModel = [
+                        {
+                            title: "产品编号", width: 100, dataType: "integer", dataIndx: "Product.ID", editable: false
+                           
+                        },
+
+                        {
+                            title: "产品类目", width: 100, dataType: "string", dataIndx: "Product.Category.Name", editable: false
+
+                        },
+
+                        {
+                            title: "产品名称", width: 220, dataType: "string", dataIndx: "Product.Title", editable: false
+
+                        },
+                        {
+                           title: "产品损耗", width: 220, dataType: "string", dataIndx: "Quantity", editable: false
+
+                        },
+
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "Product.Shop.Title", editable: false,
+                             render: function (ui) {
+                                 if (ui.rowData["Product"].FromMainShop == "true") {
+                                     return ui.rowData["Product"].BShop.Title + " 主店铺";
+                                 } else if (ui.rowData["Product"].FromChildShop == "true") {
+                                     return ui.rowData["Product"].BShop.Title + " 子店铺";
+                                 } else {
+                                     return ui.rowData["Product"].BShop.Title;
+                                 }
+                             }
+                         },
+                       
+                        
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 50, 60, 100],
+            getUrl: function (prgrid) {
+                var pid = $searchform.find("#pq-parent-cate").val();
+                var ccid = $searchform.find("#pq-child-cate").val();
+                var cid = "";
+                if (ccid > 0) {
+                    cid = ccid;
+                } else {
+                    if (pid > 0) {
+                        cid = pid;
+                    }
+                }
+                var keyword = $searchform.find('#pdt_key_word').val();
+                return {
+                    url: "/api/Stock/SearchProductWastage", data: "cid=" + cid + "&keyword=" + keyword + "&page=" + this.curPage + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {                
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+
+        }
+
+       
+
+        $("#leaveStockTable").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            //var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
+            $("<label>类目:</label>").appendTo($srow);
+            var $pcate = $("<select id='pq-parent-cate' class='W_input' style='height:24px;'>\
+            </select>").appendTo($srow).change(function () {
+                if ($(this).val() != 0) {
+                    var pid = $(this).val();
+                    cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                        if ($(res.data).size() > 0) {
+
+                            $ccate.empty();
+                            $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                            $(res.data).each(function (index, item) {
+                                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                            });
+                            $ccate.show();
+                        } else {
+                            $ccate.hide();
+                            $ccate.empty();
+                        }
+                    });
+
+                } else {
+                    $ccate.hide();
+                    $ccate.empty();
+                }
+            });
+
+            $("<option value=\"0\">--选择--</option>").appendTo($pcate);
+            cateMgr.GetCategories({ 'parent_id': 0 }, function (res) {
+                pcate = res.data;
+                $(res.data).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
+                });
+            });
+
+            var $ccate = $("<select id='pq-child-cate' class='W_input' style='height:24px;display:none;'>\
+            </select>").appendTo($srow).change(function () {
+
+            });
+
+            $("<label>关键字:</label>").appendTo($srow);
+            $("<input id=\"pdt_key_word\" title='关键字' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                    .appendTo($srow)
+                    .button({ text: true }).bind("click", function (evt) {
+                        $grid.pqGrid("refreshDataAndView");
+                    });
+        });
+
+        $grid = $("#leaveStockTable").pqGrid(obj);
+
+
+        function getRowIndx() {
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                var rowIndx = arr[0].rowIndx;
+
+                //if (rowIndx != null && colIndx == null) {
+                return rowIndx;
+            }
+            else {
+                alert("请选择一行");
+                return null;
+            }
+        }
+    });
+
+</script>
+
+<div class="normallist">
+    <div id="leaveStockTable"></div>
+    <form id="editnewform">
+        <div id="popup_editnewdiv">
+
+        </div>
+    </form>
+    
+</div>
+

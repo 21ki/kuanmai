@@ -15,19 +15,190 @@ using KM.JXC.BL.Models;
 
 namespace KM.JXC.BL
 {
-    public class SalesManager:BBaseManager
+    public class SalesManager : BBaseManager
     {
         private StockManager stockManager = null;
+        private IOTradeManager tradeManager = null;
         public SalesManager(BUser user, int shop_id, Permission permission)
-            : base(user, shop_id,permission)
+            : base(user, shop_id, permission)
         {
+            tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
         }
 
-       public SalesManager(BUser user, Shop shop, Permission permission)
-            : base(user,shop,permission)
-       {
-           stockManager = new StockManager(user,shop,permission);
-       }
+        public SalesManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
+        {
+            stockManager = new StockManager(user, shop, permission);
+            tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public bool SyncMallTrades(int startTime, int endTime, string status)
+        {
+            bool result = false;
+            
+            
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mall_trade_id"></param>
+        /// <returns></returns>
+
+        public bool SyncSingleMallTrade(string mall_trade_id)
+        {
+            bool result = false;
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="customers"></param>
+        /// <param name="sSaleTime"></param>
+        /// <param name="eSaleTime"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BSale> SearchSales(int[] products, int[] customers, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords)
+        {
+            List<BSale> sales = null;
+            totalRecords = 0;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var trades = from sale in db.Sale
+                             where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
+                             select sale;
+
+                if (products != null && products.Length > 0)
+                {
+                    int[] sale_ids = (from order in db.Sale_Detail
+                                      where products.Contains(order.Parent_Product_ID)
+                                      select order.Sale_ID).Distinct<int>().ToArray<int>();
+                    if (sale_ids != null && sale_ids.Length > 0)
+                    {
+                        trades = trades.Where(t => sale_ids.Contains(t.Sale_ID));
+                    }
+                }
+
+                if (customers != null && customers.Length > 0)
+                {
+                    trades = trades.Where(t => customers.Contains((int)t.Buyer_ID));
+                }
+
+                if (sSaleTime > 0)
+                {
+                    trades = trades.Where(t => t.Sale_Time >= sSaleTime);
+                }
+
+                if (eSaleTime > 0)
+                {
+                    trades = trades.Where(t => t.Sale_Time <= eSaleTime);
+                }
+
+                sales = (from t in trades
+                         join customer in db.Customer on t.Buyer_ID equals customer.Customer_ID
+                         join shop in db.Shop on t.Shop_ID equals shop.Shop_ID
+                         select new BSale
+                         {
+                             ID = t.Sale_ID,
+                             Created = (int)t.Created,
+                             Synced = (int)t.Synced,
+                             Modified = (int)t.Modified,
+                             SaleDateTime = t.Sale_Time,
+                             Amount = t.Amount,
+                             Buyer = new BCustomer
+                             {
+                                 ID = customer.Customer_ID,
+                                 Name = customer.Name,
+                                 Mall_ID = customer.Mall_ID,
+                                 Mall_Name = customer.Mall_Name
+                             },
+                             Mall_Trade_ID = t.Mall_Trade_ID,
+                             Post_Fee = (double)t.Post_Fee,
+                             Status = t.Status,
+                             Shop = new BShop
+                             {
+                                 ID = shop.Shop_ID,
+                                 Title = shop.Name
+                             }
+                         }).OrderBy(s => s.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+
+                int[] bsale_ids = (from sale in sales select sale.ID).ToArray<int>();
+                var sale_details = from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Sale_ID) select sdetail;
+                int[] product_ids = (from sd in sale_details select sd.Parent_Product_ID).ToArray<int>();
+                int[] cproduct_ids = (from sd in sale_details select sd.Product_ID).Distinct<int>().ToArray<int>();
+                var dbProducts = from product in db.Product where product_ids.Contains(product.Product_ID) select product;
+                var childs = from prop in db.Product_Specifications
+                             join ps in db.Product_Spec on prop.Product_Spec_ID equals ps.Product_Spec_ID
+                             join psv in db.Product_Spec_Value on prop.Product_Spec_Value_ID equals psv.Product_Spec_Value_ID
+                             where cproduct_ids.Contains(prop.Product_ID)
+                             select new
+                             {
+                                 ProductID = prop.Product_ID,
+                                 PID = prop.Product_Spec_ID,
+                                 PName = ps.Name,
+                                 PVID = prop.Product_Spec_Value_ID,
+                                 PValue = psv.Name
+                             };
+                foreach (BSale sale in sales)
+                {
+                    sale.Orders = (from order in sale_details
+                                   join product in dbProducts on order.Parent_Product_ID equals product.Product_ID into l_products
+                                   from lproduct in l_products.DefaultIfEmpty()
+                                   select new BOrder
+                                   {
+                                       ID = order.Sale_DID,
+                                       Amount = (double)order.Amount,
+                                       Mall_Order_ID = order.Mall_Order_ID,
+                                       Quantity = order.Quantity,
+                                       Price = order.Price,
+                                       Parent_Product_ID = order.Parent_Product_ID,
+                                       Product_ID = order.Product_ID,
+                                       Product = new BProduct
+                                       {
+                                           ID = lproduct.Product_ID,
+                                           Title = lproduct.Name
+                                       }
+                                   }).ToList<BOrder>();
+
+                    foreach (BOrder order in sale.Orders)
+                    {
+                        if (order.Product != null)
+                        {
+                            order.Product.Children = new List<BProduct>();
+                            BProduct child = new BProduct();
+                            child.Title = order.Product.Title;
+                            child.ID = order.Product_ID;
+                            child.Properties = (from p in childs
+                                                where p.ProductID == child.ID
+                                                select new BProductProperty
+                                                {
+                                                    PID = p.PID,
+                                                    PName = p.PName,
+                                                    PValue = p.PValue,
+                                                    PVID = p.PVID
+                                                }).ToList<BProductProperty>();
+
+                            order.Product.Children.Add(child);
+                        }
+                    }
+                }
+            }
+
+            return sales;
+        }
 
         /// <summary>
         /// 
@@ -209,7 +380,7 @@ namespace KM.JXC.BL
 
                 db.SaveChanges();
             }
-        }       
+        }
 
         /// <summary>
         /// 
@@ -248,19 +419,5 @@ namespace KM.JXC.BL
             return details;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user_id"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="total"></param>
-        /// <returns></returns>
-        public List<BBackSale> GetBackSales(int user_id,int category_id,string keyword, int pageIndex, int pageSize, int total)
-        {
-            List<BBackSale> sales = new List<BBackSale>();
-
-            return sales;
-        }
     }
 }

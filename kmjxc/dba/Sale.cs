@@ -15,7 +15,7 @@ namespace KM.JXC.DBA
     public partial class Sale
     {
         public int Sale_ID { get; set; }
-        public long Sale_Time { get; set; }
+        public int Sale_Time { get; set; }
         public int Shop_ID { get; set; }
         public Nullable<int> Buyer_ID { get; set; }
         public string Mall_Trade_ID { get; set; }

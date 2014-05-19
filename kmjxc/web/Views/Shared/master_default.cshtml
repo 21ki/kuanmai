@@ -103,7 +103,7 @@
                    <li>
                        <a href="/Sale/Back"
                        
-                       @if (action == "Back")
+                       @if (action == "Back" && controller=="Sale")
                        {
                            @Html.Raw("class=links");
                        }
@@ -116,7 +116,7 @@
                        退货单查询</a>
 
                    </li>    
-                   <li>
+                 @*  <li>
                        <a href="/Sale/Change"
                        
                        @if (action == "Change")
@@ -131,7 +131,7 @@
                        >
                        换货单查询</a>
 
-                   </li>   
+                   </li>   *@
                    <li>
                        <a href="/Sale/Customer"
                        
@@ -191,7 +191,7 @@
                        } 
                        >销售出库</a></li>    
                    <li><a href="/Stock/Back"
-                       @if (action == "Back")
+                       @if (action == "Back" && controller == "Stock")
                        {
                            @Html.Raw("class=links");
                        }
@@ -200,8 +200,8 @@
                            @Html.Raw("class=link");
                        } 
                        >销售退库</a></li>   
-                   <li><a href="/Stock/Waste"
-                       @if (action == "Waste")
+                   <li><a href="/Stock/Wastage"
+                       @if (action == "Wastage")
                        {
                            @Html.Raw("class=links");
                        }
@@ -209,7 +209,7 @@
                        {
                            @Html.Raw("class=link");
                        } 
-                       >损耗</a></li>   
+                       >产品损耗</a></li>   
                    <li><a href="/Stock/Stores"
                         @if (action == "Stores")
                        {

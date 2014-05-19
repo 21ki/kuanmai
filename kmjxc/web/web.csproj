@@ -670,7 +670,7 @@
     <Content Include="Views\Stock\Enter.cshtml" />
     <Content Include="Views\Stock\Leave.cshtml" />
     <Content Include="Views\Stock\Back.cshtml" />
-    <Content Include="Views\Stock\Waste.cshtml" />
+    <Content Include="Views\Stock\Wastage.cshtml" />
     <Content Include="Views\Stock\Stores.cshtml" />
     <Content Include="Views\Stock\StockDetail.cshtml" />
     <Content Include="Views\Stock\EnterDetail.cshtml" />

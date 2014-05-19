@@ -16,7 +16,7 @@ using KM.JXC.Common.KMException;
 
 namespace KM.JXC.Web.Controllers.api
 {
-    public class StockController : ApiController
+    public class StockController : BaseApiController
     {
         [HttpPost]
         public ApiMessage EnterStockFromBuy()
@@ -394,6 +394,42 @@ namespace KM.JXC.Web.Controllers.api
                 message.Message = "未知错误:"+ex.Message;
             }
             return message;
+        }
+
+        [HttpPost]
+        public PQGridData SearchProductWastage()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int pageSize = 30;
+            int? category_id = null;
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            string keyword = request["keyword"];
+            int[] sids = null;
+            string suppliers = request["suppliers"];
+            sids = base.ConvertToIntArrar(suppliers);
+            if (request["cid"] != null && request["cid"].ToString() != "" && request["cid"].ToString() != "0")
+            {
+                int cid = 0;
+                int.TryParse(request["cid"], out cid);
+                if (cid > 0)
+                {
+                    category_id = cid;
+                }
+            }
+            int total = 0;
+            data.data = stockManager.SearchProductWastage(sids, keyword, category_id, page, pageSize, out total);
+            data.curPage = page;
+            data.totalRecords = total;
+            return data;
         }
     }
 }

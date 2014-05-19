@@ -29,7 +29,7 @@ namespace KM.JXC.Web.Controllers
         {
             return View();
         }
-        public ActionResult Waste()
+        public ActionResult Wastage()
         {
             return View();
         }

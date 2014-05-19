@@ -282,6 +282,9 @@ function KMJXCStockManager() {
     this.UpdateStockByEnter = function (params, callback) {
         this.AjaxCall("/api/Stock/UpdateEnterStockToProductStock", params, callback);
     }
+    this.SearchProductWastage = function (params, callback) {
+        this.AjaxCall("/api/Stock/SearchProductWastage", params, callback);
+    }
 }
 
 KMJXManager.prototype = new KMJXCBase();

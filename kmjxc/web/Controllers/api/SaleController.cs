@@ -80,5 +80,47 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
+
+        [HttpPost]
+        public PQGridData SearchSales()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int pageSize = 30;
+            int stime = 0;
+            int etime = 0;
+            if (!string.IsNullOrEmpty(request["sdate"]))
+            {
+                DateTime sdate = DateTime.MinValue;
+                DateTime.TryParse(request["sdate"], out sdate);
+                if (sdate != DateTime.MinValue)
+                {
+                    stime = DateTimeUtil.ConvertDateTimeToInt(sdate);
+                }
+            }
+            if (!string.IsNullOrEmpty(request["edate"]))
+            {
+                DateTime edate = DateTime.MinValue;
+                DateTime.TryParse(request["edate"], out edate);
+                if (edate != DateTime.MinValue)
+                {
+                    etime = DateTimeUtil.ConvertDateTimeToInt(edate);
+                }
+            }
+
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            int total = 0;
+            data.data = saleManager.SearchSales(null, null, stime, etime, page, pageSize, out total);
+            data.totalRecords = total;
+            return data;
+        }
     }
 }

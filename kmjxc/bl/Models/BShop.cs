@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using KM.JXC.DBA;
 namespace KM.JXC.BL.Models
 {
-    public class BShop
+    public class BShop:BModel
     {
         public int ID { get; set; }
         public string Mall_ID { get; set; }
