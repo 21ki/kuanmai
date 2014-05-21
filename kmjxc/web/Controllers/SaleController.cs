@@ -28,5 +28,10 @@ namespace KM.JXC.Web.Controllers
         {
             return View();
         }
+
+        public ActionResult Sync()
+        {
+            return View();
+        }
     }
 }

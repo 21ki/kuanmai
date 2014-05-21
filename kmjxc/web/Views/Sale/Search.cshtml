@@ -7,6 +7,7 @@
     var cateMgr = new KMJXCProductManager();
     var buyMgr = new KMJXCBuyManager();
     var stockMgr = new KMJXCStockManager();
+    var saleMgr = new KMJXCSaleManager();
     var $grid = null; 
     var $form = null;
     var $searchform = null;
@@ -110,6 +111,13 @@
                    .appendTo($srow2)
                    .button({ text: true }).bind("click", function (evt) {
                        $grid.pqGrid("refreshDataAndView");
+                   });
+            $("<span style='height:24px;line-height:24px;'>同步</span>")
+                   .appendTo($srow2)
+                   .button({ text: true }).bind("click", function (evt) {
+                       saleMgr.SyncMallTrade({}, function (res) {
+
+                       });
                    });
         });
 

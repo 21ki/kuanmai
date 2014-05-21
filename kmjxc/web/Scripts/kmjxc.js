@@ -287,6 +287,12 @@ function KMJXCStockManager() {
     }
 }
 
+KMJXCSaleManager.prototype = new KMJXCBase();
+function KMJXCSaleManager() {
+    this.SyncMallTrade = function (params, callback) {
+        this.AjaxCall("/api/Sale/SyncMallTrades", params, callback);
+    }
+}
 KMJXManager.prototype = new KMJXCBase();
 function KMJXManager() {
     this.UserManager = new KMJXCUserManager();

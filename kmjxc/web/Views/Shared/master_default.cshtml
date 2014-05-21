@@ -84,6 +84,22 @@
                }    
                >
                <ul>
+                    <li>
+                       <a href="/Sale/Sync"
+                       
+                       @if (action == "Sync")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       订单同步</a>
+
+                   </li>   
                    <li>
                        <a href="/Sale/Search"
                        
@@ -97,7 +113,7 @@
                        }                         
                        
                        >
-                       销售单查询</a>
+                       订单查询</a>
 
                    </li>                   
                    <li>

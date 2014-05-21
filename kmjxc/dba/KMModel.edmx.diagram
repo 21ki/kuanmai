@@ -52,6 +52,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock" Width="1.5" PointX="10.308249172898126" PointY="29.998914658091458" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" Width="1.5" PointX="2.3069765690280946" PointY="16.492073633005877" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Back_Sale" Width="1.5" PointX="3.6049511896469406" PointY="13.865696868796691" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_SyncTime" Width="1.5" PointX="1.8630279329898898" PointY="17.482071094905059" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

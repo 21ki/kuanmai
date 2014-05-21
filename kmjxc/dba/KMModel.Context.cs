@@ -72,5 +72,6 @@ namespace KM.JXC.DBA
         public DbSet<Back_Stock> Back_Stock { get; set; }
         public DbSet<Back_Stock_Detail> Back_Stock_Detail { get; set; }
         public DbSet<Back_Sale> Back_Sale { get; set; }
+        public DbSet<Sale_SyncTime> Sale_SyncTime { get; set; }
     }
 }

@@ -44,6 +44,7 @@
           <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Store.Product_Unit" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Sale_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Store.Sale_SyncTime" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Store.Shop_Child_Request" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" />
@@ -492,9 +493,9 @@
           </Key>
           <Property Name="Sale_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Sale_Time" Type="uint" Nullable="false" />
+          <Property Name="Mall_Trade_ID" Type="varchar" Nullable="false" MaxLength="30" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="Buyer_ID" Type="umediumint" />
-          <Property Name="Mall_Trade_ID" Type="varchar" MaxLength="30" />
           <Property Name="Amount" Type="double" Nullable="false" />
           <Property Name="Express_Cop" Type="varchar" MaxLength="20" />
           <Property Name="Province_ID" Type="umediumint" />
@@ -523,6 +524,15 @@
           <Property Name="Amount" Type="double" />
           <Property Name="Supplier_ID" Type="mediumint" />
           <Property Name="StockStatus" Type="int" />
+        </EntityType>
+        <EntityType Name="Sale_SyncTime">
+          <Key>
+            <PropertyRef Name="ShopID" />
+          </Key>
+          <Property Name="ShopID" Type="mediumint" Nullable="false" />
+          <Property Name="FirstSyncTime" Type="int" Nullable="false" />
+          <Property Name="LastSyncTime" Type="int" Nullable="false" />
+          <Property Name="SyncUser" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
@@ -632,7 +642,7 @@
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="User_ID" Type="umediumint" Nullable="false" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Parent_Mall_ID" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
@@ -698,6 +708,7 @@
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Back_Stock" />
           <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" />
           <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Back_Sale" />
+          <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Sale_SyncTime" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1223,7 +1234,7 @@
           <Property Type="Int32" Name="Sale_Time" Nullable="false" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Int32" Name="Buyer_ID" />
-          <Property Type="String" Name="Mall_Trade_ID" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_Trade_ID" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Type="Double" Name="Amount" Nullable="false" />
           <Property Type="String" Name="Express_Cop" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Province_ID" />
@@ -1290,6 +1301,15 @@
           <Property Type="Int32" Name="Sale_ID" Nullable="false" />
           <Property Type="Int32" Name="Status" />
           <Property Type="Int32" Name="Created" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale_SyncTime">
+          <Key>
+            <PropertyRef Name="ShopID" />
+          </Key>
+          <Property Type="Int32" Name="ShopID" Nullable="false" />
+          <Property Type="Int32" Name="FirstSyncTime" Nullable="false" />
+          <Property Type="Int32" Name="LastSyncTime" Nullable="false" />
+          <Property Type="Int32" Name="SyncUser" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1914,6 +1934,16 @@
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Back_Date" ColumnName="Back_Date" />
                 <ScalarProperty Name="Back_Sale_ID" ColumnName="Back_Sale_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sale_SyncTime">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_SyncTime">
+              <MappingFragment StoreEntitySet="Sale_SyncTime">
+                <ScalarProperty Name="SyncUser" ColumnName="SyncUser" />
+                <ScalarProperty Name="LastSyncTime" ColumnName="LastSyncTime" />
+                <ScalarProperty Name="FirstSyncTime" ColumnName="FirstSyncTime" />
+                <ScalarProperty Name="ShopID" ColumnName="ShopID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -42,8 +42,8 @@ namespace KM.JXC.BL
         public bool SyncMallTrades(int startTime, int endTime, string status)
         {
             bool result = false;
-            
-            
+            IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
+            List<BSale> sales = tradeManager.SyncTrades(new DateTime(2014, 5, 1), new DateTime(2014, 5, 30),null);
             return result;
         }
 

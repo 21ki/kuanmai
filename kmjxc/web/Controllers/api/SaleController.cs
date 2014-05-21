@@ -122,5 +122,22 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
+
+        [HttpPost]
+        public ApiMessage SyncMallTrades()
+        {
+            ApiMessage message = new ApiMessage();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+
+            saleManager.SyncMallTrades(0,0,null);
+
+            return message;
+        }
     }
 }

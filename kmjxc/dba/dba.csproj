@@ -179,6 +179,9 @@
     <Compile Include="Sale_Detail.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Sale_SyncTime.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Shop.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
