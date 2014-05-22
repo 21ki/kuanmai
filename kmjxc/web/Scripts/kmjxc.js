@@ -1,4 +1,59 @@
-﻿
+﻿jQuery.extend({  
+    GetDateByStr: function (str) {
+        if ($.trim(str) == '') {
+            return null;
+        }
+        var val = Date.parse(str);
+        var newDate = new Date(val);
+        return newDate;
+    }
+});
+
+//Compare two dates object
+Date.prototype.GTE = function (date) {
+    var date1 = this;
+    var year1 = date1.getFullYear();
+    var month1 = date1.getMonth() + 1;
+    var day1 = date1.getDate();
+
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+
+    if (year1 < year) {
+        return false;
+    } else if (year1 == year) {
+        if (month1 < month) {
+            return false;
+        } else if (month1 == month) {
+            if (day1 < day) {
+                return false;
+            } else if (day1 == day) {
+                if (date1.getHours() < date.getHours()) {
+                    return false;
+                } else if (date1.getHours() == date.getHours()) {
+                    if (date1.getMinutes() < date.getMinutes()) {
+                        return false;
+                    } else if (date1.getMinutes() == date.getMinutes()) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    } else {
+        return true;
+    }
+}
+
+
 function GetJsonData(data, rowIndex, dataIndx) {
     var rowData = data[rowIndex];
     var cellData = "";
@@ -144,6 +199,47 @@ function KMJXCBase() {
     }
     this.GetUsers = function (params, callback) {
         return this.AjaxCall("/api/Users/GetUsers", params, callback);
+    }
+    this.GetTradeStatusForSyncTrade = function () {
+        var status = [{ 'value': 'TRADE_NO_CREATE_PAY', 'name': '没有创建支付宝交易','selected': false },
+                      { 'value': 'WAIT_BUYER_PAY', 'name': '等待买家付款', 'selected': false },
+                      { 'value': 'WAIT_SELLER_SEND_GOODS', 'name': '等待卖家发货','selected':true },
+                      { 'value': 'WAIT_BUYER_CONFIRM_GOODS', 'name': '等待买家确认收货','selected': false },
+                      { 'value': 'TRADE_FINISHED', 'name': '交易成功', 'selected': false },
+                      { 'value': 'TRADE_CLOSED', 'name': '交易关闭', 'selected': false }
+        ];
+
+        return status;
+    }
+
+    this.InitializeHour = function (obj,hour) {
+        for (var i = 0; i <= 23; i++) {
+            var value = i;
+            var name = i;
+            if (i < 10) {
+                name = "0" + i.toString();
+            }
+            if (i == hour) {
+                $(obj).append("<option selected value=\"" + value + "\">" + name + "</option>");
+            } else {
+                $(obj).append("<option value=\""+value+"\">"+name+"</option>");
+            }
+        }
+    }
+
+    this.InitializeMinute = function (obj, minute) {
+        for (var i = 0; i <= 59; i++) {
+            var value = i;
+            var name = i;
+            if (i < 10) {
+                name = "0" + i.toString();
+            }
+            if (i == minute) {
+                $(obj).append("<option selected value=\"" + value + "\">" + name + "</option>");
+            } else {
+                $(obj).append("<option value=\"" + value + "\">" + name + "</option>");
+            }
+        }
     }
 }
 
@@ -292,7 +388,15 @@ function KMJXCSaleManager() {
     this.SyncMallTrade = function (params, callback) {
         this.AjaxCall("/api/Sale/SyncMallTrades", params, callback);
     }
+    this.GetLastSyncTime = function (params, callback) {
+        this.AjaxCall("/api/Sale/GetLastSyncTime", params, callback);
+    }
+
+    this.SyncMallTrades = function (params, callback) {
+        this.AjaxCall("/api/Sale/SyncMallTrades", params, callback);
+    }
 }
+
 KMJXManager.prototype = new KMJXCBase();
 function KMJXManager() {
     this.UserManager = new KMJXCUserManager();

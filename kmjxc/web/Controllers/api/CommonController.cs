@@ -30,5 +30,13 @@ namespace KM.JXC.Web.Controllers.api
             areas = commonMgr.GetAreas(parent_id);
             return areas;
         }
+
+        [HttpPost]
+        public List<MallTradeStatus> GetMallStatusForSyncTrades()
+        {
+            List<MallTradeStatus> status = new List<MallTradeStatus>();
+            
+            return status;
+        }
     }
 }

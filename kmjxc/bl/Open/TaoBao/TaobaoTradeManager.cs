@@ -44,8 +44,10 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="eDate"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status)
+        public List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status,long page,out long totalTrades,out bool hasNextPage)
         {
+            totalTrades = 0;
+            hasNextPage = false;
             TradesSoldGetRequest req = new TradesSoldGetRequest();
             req.Fields = "total_fee,buyer_nick,created,tid,status, payment, discount_fee, adjust_fee, post_fee,price,adjust_fee,receiver_city,receiver_district,receiver_name,receiver_state,receiver_mobile,receiver_phone,received_payment";
             req.Fields += ",orders.title,orders.pic_path,orders.price,orders.num,orders.iid,orders.num_iid,orders.sku_id,orders.refund_status,orders.status,orders.oid,orders.total_fee,orders.payment,orders.discount_fee,orders.adjust_fee,orders.sku_properties_name,orders.item_meal_name,orders.buyer_rate,orders.seller_rate,orders.outer_iid,orders.outer_sku_id,orders.refund_id,orders.seller_type";
@@ -61,7 +63,7 @@ namespace KM.JXC.BL.Open.TaoBao
 
             if (!string.IsNullOrEmpty(status))
             {
-                req.Status = "status";
+                req.Status = status;
             }
             //req.BuyerNick = "zhangsan";
             //req.Type = "game_equipment";
@@ -69,7 +71,7 @@ namespace KM.JXC.BL.Open.TaoBao
             //req.RateStatus = "RATE_UNBUYER";
             //req.Tag = "time_card";
             req.PageNo = 1L;
-            req.PageSize = 40L;
+            req.PageSize = 100L;
             req.UseHasNext = true;
             TradesSoldGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
 
@@ -81,10 +83,14 @@ namespace KM.JXC.BL.Open.TaoBao
 
             if (response.Trades != null)
             {
+                hasNextPage = response.HasNext;
+                totalTrades = response.TotalResults;
                 foreach (TB.Trade trade in response.Trades)
                 {
                     BSale sale = new BSale();
-                    sale.Mall_Trade_ID = trade.Tid.ToString();
+                    sale.Status=trade.Status;
+                    sale.SaleDateTime = DateTimeUtil.ConvertDateTimeToInt( Convert.ToDateTime(trade.Created));
+                    sale.Sale_ID = trade.Tid.ToString();
                     sale.Orders = new List<BOrder>();
                     sale.Post_Fee = double.Parse(trade.PostFee);
                     sale.Amount = double.Parse(trade.Payment);
@@ -94,11 +100,12 @@ namespace KM.JXC.BL.Open.TaoBao
                         foreach (TB.Order o in trade.Orders)
                         {
                             BOrder order = new BOrder();
-                            order.Amount =double.Parse(o.Payment);
+                            order.Amount = double.Parse(o.Payment);
                             order.Price = double.Parse(o.Price);
                             order.Quantity = int.Parse(o.Num.ToString());
                             order.Status = o.Status;
                             order.StockStatus = 0;
+                            order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;
                             if (!string.IsNullOrEmpty(o.OuterSkuId))
                             {
                                 order.Product_ID = int.Parse(o.OuterSkuId);
@@ -108,8 +115,9 @@ namespace KM.JXC.BL.Open.TaoBao
                             {
                                 order.Parent_Product_ID = int.Parse(o.OuterIid);
                             }
-                            order.Mall_Order_ID = o.Oid.ToString();
+                            order.Order_ID = o.Oid.ToString();
                             order.Mall_PID = o.NumIid.ToString();
+
                             sale.Orders.Add(order);
                         }
                     }

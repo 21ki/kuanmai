@@ -129,7 +129,7 @@
                        }                         
                        
                        >
-                       退货单查询</a>
+                       退货查询</a>
 
                    </li>    
                  @*  <li>
@@ -312,6 +312,15 @@
                        >添加属性</a></li>   *@
                </ul>
            </div>
+           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'shop','MenuContainer')">店铺管理</a></div>
+           <div class="menuContainer" id="shopMenuContainer" style="display:none;">
+               <ul>
+                   <li>店铺信息</li> 
+                   <li>子店铺</li>   
+                   <li>默认仓库</li> 
+                   <li>快递设置</li>                   
+               </ul>
+           </div>
 
            <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'permission','MenuContainer')">权限管理</a></div>
            <div class="menuContainer" id="permissionMenuContainer" style="display:none;">
@@ -322,13 +331,13 @@
                </ul>
            </div>
            
-           <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'system','MenuContainer')">系统设置</a></div>
+          @* <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'system','MenuContainer')">系统设置</a></div>
            <div class="menuContainer" id="systemMenuContainer" style="display:none;">
                <ul>
                    <li>默认仓库</li> 
                    <li>快递设置</li>                   
                </ul>
-           </div>
+           </div>*@
 
        </div>
        <div class="jxcRight">

@@ -15,8 +15,8 @@ namespace KM.JXC.DBA
     public partial class Leave_Stock
     {
         public int Leave_Stock_ID { get; set; }
-        public int Sale_ID { get; set; }
-        public int Sale_DID { get; set; }
+        public string Sale_ID { get; set; }
+        public string Sale_DID { get; set; }
         public long Leave_Date { get; set; }
         public int Shop_ID { get; set; }
         public int Created { get; set; }

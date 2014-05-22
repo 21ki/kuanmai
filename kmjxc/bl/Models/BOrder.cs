@@ -8,8 +8,8 @@ namespace KM.JXC.BL.Models
 {
     public class BOrder
     {
-        public int ID { get; set; }
-        public string Mall_Order_ID { get; set; }
+        public string Sale_ID { get; set; }
+        public string Order_ID { get; set; }
         public int Product_ID { get; set; }
         public string Mall_PID { get; set; }
         public int Quantity { get; set; }

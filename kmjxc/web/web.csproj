@@ -140,6 +140,7 @@
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\SaleController.cs" />
     <Compile Include="Controllers\SettingController.cs" />
+    <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\StockController.cs" />
     <Compile Include="Filters\AccessTokenValidation.cs" />
     <Compile Include="Filters\KmJxcAuthorize.cs" />
@@ -148,6 +149,7 @@
     </Compile>
     <Compile Include="Models\ApiMessage.cs" />
     <Compile Include="Models\GridData.cs" />
+    <Compile Include="Models\MallTradeStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -28,6 +28,9 @@
           <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Express" EntityType="KM.JXC.DBA.Model.Store.Express" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Store.Express_Fee" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Store.Express_Shop" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Store.Image" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
@@ -139,7 +142,7 @@
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
-          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Sale_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Status" Type="int" />
           <Property Name="Created" Type="int" Nullable="false" />
         </EntityType>
@@ -250,8 +253,8 @@
           <Property Name="Customer_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_Type_ID" Type="umediumint" Nullable="false" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="100" />
-          <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="100" />
-          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Mall_Name" Type="varchar" MaxLength="100" />
+          <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Email" Type="varchar" MaxLength="45" />
           <Property Name="Phone" Type="varchar" MaxLength="45" />
           <Property Name="Address" Type="varchar" MaxLength="200" />
@@ -310,6 +313,33 @@
           <Property Name="Invoice_Amount" Type="decimal" Scale="2" />
           <Property Name="Create_Date" Type="int" />
         </EntityType>
+        <EntityType Name="Express">
+          <Key>
+            <PropertyRef Name="Express_ID" />
+          </Key>
+          <Property Name="Express_ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
+        </EntityType>
+        <EntityType Name="Express_Fee">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+            <PropertyRef Name="Express_ID" />
+          </Key>
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="Express_ID" Type="int" Nullable="false" />
+          <Property Name="Province_ID" Type="int" Nullable="false" />
+          <Property Name="City_ID" Type="int" Nullable="false" />
+          <Property Name="Fee" Type="double" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Express_Shop">
+          <Key>
+            <PropertyRef Name="Express_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Name="Express_ID" Type="int" Nullable="false" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="IsDefault" Type="bool" Nullable="false" />
+        </EntityType>
         <EntityType Name="Image">
           <Key>
             <PropertyRef Name="ID" />
@@ -326,8 +356,8 @@
             <PropertyRef Name="Leave_Stock_ID" />
           </Key>
           <Property Name="Leave_Stock_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
-          <Property Name="Sale_DID" Type="mediumint" Nullable="false" />
+          <Property Name="Sale_ID" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Sale_DID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Leave_Date" Type="uint" Nullable="false" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="Created" Type="int" Nullable="false" />
@@ -489,38 +519,40 @@
         </EntityType>
         <EntityType Name="Sale">
           <Key>
-            <PropertyRef Name="Sale_ID" />
+            <PropertyRef Name="Mall_Trade_ID" />
+            <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Name="Sale_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Sale_Time" Type="uint" Nullable="false" />
-          <Property Name="Mall_Trade_ID" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="Mall_Trade_ID" Type="varchar" Nullable="false" MaxLength="20" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Sale_Time" Type="uint" Nullable="false" />
           <Property Name="Buyer_ID" Type="umediumint" />
           <Property Name="Amount" Type="double" Nullable="false" />
           <Property Name="Express_Cop" Type="varchar" MaxLength="20" />
-          <Property Name="Province_ID" Type="umediumint" />
+          <Property Name="Province_ID" Type="umediumint" Nullable="false" />
+          <Property Name="City_ID" Type="mediumint" Nullable="false" />
           <Property Name="Sale_Type" Type="smallint" />
-          <Property Name="Post_Fee" Type="double" />
-          <Property Name="Created" Type="int" />
-          <Property Name="Modified" Type="int" />
-          <Property Name="Synced" Type="int" />
-          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="Post_Fee" Type="double" Nullable="false" />
+          <Property Name="Created" Type="int" Nullable="false" />
+          <Property Name="Modified" Type="int" Nullable="false" />
+          <Property Name="Synced" Type="int" Nullable="false" />
+          <Property Name="Status" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="StockStatus" Type="int" Nullable="false" />
+          <Property Name="Sync_User" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
-            <PropertyRef Name="Sale_DID" />
-            <PropertyRef Name="Sale_ID" />
+            <PropertyRef Name="Mall_Trade_ID" />
+            <PropertyRef Name="Mall_Order_ID" />
           </Key>
-          <Property Name="Sale_DID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
-          <Property Name="Sale_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Mall_Trade_ID" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Mall_Order_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Product_ID" Type="umediumint" Nullable="false" />
           <Property Name="Parent_Product_ID" Type="mediumint" Nullable="false" />
           <Property Name="Mall_PID" Type="varchar" MaxLength="50" />
-          <Property Name="Mall_Order_ID" Type="varchar" MaxLength="50" />
           <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
-          <Property Name="Discount" Type="decimal" Scale="2" />
-          <Property Name="Status" Type="varchar" MaxLength="20" />
+          <Property Name="Discount" Type="double" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
           <Property Name="Amount" Type="double" />
           <Property Name="Supplier_ID" Type="mediumint" />
           <Property Name="StockStatus" Type="int" />
@@ -701,14 +733,17 @@
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Buy_Detail" />
           <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store_House" />
-          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Leave_Stock" />
           <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Leave_Stock_Detail" />
-          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Sale" />
-          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Sale_Detail" />
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Back_Stock" />
           <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Back_Stock_Detail" />
-          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Back_Sale" />
           <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Sale_SyncTime" />
+          <EntitySet Name="Express" EntityType="KM.JXC.DBA.Model.Express" />
+          <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Express_Fee" />
+          <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Express_Shop" />
+          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Back_Sale" />
+          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Leave_Stock" />
+          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Sale" />
+          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Sale_Detail" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -837,14 +872,14 @@
           </Key>
           <Property Type="Int32" Name="Customer_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
           <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Email" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Phone" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Address" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="City_ID" />
           <Property Type="Int32" Name="Province_ID" />
           <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Mall_Name" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_Name" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Customer_Shop">
           <Key>
@@ -1201,19 +1236,6 @@
           <Property Type="String" Name="Title" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Type="Boolean" Name="Default" />
         </EntityType>
-        <EntityType Name="Leave_Stock">
-          <Key>
-            <PropertyRef Name="Leave_Stock_ID" />
-          </Key>
-          <Property Type="Int32" Name="Leave_Stock_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
-          <Property Type="Int32" Name="Sale_DID" Nullable="false" />
-          <Property Type="Int64" Name="Leave_Date" Nullable="false" />
-          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int32" Name="Created" Nullable="false" />
-          <Property Type="Int32" Name="User_ID" Nullable="false" />
-          <Property Type="Int32" Name="Status" Nullable="false" />
-        </EntityType>
         <EntityType Name="Leave_Stock_Detail">
           <Key>
             <PropertyRef Name="Leave_Stock_ID" />
@@ -1225,44 +1247,6 @@
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Double" Name="Price" Nullable="false" />
           <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Sale">
-          <Key>
-            <PropertyRef Name="Sale_ID" />
-          </Key>
-          <Property Type="Int32" Name="Sale_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="Sale_Time" Nullable="false" />
-          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int32" Name="Buyer_ID" />
-          <Property Type="String" Name="Mall_Trade_ID" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Type="Double" Name="Amount" Nullable="false" />
-          <Property Type="String" Name="Express_Cop" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Province_ID" />
-          <Property Type="Int16" Name="Sale_Type" />
-          <Property Type="Double" Name="Post_Fee" />
-          <Property Type="Int32" Name="Created" />
-          <Property Type="Int32" Name="Modified" />
-          <Property Type="Int32" Name="Synced" />
-          <Property Type="Int32" Name="Status" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Sale_Detail">
-          <Key>
-            <PropertyRef Name="Sale_DID" />
-            <PropertyRef Name="Sale_ID" />
-          </Key>
-          <Property Type="Int32" Name="Sale_DID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
-          <Property Type="Int32" Name="Product_ID" Nullable="false" />
-          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
-          <Property Type="String" Name="Mall_PID" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Mall_Order_ID" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Quantity" Nullable="false" />
-          <Property Type="Double" Name="Price" Nullable="false" />
-          <Property Type="Decimal" Name="Discount" Precision="10" Scale="2" />
-          <Property Type="String" Name="Status" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Type="Double" Name="Amount" />
-          <Property Type="Int32" Name="Supplier_ID" />
-          <Property Type="Int32" Name="StockStatus" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
@@ -1289,6 +1273,42 @@
           <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
           <Property Type="Int32" Name="StoreHouse_ID" />
         </EntityType>
+        <EntityType Name="Sale_SyncTime">
+          <Key>
+            <PropertyRef Name="ShopID" />
+          </Key>
+          <Property Type="Int32" Name="ShopID" Nullable="false" />
+          <Property Type="Int32" Name="FirstSyncTime" Nullable="false" />
+          <Property Type="Int32" Name="LastSyncTime" Nullable="false" />
+          <Property Type="Int32" Name="SyncUser" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Express">
+          <Key>
+            <PropertyRef Name="Express_ID" />
+          </Key>
+          <Property Type="Int32" Name="Express_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Express_Fee">
+          <Key>
+            <PropertyRef Name="Shop_ID" />
+            <PropertyRef Name="Express_ID" />
+          </Key>
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Express_ID" Nullable="false" />
+          <Property Type="Int32" Name="Province_ID" Nullable="false" />
+          <Property Type="Int32" Name="City_ID" Nullable="false" />
+          <Property Type="Double" Name="Fee" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Express_Shop">
+          <Key>
+            <PropertyRef Name="Express_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Type="Int32" Name="Express_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Boolean" Name="IsDefault" Nullable="false" />
+        </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
             <PropertyRef Name="Back_Sale_ID" />
@@ -1298,18 +1318,62 @@
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Int32" Name="User_ID" Nullable="false" />
           <Property Type="String" Name="Description" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Sale_ID" Nullable="false" />
+          <Property Type="String" Name="Sale_ID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Status" />
           <Property Type="Int32" Name="Created" Nullable="false" />
         </EntityType>
-        <EntityType Name="Sale_SyncTime">
+        <EntityType Name="Leave_Stock">
           <Key>
-            <PropertyRef Name="ShopID" />
+            <PropertyRef Name="Leave_Stock_ID" />
           </Key>
-          <Property Type="Int32" Name="ShopID" Nullable="false" />
-          <Property Type="Int32" Name="FirstSyncTime" Nullable="false" />
-          <Property Type="Int32" Name="LastSyncTime" Nullable="false" />
-          <Property Type="Int32" Name="SyncUser" Nullable="false" />
+          <Property Type="Int32" Name="Leave_Stock_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Sale_ID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Sale_DID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Leave_Date" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale">
+          <Key>
+            <PropertyRef Name="Mall_Trade_ID" />
+            <PropertyRef Name="Shop_ID" />
+          </Key>
+          <Property Type="String" Name="Mall_Trade_ID" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int64" Name="Sale_Time" Nullable="false" />
+          <Property Type="Int32" Name="Buyer_ID" />
+          <Property Type="Double" Name="Amount" Nullable="false" />
+          <Property Type="String" Name="Express_Cop" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Province_ID" Nullable="false" />
+          <Property Type="Int32" Name="City_ID" Nullable="false" />
+          <Property Type="Int16" Name="Sale_Type" />
+          <Property Type="Double" Name="Post_Fee" Nullable="false" />
+          <Property Type="Int32" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Modified" Nullable="false" />
+          <Property Type="Int32" Name="Synced" Nullable="false" />
+          <Property Type="String" Name="Status" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="StockStatus" Nullable="false" />
+          <Property Type="Int32" Name="Sync_User" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Sale_Detail">
+          <Key>
+            <PropertyRef Name="Mall_Trade_ID" />
+            <PropertyRef Name="Mall_Order_ID" />
+          </Key>
+          <Property Type="String" Name="Mall_Trade_ID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_Order_ID" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
+          <Property Type="String" Name="Mall_PID" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
+          <Property Type="Double" Name="Price" Nullable="false" />
+          <Property Type="Double" Name="Discount" />
+          <Property Type="String" Name="Status" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Double" Name="Amount" />
+          <Property Type="Int32" Name="Supplier_ID" />
+          <Property Type="Int32" Name="StockStatus" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1832,20 +1896,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Leave_Stock">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock">
-              <MappingFragment StoreEntitySet="Leave_Stock">
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-                <ScalarProperty Name="Leave_Date" ColumnName="Leave_Date" />
-                <ScalarProperty Name="Sale_DID" ColumnName="Sale_DID" />
-                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
-                <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Leave_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock_Detail">
               <MappingFragment StoreEntitySet="Leave_Stock_Detail">
@@ -1855,45 +1905,6 @@
                 <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
                 <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Sale">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
-              <MappingFragment StoreEntitySet="Sale">
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Synced" ColumnName="Synced" />
-                <ScalarProperty Name="Modified" ColumnName="Modified" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="Post_Fee" ColumnName="Post_Fee" />
-                <ScalarProperty Name="Sale_Type" ColumnName="Sale_Type" />
-                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
-                <ScalarProperty Name="Express_Cop" ColumnName="Express_Cop" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="Mall_Trade_ID" ColumnName="Mall_Trade_ID" />
-                <ScalarProperty Name="Buyer_ID" ColumnName="Buyer_ID" />
-                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-                <ScalarProperty Name="Sale_Time" ColumnName="Sale_Time" />
-                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Sale_Detail">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
-              <MappingFragment StoreEntitySet="Sale_Detail">
-                <ScalarProperty Name="StockStatus" ColumnName="StockStatus" />
-                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Discount" ColumnName="Discount" />
-                <ScalarProperty Name="Price" ColumnName="Price" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Mall_Order_ID" ColumnName="Mall_Order_ID" />
-                <ScalarProperty Name="Mall_PID" ColumnName="Mall_PID" />
-                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
-                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
-                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
-                <ScalarProperty Name="Sale_DID" ColumnName="Sale_DID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1923,6 +1934,44 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Sale_SyncTime">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_SyncTime">
+              <MappingFragment StoreEntitySet="Sale_SyncTime">
+                <ScalarProperty Name="SyncUser" ColumnName="SyncUser" />
+                <ScalarProperty Name="LastSyncTime" ColumnName="LastSyncTime" />
+                <ScalarProperty Name="FirstSyncTime" ColumnName="FirstSyncTime" />
+                <ScalarProperty Name="ShopID" ColumnName="ShopID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Express">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Express">
+              <MappingFragment StoreEntitySet="Express">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Express_Fee">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Express_Fee">
+              <MappingFragment StoreEntitySet="Express_Fee">
+                <ScalarProperty Name="Fee" ColumnName="Fee" />
+                <ScalarProperty Name="City_ID" ColumnName="City_ID" />
+                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
+                <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Express_Shop">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Express_Shop">
+              <MappingFragment StoreEntitySet="Express_Shop">
+                <ScalarProperty Name="IsDefault" ColumnName="IsDefault" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Back_Sale">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale">
               <MappingFragment StoreEntitySet="Back_Sale">
@@ -1937,13 +1986,57 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Sale_SyncTime">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_SyncTime">
-              <MappingFragment StoreEntitySet="Sale_SyncTime">
-                <ScalarProperty Name="SyncUser" ColumnName="SyncUser" />
-                <ScalarProperty Name="LastSyncTime" ColumnName="LastSyncTime" />
-                <ScalarProperty Name="FirstSyncTime" ColumnName="FirstSyncTime" />
-                <ScalarProperty Name="ShopID" ColumnName="ShopID" />
+          <EntitySetMapping Name="Leave_Stock">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock">
+              <MappingFragment StoreEntitySet="Leave_Stock">
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Leave_Date" ColumnName="Leave_Date" />
+                <ScalarProperty Name="Sale_DID" ColumnName="Sale_DID" />
+                <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
+                <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sale">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
+              <MappingFragment StoreEntitySet="Sale">
+                <ScalarProperty Name="Sync_User" ColumnName="Sync_User" />
+                <ScalarProperty Name="StockStatus" ColumnName="StockStatus" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Synced" ColumnName="Synced" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Post_Fee" ColumnName="Post_Fee" />
+                <ScalarProperty Name="Sale_Type" ColumnName="Sale_Type" />
+                <ScalarProperty Name="City_ID" ColumnName="City_ID" />
+                <ScalarProperty Name="Province_ID" ColumnName="Province_ID" />
+                <ScalarProperty Name="Express_Cop" ColumnName="Express_Cop" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Buyer_ID" ColumnName="Buyer_ID" />
+                <ScalarProperty Name="Sale_Time" ColumnName="Sale_Time" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Mall_Trade_ID" ColumnName="Mall_Trade_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sale_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
+              <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="StockStatus" ColumnName="StockStatus" />
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Discount" ColumnName="Discount" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Mall_PID" ColumnName="Mall_PID" />
+                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Mall_Order_ID" ColumnName="Mall_Order_ID" />
+                <ScalarProperty Name="Mall_Trade_ID" ColumnName="Mall_Trade_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

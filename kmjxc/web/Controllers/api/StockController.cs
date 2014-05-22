@@ -288,7 +288,7 @@ namespace KM.JXC.Web.Controllers.api
             int.TryParse(request["leave_id"], out leave_id);
             int.TryParse(request["user_id"], out uid);
             int total = 0;
-            data.data = stockManager.SearchLeaveStocks(new int[] { leave_id }, new int[] { sale_id }, new int[] { uid }, stime, etime, page, pageSize, out total);
+            data.data = stockManager.SearchLeaveStocks(new int[] { leave_id }, new string[] { sale_id.ToString() }, new int[] { uid }, stime, etime, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;
@@ -346,10 +346,10 @@ namespace KM.JXC.Web.Controllers.api
             {
                 userids = new int[] { uid};
             }
-            int[] saleids = null;
+            string[] saleids = null;
             if (sale_id > 0)
             {
-                saleids = new int[] { sale_id};
+                saleids = new string[] { sale_id.ToString() };
             }
             data.data = stockManager.SearchBackStocks(backids, saleids, userids, stime, etime, page, pageSize, out total);
             data.curPage = page;

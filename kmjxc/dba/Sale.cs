@@ -14,19 +14,21 @@ namespace KM.JXC.DBA
     
     public partial class Sale
     {
-        public int Sale_ID { get; set; }
-        public int Sale_Time { get; set; }
-        public int Shop_ID { get; set; }
-        public Nullable<int> Buyer_ID { get; set; }
         public string Mall_Trade_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public long Sale_Time { get; set; }
+        public Nullable<int> Buyer_ID { get; set; }
         public double Amount { get; set; }
         public string Express_Cop { get; set; }
-        public Nullable<int> Province_ID { get; set; }
+        public int Province_ID { get; set; }
+        public int City_ID { get; set; }
         public Nullable<short> Sale_Type { get; set; }
-        public Nullable<double> Post_Fee { get; set; }
-        public Nullable<int> Created { get; set; }
-        public Nullable<int> Modified { get; set; }
-        public Nullable<int> Synced { get; set; }
-        public int Status { get; set; }
+        public double Post_Fee { get; set; }
+        public int Created { get; set; }
+        public int Modified { get; set; }
+        public int Synced { get; set; }
+        public string Status { get; set; }
+        public int StockStatus { get; set; }
+        public int Sync_User { get; set; }
     }
 }

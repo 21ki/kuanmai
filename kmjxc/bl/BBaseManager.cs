@@ -214,5 +214,12 @@ namespace KM.JXC.BL
                 property.SetValue(oldObj, property.GetValue(newObj));
             }
         }
+
+        public string GetMallTradeStatusText(string status) 
+        {
+            string text = "";
+            
+            return text;
+        }
     }
 }

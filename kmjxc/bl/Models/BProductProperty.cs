@@ -8,6 +8,7 @@ namespace KM.JXC.BL.Models
 {
     public class BProductProperty
     {
+        public int ProductID { get; set; }
         public int PID { get; set; }
         public string PName { get; set; }
         public int PVID { get; set; }

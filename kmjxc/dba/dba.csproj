@@ -115,6 +115,15 @@
     <Compile Include="Enter_Stock_Detail.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Express.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Express_Fee.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Express_Shop.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Image.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

@@ -8,9 +8,8 @@ using KM.JXC.DBA;
 namespace KM.JXC.BL.Models
 {
     public class BSale
-    {
-        public int ID;
-        public string Mall_Trade_ID;
+    {        
+        public string Sale_ID;
         public List<BOrder> Orders { get; set; }
         public BCustomer Buyer { get; set; }
         public BUser Seller { get; set; }
@@ -23,6 +22,11 @@ namespace KM.JXC.BL.Models
         public int Created { get; set; }
         public int Modified { get; set; }
         public int Synced { get; set; }
-        public int Status { get; set; }
+        public int StockStatus { get; set; }
+        public string Status { get; set; }
+        public string StatusText { get; set; }
+        public Common_District Province { get; set; }
+        public Common_District City { get; set; }
+        public BUser SyncUser { get; set; }
     }
 }

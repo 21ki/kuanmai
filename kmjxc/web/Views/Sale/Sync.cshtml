@@ -1,5 +1,127 @@
 ﻿@{
     ViewBag.Title = "订单同步";
 }
+<script>
+    var tradeMger = new KMJXCSaleManager();
+    var $syncForm = null;
+    $(function () {
+        $syncForm = $('#syncForm');
+        $syncForm.find('#trade_status').empty();
+        var tradeStatus = tradeMger.GetTradeStatusForSyncTrade();
+        //alert(tradeStatus);
+        $syncForm.find('#trade_status').append("<option value=\"\">--所有--</option>");
+        $(tradeStatus).each(function (index, item) {
+            
+            if (item.selected && item.selected == true) {               
+                $syncForm.find('#trade_status').append("<option selected value=\"" + item.value + "\">" + item.name + "</option>");
+            } else {
+                $syncForm.find('#trade_status').append("<option value=\"" + item.value + "\">" + item.name + "</option>");
+            }            
+        });
 
-<h2>Sync</h2>
+        $syncForm.find('#trade_sdate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+        });
+
+        $syncForm.find('#trade_edate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+        });
+
+        tradeMger.InitializeHour($syncForm.find('#trade_sdate_hour'), 0);
+        $syncForm.find('#trade_sdate').attr("readonly", true);
+        tradeMger.InitializeHour($syncForm.find('#trade_edate_hour'), 0);
+        tradeMger.InitializeMinute($syncForm.find('#trade_sdate_minute'), 0);
+        tradeMger.InitializeMinute($syncForm.find('#trade_edate_minute'), 0);
+
+        tradeMger.GetLastSyncTime({}, function (res) {
+            var stime = new Date();
+            var etime = null;
+            var year = 0;
+            var month = 0;
+            var day = 0;
+            if (res != null) {
+                stime = new Date(res.Last);  
+                $syncForm.find('#trade_sdate_hour').attr("disabled", true);
+                $syncForm.find('#trade_sdate_minute').attr("disabled", true)
+               
+            } else {
+                stime = new Date();
+                stime.setHours(0);
+                stime.setMinutes(0);                       
+            }
+
+            year = stime.getFullYear();
+            month = (stime.getMonth() + 1) > 10 ? (stime.getMonth() + 1) : "0" + (stime.getMonth() + 1).toString();
+            day = stime.getDate() > 10 ? stime.getDate() : "0" + stime.getDate().toString();
+
+            $syncForm.find('#trade_sdate').val(year + "-" + month + "-" + day);
+            $syncForm.find('#trade_sdate_hour').val(stime.getHours());
+            $syncForm.find('#trade_sdate_minute').val(stime.getMinutes());
+
+            etime = stime.getTime() + (24 * 60 * 60 * 1000);
+            etime=new Date(etime);
+            var eyear = etime.getFullYear();
+            var emonth = (etime.getMonth() + 1) > 10 ? (etime.getMonth() + 1) : "0" + (etime.getMonth() + 1).toString();
+            var eday = etime.getDate() > 10 ? etime.getDate() : "0" + etime.getDate().toString();
+            $syncForm.find('#trade_edate').val(eyear + "-" + emonth + "-" + eday);
+            $syncForm.find('#trade_edate_hour').val(etime.getHours());
+            $syncForm.find('#trade_edate_minute').val(etime.getMinutes());
+        });
+
+        $syncForm.find('#trade_btn_sync').button().click(function (e) {
+            var strat = $syncForm.find('#trade_sdate').val() + " " + $syncForm.find('#trade_sdate_hour option:selected').text() + ":" + $syncForm.find('#trade_sdate_minute option:selected').text() + ":000";
+            var end = "";
+            var sdate = null;
+            var edate = null;
+            sdate = new Date(Date.parse(strat));
+            if ($syncForm.find('#trade_edate').val() != "") {               
+                end = $syncForm.find('#trade_edate').val() + " " + $syncForm.find('#trade_edate_hour option:selected').text() + ":" + $syncForm.find('#trade_edate_minute option:selected').text() + ":000";
+                edate = new Date(Date.parse(end));
+            } else {
+                edate = new Date(sdate.getTime() + 24 * 60 * 60 * 1000);
+            }             
+            
+            if (!edate.GTE(sdate)) {
+                alert("结束时间必须大于开始时间");
+                return;
+            }
+            
+            tradeMger.SyncMallTrades({
+                'start': sdate.getTime().toString().substring(0, 10),
+                'end': edate.getTime().toString().substring(0, 10),
+                'status': $syncForm.find('#trade_status').val()
+            }, function (res) {
+
+            });
+        });
+    });
+</script>
+
+<div class="normallist">
+    <form id="syncForm">
+         <div id="syncDiv">
+             <div class="row">
+                 <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select>
+             </div>
+             <div class="row">
+                 <label>开始时间:</label><input class="W_input" id="trade_sdate" /> <select class="W_inputsel" id="trade_sdate_hour"></select> <select class="W_inputsel" id="trade_sdate_minute"></select>
+             </div>
+                <div class="row">
+                 <label>结束时间:</label><input class="W_input" id="trade_edate" /> <select class="W_inputsel" id="trade_edate_hour"></select> <select class="W_inputsel" id="trade_edate_minute"></select>
+             </div>
+             <div class="row nolabel1">
+                 <span id="trade_btn_sync">同步</span>
+             </div>
+         </div>
+    </form>   
+</div>

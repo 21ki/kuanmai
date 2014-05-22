@@ -86,6 +86,7 @@
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />
     <Compile Include="Models\BSale.cs" />
+    <Compile Include="Models\BSyncTime.cs" />
     <Compile Include="Models\BUser.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="BuyManager.cs" />

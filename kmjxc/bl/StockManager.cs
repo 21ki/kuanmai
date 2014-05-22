@@ -144,7 +144,7 @@ namespace KM.JXC.BL
                 //Check if current sale trade has leave stock records
                 //if the sale is not leave stock, so no need to back stock
                 int totalRecords = 0;
-                List<BLeaveStock> lstocks = this.SearchLeaveStocks(null, new int[] { dbbackSale.Sale_ID }, null, 0, 0, 1, 1, out totalRecords);
+                List<BLeaveStock> lstocks = this.SearchLeaveStocks(null, new string[] { dbbackSale.Sale_ID }, null, 0, 0, 1, 1, out totalRecords);
                 if (totalRecords >= 1)
                 {
                     BBackStock backStock = new BBackStock();
@@ -323,7 +323,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BLeaveStock> SearchLeaveStocks(int[] leave_stock_ids,int[] sale_ids, int[] user_ids, int leaveStartTime, int leaveEndTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BLeaveStock> SearchLeaveStocks(int[] leave_stock_ids,string[] sale_ids, int[] user_ids, int leaveStartTime, int leaveEndTime, int pageIndex, int pageSize, out int totalRecords)
         {
             List<BLeaveStock> stocks = new List<BLeaveStock>();
             totalRecords = 0;
@@ -378,10 +378,9 @@ namespace KM.JXC.BL
                                       join dist in db.Common_District on cus.City_ID equals dist.id
                                       join distp in db.Common_District on cus.Province_ID equals distp.id
                                       join mtype in db.Mall_Type on cus.Mall_Type_ID equals mtype.Mall_Type_ID
-                                      where sale.Sale_ID == stock.Sale_ID
+                                      where sale.Mall_Trade_ID == stock.Sale_ID
                                       select new BSale
-                                      {
-                                          ID = sale.Sale_ID,
+                                      {                                          
                                           Buyer = new BCustomer
                                           {
                                               Address = cus.Address,
@@ -393,7 +392,7 @@ namespace KM.JXC.BL
                                               Email = cus.Email,
                                               Type = mtype
                                           },
-                                          Mall_Trade_ID = sale.Mall_Trade_ID,
+                                          Sale_ID = sale.Mall_Trade_ID,
                                           Amount = sale.Amount,
                                           Created = (int)sale.Created,
                                           Modified = (int)sale.Modified,
@@ -473,7 +472,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBackStock> SearchBackStocks(int[] back_stock_ids, int[] sale_ids, int[] user_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBackStock> SearchBackStocks(int[] back_stock_ids, string[] sale_ids, int[] user_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
         {
             List<BBackStock> stocks = new List<BBackStock>();
             totalRecords = 0;
@@ -519,7 +518,7 @@ namespace KM.JXC.BL
 
                 var obj = from stock in dbstocks
                           join backsale in db.Back_Sale on stock.Back_Sale_ID equals backsale.Back_Sale_ID
-                          join order in db.Sale on backsale.Sale_ID equals order.Sale_ID
+                          join order in db.Sale on backsale.Sale_ID equals order.Mall_Trade_ID
                           join shop in db.Shop on stock.Shop_ID equals shop.Shop_ID
                           join user in db.User on stock.User_ID equals user.User_ID
                           join customer in db.Customer on order.Buyer_ID equals customer.Customer_ID
@@ -534,11 +533,10 @@ namespace KM.JXC.BL
                                   Created = backsale.Created,
                                   Description = backsale.Description,
                                   Sale = new BSale
-                                  {
-                                      ID = order.Sale_ID,
+                                  {                                      
                                       Amount = order.Amount,
                                       Modified = (int)order.Modified,
-                                      Mall_Trade_ID = order.Mall_Trade_ID,
+                                      Sale_ID = order.Mall_Trade_ID,
                                       Created = (int)order.Created,
                                       Buyer = new BCustomer
                                       {
@@ -1237,7 +1235,7 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有权限出库");
             }
 
-            if (leaveStock.Sale == null || leaveStock.Sale.ID==0)
+            if (leaveStock.Sale == null || string.IsNullOrEmpty(leaveStock.Sale.Sale_ID))
             {
                 throw new KMJXCException("必须选择订单出库");
             }
@@ -1262,7 +1260,7 @@ namespace KM.JXC.BL
                 dbStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 dbStock.Leave_Date = leaveStock.LeaveDate;
                 dbStock.Leave_Stock_ID = 0;
-                dbStock.Sale_ID = leaveStock.Sale.ID;
+                dbStock.Sale_ID = leaveStock.Sale.Sale_ID;
                 dbStock.Shop_ID = leaveStock.Shop.ID;
                 dbStock.User_ID = this.CurrentUser.ID;
                 db.Leave_Stock.Add(dbStock);
