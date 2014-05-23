@@ -30,5 +30,7 @@ namespace KM.JXC.DBA
         public string Status { get; set; }
         public int StockStatus { get; set; }
         public int Sync_User { get; set; }
+        public Nullable<bool> HasRefound { get; set; }
+        public Nullable<int> Status1 { get; set; }
     }
 }

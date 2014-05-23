@@ -18,5 +18,7 @@ namespace KM.JXC.DBA
         public int FirstSyncTime { get; set; }
         public int LastSyncTime { get; set; }
         public int SyncUser { get; set; }
+        public int LastTradeEndTime { get; set; }
+        public int SyncType { get; set; }
     }
 }

@@ -215,11 +215,27 @@ namespace KM.JXC.BL
             }
         }
 
-        public string GetMallTradeStatusText(string status) 
+        protected string GetTradeStatusText(string status) 
         {
-            string text = "";
-            
-            return text;
+            string mallTradeStatus = "";
+
+            switch (this.Shop.Mall_Type_ID)
+            {
+                case 1:
+                    if (status == "1")
+                    {
+                        mallTradeStatus = "WAIT_BUYER_CONFIRM_GOODS";
+                    }
+                    else if (status == "2")
+                    {
+                        mallTradeStatus = "TRADE_CLOSED";
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return mallTradeStatus;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="eDate"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status,long page,out long totalTrades,out bool hasNextPage)
+        public List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage, bool onlyReFound = false)
         {
             totalTrades = 0;
             hasNextPage = false;
@@ -87,42 +87,94 @@ namespace KM.JXC.BL.Open.TaoBao
                 totalTrades = response.TotalResults;
                 foreach (TB.Trade trade in response.Trades)
                 {
+                    bool containRefound = false;
                     BSale sale = new BSale();
                     sale.Status=trade.Status;
                     sale.SaleDateTime = DateTimeUtil.ConvertDateTimeToInt( Convert.ToDateTime(trade.Created));
                     sale.Sale_ID = trade.Tid.ToString();
                     sale.Orders = new List<BOrder>();
-                    sale.Post_Fee = double.Parse(trade.PostFee);
-                    sale.Amount = double.Parse(trade.Payment);
+                    if (!string.IsNullOrEmpty(trade.PostFee))
+                    {
+                        sale.Post_Fee = double.Parse(trade.PostFee);
+                    }
+                    if (!string.IsNullOrEmpty(trade.Payment))
+                    {
+                        sale.Amount = double.Parse(trade.Payment);
+                    }
                     sale.Buyer = new BCustomer() {Type=new Mall_Type(){ Mall_Type_ID=this.Mall_Type_ID},  Mall_ID = trade.BuyerNick, Name = trade.ReceiverName, Address = trade.ReceiverAddress, Phone = trade.ReceiverMobile, Province = new Common_District { name = trade.ReceiverState }, City = new Common_District() { name=trade.ReceiverCity } };
                     if (trade.Orders != null)
                     {
                         foreach (TB.Order o in trade.Orders)
                         {
+                            //if (string.IsNullOrEmpty(o.OuterIid))
+                            //{
+                            //    continue;
+                            //}
                             BOrder order = new BOrder();
-                            order.Amount = double.Parse(o.Payment);
-                            order.Price = double.Parse(o.Price);
+                            if (!string.IsNullOrEmpty(o.Payment))
+                            {
+                                order.Amount = double.Parse(o.Payment);
+                            }
+
+                            if (!string.IsNullOrEmpty(o.Price))
+                            {
+                                order.Price = double.Parse(o.Price);
+                            }
+                           
                             order.Quantity = int.Parse(o.Num.ToString());
                             order.Status = o.Status;
+                            order.Status1 = 0;
+                            if (!string.IsNullOrEmpty(o.RefundStatus) && o.RefundStatus == "SUCCESS") 
+                            {
+                                containRefound = true;
+                                order.Status1 = 1;
+                            }
                             order.StockStatus = 0;
                             order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;
-                            if (!string.IsNullOrEmpty(o.OuterSkuId))
-                            {
-                                order.Product_ID = int.Parse(o.OuterSkuId);
-                            }
+                           
 
                             if (!string.IsNullOrEmpty(o.OuterIid))
                             {
-                                order.Parent_Product_ID = int.Parse(o.OuterIid);
+                                int pid = 0;
+                                int.TryParse(o.OuterIid,out pid);
+                                order.Parent_Product_ID = pid;
+
+                                if (!string.IsNullOrEmpty(o.OuterSkuId))
+                                {
+                                    int pcid = 0;
+                                    int.TryParse(o.OuterSkuId,out pcid);
+                                    order.Product_ID = pcid;
+                                }
+                                else 
+                                {
+                                    order.Product_ID = order.Parent_Product_ID;
+                                }
                             }
                             order.Order_ID = o.Oid.ToString();
                             order.Mall_PID = o.NumIid.ToString();
+                            order.ImageUrl = "";
+                            if (!string.IsNullOrEmpty(o.PicPath))
+                            {
+                                order.ImageUrl = o.PicPath;
+                            }
 
                             sale.Orders.Add(order);
                         }
                     }
 
-                    sales.Add(sale);
+                    sale.HasRefound = containRefound;
+
+                    if (onlyReFound)
+                    {
+                        if (containRefound)
+                        {
+                            sales.Add(sale);
+                        }
+                    }
+                    else
+                    {
+                        sales.Add(sale);
+                    }
                 }
             }
             return sales;

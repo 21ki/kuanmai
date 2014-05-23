@@ -201,12 +201,10 @@ function KMJXCBase() {
         return this.AjaxCall("/api/Users/GetUsers", params, callback);
     }
     this.GetTradeStatusForSyncTrade = function () {
-        var status = [{ 'value': 'TRADE_NO_CREATE_PAY', 'name': '没有创建支付宝交易','selected': false },
-                      { 'value': 'WAIT_BUYER_PAY', 'name': '等待买家付款', 'selected': false },
-                      { 'value': 'WAIT_SELLER_SEND_GOODS', 'name': '等待卖家发货','selected':true },
-                      { 'value': 'WAIT_BUYER_CONFIRM_GOODS', 'name': '等待买家确认收货','selected': false },
-                      { 'value': 'TRADE_FINISHED', 'name': '交易成功', 'selected': false },
-                      { 'value': 'TRADE_CLOSED', 'name': '交易关闭', 'selected': false }
+        var status = [
+                      { 'value': '1', 'name': '已发货','selected': true },                     
+                      { 'value': '2', 'name': '退货', 'selected': false },
+                      { 'value': '3', 'name': '部分退货', 'selected': false }
         ];
 
         return status;

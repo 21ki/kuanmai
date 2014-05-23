@@ -58,6 +58,7 @@
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
     <Compile Include="Models\BCustomer.cs" />
+    <Compile Include="Models\BData.cs" />
     <Compile Include="Models\BLeaveStock.cs" />
     <Compile Include="Models\BLeaveStockDetail.cs" />
     <Compile Include="Models\BProductStoreProperty.cs" />

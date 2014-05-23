@@ -1,5 +1,10 @@
 ﻿@{
-    ViewBag.Title = "销售退库单查询";
+    ViewBag.Title = "订单查询";
+    KM.JXC.BL.Models.BPageData data = Model as KM.JXC.BL.Models.BPageData;
+    List<KM.JXC.BL.Models.BSale> sales = data.Data as List<KM.JXC.BL.Models.BSale>;
+    long total = data.TotalRecords;
+    int currentPage = data.Page;
+    int pageSize = data.PageSize;
 }
 
 <script>
@@ -12,166 +17,156 @@
     var $form = null;
     var $searchform = null;
     $(function () {
-        $form = $('#editnewform');
-        var obj = {
-            width: 830, height: 600, title: "销售退货单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
-            rowSelect: function (event, obj) {               
-                var pdtId = obj.data[obj.rowIndxPage]['ID'];               
-            },
-            freezeCols: 2
-        };
+        $form = $('#searchform');
 
-        obj.colModel = [                                           
-                        
-                        { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale_ID", editable: false },                        
-
-                        {
-                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
-                            render: function (ui) {                               
-                                if (ui.rowData["FromMainShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 主店铺";
-                                } else if (ui.rowData["FromChildShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 子店铺";
-                                } else {                                   
-                                    return ui.rowData["Shop"].Title;
-                                }
-                            }
-                        },
-                        { title: "交易时间", width: 150, dataType: "timestamp", dataIndx: "SaleDateTime", editable: false },
-                        { title: "总金额", width: 150, dataType: "string", dataIndx: "Amount", editable: false },
-                        { title: "快递费", width: 150, dataType: "string", dataIndx: "Post_Fee", editable: false },
-                        {
-                            title: "状态", width: 150, dataType: "string", dataIndx: "Status", editable: false,
-                            render: function (ui) {
-                                var status = ui.rowData["Status"];
-                                var ss = saleMgr.GetTradeStatusForSyncTrade();                               
-                                var text = "";
-                                $(ss).each(function (index, item) {                                    
-                                    if (item.value == status) {                                        
-                                        text = item.name;
-                                        return;
-                                    }
-                                });
-
-                                return text;
-                            }
-                        },
-                       
-                        { title: "客户昵称", width: 150, dataType: "string", dataIndx: "Buyer.Mall_ID", editable: false },
-                        { title: "客户姓名", width: 150, dataType: "string", dataIndx: "Buyer.Name", editable: false },
-                        { title: "客户电话", width: 150, dataType: "string", dataIndx: "Buyer.Phone", editable: false },
-                        { title: "城市", width: 150, dataType: "string", dataIndx: "Buyer.City.name", editable: false },
-                        { title: "客户地址", width: 150, dataType: "string", dataIndx: "Buyer.Address", editable: false },
-                        { title: "同步时间", width: 150, dataType: "timestamp", dataIndx: "Synced", editable: false },
-                        { title: "同步用户", width: 150, dataType: "string", dataIndx: "SyncUser.Mall_Name", editable: false }
-                      
-        ];
-
-        obj.dataModel = {
-            location: "remote",
-            sorting: "remote",
-            paging: "remote",
-            dataType: "JSON",
-            method: "POST",
-            curPage: 1,
-            rPP: 30,
-            sortIndx: 2,
-            sortDir: "up",
-            rPPOptions: [40, 50, 60, 100],
-            getUrl: function (prgrid) {
-                var sale_id = $($searchform).find("#sale_id").val();
-                var sdate = $($searchform).find("#back_sdate").val();
-                var edate = $($searchform).find("#back_edate").val();
-                return {
-                    url: "/api/Sale/SearchSales", data: "page="+this.curPage+"&pageSize="+this.rPP+"&sale_id="+sale_id+"&sdate="+sdate+"&edate="+edate
-                };
-            },
-            getData: function (dataJSON) {                
-                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
-            }
-        };
-
-        obj.cellSave = function (event, ui) {
-
-        }
-
-       
-
-        $("#saleTable").on("pqgridrender", function (evt, obj) {
-            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
-            //var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this)); 
-            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
-            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
-            $("<label class=\"label1\">订单号:</label>").appendTo($srow);
-            $("<input id=\"sale_id\" title='订单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
-
-            });
-            $("<label class=\"label1\">商城订单号:</label>").appendTo($srow);
-            $("<input id=\"trade_id\" title='商城订单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
-
-            });
-            var $srow2 = $("<div class=\"row\"></div>").appendTo($searchform);
-            $("<label class=\"label1 searchField\">订单日期范围:</label>").appendTo($srow2);
-            $("<input id=\"back_sdate\" title='开始日期' type='text' class='W_input' style='height:22px;'/>").appendTo($srow2).datepicker(
-                {
-                    currentText: "Now",
-                    dateFormat: "yy-mm-dd",
-                    showMonthAfterYear: true,
-                    changeMonth: true,
-                    changeYear: true,
-                    buttonImageOnly: true,
-                });
-            $("<input id=\"back_edate\" title='结束日期' type='text' class='W_input searchField' style='height:22px;'/>").appendTo($srow2).datepicker(
-                {
-                    currentText: "Now",
-                    dateFormat: "yy-mm-dd",
-                    showMonthAfterYear: true,
-                    changeMonth: true,
-                    changeYear: true,
-                    buttonImageOnly: true,
-                });
-            $("<span style='height:24px;line-height:24px;'>搜索</span>")
-                   .appendTo($srow2)
-                   .button({ text: true }).bind("click", function (evt) {
-                       $grid.pqGrid("refreshDataAndView");
-                   });
-            $("<span style='height:24px;line-height:24px;'>同步</span>")
-                   .appendTo($srow2)
-                   .button({ text: true }).bind("click", function (evt) {
-                       saleMgr.SyncMallTrade({}, function (res) {
-
-                       });
-                   });
+        $form.find('#trade_sdate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
         });
 
-        $grid = $("#saleTable").pqGrid(obj);
+        $form.find('#trade_edate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+        });
+        saleMgr.InitializeHour($form.find('#trade_sdate_hour'), 0);        
+        saleMgr.InitializeHour($form.find('#trade_edate_hour'), 0);
+        saleMgr.InitializeMinute($form.find('#trade_sdate_minute'), 0);
+        saleMgr.InitializeMinute($form.find('#trade_edate_minute'), 0);
 
+        $form.find('#btn_Search').button().click(function (e) {
+            $form.attr('action', "/Sale/Search?page=1");
+            $form.submit();
 
-        function getRowIndx() {
-            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
-            if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndx;
-
-                //if (rowIndx != null && colIndx == null) {
-                return rowIndx;
-            }
-            else {
-                alert("请选择一行");
-                return null;
-            }
-        }
+        });
     });
 
 </script>
 
 <div class="normallist">
-    <div id="saleTable"></div>
-    <form id="editnewform">
-        <div id="popup_editnewdiv">
+    <div>
+        <form id="searchform" action="/Sale/Search?page=1" method="get">
+            <table class="searchTable">
+                <tr>
+                   
+                    <td class="td1">成交时间:</td>
+                    <td colspan="3">
+                        <input class="W_input" name="trade_sdate" id="trade_sdate" /> <select class="W_inputsel" name="trade_sdate_hour" id="trade_sdate_hour"></select> <select class="W_inputsel" name="trade_sdate_minute" id="trade_sdate_minute"></select> 
+                        到 
+                        <input class="W_input" name="trade_edate" id="trade_edate" /> <select class="W_inputsel" name="trade_edate_hour" id="trade_edate_hour"></select> <select class="W_inputsel" name="trade_edate_minute" id="trade_edate_minute"></select>    
+                    </td>
+                </tr>
+                 <tr>
+                    <td class="td1">产品名称:</td>
+                    <td><input type="text" name="pdt_name" class="W_input" id="pdt_name"/></td>
+                    <td class="td1">卖家昵称:</td>
+                    <td><input type="text" name="buyer_nick" class="W_input" id="buyer_nick"/></td>
+                  
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <span id="btn_Search">搜索</span>                       
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
 
+    <div id="saleTable" style="margin-top:20px;">
+        <div class="s_title shead">
+            <span style="width:320px; text-align:center;display:inline-block;">宝贝</span>
+            <span style="width:120px; text-align:center;display:inline-block;">单价</span>
+            <span style="width:120px; text-align:center;display:inline-block;">数量</span>
+            <span style="width:120px; text-align:center;display:inline-block;">买家</span>
+            <span  style="width:100px; text-align:center;display:inline-block;">实付款</span>
         </div>
-    </form>
-    
+        @if (total > 0)
+        {
+            foreach (KM.JXC.BL.Models.BSale sale in sales)
+            { 
+                @Html.Raw("<div class=\"s_item\">")
+                    @Html.Raw("<div class=\"s_title\">")
+                        @Html.Raw("<span class=\"s_num\">交易编号：")
+                            @Html.Raw(sale.Sale_ID)
+                        @Html.Raw("</span>")
+                        @Html.Raw("<span class=\"s_time\">交易时间：")
+                            @Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(sale.SaleDateTime).ToString("yyyy-MM-dd HH:mm"))
+                        @Html.Raw("</span>")
+                       
+                    @Html.Raw("</div>")
+                    @Html.Raw("<div class=\"s_body\">")
+                int count = 0;
+                foreach (KM.JXC.BL.Models.BOrder order in sale.Orders)
+                {
+                    count++;
+                    //render trade orders
+                    //if (order.Product != null)
+                    //{
+                                if (count == sale.Orders.Count)
+                                {
+                                        @Html.Raw("<div class=\"s_ol\">")
+                                }
+                                else
+                                { 
+                                        @Html.Raw("<div class=\"s_o\">")
+                                }
+                                @Html.Raw("<div class=\"normalDiv\">")
+                                    @Html.Raw("<div class=\"normalDiv\"><img src=\""+order.ImageUrl+"\" style=\"width:50px;height:50px;\"/></div>")
+                                    @Html.Raw("<div class=\"s_o_col colw1\">")
+                                if (order.Product!=null){
+                                    @Html.Raw("<div><a target=\"_blank\" href=\"/Product/Detail/" + order.Product.ID + "\">" + order.Product.Title + "</a></div>")
+                                }else{
+                                    @Html.Raw("<div>进销存系统内无此商品</div>")
+                                }
+                                //@Html.Raw("<div>产品编码："+order.Product.ID+"</div>")
+                                if (order.Product!=null && order.Product.Properties != null)
+                                {
+                                    string propValue = "";
+                                    foreach (KM.JXC.BL.Models.BProductProperty prop in order.Product.Properties)
+                                    {
+                                        if (propValue == "")
+                                        {
+                                            propValue = prop.PName + "：" + prop.PValue;
+                                        }
+                                        else
+                                        {
+                                            propValue += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + prop.PName + "：" + prop.PValue;
+                                        }
+                                    }
+                                        
+                                                @Html.Raw("<div>" + propValue + "</div>")
+                                }
+                                     
+                                @Html.Raw("</div>")
+                                @Html.Raw("<div class=\"s_o_col colw2 fAlign1\">") 
+                                    @Html.Raw(order.Price)               
+                                @Html.Raw("</div>")
+                                @Html.Raw("<div class=\"s_o_col colw2 fAlign1\">")  
+                                    @Html.Raw(order.Quantity)                
+                                @Html.Raw("</div>")
+                              @Html.Raw("</div>")
+                            @Html.Raw("</div>")
+                    //}
+                }
+                    @Html.Raw("</div>")
+                //buyer
+                    @Html.Raw("<div class=\"s_body sbw2 fAlign1\">")
+                        @Html.Raw(sale.Buyer.Mall_ID)
+                    @Html.Raw("</div>")
+                    @Html.Raw("<div class=\"s_body sbw2 fAlign1\"><span style=\"font-weight:bold;\">")
+                        @Html.Raw(sale.Amount.ToString("0.00"))
+                    @Html.Raw("</span></div>")
+                @Html.Raw("</div>")
+            }
+        }
+    </div>
 </div>
 
 

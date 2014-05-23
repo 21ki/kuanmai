@@ -536,8 +536,10 @@
           <Property Name="Modified" Type="int" Nullable="false" />
           <Property Name="Synced" Type="int" Nullable="false" />
           <Property Name="Status" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="Status1" Type="int" />
           <Property Name="StockStatus" Type="int" Nullable="false" />
           <Property Name="Sync_User" Type="int" Nullable="false" />
+          <Property Name="HasRefound" Type="bool" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
@@ -553,9 +555,11 @@
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Discount" Type="double" />
           <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="Status1" Type="int" Nullable="false" />
           <Property Name="Amount" Type="double" />
           <Property Name="Supplier_ID" Type="mediumint" />
           <Property Name="StockStatus" Type="int" />
+          <Property Name="ImageUrl" Type="varchar" MaxLength="500" />
         </EntityType>
         <EntityType Name="Sale_SyncTime">
           <Key>
@@ -564,7 +568,9 @@
           <Property Name="ShopID" Type="mediumint" Nullable="false" />
           <Property Name="FirstSyncTime" Type="int" Nullable="false" />
           <Property Name="LastSyncTime" Type="int" Nullable="false" />
+          <Property Name="LastTradeEndTime" Type="int" Nullable="false" />
           <Property Name="SyncUser" Type="mediumint" Nullable="false" />
+          <Property Name="SyncType" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop">
           <Key>
@@ -1281,6 +1287,8 @@
           <Property Type="Int32" Name="FirstSyncTime" Nullable="false" />
           <Property Type="Int32" Name="LastSyncTime" Nullable="false" />
           <Property Type="Int32" Name="SyncUser" Nullable="false" />
+          <Property Type="Int32" Name="LastTradeEndTime" Nullable="false" />
+          <Property Type="Int32" Name="SyncType" Nullable="false" />
         </EntityType>
         <EntityType Name="Express">
           <Key>
@@ -1356,6 +1364,8 @@
           <Property Type="String" Name="Status" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="StockStatus" Nullable="false" />
           <Property Type="Int32" Name="Sync_User" Nullable="false" />
+          <Property Type="Boolean" Name="HasRefound" />
+          <Property Type="Int32" Name="Status1" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
@@ -1374,6 +1384,8 @@
           <Property Type="Double" Name="Amount" />
           <Property Type="Int32" Name="Supplier_ID" />
           <Property Type="Int32" Name="StockStatus" />
+          <Property Type="Int32" Name="Status1" Nullable="false" />
+          <Property Type="String" Name="ImageUrl" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1937,6 +1949,8 @@
           <EntitySetMapping Name="Sale_SyncTime">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_SyncTime">
               <MappingFragment StoreEntitySet="Sale_SyncTime">
+                <ScalarProperty Name="SyncType" ColumnName="SyncType" />
+                <ScalarProperty Name="LastTradeEndTime" ColumnName="LastTradeEndTime" />
                 <ScalarProperty Name="SyncUser" ColumnName="SyncUser" />
                 <ScalarProperty Name="LastSyncTime" ColumnName="LastSyncTime" />
                 <ScalarProperty Name="FirstSyncTime" ColumnName="FirstSyncTime" />
@@ -2003,6 +2017,8 @@
           <EntitySetMapping Name="Sale">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
               <MappingFragment StoreEntitySet="Sale">
+                <ScalarProperty Name="Status1" ColumnName="Status1" />
+                <ScalarProperty Name="HasRefound" ColumnName="HasRefound" />
                 <ScalarProperty Name="Sync_User" ColumnName="Sync_User" />
                 <ScalarProperty Name="StockStatus" ColumnName="StockStatus" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
@@ -2025,6 +2041,8 @@
           <EntitySetMapping Name="Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
               <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="ImageUrl" ColumnName="ImageUrl" />
+                <ScalarProperty Name="Status1" ColumnName="Status1" />
                 <ScalarProperty Name="StockStatus" ColumnName="StockStatus" />
                 <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />

@@ -21,6 +21,11 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult Detail(int id)
+        {
+            return View();
+        }
+
         public ActionResult New()
         {
             string user_id = HttpContext.User.Identity.Name;

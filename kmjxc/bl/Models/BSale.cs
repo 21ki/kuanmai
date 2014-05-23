@@ -28,5 +28,6 @@ namespace KM.JXC.BL.Models
         public Common_District Province { get; set; }
         public Common_District City { get; set; }
         public BUser SyncUser { get; set; }
+        public bool HasRefound { get; set; }
     }
 }

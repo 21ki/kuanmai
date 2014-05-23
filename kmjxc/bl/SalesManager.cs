@@ -81,7 +81,27 @@ namespace KM.JXC.BL
             total = 0;
             totalAmount = 0;
             bool hasnext = false;
-            List<BSale> sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext);
+            bool onlyRefound = false;
+            Sale_SyncTime syncTime = null;
+            int syncType = 0;
+            if (status != null)
+            {
+                if (status == "1")
+                {
+                    syncType = 0;
+                }else if(status=="2")
+                {
+                    syncType=1;
+                }
+                if (status == "3")
+                {
+                    syncType = 2;
+                    onlyRefound = true;
+                }
+
+                status = this.GetTradeStatusText(status);
+            }
+            List<BSale> sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext, onlyRefound);
             if (sales != null)
             {
                 allSales = allSales.Concat(sales).ToList<BSale>();
@@ -90,7 +110,7 @@ namespace KM.JXC.BL
             {
                 page++;
                 hasnext = false;
-                sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext);
+                sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext, onlyRefound);
                 if (sales != null)
                 {
                     allSales = allSales.Concat(sales).ToList<BSale>();
@@ -101,13 +121,39 @@ namespace KM.JXC.BL
             if (allSales != null)
             {
                 KuanMaiEntities db = new KuanMaiEntities();
-
+                syncTime=(from sync in db.Sale_SyncTime where sync.ShopID==this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
                 try
                 {
-                    List<Customer> customers = (from customer in db.Customer
-                                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
-                                                select customer).ToList<Customer>();
-                    List<Sale> dbSales = (from dbs in db.Sale where dbs.Shop_ID == this.Shop.Shop_ID select dbs).ToList<Sale>();
+                    int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    if (syncTime == null)
+                    {
+                        syncTime = new Sale_SyncTime();
+                        syncTime.ShopID = this.Shop.Shop_ID;
+                        syncTime.FirstSyncTime = timeNow;
+                        syncTime.SyncUser = this.CurrentUser.ID;
+                        syncTime.LastSyncTime = timeNow;
+                        syncTime.LastTradeEndTime = endTime + 1;
+                        syncTime.SyncType = syncType;
+                        db.Sale_SyncTime.Add(syncTime);
+                    }
+                    else
+                    {
+                        syncTime.LastSyncTime = timeNow;
+                        syncTime.LastTradeEndTime = endTime + 1;
+                    }
+                    var customers = from customer in db.Customer
+                                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID                     
+                                                select customer;
+                    var dbSaleObjs = from dbs in db.Sale where dbs.Shop_ID == this.Shop.Shop_ID select dbs;
+                    if (startTime > 0)
+                    {
+                        dbSaleObjs = dbSaleObjs.Where(s=>s.Sale_Time>=startTime);
+                    }
+                    if (endTime > 0)
+                    {
+                        dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time <= endTime);
+                    }
+                    List<Sale> dbSales = dbSaleObjs.ToList<Sale>();
                     List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>();
                     foreach (BSale sale in allSales)
                     {
@@ -123,7 +169,7 @@ namespace KM.JXC.BL
                         dbSale.Province_ID = 0;
                         dbSale.City_ID = 0;
                         dbSale.Sync_User = this.CurrentUser.ID;
-                        
+                        dbSale.HasRefound = sale.HasRefound;
                         if (sale.Buyer != null)
                         {
                             if (sale.Buyer.Province != null)
@@ -146,10 +192,10 @@ namespace KM.JXC.BL
 
                             if (!string.IsNullOrEmpty(sale.Buyer.Mall_ID))
                             {
-                                dbSale.Buyer_ID = (from cus in customers where cus.Mall_ID == sale.Buyer.Mall_ID select cus.Customer_ID).FirstOrDefault<int>();
-                                if (dbSale.Buyer_ID == 0)
+                                Customer cus = (from custo in customers where custo.Mall_ID == sale.Buyer.Mall_ID select custo).FirstOrDefault<Customer>();
+                                if (cus == null)
                                 {
-                                    Customer cus = new Customer();
+                                    cus = new Customer();
                                     cus.Address = sale.Buyer.Address;
                                     cus.Name = sale.Buyer.Name;
                                     cus.City_ID = dbSale.City_ID;
@@ -159,10 +205,27 @@ namespace KM.JXC.BL
                                     cus.Phone = sale.Buyer.Phone;
                                     db.Customer.Add(cus);
                                     db.SaveChanges();
-                                    dbSale.Buyer_ID = cus.Customer_ID;
+
                                     //refresh customer cache
-                                    customers.Add(cus);
+                                    //customers.Add(cus);
+
+                                    //add to shop customers
+                                    Customer_Shop cs = new Customer_Shop() { Shop_ID = this.Shop.Shop_ID, Customer_ID = cus.Customer_ID };
+                                    db.Customer_Shop.Add(cs);
                                 }
+                                else
+                                {
+                                    //update customer info
+                                    cus.Address = sale.Buyer.Address;
+                                    cus.Name = sale.Buyer.Name;
+                                    cus.City_ID = dbSale.City_ID;
+                                    cus.Province_ID = dbSale.Province_ID;
+                                    cus.Mall_ID = sale.Buyer.Mall_ID;
+                                    cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
+                                    cus.Phone = sale.Buyer.Phone;                                 
+                                }
+
+                                dbSale.Buyer_ID = cus.Customer_ID;
                             }
                         }
                         dbSale.Sale_Time = sale.SaleDateTime;
@@ -193,6 +256,8 @@ namespace KM.JXC.BL
                                     {
                                         sd.Status = "0";
                                     }
+                                    sd.ImageUrl = order.ImageUrl;
+                                    sd.Status1 = order.Status1;
                                     sd.StockStatus = 0;
                                     sd.Mall_PID = order.Mall_PID;
                                     sd.Supplier_ID = 0;
@@ -202,7 +267,45 @@ namespace KM.JXC.BL
                         }
                         else
                         {
+                            List<Sale_Detail> details=(from detail in db.Sale_Detail 
+                                                       where detail.Mall_Trade_ID==dbSale.Mall_Trade_ID 
+                                                       select detail).ToList<Sale_Detail>();
                             this.UpdateProperties(existed, dbSale);
+
+                            foreach (BOrder order in sale.Orders)
+                            {
+                                Sale_Detail sd = (from ed in details where ed.Mall_Order_ID == order.Order_ID select ed).FirstOrDefault<Sale_Detail>();
+                                bool isNew = false;
+                                if (sd == null)
+                                {
+                                    isNew = true;
+                                    sd = new Sale_Detail(); 
+                                }
+
+                                sd.Amount = order.Amount;
+                                sd.Discount = order.Discount;
+                                sd.Mall_Order_ID = order.Order_ID;
+                                sd.Mall_Trade_ID = sale.Sale_ID;
+                                sd.Parent_Product_ID = order.Parent_Product_ID;
+                                sd.Product_ID = order.Product_ID;
+                                sd.Price = order.Price;
+                                sd.Quantity = order.Quantity;
+                                sd.Status = order.Status;
+                                if (string.IsNullOrEmpty(sd.Status))
+                                {
+                                    sd.Status = "0";
+                                }
+                                sd.ImageUrl = order.ImageUrl;
+                                sd.Status1 = order.Status1;
+                                sd.StockStatus = 0;
+                                sd.Mall_PID = order.Mall_PID;
+                                sd.Supplier_ID = 0;
+
+                                if (isNew)
+                                {
+                                    db.Sale_Detail.Add(sd);
+                                }                               
+                            }
                         }
 
                     }
@@ -245,7 +348,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BSale> SearchSales(int[] products, int[] customers, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords)
+        public List<BSale> SearchSales(int[] pdtids,string productName, int[] customers, string customer_nick, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords)
         {
             List<BSale> sales = null;
             totalRecords = 0;
@@ -256,10 +359,22 @@ namespace KM.JXC.BL
                              where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
                              select sale;
 
-                if (products != null && products.Length > 0)
+                if (pdtids != null && pdtids.Length > 0)
                 {
                     string[] sale_ids = (from order in db.Sale_Detail
-                                         where products.Contains(order.Parent_Product_ID)
+                                         where pdtids.Contains(order.Parent_Product_ID)
+                                         select order.Mall_Trade_ID).Distinct<string>().ToArray<string>();
+                    if (sale_ids != null && sale_ids.Length > 0)
+                    {
+                        trades = trades.Where(t => sale_ids.Contains(t.Mall_Trade_ID));
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    string[] sale_ids = (from order in db.Sale_Detail
+                                         join product in db.Product on order.Parent_Product_ID equals product.Product_ID
+                                         where product.Parent_ID==0 && product.Name.Contains(productName)
                                          select order.Mall_Trade_ID).Distinct<string>().ToArray<string>();
                     if (sale_ids != null && sale_ids.Length > 0)
                     {
@@ -272,6 +387,12 @@ namespace KM.JXC.BL
                     trades = trades.Where(t => customers.Contains((int)t.Buyer_ID));
                 }
 
+                if(!string.IsNullOrEmpty(customer_nick))
+                {
+                    int buyer_id=(from customer in db.Customer where customer.Mall_ID==customer_nick select customer.Customer_ID).FirstOrDefault<int>();
+                    trades = trades.Where(t => t.Buyer_ID==buyer_id);
+                }
+
                 if (sSaleTime > 0)
                 {
                     trades = trades.Where(t => t.Sale_Time >= sSaleTime);
@@ -282,47 +403,51 @@ namespace KM.JXC.BL
                     trades = trades.Where(t => t.Sale_Time <= eSaleTime);
                 }
 
-                sales = (from t in trades
-                         join customer in db.Customer on t.Buyer_ID equals customer.Customer_ID
-                         join shop in db.Shop on t.Shop_ID equals shop.Shop_ID
-                         join user in db.User on t.Sync_User equals user.User_ID into l_user
-                         from ll_user in l_user.DefaultIfEmpty()
-                         //join province in db.Common_District on customer.Province_ID equals province.id
-                         join city in db.Common_District on customer.City_ID equals city.id into l_city
-                         from ll_city in l_city.DefaultIfEmpty()
-                         select new BSale
-                         {
-                             Created = (int)t.Created,
-                             Synced = (int)t.Synced,
-                             Modified = (int)t.Modified,
-                             SaleDateTime = (int)t.Sale_Time,
-                             Amount = t.Amount,
-                             Buyer = new BCustomer
-                             {
-                                 ID = customer.Customer_ID,
-                                 Name = customer.Name,
-                                 Mall_ID = customer.Mall_ID,
-                                 Mall_Name = customer.Mall_Name,
-                                 Phone = customer.Phone,
-                                 //Province = province,
-                                 City = ll_city
-                             },
-                             Sale_ID = t.Mall_Trade_ID,
-                             Post_Fee = (double)t.Post_Fee,
-                             Status = t.Status,
-                             Shop = new BShop
-                             {
-                                 ID = shop.Shop_ID,
-                                 Title = shop.Name
-                             },
-                             SyncUser = new BUser 
-                             {
-                                 ID = ll_user.User_ID,
-                                 Name = ll_user.Name,
-                                 Mall_ID = ll_user.Mall_ID,
-                                 Mall_Name = ll_user.Mall_Name
-                             }
-                         }).OrderByDescending(s => s.Sale_ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+                var sObjs = from t in trades
+                            join customer in db.Customer on t.Buyer_ID equals customer.Customer_ID
+                            join shop in db.Shop on t.Shop_ID equals shop.Shop_ID
+                            join user in db.User on t.Sync_User equals user.User_ID //into l_user
+                            //from ll_user in l_user.DefaultIfEmpty()
+                            //join province in db.Common_District on customer.Province_ID equals province.id
+                            join city in db.Common_District on customer.City_ID equals city.id into l_city
+                            from ll_city in l_city.DefaultIfEmpty()
+                            select new BSale
+                            {
+                           
+                                Created = (int)t.Created,
+                                Synced = (int)t.Synced,
+                                Modified = (int)t.Modified,
+                                SaleDateTime = (int)t.Sale_Time,
+                                Amount = t.Amount,
+                                Buyer = new BCustomer
+                                {
+                                    ID = customer.Customer_ID,
+                                    Name = customer.Name,
+                                    Mall_ID = customer.Mall_ID,
+                                    Mall_Name = customer.Mall_Name,
+                                    Phone = customer.Phone,
+                                    //Province = province,
+                                    City = ll_city
+                                },
+                                Sale_ID = t.Mall_Trade_ID,
+                                Post_Fee = (double)t.Post_Fee,
+                                Status = t.Status,
+                                Shop = new BShop
+                                {
+                                    ID = shop.Shop_ID,
+                                    Title = shop.Name
+                                },
+                                SyncUser = new BUser
+                                {
+                                    ID = user.User_ID,
+                                    Name = user.Name,
+                                    Mall_ID = user.Mall_ID,
+                                    Mall_Name = user.Mall_Name
+                                },
+                                HasRefound = (bool)t.HasRefound
+                            };//).OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+                totalRecords = sObjs.Count();
+                sales = sObjs.OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
 
                 string[] bsale_ids = (from sale in sales select sale.Sale_ID).ToArray<string>();
                 List<Sale_Detail> sale_details = (from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Mall_Trade_ID) select sdetail).ToList<Sale_Detail>();
@@ -343,8 +468,8 @@ namespace KM.JXC.BL
                              }).ToList<BProductProperty>();
                 foreach (BSale sale in sales)
                 {
-                    var os = from order in sale_details
-                             join product in dbProducts on order.Parent_Product_ID equals product.Product_ID                             
+                    var os = from order in sale_details                             
+                             where order.Mall_Trade_ID==sale.Sale_ID
                              select new BOrder
                              {
                                  Amount = (double)order.Amount,
@@ -353,27 +478,33 @@ namespace KM.JXC.BL
                                  Price = order.Price,
                                  Parent_Product_ID = order.Parent_Product_ID,
                                  Product_ID = order.Product_ID,
-                                 Product = new BProduct
-                                 {
-                                     ID = product.Product_ID,
-                                     Title = product.Name
-                                 }
+                                 ImageUrl=order.ImageUrl
+                                 //Product = new BProduct
+                                 //{
+                                 //    ID = ll_product.Product_ID,
+                                 //    Title = ll_product.Name
+                                 //}
                              };
                     sale.Orders = os.ToList<BOrder>();
 
                     foreach (BOrder order in sale.Orders)
                     {
+
+                        order.Product = (from product in dbProducts
+                                         where product.Product_ID == order.Parent_Product_ID
+                                         select new BProduct
+                                         {
+                                             ID = product.Product_ID,                                             
+                                             Title = product.Name
+                                         }).FirstOrDefault<BProduct>();
+
                         if (order.Product != null)
                         {
-                            order.Product.Children = new List<BProduct>();
-                            BProduct child = new BProduct();
-                            child.Title = order.Product.Title;
-                            child.ID = order.Product_ID;
-                            child.Properties = (from p in childs
-                                                where p.ProductID == child.ID
-                                                select p).ToList<BProductProperty>();
+                            order.Product.Properties = (from p in childs
+                                                        where p.ProductID == order.Product_ID
+                                                        select p).ToList<BProductProperty>();
 
-                            order.Product.Children.Add(child);
+
                         }
                     }
                 }

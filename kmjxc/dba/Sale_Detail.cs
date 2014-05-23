@@ -26,5 +26,7 @@ namespace KM.JXC.DBA
         public Nullable<double> Amount { get; set; }
         public Nullable<int> Supplier_ID { get; set; }
         public Nullable<int> StockStatus { get; set; }
+        public int Status1 { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

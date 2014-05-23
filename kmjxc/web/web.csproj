@@ -681,6 +681,7 @@
     <Content Include="Views\Sale\Change.cshtml" />
     <Content Include="Views\Sale\Customer.cshtml" />
     <Content Include="Views\Sale\Sync.cshtml" />
+    <Content Include="Views\Product\Detail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
