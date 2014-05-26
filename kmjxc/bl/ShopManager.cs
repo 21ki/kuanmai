@@ -15,13 +15,19 @@ namespace KM.JXC.BL
     {
         public int Mall_Type { get; private set; }
       
-        private UserManager userManager = null;
+        public UserManager UserManager{get;private set;}
         public ShopManager(BUser user,int shop_id, int mall_type, Permission permission)
             : base(user, shop_id,permission)
         {
             this.Mall_Type = mall_type;
+            UserManager = new UserManager(user,permission);
+        }
 
-            userManager = new UserManager(user,permission);
+        public ShopManager(BUser user, Shop shop, Permission permission,UserManager userMgr)
+            : base(user, shop, permission)
+        {
+            this.Mall_Type=shop.Mall_Type_ID;
+            this.UserManager=userMgr;
         }
 
         /// <summary>
@@ -158,6 +164,53 @@ namespace KM.JXC.BL
                 result = true;
             }
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BCustomer> SearchCustomers(int page,int pageSize, out long totalRecords)
+        {
+            totalRecords = 0;
+            List<BCustomer> customers = new List<BCustomer>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] csp_ids=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+
+                var tmp = from cus in db.Customer
+                          join mtype in db.Mall_Type on cus.Mall_Type_ID equals mtype.Mall_Type_ID
+                          join shop_cus in db.Customer_Shop on cus.Customer_ID equals shop_cus.Customer_ID
+                          join shop in db.Shop on shop_cus.Shop_ID equals shop.Shop_ID
+                          where shop_cus.Shop_ID == this.Shop.Shop_ID || shop_cus.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(shop_cus.Shop_ID)
+
+                          select new BCustomer
+                          {
+                              ID=cus.Customer_ID,
+                              Address = cus.Address,
+                              Mall_ID = cus.Mall_ID,
+                              Mall_Name = cus.Mall_Name,
+                              Type = mtype,
+                              Email = cus.Email,
+                              Phone = cus.Phone,
+                              Name=cus.Name,
+                              Shop = new BShop
+                              {
+                                  Title = shop.Name,
+                                  ID = shop.Shop_ID,
+                                  Mall_ID = shop.Mall_Shop_ID,
+                                  Type = mtype,
+                              }
+                          };
+                tmp = tmp.OrderBy(c => c.ID);
+                totalRecords = tmp.Count();
+                if (totalRecords > 0)
+                {
+                    customers = tmp.Skip((page-1)*pageSize).Take(pageSize).ToList<BCustomer>();
+                }
+                        
+            }
+            return customers;
         }
     }
 }

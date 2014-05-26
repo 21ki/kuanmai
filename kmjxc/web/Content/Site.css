@@ -555,18 +555,22 @@ td.tdc {
     margin-bottom:10px;
     overflow:hidden;   
 }
-.s_title {
-    border-bottom:1px solid #D4E7FF;
+.s_title {    
     background-color:#e8f2ff;
     padding-top:5px;
     padding-bottom:5px;
 }
-.shead {
+.shead,.spage {   
     margin-top:10px;
     margin-bottom:10px;
-    padding-left:5px;
+    padding-left:10px;
 }
-
+.shead {
+     border-bottom:1px solid #D4E7FF;
+}
+.spage {
+    text-align:center;
+}
 .s_num {
     padding-left:5px;    
     width:200px;
@@ -619,3 +623,13 @@ td.tdc {
 .colw2 {
     width:100px;
 }
+
+.pager {
+    background-color:#e8f2ff;
+}
+    .pager .pn, .pager .spn {
+        display:inline-block;
+        margin-right:4px;
+        padding:3px;
+        
+    }

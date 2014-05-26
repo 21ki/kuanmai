@@ -68,6 +68,229 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="trades"></param>
+        private void HandleBackTrades(List<BSale> trades)
+        {
+            if (trades == null)
+            {
+                return;
+            }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                string[] sale_ids=(from trade in trades select trade.Sale_ID).ToArray<string>();
+                List<Leave_Stock> leave_Stocks=(from ls in db.Leave_Stock where sale_ids.Contains(ls.Sale_ID) select ls).ToList<Leave_Stock>();
+                int[] ls_ids=(from ls in leave_Stocks select ls.Leave_Stock_ID).ToArray<int>();
+                List<Leave_Stock_Detail> leave_stock_Details=(from lsd in db.Leave_Stock_Detail where ls_ids.Contains(lsd.Leave_Stock_ID) select lsd).ToList<Leave_Stock_Detail>();
+                List<Back_Sale> back_Sales=(from backSale in db.Back_Sale where sale_ids.Contains(backSale.Sale_ID) select backSale).ToList<Back_Sale>();
+                int[] bs_ids=(from bs in back_Sales select bs.Back_Sale_ID).ToArray<int>();
+                List<Back_Sale_Detail> back_Sale_Details=(from bsd in db.Back_Sale_Detail where bs_ids.Contains(bsd.Back_Sale_ID) select bsd).ToList<Back_Sale_Detail>();
+                foreach (BSale trade in trades)
+                {
+                    Leave_Stock ls=(from leaveStock in leave_Stocks where leaveStock.Sale_ID==trade.Sale_ID select leaveStock).FirstOrDefault<Leave_Stock>();
+                    Back_Sale bSale=(from b_Sale in back_Sales where b_Sale.Sale_ID==trade.Sale_ID select b_Sale).FirstOrDefault<Back_Sale>();
+
+                    if (bSale == null)
+                    {
+                        double totalRefound = 0;
+                        bSale = new Back_Sale();
+                        bSale.Back_Date = trade.Synced;
+                        bSale.Back_Sale_ID = 0;
+                        bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        bSale.Description = "";
+                        bSale.Sale_ID = trade.Sale_ID;
+                        bSale.Shop_ID = this.Shop.Shop_ID;
+                        bSale.Status = 0;
+                        bSale.User_ID = this.CurrentUser.ID;
+                        db.Back_Sale.Add(bSale);
+                        db.SaveChanges();
+
+                        if (trade.Orders != null)
+                        {
+                            foreach (BOrder order in trade.Orders)
+                            {
+                                //1- refound succeed
+                                //0- is normal
+                                if (order.Status1 != 1)
+                                {
+                                    continue;
+                                }
+
+                                if(order.Product_ID<=0)
+                                {
+                                    continue;
+                                }
+
+                                Back_Sale_Detail dbSaleDetail = new Back_Sale_Detail();
+                                dbSaleDetail.Back_Sale_ID = bSale.Back_Sale_ID;
+                                dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                dbSaleDetail.Description ="同步商城订单时处理有退货的订单";
+                                dbSaleDetail.Parent_Product_ID = order.Parent_Product_ID;                               
+                                dbSaleDetail.Price = order.Price;
+                                dbSaleDetail.Product_ID = order.Product_ID;
+                                dbSaleDetail.Quantity = order.Quantity;
+                                dbSaleDetail.Status = 0;
+                                dbSaleDetail.Refound = order.Amount;
+                                totalRefound += order.Amount;
+                                db.Back_Sale_Detail.Add(dbSaleDetail);
+                            }
+
+                            bSale.Amount = totalRefound;
+                          
+                            db.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+
+                    }                   
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="trades"></param>
+        private void CreateLeaveStocks(List<BSale> trades)
+        {
+            if (trades == null)
+            {
+                return;
+            }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            int[] csp_ids = (from child in this.ChildShops select child.Shop_ID).ToArray<int>();
+            if (csp_ids == null)
+            {
+                csp_ids = new int[1];
+            }
+
+            List<Product> products = (from pdt in db.Product where pdt.Shop_ID == this.Shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID) select pdt).ToList<Product>();
+            string[] sale_ids=(from sale in trades select sale.Sale_ID).ToArray<string>();
+            List<Leave_Stock> cacheLeaveStocks=(from ls in db.Leave_Stock where sale_ids.Contains(ls.Sale_ID) select ls).ToList<Leave_Stock>();
+            Store_House house=(from store in db.Store_House where store.Default==true select store).FirstOrDefault<Store_House>();
+            List<Store_House> houses = (from store in db.Store_House select store).ToList<Store_House>();
+            List<Stock_Pile> stockPiles=(from sp in db.Stock_Pile where sp.Shop_ID==this.Shop.Shop_ID || sp.Shop_ID==this.Main_Shop.Shop_ID || csp_ids.Contains(sp.Shop_ID) select sp).ToList<Stock_Pile>();
+            List<Sale_Detail> tradeDetails=(from tradeDetail in db.Sale_Detail where sale_ids.Contains(tradeDetail.Mall_Trade_ID) select tradeDetail).ToList<Sale_Detail>();
+            try
+            {
+                foreach (BSale trade in trades)
+                {
+                    bool isNew = false;
+                    Leave_Stock dbStock = null;
+
+                    dbStock=(from cstock in cacheLeaveStocks where cstock.Sale_ID==trade.Sale_ID select cstock).FirstOrDefault<Leave_Stock>();
+                    if (dbStock == null)
+                    {
+                        isNew = true;
+                        dbStock = new Leave_Stock();
+                    }
+
+                    dbStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbStock.Leave_Date = trade.Synced;
+                    dbStock.Leave_Stock_ID = 0;
+                    dbStock.Sale_ID = trade.Sale_ID;
+                    dbStock.Shop_ID = this.Shop.Shop_ID;
+                    dbStock.User_ID = this.CurrentUser.ID;
+                    if (isNew)
+                    {
+                        db.Leave_Stock.Add(dbStock);
+                        db.SaveChanges();
+                    }
+
+                    if (dbStock.Leave_Stock_ID <= 0)
+                    {
+                        throw new KMJXCException("出库单创建失败");
+                    }
+
+                    if (trade.Orders != null)
+                    {
+                        foreach (BOrder order in trade.Orders)
+                        {
+                            Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
+                            if (order.Status1 != 0)
+                            {
+                                continue;
+                            }
+
+                            Leave_Stock_Detail dbDetail = new Leave_Stock_Detail();
+                            dbDetail.Leave_Stock_ID = dbStock.Leave_Stock_ID;
+                            dbDetail.Price = order.Price;
+                            dbDetail.Quantity = order.Quantity;
+                            Stock_Pile stockPile = null;
+                            if (house != null)
+                            {
+                                order_detail.SyncResultMessage = "默认仓库:" + house.Title;
+                                //create leave stock from default store house
+                                stockPile = (from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();                                                               
+                            }
+
+                            if (stockPile == null)
+                            {
+                                if (!string.IsNullOrEmpty(order_detail.SyncResultMessage))
+                                {
+                                    order_detail.SyncResultMessage = "默认仓库:" + house.Title + "没有库存或者库存数量不够<br/>";
+                                }
+                                //get store house when it has the specific product
+                                var tmpstockPile = from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.Quantity >= order.Quantity select sp;
+                                if (tmpstockPile.Count() > 0)
+                                {
+                                    stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
+                                    Store_House tmpHouse = (from h in houses where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
+
+                                    order_detail.SyncResultMessage += "仓库:" + tmpHouse.Title + "有足够的库存，从此仓库出库并更新库存<br/>";
+                                }
+                                else
+                                {
+                                    //cannot leave stock, no stock pile
+                                    order_detail.Status1 = 3;
+                                    order_detail.SyncResultMessage = "默认仓库:" + house.Title + "没有库存或者库存数量不够，并且没有找到其他任何一个仓库有足够的库存";
+                                }
+                            }                            
+
+                            //no stock cannot leave stock
+                            if (stockPile != null)
+                            {
+                                dbDetail.StoreHouse_ID = stockPile.StockHouse_ID;
+                                //Update stock
+                                stockPile.Quantity = stockPile.Quantity - order.Quantity;
+                                dbDetail.Parent_Product_ID = order.Parent_Product_ID;
+                                dbDetail.Product_ID = order.Product_ID;
+                                db.Leave_Stock_Detail.Add(dbDetail);
+                            }  
+                        }
+                    }
+                }
+
+                db.SaveChanges();
+            }
+            catch (KMJXCException kex)
+            {
+                throw kex;
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                db.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="startTime"></param>
         /// <param name="endTime"></param>
         /// <param name="status"></param>
@@ -89,18 +312,45 @@ namespace KM.JXC.BL
                 if (status == "1")
                 {
                     syncType = 0;
-                }else if(status=="2")
+                }
+                else if (status == "2")
                 {
-                    syncType=1;
+                    syncType = 1;
                 }
                 if (status == "3")
                 {
-                    syncType = 2;
+                    syncType = 0;
                     onlyRefound = true;
+                }
+                else if (status == "4")
+                {
+                    syncType = 1;
                 }
 
                 status = this.GetTradeStatusText(status);
             }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+            syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
+            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            if (syncTime == null)
+            {
+                syncTime = new Sale_SyncTime();
+                syncTime.ShopID = this.Shop.Shop_ID;
+                syncTime.FirstSyncTime = timeNow;
+                syncTime.SyncUser = this.CurrentUser.ID;
+                syncTime.LastSyncTime = timeNow;
+                syncTime.LastTradeStartEndTime = endTime + 1;
+                syncTime.LastTradeModifiedEndTime = endTime;
+                syncTime.SyncType = syncType;
+                db.Sale_SyncTime.Add(syncTime);
+            }
+            else
+            {
+                syncTime.LastSyncTime = timeNow;
+                syncTime.LastTradeStartEndTime = endTime + 1;
+            }
+
             List<BSale> sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext, onlyRefound);
             if (sales != null)
             {
@@ -118,170 +368,210 @@ namespace KM.JXC.BL
                 allSales = allSales.Concat(sales).ToList<BSale>();
             }
 
-            if (allSales != null)
+            if (allSales == null)
             {
-                KuanMaiEntities db = new KuanMaiEntities();
-                syncTime=(from sync in db.Sale_SyncTime where sync.ShopID==this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
-                try
+                return result;
+            }
+
+            try
+            {
+                var customers = from customer in db.Customer
+                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
+                                select customer;
+                var dbSaleObjs = from dbs in db.Sale where dbs.Shop_ID == this.Shop.Shop_ID select dbs;
+                if (startTime > 0)
                 {
-                    int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    if (syncTime == null)
+                    dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time >= startTime);
+                }
+                if (endTime > 0)
+                {
+                    dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time <= endTime);
+                }
+                List<Sale> dbSales = dbSaleObjs.ToList<Sale>();
+                List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>();
+                this.HandleMallTrades(allSales, dbSales, areas);
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                db.Dispose();
+            }
+
+            result = true;
+            return result;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SyncMallTradesIncrement()
+        {
+            IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
+            List<BSale> allSales = new List<BSale>();
+            long page = 1;
+            long total = 0;
+            //double totalAmount = 0;
+            int pageSize = 50;
+            bool hasnext = false;
+            KuanMaiEntities db = new KuanMaiEntities();
+            Sale_SyncTime syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
+            int modifiedStart = 0;
+            int modifiedEnd = 0;
+            if (syncTime != null)
+            {
+                modifiedStart = syncTime.LastTradeModifiedEndTime;
+                //one day added
+                modifiedEnd = modifiedStart + 24 * 3600 * 100;
+            }
+            List<BSale> tmpSales = tradeManager.IncrementSyncTrades(DateTimeUtil.ConvertToDateTime(modifiedStart), DateTimeUtil.ConvertToDateTime(modifiedEnd), null, page, out total, out hasnext);
+            long totalPage = 0;
+            if (total % pageSize == 0)
+            {
+                totalPage = total / pageSize;
+            }
+            else
+            {
+                totalPage = total / pageSize + 1;
+            }
+            while (hasnext)
+            {
+                tmpSales = tradeManager.IncrementSyncTrades(DateTimeUtil.ConvertToDateTime(modifiedStart), DateTimeUtil.ConvertToDateTime(modifiedEnd), null, totalPage, out total, out hasnext);
+                if (tmpSales != null)
+                {
+                    allSales = allSales.Concat(tmpSales).ToList<BSale>();
+                }
+                totalPage--;
+            }
+
+            this.HandleMallTrades(allSales, null, null);
+        }
+
+        private void HandleMallTrades(List<BSale> allSales, List<Sale> existedSales, List<Common_District> ars)
+        {
+            if (allSales == null)
+            {
+                return;
+            }
+
+            List<BSale> newSales = new List<BSale>();
+            List<BSale> backSales = new List<BSale>();
+
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
+            {
+                int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                var customers = from customer in db.Customer
+                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
+                                select customer;
+               
+                List<Sale> dbSales = existedSales;
+               
+                //var dbSales = dbSaleObjs;
+                List<Common_District> areas = ars;
+                if (areas == null)
+                {                    
+                    areas = (from area in db.Common_District select area).ToList<Common_District>();                    
+                }
+
+                foreach (BSale sale in allSales)
+                {
+                    Sale dbSale = new Sale();
+                    dbSale.Amount = sale.Amount;
+                    dbSale.Buyer_ID = 0;
+                    dbSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbSale.Express_Cop = "";
+                    dbSale.Mall_Trade_ID = sale.Sale_ID;
+                    dbSale.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbSale.Post_Fee = sale.Post_Fee;
+                    dbSale.Province_ID = 0;
+                    dbSale.City_ID = 0;
+                    dbSale.Sync_User = this.CurrentUser.ID;
+                    dbSale.HasRefound = sale.HasRefound;
+                    if (sale.Buyer != null)
                     {
-                        syncTime = new Sale_SyncTime();
-                        syncTime.ShopID = this.Shop.Shop_ID;
-                        syncTime.FirstSyncTime = timeNow;
-                        syncTime.SyncUser = this.CurrentUser.ID;
-                        syncTime.LastSyncTime = timeNow;
-                        syncTime.LastTradeEndTime = endTime + 1;
-                        syncTime.SyncType = syncType;
-                        db.Sale_SyncTime.Add(syncTime);
+                        if (sale.Buyer.Province != null)
+                        {
+                            sale.Buyer.Province = (from p in areas where p.name == sale.Buyer.Province.name select p).FirstOrDefault<Common_District>();
+                            if (sale.Buyer.Province != null)
+                            {
+                                dbSale.Province_ID = sale.Buyer.Province.id;
+                            }
+                        }
+
+                        if (sale.Buyer.City != null)
+                        {
+                            sale.Buyer.City = (from p in areas where p.name == sale.Buyer.City.name select p).FirstOrDefault<Common_District>();
+                            if (sale.Buyer.City != null)
+                            {
+                                dbSale.City_ID = sale.Buyer.City.id;
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(sale.Buyer.Mall_ID))
+                        {
+                            Customer cus = (from custo in customers where custo.Mall_ID == sale.Buyer.Mall_ID select custo).FirstOrDefault<Customer>();
+                            if (cus == null)
+                            {
+                                cus = new Customer();
+                                cus.Address = sale.Buyer.Address;
+                                cus.Name = sale.Buyer.Name;
+                                cus.City_ID = dbSale.City_ID;
+                                cus.Province_ID = dbSale.Province_ID;
+                                cus.Mall_ID = sale.Buyer.Mall_ID;
+                                cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
+                                cus.Phone = sale.Buyer.Phone;
+                                db.Customer.Add(cus);
+                                db.SaveChanges();
+
+                                //refresh customer cache
+                                //customers.Add(cus);
+
+                                //add to shop customers
+                                Customer_Shop cs = new Customer_Shop() { Shop_ID = this.Shop.Shop_ID, Customer_ID = cus.Customer_ID };
+                                db.Customer_Shop.Add(cs);
+                            }
+                            else
+                            {
+                                //update customer info
+                                cus.Address = sale.Buyer.Address;
+                                cus.Name = sale.Buyer.Name;
+                                cus.City_ID = dbSale.City_ID;
+                                cus.Province_ID = dbSale.Province_ID;
+                                cus.Mall_ID = sale.Buyer.Mall_ID;
+                                cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
+                                cus.Phone = sale.Buyer.Phone;
+                            }
+
+                            dbSale.Buyer_ID = cus.Customer_ID;
+                        }
+                    }
+                    dbSale.Sale_Time = sale.SaleDateTime;
+                    dbSale.Shop_ID = this.Shop.Shop_ID;
+                    dbSale.Status = sale.Status;
+                    dbSale.StockStatus = 0;
+                    dbSale.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    Sale existed = null;
+                    if (dbSales != null)
+                    {
+                        existed = (from s in dbSales where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
                     }
                     else
                     {
-                        syncTime.LastSyncTime = timeNow;
-                        syncTime.LastTradeEndTime = endTime + 1;
+                        existed = (from s in db.Sale where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
                     }
-                    var customers = from customer in db.Customer
-                                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID                     
-                                                select customer;
-                    var dbSaleObjs = from dbs in db.Sale where dbs.Shop_ID == this.Shop.Shop_ID select dbs;
-                    if (startTime > 0)
+
+                    if (existed == null)
                     {
-                        dbSaleObjs = dbSaleObjs.Where(s=>s.Sale_Time>=startTime);
-                    }
-                    if (endTime > 0)
-                    {
-                        dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time <= endTime);
-                    }
-                    List<Sale> dbSales = dbSaleObjs.ToList<Sale>();
-                    List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>();
-                    foreach (BSale sale in allSales)
-                    {
-                        totalAmount += sale.Amount;
-                        Sale dbSale = new Sale();
-                        dbSale.Amount = sale.Amount;
-                        dbSale.Buyer_ID = 0;
-                        dbSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                        dbSale.Express_Cop = "";
-                        dbSale.Mall_Trade_ID = sale.Sale_ID;
-                        dbSale.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                        dbSale.Post_Fee = sale.Post_Fee;
-                        dbSale.Province_ID = 0;
-                        dbSale.City_ID = 0;
-                        dbSale.Sync_User = this.CurrentUser.ID;
-                        dbSale.HasRefound = sale.HasRefound;
-                        if (sale.Buyer != null)
+                        newSales.Add(sale);
+                        db.Sale.Add(dbSale);
+                        if (sale.Orders != null)
                         {
-                            if (sale.Buyer.Province != null)
-                            {
-                                sale.Buyer.Province = (from p in areas where p.name == sale.Buyer.Province.name select p).FirstOrDefault<Common_District>();
-                                if (sale.Buyer.Province != null)
-                                {
-                                    dbSale.Province_ID = sale.Buyer.Province.id;
-                                }
-                            }
-
-                            if (sale.Buyer.City != null)
-                            {
-                                sale.Buyer.City = (from p in areas where p.name == sale.Buyer.City.name select p).FirstOrDefault<Common_District>();
-                                if (sale.Buyer.City != null)
-                                {
-                                    dbSale.City_ID = sale.Buyer.City.id;
-                                }
-                            }
-
-                            if (!string.IsNullOrEmpty(sale.Buyer.Mall_ID))
-                            {
-                                Customer cus = (from custo in customers where custo.Mall_ID == sale.Buyer.Mall_ID select custo).FirstOrDefault<Customer>();
-                                if (cus == null)
-                                {
-                                    cus = new Customer();
-                                    cus.Address = sale.Buyer.Address;
-                                    cus.Name = sale.Buyer.Name;
-                                    cus.City_ID = dbSale.City_ID;
-                                    cus.Province_ID = dbSale.Province_ID;
-                                    cus.Mall_ID = sale.Buyer.Mall_ID;
-                                    cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
-                                    cus.Phone = sale.Buyer.Phone;
-                                    db.Customer.Add(cus);
-                                    db.SaveChanges();
-
-                                    //refresh customer cache
-                                    //customers.Add(cus);
-
-                                    //add to shop customers
-                                    Customer_Shop cs = new Customer_Shop() { Shop_ID = this.Shop.Shop_ID, Customer_ID = cus.Customer_ID };
-                                    db.Customer_Shop.Add(cs);
-                                }
-                                else
-                                {
-                                    //update customer info
-                                    cus.Address = sale.Buyer.Address;
-                                    cus.Name = sale.Buyer.Name;
-                                    cus.City_ID = dbSale.City_ID;
-                                    cus.Province_ID = dbSale.Province_ID;
-                                    cus.Mall_ID = sale.Buyer.Mall_ID;
-                                    cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
-                                    cus.Phone = sale.Buyer.Phone;                                 
-                                }
-
-                                dbSale.Buyer_ID = cus.Customer_ID;
-                            }
-                        }
-                        dbSale.Sale_Time = sale.SaleDateTime;
-                        dbSale.Shop_ID = this.Shop.Shop_ID;
-                        dbSale.Status = sale.Status;
-                        dbSale.StockStatus = 0;
-                        dbSale.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-
-                        Sale existed = (from s in dbSales where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
-                        if (existed == null)
-                        {
-                            db.Sale.Add(dbSale);
-                            if (sale.Orders != null)
-                            {
-                                foreach (BOrder order in sale.Orders)
-                                {
-                                    Sale_Detail sd = new Sale_Detail();
-                                    sd.Amount = order.Amount;
-                                    sd.Discount = order.Discount;
-                                    sd.Mall_Order_ID = order.Order_ID;
-                                    sd.Mall_Trade_ID = sale.Sale_ID;
-                                    sd.Parent_Product_ID = order.Parent_Product_ID;
-                                    sd.Product_ID = order.Product_ID;
-                                    sd.Price = order.Price;
-                                    sd.Quantity = order.Quantity;
-                                    sd.Status = order.Status;
-                                    if (string.IsNullOrEmpty(sd.Status))
-                                    {
-                                        sd.Status = "0";
-                                    }
-                                    sd.ImageUrl = order.ImageUrl;
-                                    sd.Status1 = order.Status1;
-                                    sd.StockStatus = 0;
-                                    sd.Mall_PID = order.Mall_PID;
-                                    sd.Supplier_ID = 0;
-                                    db.Sale_Detail.Add(sd);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            List<Sale_Detail> details=(from detail in db.Sale_Detail 
-                                                       where detail.Mall_Trade_ID==dbSale.Mall_Trade_ID 
-                                                       select detail).ToList<Sale_Detail>();
-                            this.UpdateProperties(existed, dbSale);
-
                             foreach (BOrder order in sale.Orders)
                             {
-                                Sale_Detail sd = (from ed in details where ed.Mall_Order_ID == order.Order_ID select ed).FirstOrDefault<Sale_Detail>();
-                                bool isNew = false;
-                                if (sd == null)
-                                {
-                                    isNew = true;
-                                    sd = new Sale_Detail(); 
-                                }
-
+                                Sale_Detail sd = new Sale_Detail();
                                 sd.Amount = order.Amount;
                                 sd.Discount = order.Discount;
                                 sd.Mall_Order_ID = order.Order_ID;
@@ -300,29 +590,69 @@ namespace KM.JXC.BL
                                 sd.StockStatus = 0;
                                 sd.Mall_PID = order.Mall_PID;
                                 sd.Supplier_ID = 0;
-
-                                if (isNew)
-                                {
-                                    db.Sale_Detail.Add(sd);
-                                }                               
+                                db.Sale_Detail.Add(sd);
                             }
                         }
-
                     }
+                    else
+                    {
+                        if (sale.HasRefound)
+                        {
+                            backSales.Add(sale);
+                        }
+                        List<Sale_Detail> details = (from detail in db.Sale_Detail
+                                                     where detail.Mall_Trade_ID == dbSale.Mall_Trade_ID
+                                                     select detail).ToList<Sale_Detail>();
+                        this.UpdateProperties(existed, dbSale);
 
-                    db.SaveChanges();
+                        foreach (BOrder order in sale.Orders)
+                        {
+                            Sale_Detail sd = (from ed in details where ed.Mall_Order_ID == order.Order_ID select ed).FirstOrDefault<Sale_Detail>();
+                            bool isNew = false;
+                            if (sd == null)
+                            {
+                                isNew = true;
+                                sd = new Sale_Detail();
+                            }
+
+                            sd.Amount = order.Amount;
+                            sd.Discount = order.Discount;
+                            sd.Mall_Order_ID = order.Order_ID;
+                            sd.Mall_Trade_ID = sale.Sale_ID;
+                            sd.Parent_Product_ID = order.Parent_Product_ID;
+                            sd.Product_ID = order.Product_ID;
+                            sd.Price = order.Price;
+                            sd.Quantity = order.Quantity;
+                            sd.Status = order.Status;
+                            if (string.IsNullOrEmpty(sd.Status))
+                            {
+                                sd.Status = "0";
+                            }
+                            sd.ImageUrl = order.ImageUrl;
+                            sd.Status1 = order.Status1;
+                            sd.StockStatus = 0;
+                            sd.Mall_PID = order.Mall_PID;
+                            sd.Supplier_ID = 0;
+
+                            if (isNew)
+                            {
+                                db.Sale_Detail.Add(sd);
+                            }
+                        }
+                    }
                 }
-                catch (Exception ex)
-                {
-                }
-                finally
-                {
-                    db.Dispose();
-                }
+
+                db.SaveChanges();
+                this.CreateLeaveStocks(newSales);
+                this.HandleBackTrades(backSales);
             }
-
-            result = true;
-            return result;
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                db.Dispose();
+            }
         }
 
         /// <summary>
@@ -526,6 +856,15 @@ namespace KM.JXC.BL
         /// <returns></returns>
         public List<BBackSale> SearchBackSales(string[] sale_ids, int[] user_ids, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
         {
+            if (pageIndex <= 0)
+            {
+                pageIndex = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
             List<BBackSale> backSales = new List<BBackSale>();
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
@@ -559,55 +898,63 @@ namespace KM.JXC.BL
                     dbBackSales = dbBackSales.Where(s => s.Back_Date <= etime);
                 }
 
-                backSales = (from sale in dbBackSales
-                             join user in db.User on sale.User_ID equals user.User_ID
-                             join mtype in db.Mall_Type on user.Mall_Type equals mtype.Mall_Type_ID
-                             join order in db.Sale on sale.Sale_ID equals order.Mall_Trade_ID
-                             join customer in db.Customer on order.Buyer_ID equals customer.Customer_ID
-                             join shop in db.Shop on sale.Shop_ID equals shop.Shop_ID
-                             select new BBackSale
-                             {
-                                 BackTime = (int)sale.Back_Date,
-                                 Created = sale.Created,
-                                 CreatedBy = new BUser
-                                 {
-                                     ID = user.User_ID,
-                                     Mall_ID = user.Mall_ID,
-                                     Mall_Name = user.Mall_Name,
-                                     Created = (int)user.Created,
-                                     Type = mtype
-                                 },
-                                 Description = sale.Description,
-                                 ID = sale.Back_Sale_ID,
-                                 Sale = new BSale
-                                 {
-                                     Amount = order.Amount,
-                                     Buyer = new BCustomer
-                                     {
-                                         ID = customer.Customer_ID,
-                                         Mall_ID = customer.Mall_ID,
-                                         Mall_Name = customer.Mall_Name,
-                                         Type = mtype
-                                     },
-                                     Created = (int)order.Created,                                    
-                                     Sale_ID = order.Mall_Trade_ID,
-                                     Modified = (int)order.Modified,
-                                     Post_Fee = (double)order.Post_Fee,
-                                     Status = order.Status,
-                                     Synced = (int)order.Synced
+                var tmp = from sale in dbBackSales
+                          orderby sale.Shop_ID ascending
+                          join user in db.User on sale.User_ID equals user.User_ID
+                          join mtype in db.Mall_Type on user.Mall_Type equals mtype.Mall_Type_ID
+                          join order in db.Sale on sale.Sale_ID equals order.Mall_Trade_ID
+                          join customer in db.Customer on order.Buyer_ID equals customer.Customer_ID
+                          join shop in db.Shop on sale.Shop_ID equals shop.Shop_ID
 
-                                 },
+                          select new BBackSale
+                          {
+                              BackTime = (int)sale.Back_Date,
+                              Created = sale.Created,
+                              CreatedBy = new BUser
+                              {
+                                  ID = user.User_ID,
+                                  Mall_ID = user.Mall_ID,
+                                  Mall_Name = user.Mall_Name,
+                                  Created = (int)user.Created,
+                                  Type = mtype
+                              },
+                            
+                              Description = sale.Description,
+                              ID = sale.Back_Sale_ID,
+                              Sale = new BSale
+                              {
+                                  Amount = order.Amount,
+                                  Buyer = new BCustomer
+                                  {
+                                      ID = customer.Customer_ID,
+                                      Mall_ID = customer.Mall_ID,
+                                      Mall_Name = customer.Mall_Name,
+                                      Phone = customer.Phone,
+                                      //Addres=customer.Address,
+                                      Type = mtype,
+                                     Address=customer.Address
+                                  },
+                                  Created = (int)order.Created,
+                                  Sale_ID = order.Mall_Trade_ID,
+                                  Modified = (int)order.Modified,
+                                  Post_Fee = (double)order.Post_Fee,
+                                  Status = order.Status,
+                                  Synced = (int)order.Synced
 
-                                 Shop = new BShop
-                                 {
-                                     ID = shop.Shop_ID,
-                                     Title = shop.Name,
-                                     Mall_ID = shop.Mall_Shop_ID,
-                                     Type = mtype
-                                 }
+                              },
 
-                             }).OrderBy(a => a.ID).OrderBy(a => a.Shop.ID).ToList<BBackSale>();
+                              Shop = new BShop
+                              {
+                                  ID = shop.Shop_ID,
+                                  Title = shop.Name,
+                                  Mall_ID = shop.Mall_Shop_ID,
+                                  Type = mtype
+                              }
 
+                          };
+
+                totalRecords = tmp.Count();
+                backSales = tmp.OrderBy(a => a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BBackSale>();
 
                 int[] bsaleids = (from bsale in backSales select bsale.ID).ToArray<int>();
                 List<BBackSaleDetail> details = (from detail in db.Back_Sale_Detail

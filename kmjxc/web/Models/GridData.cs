@@ -7,8 +7,8 @@ namespace KM.JXC.Web.Models
 {
     public class PQGridData
     {
-        public int totalRecords { get; set; }
-        public int curPage { get; set; }
+        public long totalRecords { get; set; }
+        public long curPage { get; set; }
         public object data { get; set; }
     }
 }

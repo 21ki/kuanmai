@@ -16,7 +16,8 @@ namespace KM.JXC.BL.Models
         public string Description { get; set;}
         public BShop Shop { get; set; }
         public List<BBackSaleDetail> Details { get; set; }
-        
+        public double Amount { get; set; }
+        public BCustomer Buyer { get; set; }
         //Internal used only
         public bool GenerateBackStock { get; set; }
         public bool UpdateStock { get; set; }

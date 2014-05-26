@@ -28,5 +28,6 @@ namespace KM.JXC.DBA
         public Nullable<int> StockStatus { get; set; }
         public int Status1 { get; set; }
         public string ImageUrl { get; set; }
+        public string SyncResultMessage { get; set; }
     }
 }

@@ -22,5 +22,6 @@ namespace KM.JXC.DBA
         public string Sale_ID { get; set; }
         public Nullable<int> Status { get; set; }
         public int Created { get; set; }
+        public double Amount { get; set; }
     }
 }

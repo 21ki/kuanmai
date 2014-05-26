@@ -230,6 +230,14 @@ namespace KM.JXC.BL
                     {
                         mallTradeStatus = "TRADE_CLOSED";
                     }
+                    else if (status == "3")
+                    {
+                        mallTradeStatus = "TRADE_FINISHED";
+                    }
+                    else if (status == "4")
+                    {
+                        mallTradeStatus = "SELLER_CONSIGNED_PART";
+                    }
                     break;
                 default:
                     break;

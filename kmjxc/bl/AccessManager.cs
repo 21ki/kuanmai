@@ -151,7 +151,10 @@ namespace KM.JXC.BL
                     dbUser.Parent_User_ID = 0;
                     dbUser.Password = "";
                     dbUser.Name = dbUser.Mall_Name;
-                   
+                    dbUser.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbUser.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbUser.Modified_By = 0;
+
                     if (requester.Parent != null)
                     {
                         dbUser.Parent_Mall_ID = requester.Parent.Mall_ID;
