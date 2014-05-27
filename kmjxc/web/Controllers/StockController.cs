@@ -47,6 +47,11 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult LeaveDetail(int id)
+        {           
+            return View();
+        }
+
         public ActionResult EnterDetail(int id)
         {
             string uid = HttpContext.User.Identity.Name;

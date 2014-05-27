@@ -91,43 +91,52 @@ namespace KM.JXC.BL
                 {
                     Leave_Stock ls=(from leaveStock in leave_Stocks where leaveStock.Sale_ID==trade.Sale_ID select leaveStock).FirstOrDefault<Leave_Stock>();
                     Back_Sale bSale=(from b_Sale in back_Sales where b_Sale.Sale_ID==trade.Sale_ID select b_Sale).FirstOrDefault<Back_Sale>();
-
+                    bool isNew = false;
+                    double totalRefound = 0;
                     if (bSale == null)
                     {
-                        double totalRefound = 0;
+                        isNew = true;                       
                         bSale = new Back_Sale();
-                        bSale.Back_Date = trade.Synced;
-                        bSale.Back_Sale_ID = 0;
-                        bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                        bSale.Description = "";
-                        bSale.Sale_ID = trade.Sale_ID;
-                        bSale.Shop_ID = this.Shop.Shop_ID;
-                        bSale.Status = 0;
-                        bSale.User_ID = this.CurrentUser.ID;
+                    }
+
+                    bSale.Back_Date = trade.Synced;
+                    bSale.Back_Sale_ID = 0;
+                    bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    bSale.Description = "";
+                    bSale.Sale_ID = trade.Sale_ID;
+                    bSale.Shop_ID = this.Shop.Shop_ID;
+                    bSale.Status = 0;
+                    bSale.User_ID = this.CurrentUser.ID;
+
+                    if (isNew)
+                    {
                         db.Back_Sale.Add(bSale);
                         db.SaveChanges();
-
-                        if (trade.Orders != null)
+                    }
+                    if (trade.Orders != null)
+                    {
+                        foreach (BOrder order in trade.Orders)
                         {
-                            foreach (BOrder order in trade.Orders)
+                            //1- refound succeed
+                            //0- is normal
+                            if (order.Status1 != 1)
                             {
-                                //1- refound succeed
-                                //0- is normal
-                                if (order.Status1 != 1)
-                                {
-                                    continue;
-                                }
+                                continue;
+                            }
 
-                                if(order.Product_ID<=0)
-                                {
-                                    continue;
-                                }
+                            if (order.Product_ID <= 0)
+                            {
+                                continue;
+                            }
 
-                                Back_Sale_Detail dbSaleDetail = new Back_Sale_Detail();
+                            Back_Sale_Detail dbSaleDetail = (from bsd in back_Sale_Details where bsd.Order_ID==order.Order_ID select bsd).FirstOrDefault<Back_Sale_Detail>();
+                            if (dbSaleDetail == null)
+                            {                                
+                                dbSaleDetail = new Back_Sale_Detail();
                                 dbSaleDetail.Back_Sale_ID = bSale.Back_Sale_ID;
                                 dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                                dbSaleDetail.Description ="同步商城订单时处理有退货的订单";
-                                dbSaleDetail.Parent_Product_ID = order.Parent_Product_ID;                               
+                                dbSaleDetail.Description = "同步商城订单时处理有退货的订单";
+                                dbSaleDetail.Parent_Product_ID = order.Parent_Product_ID;
                                 dbSaleDetail.Price = order.Price;
                                 dbSaleDetail.Product_ID = order.Product_ID;
                                 dbSaleDetail.Quantity = order.Quantity;
@@ -136,17 +145,12 @@ namespace KM.JXC.BL
                                 totalRefound += order.Amount;
                                 db.Back_Sale_Detail.Add(dbSaleDetail);
                             }
-
-                            bSale.Amount = totalRefound;
-                          
-                            db.SaveChanges();
                         }
+                        bSale.Amount = totalRefound;  
                     }
-                    else
-                    {
-
-                    }                   
                 }
+
+                db.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -295,44 +299,18 @@ namespace KM.JXC.BL
         /// <param name="endTime"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public bool SyncMallTrades(int startTime, int endTime, string status, out long total, out double totalAmount)
+        public bool SyncMallTrades(int startTime, int endTime, string status,int syncType)
         {
             bool result = false;
             IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
-            List<BSale> allSales = new List<BSale>();
-            long page = 1;
-            total = 0;
-            totalAmount = 0;
-            bool hasnext = false;
-            bool onlyRefound = false;
-            Sale_SyncTime syncTime = null;
-            int syncType = 0;
-            if (status != null)
-            {
-                if (status == "1")
-                {
-                    syncType = 0;
-                }
-                else if (status == "2")
-                {
-                    syncType = 1;
-                }
-                if (status == "3")
-                {
-                    syncType = 0;
-                    onlyRefound = true;
-                }
-                else if (status == "4")
-                {
-                    syncType = 1;
-                }
-
-                status = this.GetTradeStatusText(status);
-            }
-
+            List<BSale> allSales = new List<BSale>();          
+                      
+            Sale_SyncTime syncTime = null; 
             KuanMaiEntities db = new KuanMaiEntities();
             syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
-            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);            
+            int lastSyncModifiedTime = 0;
+            lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now.AddDays(-1));
             if (syncTime == null)
             {
                 syncTime = new Sale_SyncTime();
@@ -341,115 +319,50 @@ namespace KM.JXC.BL
                 syncTime.SyncUser = this.CurrentUser.ID;
                 syncTime.LastSyncTime = timeNow;
                 syncTime.LastTradeStartEndTime = endTime + 1;
-                syncTime.LastTradeModifiedEndTime = endTime;
+                syncTime.LastTradeModifiedEndTime = timeNow;
                 syncTime.SyncType = syncType;
+                
                 db.Sale_SyncTime.Add(syncTime);
             }
             else
             {
+                lastSyncModifiedTime = syncTime.LastTradeModifiedEndTime;
                 syncTime.LastSyncTime = timeNow;
                 syncTime.LastTradeStartEndTime = endTime + 1;
+                syncTime.LastTradeModifiedEndTime = timeNow + 1;                
             }
 
-            List<BSale> sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext, onlyRefound);
-            if (sales != null)
+            //0 is normal sync trade by created time, 1 is increment sync trade by modified time
+            if (syncType == 0)
             {
-                allSales = allSales.Concat(sales).ToList<BSale>();
-            }
-            while (hasnext)
-            {
-                page++;
-                hasnext = false;
-                sales = tradeManager.SyncTrades(DateTimeUtil.ConvertToDateTime(startTime), DateTimeUtil.ConvertToDateTime(endTime), status, page, out total, out hasnext, onlyRefound);
-                if (sales != null)
-                {
-                    allSales = allSales.Concat(sales).ToList<BSale>();
-                }
-                allSales = allSales.Concat(sales).ToList<BSale>();
-            }
+                DateTime? sDate = null;
+                DateTime? eDate = null;
 
-            if (allSales == null)
-            {
-                return result;
-            }
-
-            try
-            {
-                var customers = from customer in db.Customer
-                                where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
-                                select customer;
-                var dbSaleObjs = from dbs in db.Sale where dbs.Shop_ID == this.Shop.Shop_ID select dbs;
                 if (startTime > 0)
                 {
-                    dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time >= startTime);
+                    sDate = DateTimeUtil.ConvertToDateTime(startTime);
                 }
+
                 if (endTime > 0)
                 {
-                    dbSaleObjs = dbSaleObjs.Where(s => s.Sale_Time <= endTime);
+                    eDate = DateTimeUtil.ConvertToDateTime(endTime); 
                 }
-                List<Sale> dbSales = dbSaleObjs.ToList<Sale>();
-                List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>();
-                this.HandleMallTrades(allSales, dbSales, areas);
+
+                allSales = tradeManager.SyncMallTrades(sDate, eDate, status);
             }
-            catch (Exception ex)
+            else if (syncType == 1)
             {
-            }
-            finally
-            {
-                db.Dispose();
+                allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime, status);
             }
 
-            result = true;
+            this.HandleMallTrades(allSales);
+            //List<BSale> bSales = (from s in allSales where s.HasRefound == true select s).ToList<BSale>();
+            //this.HandleBackTrades(bSales);
+            db.SaveChanges();
             return result;
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void SyncMallTradesIncrement()
-        {
-            IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
-            List<BSale> allSales = new List<BSale>();
-            long page = 1;
-            long total = 0;
-            //double totalAmount = 0;
-            int pageSize = 50;
-            bool hasnext = false;
-            KuanMaiEntities db = new KuanMaiEntities();
-            Sale_SyncTime syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
-            int modifiedStart = 0;
-            int modifiedEnd = 0;
-            if (syncTime != null)
-            {
-                modifiedStart = syncTime.LastTradeModifiedEndTime;
-                //one day added
-                modifiedEnd = modifiedStart + 24 * 3600 * 100;
-            }
-            List<BSale> tmpSales = tradeManager.IncrementSyncTrades(DateTimeUtil.ConvertToDateTime(modifiedStart), DateTimeUtil.ConvertToDateTime(modifiedEnd), null, page, out total, out hasnext);
-            long totalPage = 0;
-            if (total % pageSize == 0)
-            {
-                totalPage = total / pageSize;
-            }
-            else
-            {
-                totalPage = total / pageSize + 1;
-            }
-            while (hasnext)
-            {
-                tmpSales = tradeManager.IncrementSyncTrades(DateTimeUtil.ConvertToDateTime(modifiedStart), DateTimeUtil.ConvertToDateTime(modifiedEnd), null, totalPage, out total, out hasnext);
-                if (tmpSales != null)
-                {
-                    allSales = allSales.Concat(tmpSales).ToList<BSale>();
-                }
-                totalPage--;
-            }
-
-            this.HandleMallTrades(allSales, null, null);
-        }
-
-        private void HandleMallTrades(List<BSale> allSales, List<Sale> existedSales, List<Common_District> ars)
+        private void HandleMallTrades(List<BSale> allSales)
         {
             if (allSales == null)
             {
@@ -467,15 +380,12 @@ namespace KM.JXC.BL
                                 where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
                                 select customer;
                
-                List<Sale> dbSales = existedSales;
+                string[] sale_ids=(from sale in allSales select sale.Sale_ID).ToArray<string>();
+                List<Sale> dbSales = (from sale in db.Sale where sale_ids.Contains(sale.Mall_Trade_ID) select sale).ToList<Sale>();
                
                 //var dbSales = dbSaleObjs;
-                List<Common_District> areas = ars;
-                if (areas == null)
-                {                    
-                    areas = (from area in db.Common_District select area).ToList<Common_District>();                    
-                }
-
+                List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>(); ;
+               
                 foreach (BSale sale in allSales)
                 {
                     Sale dbSale = new Sale();
@@ -563,6 +473,11 @@ namespace KM.JXC.BL
                         existed = (from s in db.Sale where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
                     }
 
+                    if (sale.HasRefound)
+                    {
+                        backSales.Add(sale);
+                    }
+
                     if (existed == null)
                     {
                         newSales.Add(sale);
@@ -595,11 +510,7 @@ namespace KM.JXC.BL
                         }
                     }
                     else
-                    {
-                        if (sale.HasRefound)
-                        {
-                            backSales.Add(sale);
-                        }
+                    {                       
                         List<Sale_Detail> details = (from detail in db.Sale_Detail
                                                      where detail.Mall_Trade_ID == dbSale.Mall_Trade_ID
                                                      select detail).ToList<Sale_Detail>();

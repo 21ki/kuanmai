@@ -23,5 +23,6 @@ namespace KM.JXC.DBA
         public short Status { get; set; }
         public int Parent_Product_ID { get; set; }
         public double Refound { get; set; }
+        public string Order_ID { get; set; }
     }
 }

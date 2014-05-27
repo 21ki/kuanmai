@@ -8,7 +8,7 @@
 }
 
 input,select {
-    margin:0px;
+    margin:0px;vertical-align: middle;
 }
 
 a:hover {
@@ -633,3 +633,20 @@ td.tdc {
         padding:3px;
         
     }
+.lstable {
+    border: 1px solid #E0E0E0;
+    overflow:hidden;
+}
+    .lstable .row, .lstable .rowl{
+        padding:0;
+        margin:0;
+        overflow:hidden;
+        padding:5px;
+    }
+    .lstable .row {
+        border-bottom: 1px solid #E0E0E0;
+    }
+        .lstable .cell {
+            float:left;
+        }
+        

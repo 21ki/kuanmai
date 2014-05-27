@@ -23,6 +23,8 @@ namespace KM.JXC.BL.Open.TaoBao
 {
     public class TaobaoTradeManager : OBaseManager,IOTradeManager
     {
+        private string[] status = new string[] { "WAIT_BUYER_CONFIRM_GOODS", "SELLER_CONSIGNED_PART", "TRADE_CLOSED", "TRADE_FINISHED" };
+
         public TaobaoTradeManager(Access_Token token, int mall_type_id)
             : base(mall_type_id,token)
         {
@@ -37,7 +39,238 @@ namespace KM.JXC.BL.Open.TaoBao
         {
         }
 
-        public List<BSale> IncrementSyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage)
+        /// <summary>
+        /// Sync mall trades by trade created datetime.
+        /// </summary>
+        /// <param name="sDate"></param>
+        /// <param name="eDate"></param>
+        /// <param name="status"></param>
+        /// <param name="totalTrades"></param>
+        /// <param name="hasNextPage"></param>
+        /// <returns></returns>
+        public List<BSale> SyncMallTrades(DateTime? sDate, DateTime? eDate, string status)
+        {
+            List<BSale> trades = new List<BSale>();
+            long totalTrades = 0;
+            bool hasNextPage = false;
+            long pageSize = 50;
+            long totalPage = 0;
+            long curPage = 1;
+            if (!string.IsNullOrEmpty(status) && this.status.Contains(status))
+            {
+                List<BSale> tmpTrades = this.SyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
+                if (totalTrades % pageSize == 0)
+                {
+                    totalPage = totalTrades / pageSize;
+                }
+                else
+                {
+                    totalPage = totalTrades / pageSize + 1;
+                }
+
+                while ((totalPage - 1) >= 0)
+                {
+                    tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                    if (tmpTrades != null)
+                    {
+                        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                    }
+                    totalPage--;
+                }
+            }
+            else
+            {
+                foreach (string state in this.status)
+                {
+                    List<BSale> tmpTrades = this.SyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
+                    if (totalTrades % pageSize == 0)
+                    {
+                        totalPage = totalTrades / pageSize;
+                    }
+                    else
+                    {
+                        totalPage = totalTrades / pageSize + 1;
+                    }
+
+                    while ((totalPage - 1) >= 0)
+                    {
+                        tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                        if (tmpTrades != null)
+                        {
+                            trades = trades.Concat(tmpTrades).ToList<BSale>();
+                        }
+                        totalPage--;
+                    }
+                }
+            }
+            return trades;
+        }
+
+        /// <summary>
+        /// Sync mall trades by trade's modified time which interval is one day.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="status"></param>
+        /// <param name="totalTrades"></param>
+        /// <param name="hasNextPage"></param>
+        /// <returns></returns>
+        public List<BSale> IncrementSyncMallTrades(int lastSyncTime, string status)
+        {
+            List<BSale> trades = new List<BSale>();
+            long totalTrades = 0;
+            bool hasNextPage = false;
+            long pageSize = 50;
+            long totalPage = 0;
+            long curPage=1;
+            DateTime sDate = DateTime.MinValue;
+            DateTime eDate = DateTime.MinValue;
+            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
+            int endTime = 0;
+            if (lastSyncTime == 0)
+            {
+                eDate = DateTime.Now;
+                sDate = eDate.AddDays(-1);                
+            }
+            else
+            {
+                sDate = DateTimeUtil.ConvertToDateTime(lastSyncTime);
+                
+                eDate = sDate.AddDays(1);
+                endTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                while (endTime <= timeNow)
+                {
+                    DateTime tmpDate = DateTimeUtil.ConvertToDateTime(endTime);
+                    List<BSale> tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
+                    //if (totalTrades % pageSize == 0)
+                    //{
+                    //    totalPage = totalTrades / pageSize;
+                    //}
+                    //else
+                    //{
+                    //    totalPage = totalTrades / pageSize + 1;
+                    //}
+
+                    //while ((totalPage - 1) >= 0)
+                    //{
+                    //    tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                    //    if (tmpTrades != null)
+                    //    {
+                    //        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                    //    }
+                    //    totalPage--;
+                    //}
+
+                    if (tmpTrades != null)
+                    {
+                        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                    }
+                    while (hasNextPage)
+                    {
+                        curPage++;
+                        tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+
+                        if (tmpTrades != null)
+                        {
+                            trades = trades.Concat(tmpTrades).ToList<BSale>();
+                        }                        
+                    }
+
+                    sDate = DateTimeUtil.ConvertToDateTime(endTime);
+                    if (endTime == timeNow)
+                    {
+                        break;
+                    }
+                    else if ((endTime + 24 * 3600 * 1000) > timeNow)
+                    {
+                        endTime = timeNow;
+                    }
+                    else
+                    {
+                        endTime += 24 * 3600 * 1000;
+                    }
+                    eDate = DateTimeUtil.ConvertToDateTime(endTime);                    
+                }
+            }
+            else
+            {
+                
+                foreach (string state in this.status)
+                {
+                    int tmpendTime = endTime;
+                    while (tmpendTime <= timeNow)
+                    {
+                        DateTime tmpDate = DateTimeUtil.ConvertToDateTime(endTime);
+                        List<BSale> tmpTrades = this.IncrementSyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
+                        //if (totalTrades % pageSize == 0)
+                        //{
+                        //    totalPage = totalTrades / pageSize;
+                        //}
+                        //else
+                        //{
+                        //    totalPage = totalTrades / pageSize + 1;
+                        //}
+
+                        //while ((totalPage - 1) >= 0)
+                        //{
+                        //    tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                        //    if (tmpTrades != null)
+                        //    {
+                        //        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                        //    }
+                        //    totalPage--;
+                        //}
+
+                        if (tmpTrades != null)
+                        {
+                            trades = trades.Concat(tmpTrades).ToList<BSale>();
+                        }
+                        while (hasNextPage)
+                        {
+                            curPage++;
+                            tmpTrades = this.IncrementSyncTrades(sDate, eDate, state, totalPage, out totalTrades, out hasNextPage);
+
+                            if (tmpTrades != null)
+                            {
+                                trades = trades.Concat(tmpTrades).ToList<BSale>();
+                            }
+                        }
+
+                        sDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                        if (tmpendTime == timeNow)
+                        {
+                            break;
+                        }
+                        else if ((tmpendTime + 24 * 3600 * 1000) > timeNow)
+                        {
+                            tmpendTime = timeNow;
+                        }
+                        else 
+                        {
+                            tmpendTime += 24 * 3600 * 1000;
+                        }
+                        eDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                    }
+                }
+            }
+
+            return trades;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sDate"></param>
+        /// <param name="eDate"></param>
+        /// <param name="status"></param>
+        /// <param name="page"></param>
+        /// <param name="totalTrades"></param>
+        /// <param name="hasNextPage"></param>
+        /// <returns></returns>
+        private List<BSale> IncrementSyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage)
         {
             totalTrades = 0;
             hasNextPage = false;
@@ -64,7 +297,7 @@ namespace KM.JXC.BL.Open.TaoBao
             //req.ExtType = "service";
             //req.RateStatus = "RATE_UNBUYER";
             //req.Tag = "time_card";
-            req.PageNo = 1L;
+            req.PageNo = page;
             req.PageSize = 50L;
             req.UseHasNext = true;
             TradesSoldIncrementGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
@@ -169,7 +402,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="eDate"></param>
         /// <param name="status"></param>
         /// <returns></returns>
-        public List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage, bool onlyReFound = false)
+        private List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage, bool onlyReFound = false)
         {
             totalTrades = 0;
             hasNextPage = false;

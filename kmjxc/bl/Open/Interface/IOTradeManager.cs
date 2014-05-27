@@ -24,7 +24,7 @@ namespace KM.JXC.BL.Open.Interface
     public interface IOTradeManager
     {
         void SyncSingleTrade(string trade_id);
-        List<BSale> SyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage, bool onlyReFound = false);
-        List<BSale> IncrementSyncTrades(DateTime? sDate, DateTime? eDate, string status, long page, out long totalTrades, out bool hasNextPage);
+        List<BSale> IncrementSyncMallTrades(int lastSyncTime, string status);
+        List<BSale> SyncMallTrades(DateTime? sDate,DateTime? edate, string status);        
     }
 }

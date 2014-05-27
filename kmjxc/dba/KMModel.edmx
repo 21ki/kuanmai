@@ -138,11 +138,11 @@
             <PropertyRef Name="Back_Sale_ID" />
           </Key>
           <Property Name="Back_Sale_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Sale_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Back_Date" Type="uint" Nullable="false" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
           <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Description" Type="varchar" Nullable="false" MaxLength="500" />
-          <Property Name="Sale_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Status" Type="int" />
           <Property Name="Created" Type="int" Nullable="false" />
           <Property Name="Amount" Type="double" Nullable="false" />
@@ -154,6 +154,7 @@
           </Key>
           <Property Name="Back_Sale_ID" Type="umediumint" Nullable="false" />
           <Property Name="Product_ID" Type="umediumint" Nullable="false" />
+          <Property Name="Order_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Quantity" Type="umediumint" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Created" Type="int" />
@@ -836,6 +837,7 @@
           <Property Type="Int16" Name="Status" Nullable="false" />
           <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
           <Property Type="Double" Name="Refound" Nullable="false" />
+          <Property Type="String" Name="Order_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
@@ -1475,6 +1477,7 @@
           <EntitySetMapping Name="Back_Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Sale_Detail">
               <MappingFragment StoreEntitySet="Back_Sale_Detail">
+                <ScalarProperty Name="Order_ID" ColumnName="Order_ID" />
                 <ScalarProperty Name="Refound" ColumnName="Refound" />
                 <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Status" ColumnName="Status" />

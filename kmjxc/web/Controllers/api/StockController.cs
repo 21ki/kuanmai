@@ -288,7 +288,25 @@ namespace KM.JXC.Web.Controllers.api
             int.TryParse(request["leave_id"], out leave_id);
             int.TryParse(request["user_id"], out uid);
             int total = 0;
-            data.data = stockManager.SearchLeaveStocks(new int[] { leave_id }, new string[] { sale_id.ToString() }, new int[] { uid }, stime, etime, page, pageSize, out total);
+
+            int[] leave_ids = null;
+            int[] user_ids = null;
+            string[] sale_ids = null;
+            if (leave_id > 0)
+            {
+                leave_ids = new int[] { leave_id };
+            }
+            if (uid > 0)
+            {
+                user_ids = new int[] { uid };
+            }
+
+            if (sale_id>0)
+            {
+                sale_ids = new string[] { sale_id.ToString() };
+            }
+
+            data.data = stockManager.SearchLeaveStocks(leave_ids, sale_ids, user_ids, stime, etime, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;

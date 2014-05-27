@@ -370,63 +370,90 @@ namespace KM.JXC.BL
                     dbStocks = dbStocks.Where(s => sale_ids.Contains(s.Sale_ID));
                 }
 
-                stocks = (from stock in dbStocks
+                var tmp = from stock in dbStocks
+                          join sale in db.Sale on stock.Sale_ID equals sale.Mall_Trade_ID into lsales
+                          from l_sale in lsales.DefaultIfEmpty()
+                          join cus in db.Customer on l_sale.Buyer_ID equals cus.Customer_ID into lcuss
+                          from l_cus in lcuss.DefaultIfEmpty()
+                          join dist in db.Common_District on l_cus.City_ID equals dist.id into ldist
+                          from l_dist in ldist.DefaultIfEmpty()
+                          join distp in db.Common_District on l_cus.Province_ID equals distp.id into ldistp
+                          from l_distp in ldistp.DefaultIfEmpty()
+                          join mtype in db.Mall_Type on l_cus.Mall_Type_ID equals mtype.Mall_Type_ID into lmtype
+                          from l_mtype in lmtype.DefaultIfEmpty()
+                          join createdby in db.User on stock.User_ID equals createdby.User_ID into lcreatedby
+                          from l_createdby in lcreatedby.DefaultIfEmpty()
+                          join shop in db.Shop on stock.Shop_ID equals shop.Shop_ID into lshop
+                          from l_shop in lshop.DefaultIfEmpty()
                           select new BLeaveStock
                           {
-                              Sale = (from sale in db.Sale
-                                      join cus in db.Customer on sale.Buyer_ID equals cus.Customer_ID
-                                      join dist in db.Common_District on cus.City_ID equals dist.id
-                                      join distp in db.Common_District on cus.Province_ID equals distp.id
-                                      join mtype in db.Mall_Type on cus.Mall_Type_ID equals mtype.Mall_Type_ID
-                                      where sale.Mall_Trade_ID == stock.Sale_ID
-                                      select new BSale
-                                      {                                          
+                              Sale = new BSale
+                                      {
                                           Buyer = new BCustomer
                                           {
-                                              Address = cus.Address,
-                                              Phone = cus.Phone,
-                                              Mall_Name = cus.Mall_Name,
-                                              Mall_ID = cus.Mall_ID,
-                                              City = dist,
-                                              Province = distp,
-                                              Email = cus.Email,
-                                              Type = mtype
+                                              Address = l_cus.Address,
+                                              Phone = l_cus.Phone,
+                                              Mall_Name = l_cus.Mall_Name,
+                                              Mall_ID = l_cus.Mall_ID,
+                                              City = l_dist,
+                                              Province = l_distp,
+                                              Email = l_cus.Email,
+                                              Type = l_mtype
                                           },
-                                          Sale_ID = sale.Mall_Trade_ID,
-                                          Amount = sale.Amount,
-                                          Created = (int)sale.Created,
-                                          Modified = (int)sale.Modified,
-                                          Post_Fee = (double)sale.Post_Fee,
-                                          Synced = (int)sale.Synced,
-                                          Status = sale.Status
-                                      }).FirstOrDefault<BSale>(),
+                                          Sale_ID = l_sale.Mall_Trade_ID,
+                                          Amount = l_sale.Amount,
+                                          Created = (int)l_sale.Created,
+                                          Modified = (int)l_sale.Modified,
+                                          Post_Fee = (double)l_sale.Post_Fee,
+                                          Synced = (int)l_sale.Synced,
+                                          Status = l_sale.Status,
+                                      },
                               Created = stock.Created,
-                              Created_By = (from user in db.User
-                                            where user.User_ID == stock.User_ID
-                                            select new BUser
+                              Created_By = new BUser
                                             {
-                                            }).FirstOrDefault<BUser>(),
+                                                ID = l_createdby.User_ID,
+                                                Mall_ID = l_createdby.Mall_ID,
+                                                Mall_Name = l_createdby.Mall_Name
+                                            },
                               ID = stock.Leave_Stock_ID,
                               LeaveDate = stock.Leave_Date,
-                              Shop = (from shop in db.Shop
-                                      where shop.Shop_ID == stock.Shop_ID
-                                      select new BShop
+                              Shop = new BShop
                                       {
-                                          ID = shop.Shop_ID,
-                                          Title = shop.Name
-                                      }).FirstOrDefault<BShop>(),
+                                          ID = l_shop.Shop_ID,
+                                          Title = l_shop.Name
+                                      },
 
-                          }).OrderBy(s => s.Shop.ID).OrderBy(s => s.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BLeaveStock>();
+                          };
+                stocks = tmp.OrderBy(s => s.Shop.ID).OrderBy(s => s.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BLeaveStock>();
 
-                int[] stock_ids=(from stock in stocks select stock.ID).ToArray<int>();
-                var dbdetails = from detail in db.Leave_Stock_Detail
-                                where stock_ids.Contains(detail.Leave_Stock_ID)
-                                select detail;
+                int[] stock_ids = (from stock in stocks select stock.ID).ToArray<int>();
+                List<Leave_Stock_Detail> dbdetails = (from detail in db.Leave_Stock_Detail
+                                                      where stock_ids.Contains(detail.Leave_Stock_ID)
+                                                      select detail).ToList<Leave_Stock_Detail>();
+                int[] child_product_ids=(from lsd in dbdetails select lsd.Product_ID).Distinct().ToArray<int>();
+                int[] product_ids = (from lsd in dbdetails select lsd.Parent_Product_ID).Distinct().ToArray<int>();
+                List<Product> dbProducts = (from product in db.Product where product_ids.Contains(product.Product_ID) select product).ToList<Product>();
+                List<BProductProperty> childs = (from prop in db.Product_Specifications
+                                                 join ps in db.Product_Spec on prop.Product_Spec_ID equals ps.Product_Spec_ID
+                                                 join psv in db.Product_Spec_Value on prop.Product_Spec_Value_ID equals psv.Product_Spec_Value_ID
+                                                 where child_product_ids.Contains(prop.Product_ID)
+                                                 select new BProductProperty
+                                                 {
+                                                     ProductID = prop.Product_ID,
+                                                     PID = prop.Product_Spec_ID,
+                                                     PName = ps.Name,
+                                                     PVID = prop.Product_Spec_Value_ID,
+                                                     PValue = psv.Name
+                                                 }).ToList<BProductProperty>();
 
+                List<Store_House> houses=(from house in db.Store_House where house.Shop_ID==this.Shop.Shop_ID || house.Shop_ID==this.Main_Shop.Shop_ID || cspids.Contains(house.Shop_ID) select house).ToList<Store_House>();
 
                 foreach (BLeaveStock stock in stocks)
                 {
                     stock.Details = (from detail in dbdetails
+                                     join product in dbProducts on detail.Parent_Product_ID equals product.Product_ID into lproduct
+                                     from l_product in lproduct.DefaultIfEmpty()
+
                                      where detail.Leave_Stock_ID == stock.ID
                                      select new BLeaveStockDetail
                                      {
@@ -434,15 +461,23 @@ namespace KM.JXC.BL
                                          Parent_ProductID = detail.Parent_Product_ID,
                                          Price = detail.Price,
                                          Quantity = detail.Quantity,
-                                         StoreHouse = (from house in db.Store_House
+                                         Product = new BProduct
+                                         {
+                                             Title = l_product.Name,
+                                             ID = l_product.Product_ID,
+                                             Properties = (from p in childs
+                                                           where p.ProductID == detail.Product_ID
+                                                           select p).ToList<BProductProperty>()
+                                         },
+                                         StoreHouse = (from house in houses
                                                        where house.StoreHouse_ID == detail.StoreHouse_ID
                                                        select new BStoreHouse
                                                        {
-                                                           ID=house.StoreHouse_ID,
-                                                           Name=house.Title,
-                                                           Phone=house.Phone,
-                                                           Address=house.Address,
-                                                           Created=(int)house.Create_Time                                                         
+                                                           ID = house.StoreHouse_ID,
+                                                           Name = house.Title,
+                                                           Phone = house.Phone,
+                                                           Address = house.Address,
+                                                           Created = (int)house.Create_Time
                                                        }).FirstOrDefault<BStoreHouse>(),
 
                                      }).ToList<BLeaveStockDetail>();

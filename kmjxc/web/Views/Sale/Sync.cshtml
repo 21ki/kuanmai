@@ -78,30 +78,55 @@
             $syncForm.find('#trade_edate_minute').val(etime.getMinutes());
         });
 
+        $syncForm.find('#trade_incre').change(function (e) {
+            var checked = $(this).attr("checked");
+            if (checked == "checked") {
+                $syncForm.find("#trade_time_range").hide();
+            } else {
+                $syncForm.find("#trade_time_range").show();
+            }
+        });
+
         $syncForm.find('#trade_btn_sync').button().click(function (e) {
             var strat = $syncForm.find('#trade_sdate').val() + " " + $syncForm.find('#trade_sdate_hour option:selected').text() + ":" + $syncForm.find('#trade_sdate_minute option:selected').text() + ":000";
             var end = "";
             var sdate = null;
             var edate = null;
-            sdate = new Date(Date.parse(strat));
-            if ($syncForm.find('#trade_edate').val() != "") {               
-                end = $syncForm.find('#trade_edate').val() + " " + $syncForm.find('#trade_edate_hour option:selected').text() + ":" + $syncForm.find('#trade_edate_minute option:selected').text() + ":000";
-                edate = new Date(Date.parse(end));
+            var syncType = 0;
+            var increSync = $syncForm.find('#trade_incre').attr("checked");
+            if (increSync == "checked") {
+                syncType = 1;
             } else {
-                edate = new Date(sdate.getTime() + 24 * 60 * 60 * 1000);
-            }             
-            
-            if (!edate.GTE(sdate)) {
-                alert("结束时间必须大于开始时间");
-                return;
-            }
-            
-            tradeMger.SyncMallTrades({
-                'start': sdate.getTime().toString().substring(0, 10),
-                'end': edate.getTime().toString().substring(0, 10),
-                'status': $syncForm.find('#trade_status').val()
-            }, function (res) {
+                syncType = 0;
+                sdate = new Date(Date.parse(strat));
+                if ($syncForm.find('#trade_edate').val() != "") {
+                    end = $syncForm.find('#trade_edate').val() + " " + $syncForm.find('#trade_edate_hour option:selected').text() + ":" + $syncForm.find('#trade_edate_minute option:selected').text() + ":000";
+                    edate = new Date(Date.parse(end));
+                } else {
+                    edate = new Date(sdate.getTime() + 24 * 60 * 60 * 1000);
+                }
 
+                if (!edate.GTE(sdate)) {
+                    alert("结束时间必须大于开始时间");
+                    return;
+                }
+            }            
+            
+            var stime = 0;
+            var etime = 0;
+            if (sdate != null) {
+                stime=sdate.getTime().toString().substring(0, 10);
+            }
+            if (edate != null) {
+                etime = edate.getTime().toString().substring(0, 10);
+            }
+            tradeMger.SyncMallTrades({
+                'start': stime,
+                'end': etime,
+                'status': $syncForm.find('#trade_status').val(),
+                'syncType': syncType
+            }, function (res) {
+                alert("Finished");
             });
         });
     });
@@ -111,13 +136,15 @@
     <form id="syncForm">
          <div id="syncDiv">
              <div class="row">
-                 <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select>
+                 <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select><label>同步增量:</label><input type="checkbox" id="trade_incre"/>
              </div>
-             <div class="row">
-                 <label>开始时间:</label><input class="W_input" id="trade_sdate" /> <select class="W_inputsel" id="trade_sdate_hour"></select> <select class="W_inputsel" id="trade_sdate_minute"></select>
-             </div>
-                <div class="row">
-                 <label>结束时间:</label><input class="W_input" id="trade_edate" /> <select class="W_inputsel" id="trade_edate_hour"></select> <select class="W_inputsel" id="trade_edate_minute"></select>
+             <div id="trade_time_range">
+                 <div class="row">
+                     <label>开始时间:</label><input class="W_input" id="trade_sdate" /> <select class="W_inputsel" id="trade_sdate_hour"></select> <select class="W_inputsel" id="trade_sdate_minute"></select>
+                 </div>
+                    <div class="row">
+                     <label>结束时间:</label><input class="W_input" id="trade_edate" /> <select class="W_inputsel" id="trade_edate_hour"></select> <select class="W_inputsel" id="trade_edate_minute"></select>
+                 </div>
              </div>
              <div class="row nolabel1">
                  <span id="trade_btn_sync">同步</span>

@@ -202,10 +202,10 @@ function KMJXCBase() {
     }
     this.GetTradeStatusForSyncTrade = function () {
         var status = [
-                      { 'value': '1', 'name': '已发货', 'selected': true },
-                      { 'value': '4', 'name': '已发货（部分发货）', 'selected': false },
-                      { 'value': '2', 'name': '交易关闭（全部退货）', 'selected': false },
-                      { 'value': '3', 'name': '交易完成（部分退货）', 'selected': false }
+                      { 'value': 'WAIT_BUYER_CONFIRM_GOODS', 'name': '已发货', 'selected': true },
+                      { 'value': 'SELLER_CONSIGNED_PART', 'name': '已发货（部分发货）', 'selected': false },
+                      { 'value': 'TRADE_CLOSED', 'name': '交易关闭（全部退货）', 'selected': false },
+                      { 'value': 'TRADE_FINISHED', 'name': '交易完成', 'selected': false }
                       
         ];
 

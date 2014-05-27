@@ -21,9 +21,9 @@
 
         obj.colModel = [
                         {
-                            title: "出库单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
+                            title: "出库编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
                             render: function (ui) {
-                                return "<a href=\"/Stock/EnterDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
+                                return "<a href=\"/Stock/LeaveDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
                             }
                         },                     
                        
@@ -39,13 +39,13 @@
                                 }
                             }
                         },
-                        { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale.Mall_Trade_ID", editable: false },
+                        { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale.Sale_ID", editable: false },
                         { title: "订单总金额", width: 150, dataType: "string", dataIndx: "Sale.Amount", editable: false },
-                        { title: "买家", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Mall_Name", editable: false },
+                        { title: "买家", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Mall_ID", editable: false },
                         { title: "买家电话", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Phone", editable: false },
                         { title: "买家地址", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Address", editable: false },
-                        { title: "出库员", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
-                        { title: "出库日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                        { title: "出库员", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
+                        { title: "出库时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
         ];
 
         obj.dataModel = {
@@ -58,7 +58,7 @@
             rPP: 30,
             sortIndx: 2,
             sortDir: "up",
-            rPPOptions: [40, 50, 60, 100],
+            rPPOptions: [30,50],
             getUrl: function (prgrid) {
                 var sale_id = $($searchform).find("#sale_id").val();
                 var sdate = $($searchform).find("#leave_sdate").val();
@@ -80,7 +80,68 @@
 
         $("#leaveStockTable").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
-            //var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this)); 
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">出库详情</span>").appendTo($menubar).button().click(function (e) {
+                var rowIndx = getRowIndx();
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var row = data[rowIndx];
+                var id = row["ID"]
+
+                $('#popup_detail').dialog({
+                    position: { my: "top", at: "top", of: $("#leaveStockTable") },
+                    width: 750,
+                    //height:550,
+                    resizable: false,
+                    title: "出库单:" + id+" 出库信息",
+                    modal: true,
+                    open: function () {
+                        var that = this;
+                        var details = row.Details;
+                        var table = $("<div class=\"lstable\"></div>").appendTo(that);
+                        if ($(details).size() > 0) {
+                            var header = $("<div class=\"row\"></div>").appendTo(table);
+                            $("<div class=\"cell\" style=\"width:250px;\">产品</div>").appendTo(header);
+                            $("<div class=\"cell\" style=\"width:200px;\">属性</div>").appendTo(header);
+                            $("<div class=\"cell\" style=\"width:100px;\">价格</div>").appendTo(header);
+                            $("<div class=\"cell\" style=\"width:100px;\">数量</div>").appendTo(header);
+                        }
+                        $(details).each(function (index, item) {                            
+                            var pdt = null;
+                            if (index < ($(details).size() - 1)) {
+                                pdt = $("<div class=\"row\"></div>").appendTo(table);
+                            } else {
+                                pdt = $("<div class=\"rowl\"></div>").appendTo(table);
+                            }
+                            $("<div class=\"cell\" style=\"width:250px;\">" + item.Product.Title + "</div>").appendTo(pdt);
+                            if (item.Product.Properties != null) {
+                                var props = "";
+                                $(item.Product.Properties).each(function (index1, item1) {
+                                    if (props == "") {
+                                        props = item1.PName + ":" + item1.PValue;
+                                    } else {
+                                        props +=" "+ item1.PName + ":" + item1.PValue;
+                                    }
+                                });
+                                $("<div class=\"cell\" style=\"width:200px;\">" + props + "</div>").appendTo(pdt);
+                            }
+
+                            $("<div class=\"cell\" style=\"width:100px;\">" + item.Price + "</div>").appendTo(pdt);
+                            $("<div class=\"cell\" style=\"width:100px;\">" + item.Quantity + "</div>").appendTo(pdt);
+                        });
+                    },
+                    close: function () {
+                        $(this).html("");
+                    },
+                    buttons: {
+                        "关闭": function (e) {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $("#popup_detail").dialog("open");
+            });
             $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
             var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
             $("<label class=\"label1\">销售单号:</label>").appendTo($srow);
@@ -125,7 +186,7 @@
                 return rowIndx;
             }
             else {
-                alert("请选择一行");
+                alert("请选择一条出库单");
                 return null;
             }
         }
@@ -135,11 +196,9 @@
 
 <div class="normallist">
     <div id="leaveStockTable"></div>
-    <form id="editnewform">
-        <div id="popup_editnewdiv">
-
-        </div>
-    </form>
     
+    <div id="popup_detail">
+
+    </div>    
 </div>
 

@@ -136,12 +136,12 @@ namespace KM.JXC.Web.Controllers.api
             SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int start = 0;
             int end = 0;
+            int syncType = 0;
             string status = request["status"];
             int.TryParse(request["start"],out start);
             int.TryParse(request["end"], out end);
-            long total=0;
-            double amount = 0;
-            saleManager.SyncMallTrades(start, end, status,out total,out amount);
+            int.TryParse(request["syncType"],out syncType);
+            saleManager.SyncMallTrades(start, end, status, syncType);
             return message;
         }
 
