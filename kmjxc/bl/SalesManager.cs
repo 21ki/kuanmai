@@ -37,28 +37,27 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <returns></returns>
-        public BSyncTime GetSyncTime()
+        public BSyncTime GetSyncTime(int syncType=0)
         {
             BSyncTime time = null;
             using (KuanMaiEntities db = new KuanMaiEntities()) 
             {
                 time = (from stime in db.Sale_SyncTime
-                        join user in db.User on stime.SyncUser equals user.User_ID
-                        join employee in db.Employee on user.User_ID equals employee.User_ID
-                        where stime.ShopID == this.Shop.Shop_ID
+                        join user in db.User on stime.SyncUser equals user.User_ID  into luser
+                        from l_user in luser.DefaultIfEmpty()
+                        where stime.ShopID == this.Shop.Shop_ID && stime.SyncType == syncType
+                        orderby stime.LastSyncTime descending
                         select new BSyncTime
-                        {
-                            First = stime.FirstSyncTime,
+                        {                            
                             Last = stime.LastSyncTime,
+                            LastTradeModifiedEndTime=stime.LastTradeModifiedEndTime,
+                            LastTradeStartEndTime=stime.LastTradeStartEndTime,
                             SyncUser = new BUser
                             {
-                                ID = user.User_ID,
-                                Name = user.Name,
-                                Mall_ID = user.Mall_ID,
-                                Mall_Name = user.Mall_Name,
-                                //EmployeeInfo = new Employee { 
-                                //     Name=employee.Name
-                                //}
+                                ID = l_user.User_ID,
+                                Name = l_user.Name,
+                                Mall_ID = l_user.Mall_ID,
+                                Mall_Name = l_user.Mall_Name                               
                             }
                         }).FirstOrDefault<BSyncTime>();
             }
@@ -71,7 +70,7 @@ namespace KM.JXC.BL
         /// <param name="trades"></param>
         private void HandleBackTrades(List<BSale> trades)
         {
-            if (trades == null)
+            if (trades == null || trades.Count==0)
             {
                 return;
             }
@@ -99,8 +98,7 @@ namespace KM.JXC.BL
                         bSale = new Back_Sale();
                     }
 
-                    bSale.Back_Date = trade.Synced;
-                    bSale.Back_Sale_ID = 0;
+                    bSale.Back_Date = trade.Synced;                    
                     bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     bSale.Description = "";
                     bSale.Sale_ID = trade.Sale_ID;
@@ -133,6 +131,7 @@ namespace KM.JXC.BL
                             if (dbSaleDetail == null)
                             {                                
                                 dbSaleDetail = new Back_Sale_Detail();
+                                dbSaleDetail.Order_ID = order.Order_ID;
                                 dbSaleDetail.Back_Sale_ID = bSale.Back_Sale_ID;
                                 dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                                 dbSaleDetail.Description = "同步商城订单时处理有退货的订单";
@@ -180,7 +179,7 @@ namespace KM.JXC.BL
                 csp_ids = new int[1];
             }
 
-            List<Product> products = (from pdt in db.Product where pdt.Shop_ID == this.Shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID) select pdt).ToList<Product>();
+            List<Product> products = (from pdt in db.Product where (pdt.Shop_ID == this.Shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID)) && pdt.Parent_ID==0 select pdt).ToList<Product>();
             string[] sale_ids=(from sale in trades select sale.Sale_ID).ToArray<string>();
             List<Leave_Stock> cacheLeaveStocks=(from ls in db.Leave_Stock where sale_ids.Contains(ls.Sale_ID) select ls).ToList<Leave_Stock>();
             Store_House house=(from store in db.Store_House where store.Default==true select store).FirstOrDefault<Store_House>();
@@ -232,10 +231,11 @@ namespace KM.JXC.BL
                             dbDetail.Leave_Stock_ID = dbStock.Leave_Stock_ID;
                             dbDetail.Price = order.Price;
                             dbDetail.Quantity = order.Quantity;
+                            dbDetail.Amount = order.Amount;
                             Stock_Pile stockPile = null;
                             if (house != null)
                             {
-                                order_detail.SyncResultMessage = "默认仓库:" + house.Title;
+                                //order_detail.SyncResultMessage = "默认仓库：" + house.Title;
                                 //create leave stock from default store house
                                 stockPile = (from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();                                                               
                             }
@@ -244,7 +244,7 @@ namespace KM.JXC.BL
                             {
                                 if (!string.IsNullOrEmpty(order_detail.SyncResultMessage))
                                 {
-                                    order_detail.SyncResultMessage = "默认仓库:" + house.Title + "没有库存或者库存数量不够<br/>";
+                                    //order_detail.SyncResultMessage = "默认仓库：" + house.Title + "没有库存或者库存数量不够<br/>";
                                 }
                                 //get store house when it has the specific product
                                 var tmpstockPile = from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.Quantity >= order.Quantity select sp;
@@ -253,24 +253,32 @@ namespace KM.JXC.BL
                                     stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
                                     Store_House tmpHouse = (from h in houses where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
 
-                                    order_detail.SyncResultMessage += "仓库:" + tmpHouse.Title + "有足够的库存，从此仓库出库并更新库存<br/>";
+                                    order_detail.SyncResultMessage = "出库仓库："+tmpHouse.Title;
                                 }
                                 else
                                 {
                                     //cannot leave stock, no stock pile
                                     order_detail.Status1 = 3;
-                                    order_detail.SyncResultMessage = "默认仓库:" + house.Title + "没有库存或者库存数量不够，并且没有找到其他任何一个仓库有足够的库存";
+                                    order_detail.SyncResultMessage = "没有足够的库存，不能出库";
                                 }
                             }                            
 
                             //no stock cannot leave stock
                             if (stockPile != null)
                             {
+                                dbDetail.Parent_Product_ID = order.Parent_Product_ID;
+                                dbDetail.Product_ID = order.Product_ID;
                                 dbDetail.StoreHouse_ID = stockPile.StockHouse_ID;
                                 //Update stock
                                 stockPile.Quantity = stockPile.Quantity - order.Quantity;
-                                dbDetail.Parent_Product_ID = order.Parent_Product_ID;
-                                dbDetail.Product_ID = order.Product_ID;
+                                
+                                //Update stock field in Product table
+                                Product product=(from pdt in products where pdt.Product_ID==dbDetail.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                                if (product != null)
+                                {
+                                    product.Quantity = product.Quantity - order.Quantity;
+                                }
+                                dbDetail.Order_ID = order.Order_ID;
                                 db.Leave_Stock_Detail.Add(dbDetail);
                             }  
                         }
@@ -307,34 +315,32 @@ namespace KM.JXC.BL
                       
             Sale_SyncTime syncTime = null; 
             KuanMaiEntities db = new KuanMaiEntities();
-            syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID select sync).FirstOrDefault<Sale_SyncTime>();
-            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);            
+            syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID && sync.SyncType == syncType orderby sync.LastSyncTime descending select sync).FirstOrDefault<Sale_SyncTime>();
+            DateTime tNow = DateTime.Now;
+            int timeNow = DateTimeUtil.ConvertDateTimeToInt(tNow);            
             int lastSyncModifiedTime = 0;
-            lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now.AddDays(-1));
-            if (syncTime == null)
+            lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(tNow.AddDays(-1));
+            if (syncTime != null)
             {
-                syncTime = new Sale_SyncTime();
-                syncTime.ShopID = this.Shop.Shop_ID;
-                syncTime.FirstSyncTime = timeNow;
-                syncTime.SyncUser = this.CurrentUser.ID;
-                syncTime.LastSyncTime = timeNow;
-                syncTime.LastTradeStartEndTime = endTime + 1;
-                syncTime.LastTradeModifiedEndTime = timeNow;
-                syncTime.SyncType = syncType;
-                
-                db.Sale_SyncTime.Add(syncTime);
-            }
-            else
-            {
-                lastSyncModifiedTime = syncTime.LastTradeModifiedEndTime;
-                syncTime.LastSyncTime = timeNow;
-                syncTime.LastTradeStartEndTime = endTime + 1;
-                syncTime.LastTradeModifiedEndTime = timeNow + 1;                
+                lastSyncModifiedTime = syncTime.LastTradeModifiedEndTime;               
             }
 
+            syncTime = new Sale_SyncTime();
+            syncTime.ShopID = this.Shop.Shop_ID;            
+            syncTime.SyncUser = this.CurrentUser.ID;
+            syncTime.LastSyncTime = timeNow;
+            
+            
+            
+            syncTime.SyncType = syncType;
+            db.Sale_SyncTime.Add(syncTime);
+
+            
             //0 is normal sync trade by created time, 1 is increment sync trade by modified time
             if (syncType == 0)
             {
+                syncTime.LastTradeStartEndTime = endTime + 1;
+                syncTime.LastTradeModifiedEndTime = 0;
                 DateTime? sDate = null;
                 DateTime? eDate = null;
 
@@ -349,16 +355,18 @@ namespace KM.JXC.BL
                 }
 
                 allSales = tradeManager.SyncMallTrades(sDate, eDate, status);
+                this.HandleMallTrades(allSales);              
             }
             else if (syncType == 1)
             {
-                allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime, status);
+                syncTime.LastTradeStartEndTime = 0;
+                syncTime.LastTradeModifiedEndTime = timeNow + 1;
+                allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime,timeNow, status);
+                this.HandleMallTrades(allSales);
             }
 
-            this.HandleMallTrades(allSales);
-            //List<BSale> bSales = (from s in allSales where s.HasRefound == true select s).ToList<BSale>();
-            //this.HandleBackTrades(bSales);
             db.SaveChanges();
+            
             return result;
         }
 
@@ -379,7 +387,7 @@ namespace KM.JXC.BL
                 var customers = from customer in db.Customer
                                 where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
                                 select customer;
-               
+                List<Customer_Shop> shop_customers=(from shop_cus in db.Customer_Shop where shop_cus.Shop_ID==this.Shop.Shop_ID select shop_cus).ToList<Customer_Shop>();
                 string[] sale_ids=(from sale in allSales select sale.Sale_ID).ToArray<string>();
                 List<Sale> dbSales = (from sale in db.Sale where sale_ids.Contains(sale.Mall_Trade_ID) select sale).ToList<Sale>();
                
@@ -453,6 +461,13 @@ namespace KM.JXC.BL
                                 cus.Mall_ID = sale.Buyer.Mall_ID;
                                 cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
                                 cus.Phone = sale.Buyer.Phone;
+
+                                Customer_Shop cuss=(from cusshop in shop_customers where cusshop.Customer_ID==cus.Customer_ID && cusshop.Shop_ID==this.Shop.Shop_ID select cusshop).FirstOrDefault<Customer_Shop>();
+                                if (cuss == null)
+                                {
+                                    Customer_Shop cs = new Customer_Shop() { Shop_ID = this.Shop.Shop_ID, Customer_ID = cus.Customer_ID };
+                                    db.Customer_Shop.Add(cs);
+                                }
                             }
 
                             dbSale.Buyer_ID = cus.Customer_ID;
@@ -719,12 +734,13 @@ namespace KM.JXC.BL
                                  Price = order.Price,
                                  Parent_Product_ID = order.Parent_Product_ID,
                                  Product_ID = order.Product_ID,
-                                 ImageUrl=order.ImageUrl
+                                 ImageUrl=order.ImageUrl,
                                  //Product = new BProduct
                                  //{
                                  //    ID = ll_product.Product_ID,
                                  //    Title = ll_product.Name
                                  //}
+                                 Message=order.SyncResultMessage
                              };
                     sale.Orders = os.ToList<BOrder>();
 
@@ -752,6 +768,138 @@ namespace KM.JXC.BL
             }
 
             return sales;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sale_ids"></param>
+        /// <param name="user_ids"></param>
+        /// <param name="stime"></param>
+        /// <param name="etime"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
+        {
+            if (pageIndex <= 0)
+            {
+                pageIndex = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            List<BBackSaleDetail> backSaleDetails = new List<BBackSaleDetail>();
+            List<BBackSale> backSales = new List<BBackSale>();
+            totalRecords = 0;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (cspids == null)
+                {
+                    cspids = new int[] { 0 };
+                }
+                var dbBackSales = from sale in db.Back_Sale
+                                  where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
+                                  select sale;
+
+                if (sale_ids != null && sale_ids.Length > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => sale_ids.Contains(s.Sale_ID));
+                }
+
+                if (user_ids != null && user_ids.Length > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => user_ids.Contains(s.User_ID));
+                }
+
+                if (stime > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => s.Back_Date >= stime);
+                }
+
+                if (etime > 0)
+                {
+                    dbBackSales = dbBackSales.Where(s => s.Back_Date <= etime);
+                }
+
+                int[] backSaleIds = (from bs in dbBackSales select bs.Back_Sale_ID).ToArray<int>();
+
+                var tmp = from bsd in db.Back_Sale_Detail
+                          join bs in db.Back_Sale on bsd.Back_Sale_ID equals bs.Back_Sale_ID into lbs
+                          from l_bs in lbs.DefaultIfEmpty()
+                          join sale in db.Sale on l_bs.Sale_ID equals sale.Mall_Trade_ID into lsale
+                          from l_sale in lsale.DefaultIfEmpty()
+                          join customer in db.Customer on l_sale.Buyer_ID equals customer.Customer_ID into lcustomer
+                          from l_customer in lcustomer.DefaultIfEmpty()
+                          join product in db.Product on bsd.Parent_Product_ID equals product.Product_ID into lproduct
+                          from l_product in lproduct.DefaultIfEmpty()
+                          join shop in db.Shop on l_bs.Shop_ID equals shop.Shop_ID into lshop
+                          from l_shop in lshop.DefaultIfEmpty()
+                          join user in db.User on l_bs.User_ID equals user.User_ID into luser
+                          from l_user in luser.DefaultIfEmpty()
+                          where backSaleIds.Contains(bsd.Back_Sale_ID)
+                          select new BBackSaleDetail
+                          {
+                              Order_ID=bsd.Order_ID,
+                              Amount = bsd.Refound,
+                              Created = (int)bsd.Created,
+                              Description = bsd.Description,
+                              BackSaleID = bsd.Back_Sale_ID,
+                              ParentProductID = bsd.Parent_Product_ID,
+                              Price = bsd.Price,
+                              ProductID = bsd.Product_ID,
+                              Quantity = bsd.Quantity,
+                              Status = bsd.Status,
+                              BackSale = new BBackSale
+                              {
+                                  Amount = l_bs.Amount,
+                                  BackTime = l_bs.Back_Date,
+                                  Created = l_bs.Created,
+                                  Description = l_bs.Description,
+                                  ID = l_bs.Back_Sale_ID,
+                                  Sale = new BSale
+                                  {
+                                      Sale_ID = l_bs.Sale_ID,
+                                      Buyer = new BCustomer
+                                      {
+                                          ID = l_customer.Customer_ID,
+                                          Mall_ID = l_customer.Mall_ID,
+                                          Mall_Name = l_customer.Mall_Name
+                                      },
+                                      Amount = l_sale.Amount
+                                  },
+                                  Shop = new BShop
+                                  {
+                                      Title = l_shop.Name,
+                                      ID = l_shop.Shop_ID
+                                  },
+                                  Created_By = new BUser
+                                  {
+                                      ID = l_user.User_ID,
+                                      Mall_ID = l_user.Mall_ID,
+                                      Mall_Name = l_user.Mall_Name
+                                  }
+                              },
+                              Product=new BProduct
+                              {
+                                 Title=l_product.Name
+                              }
+                          };
+                tmp = tmp.OrderBy(b=>b.Status).OrderBy(b=>b.BackSaleID);
+
+                totalRecords = tmp.Count();
+                if (totalRecords > 0)
+                {
+                    backSaleDetails = tmp.Skip((pageIndex-1)*pageSize).Take(pageSize).ToList<BBackSaleDetail>();
+                }
+            }
+
+            return backSaleDetails;
         }
 
         /// <summary>
@@ -821,7 +969,7 @@ namespace KM.JXC.BL
                           {
                               BackTime = (int)sale.Back_Date,
                               Created = sale.Created,
-                              CreatedBy = new BUser
+                              Created_By = new BUser
                               {
                                   ID = user.User_ID,
                                   Mall_ID = user.Mall_ID,
@@ -832,6 +980,7 @@ namespace KM.JXC.BL
                             
                               Description = sale.Description,
                               ID = sale.Back_Sale_ID,
+                              Amount=sale.Amount,
                               Sale = new BSale
                               {
                                   Amount = order.Amount,
@@ -945,10 +1094,53 @@ namespace KM.JXC.BL
 
                 if (backSale.GenerateBackStock)
                 {
-                    stockManager.CreateBackStock(dbbackSale.Back_Sale_ID, backSale.UpdateStock);
+                    //stockManager.CreateBackStock(dbbackSale.Back_Sale_ID, backSale.UpdateStock);
                 }
 
                 db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backSaleID"></param>
+        /// <param name="product_id"></param>
+        /// <param name="status"></param>
+        public void HandleBackSaleDetail(int backSaleID,string[] order_ids, int status)
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
+                {
+                    throw new KMJXCException("没有处理退货单的权限");
+                }
+
+                var bsDetail = from bsd in db.Back_Sale_Detail
+                               where bsd.Back_Sale_ID == backSaleID
+                               select bsd;
+
+                if (order_ids!=null)
+                {
+                    bsDetail = bsDetail.Where(b => order_ids.Contains(b.Order_ID));
+                }
+
+                Back_Sale_Detail detail = bsDetail.FirstOrDefault<Back_Sale_Detail>();
+                if (detail == null)
+                {
+                    throw new KMJXCException("没有找到退货单信息");
+                }
+
+                if (status == 1)
+                {
+                    //back stock and update stock pile
+                    stockManager.CreateBackStock(backSaleID, order_ids, status);
+                }
+                else if (status == 2)
+                {
+                    //no need to back stock, update wastage
+
+                }
             }
         }
 

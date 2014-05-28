@@ -15,7 +15,8 @@
             width: 830, height: 600, title: "仓库列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {               
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];               
-            }
+            },
+            freezeCols:2
         };
 
         obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
@@ -214,9 +215,9 @@
 
                 $('#popup_editnewdiv').dialog("open");
             });
-            $("<span id=\"get_ccate\">设为默认仓库</span>").appendTo($menubar).button().click(function (evt) {
+            //$("<span id=\"get_ccate\">设为默认仓库</span>").appendTo($menubar).button().click(function (evt) {
 
-            });
+            //});
 
             //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
             //$toolbar.disableSelection();

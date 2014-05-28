@@ -21,5 +21,7 @@ namespace KM.JXC.DBA
         public double Price { get; set; }
         public int StoreHouse_ID { get; set; }
         public string Message { get; set; }
+        public double Amount { get; set; }
+        public string Order_ID { get; set; }
     }
 }

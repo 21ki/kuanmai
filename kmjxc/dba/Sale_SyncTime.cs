@@ -15,11 +15,10 @@ namespace KM.JXC.DBA
     public partial class Sale_SyncTime
     {
         public int ShopID { get; set; }
-        public int FirstSyncTime { get; set; }
         public int LastSyncTime { get; set; }
         public int LastTradeStartEndTime { get; set; }
+        public int LastTradeModifiedEndTime { get; set; }
         public int SyncUser { get; set; }
         public int SyncType { get; set; }
-        public int LastTradeModifiedEndTime { get; set; }
     }
 }

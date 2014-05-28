@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity;
 using System.Data;
+using System.Transactions;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
@@ -36,17 +37,17 @@ namespace KM.JXC.BL
         {
             List<BBackStockDetail> details = backStock.Details;
 
-            if (this.CurrentUserPermission.ADD_BACK_STOCK == 0)
+            if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
             {
                 throw new KMJXCException("没有权限进行退货退库存操作");
             }
 
             if (backStock == null)
             {
-                throw new KMJXCException("输入错误",ExceptionLevel.SYSTEM);
+                throw new KMJXCException("输入错误", ExceptionLevel.SYSTEM);
             }
 
-            if (backStock.BackSale == null || backStock.BackSale.ID<=0)
+            if (backStock.BackSale == null || backStock.BackSale.ID <= 0)
             {
                 throw new KMJXCException("请选择退货单进行退库存操作", ExceptionLevel.SYSTEM);
             }
@@ -56,119 +57,145 @@ namespace KM.JXC.BL
                 throw new KMJXCException("没有选择产品进行退库存");
             }
 
-            KuanMaiEntities db = new KuanMaiEntities();
-            try
+
+            using(KuanMaiEntities db = new KuanMaiEntities())
             {
-                Back_Stock dbBackStock = (from dbStock in db.Back_Stock where dbStock.Back_Sale_ID == backStock.BackSale.ID select dbStock).FirstOrDefault<Back_Stock>();
-                if (dbBackStock == null)
+                using (TransactionScope tran = new TransactionScope())
                 {
-                    dbBackStock = new Back_Stock();
-                    dbBackStock.Back_Date = backStock.BackDateTime;
-                    dbBackStock.Back_Sale_ID = backStock.BackSale.ID;
-                    dbBackStock.Back_Sock_ID = 0;
-                    dbBackStock.Description = backStock.Description;
-                    dbBackStock.Shop_ID = this.Shop.Shop_ID;
-                    dbBackStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);                    
-                    dbBackStock.User_ID = this.CurrentUser.ID;
-                    db.Back_Stock.Add(dbBackStock);
-                    db.SaveChanges();
-                }               
-                
-                if (dbBackStock.Back_Sock_ID > 0)
-                {
-                    foreach (BBackStockDetail detail in details)
+                    Back_Stock dbBackStock = (from dbStock in db.Back_Stock where dbStock.Back_Sale_ID == backStock.BackSale.ID select dbStock).FirstOrDefault<Back_Stock>();
+                    if (dbBackStock == null)
                     {
-                        Back_Stock_Detail dbDetail = new Back_Stock_Detail();                        
-                        dbDetail.Back_Stock_ID = dbBackStock.Back_Sock_ID;
-                        dbDetail.Price = detail.Price;
-                        dbDetail.Product_ID = detail.Product.ID;
-                        dbDetail.Parent_Product_ID = detail.ParentProductID;
-                        dbDetail.Quantity = detail.Quantity;
-                        dbDetail.StoreHouse_ID = detail.StoreHouse.ID;
-                        db.Back_Stock_Detail.Add(dbDetail);
-
-                        //Update stock pile
-                        if (backStock.UpdateStock)
-                        {
-                            Stock_Pile pile = (from spile in db.Stock_Pile where spile.Product_ID == dbDetail.Product_ID && spile.StockHouse_ID == detail.StoreHouse.ID select spile).FirstOrDefault<Stock_Pile>();
-                            if (pile != null)
-                            {
-                                pile.Quantity = pile.Quantity + dbDetail.Quantity;
-                            }
-
-                            Product product = (from p in db.Product
-                                               join p1 in db.Product on p.Product_ID equals p1.Parent_ID
-                                               where p1.Product_ID == dbDetail.Product_ID
-                                               select p).FirstOrDefault<Product>();
-                            if (product != null)
-                            {
-                                product.Quantity += dbDetail.Quantity;
-                            }
-
-                            dbBackStock.Status = 1;
-                        }
+                        dbBackStock = new Back_Stock();
+                        dbBackStock.Back_Date = backStock.BackDateTime;
+                        dbBackStock.Back_Sale_ID = backStock.BackSale.ID;
+                        dbBackStock.Back_Sock_ID = 0;
+                        dbBackStock.Description = backStock.Description;
+                        dbBackStock.Shop_ID = this.Shop.Shop_ID;
+                        dbBackStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        dbBackStock.User_ID = this.CurrentUser.ID;
+                        db.Back_Stock.Add(dbBackStock);
+                        db.SaveChanges();
                     }
 
-                    db.SaveChanges();
-                }
-                else
-                {
-                    throw new KMJXCException("退库存操作失败");
-                }
-            }
-            catch (Exception ex)
-            {
+                    if (dbBackStock.Back_Sock_ID > 0)
+                    {
+                        foreach (BBackStockDetail detail in details)
+                        {
+                            Back_Stock_Detail dbDetail = new Back_Stock_Detail();
+                            dbDetail.Back_Stock_ID = dbBackStock.Back_Sock_ID;
+                            dbDetail.Price = detail.Price;
+                            dbDetail.Product_ID = detail.ProductID;
+                            dbDetail.Parent_Product_ID = detail.ParentProductID;
+                            dbDetail.Quantity = detail.Quantity;
+                            if (detail.StoreHouse != null)
+                            {
+                                dbDetail.StoreHouse_ID = detail.StoreHouse.ID;
+                            }
+                            db.Back_Stock_Detail.Add(dbDetail);
 
-            }
-            finally
-            {
-                if (db != null)
-                {
-                    db.Dispose();
+                            //Update stock pile
+                            if (backStock.UpdateStock)
+                            {
+                                Stock_Pile pile = (from spile in db.Stock_Pile where spile.Product_ID == dbDetail.Product_ID && spile.StockHouse_ID == detail.StoreHouse.ID select spile).FirstOrDefault<Stock_Pile>();
+                                if (pile != null)
+                                {
+                                    pile.Quantity = pile.Quantity + dbDetail.Quantity;
+                                }
+
+                                Product product = (from p in db.Product
+                                                   join p1 in db.Product on p.Product_ID equals p1.Parent_ID
+                                                   where p1.Product_ID == dbDetail.Product_ID
+                                                   select p).FirstOrDefault<Product>();
+                                if (product != null)
+                                {
+                                    product.Quantity += dbDetail.Quantity;
+                                }
+
+                                dbBackStock.Status = 1;
+                            }
+                        }
+
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new KMJXCException("退库存操作失败");
+                    }
+
+                    tran.Complete();                    
                 }
-            }
+            }          
         }
 
-       
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sale_id"></param>
-        public void CreateBackStock(int backsale_id,bool updateStock=false)
+        public void CreateBackStock(int backsale_id,string[] order_id,int backSaleStatus)
         {
-            using (KuanMaiEntities db = new KuanMaiEntities())
+            KuanMaiEntities db = new KuanMaiEntities();
+            try
             {
-                Back_Sale dbbackSale=(from bsale in db.Back_Sale where bsale.Back_Sale_ID==backsale_id select bsale).FirstOrDefault<Back_Sale>();
+                Back_Sale dbbackSale = (from bsale in db.Back_Sale where bsale.Back_Sale_ID == backsale_id select bsale).FirstOrDefault<Back_Sale>();
+                if (dbbackSale == null)
+                {
+                    throw new KMJXCException("退货单信息不存在");
+                }
 
+                //dbbackSale.Status = backSaleStatus;
+
+                var bdetails = from bsd in db.Back_Sale_Detail
+                               where bsd.Back_Sale_ID == backsale_id
+                               select bsd;
+                if (order_id != null)
+                {
+                    bdetails = bdetails.Where(d => order_id.Contains(d.Order_ID));
+                }
+
+                List<Back_Sale_Detail> backSaleDetails = bdetails.ToList<Back_Sale_Detail>();
                 //Check if current sale trade has leave stock records
-                //if the sale is not leave stock, so no need to back stock
+                //if the sale doesn't have leave stock, so no need to back stock
                 int totalRecords = 0;
                 List<BLeaveStock> lstocks = this.SearchLeaveStocks(null, new string[] { dbbackSale.Sale_ID }, null, 0, 0, 1, 1, out totalRecords);
                 if (totalRecords >= 1)
                 {
                     BBackStock backStock = new BBackStock();
                     backStock.BackSaleID = dbbackSale.Back_Sale_ID;
-                    backStock.UpdateStock = updateStock;
+                    backStock.BackSale = new BBackSale() { ID = dbbackSale.Back_Sale_ID };
+                    if (backSaleStatus == 1)
+                    {
+                        backStock.UpdateStock = true;
+                    }
+                    else
+                    {
+                        backStock.UpdateStock = false;
+                    }
                     backStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     backStock.CreatedBy = new BUser() { ID = this.CurrentUser.ID };
                     if (!string.IsNullOrEmpty(dbbackSale.Description))
                     {
-                        backStock.Description = dbbackSale.Description + "<br/> 创建退货单的时候自动生成了退库单";
+                        backStock.Description = dbbackSale.Description + "<br/> 生成了退库单";
                     }
                     else
                     {
-                        backStock.Description = "创建退货单的时候自动生成了退库单";
+                        backStock.Description = "生成了退库单";
                     }
-                    backStock.ID = 0;
+
                     backStock.Shop = new BShop() { ID = dbbackSale.Shop_ID };
 
                     //collect back stock details info from leave stock details
 
                     List<BLeaveStockDetail> leaveStockDetails = lstocks[0].Details;
                     backStock.Details = new List<BBackStockDetail>();
-                    foreach (BLeaveStockDetail leaveStockDetail in leaveStockDetails)
+
+                    foreach (Back_Sale_Detail bsd in backSaleDetails)
                     {
+                        BLeaveStockDetail leaveStockDetail = (from lsd in leaveStockDetails where lsd.OrderID == bsd.Order_ID && lsd.ProductID == bsd.Product_ID select lsd).FirstOrDefault<BLeaveStockDetail>();
+                        if (leaveStockDetail == null)
+                        {
+                            continue;
+                        }
                         BBackStockDetail bsDetail = new BBackStockDetail();
                         bsDetail.Price = leaveStockDetail.Price;
                         bsDetail.Quantity = leaveStockDetail.Quantity;
@@ -178,16 +205,29 @@ namespace KM.JXC.BL
                         backStock.Details.Add(bsDetail);
                     }
 
-                    this.CreateBackStock(backStock);
-                    dbbackSale.Status = 2;
-                }
-                else
-                {
-                    dbbackSale.Status = 1;
+                    if (backStock.Details.Count > 0)
+                    {
+                        this.CreateBackStock(backStock);
+                    }
+
+                    foreach (Back_Sale_Detail bsd in backSaleDetails)
+                    {
+                        bsd.Status = backSaleStatus;
+                    }
                 }
 
                 db.SaveChanges();
             }
+            catch (KMJXCException kex)
+            {
+                throw kex;
+            }catch(Exception ex)
+            {
+            }
+            finally
+            {
+                db.Dispose();
+            }            
         }
 
        /// <summary>
@@ -424,6 +464,7 @@ namespace KM.JXC.BL
                                       },
 
                           };
+                totalRecords = tmp.Count();
                 stocks = tmp.OrderBy(s => s.Shop.ID).OrderBy(s => s.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BLeaveStock>();
 
                 int[] stock_ids = (from stock in stocks select stock.ID).ToArray<int>();
@@ -457,10 +498,12 @@ namespace KM.JXC.BL
                                      where detail.Leave_Stock_ID == stock.ID
                                      select new BLeaveStockDetail
                                      {
+                                         OrderID=detail.Order_ID,
                                          ProductID = detail.Product_ID,
                                          Parent_ProductID = detail.Parent_Product_ID,
                                          Price = detail.Price,
                                          Quantity = detail.Quantity,
+                                         Amount=detail.Amount,
                                          Product = new BProduct
                                          {
                                              Title = l_product.Name,

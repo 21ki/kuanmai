@@ -19,7 +19,8 @@
                 //alert(obj.rowIndxPage);
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];
                 //alert(pdtId);
-            }
+            },
+            freezeCols:2
         };
 
         obj.colModel = [{ title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
@@ -177,7 +178,7 @@
 
 
             //});
-            $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+            $("<span id=\"get_ccate\">修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
 
             });
 

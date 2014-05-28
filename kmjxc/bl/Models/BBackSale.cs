@@ -12,7 +12,7 @@ namespace KM.JXC.BL.Models
         public int BackTime { get; set; }
         public int Created { get; set; }
         public BSale Sale { get; set; }
-        public BUser CreatedBy { get; set; }        
+        public BUser Created_By { get; set; }        
         public string Description { get; set;}
         public BShop Shop { get; set; }
         public List<BBackSaleDetail> Details { get; set; }

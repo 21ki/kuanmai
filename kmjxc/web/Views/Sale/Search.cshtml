@@ -81,11 +81,11 @@
 
     <div id="saleTable" style="margin-top:20px;">
         <div class="s_title shead">
-            <span style="width:320px; text-align:center;display:inline-block;">宝贝</span>
-            <span style="width:120px; text-align:center;display:inline-block;">单价</span>
-            <span style="width:120px; text-align:center;display:inline-block;">数量</span>
-            <span style="width:120px; text-align:center;display:inline-block;">买家</span>
-            <span  style="width:100px; text-align:center;display:inline-block;">实付款</span>
+            <span style="width:320px; text-align:center;display:inline-block;font-weight:bold;">产品</span>
+            <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">单价</span>
+            <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">数量</span>
+            <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">买家</span>
+            <span  style="width:100px; text-align:center;display:inline-block;font-weight:bold;">实付款</span>
         </div>
         @if (total > 0)
         {
@@ -147,8 +147,9 @@
                             }
                         }
                                         
-                                                @Html.Raw("<div>" + propValue + "</div>")
+                                                @Html.Raw("<div class=\"item\">" + propValue + "</div>")
                     }
+                    @Html.Raw("<div class=\"item\">"+order.Message+"</div>")
                                      
                                 @Html.Raw("</div>")
                                 @Html.Raw("<div class=\"s_o_col colw2 fAlign1\">") 

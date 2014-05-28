@@ -614,6 +614,10 @@ td.tdc {
         padding-left:10px;
         padding-right:10px;
     }
+        .s_body .s_o_col .item {
+            padding-top:3px;
+            padding-bottom:3px;
+        }
 .s_body .normalDiv {
     float:left;
 }

@@ -8,7 +8,8 @@ namespace KM.JXC.BL.Models
 {
     public class BSyncTime
     {
-        public int First { get; set; }
+        public int LastTradeStartEndTime { get; set; }
+        public int LastTradeModifiedEndTime { get; set; }
         public int Last { get; set; }
         public BUser SyncUser { get; set; }
     }

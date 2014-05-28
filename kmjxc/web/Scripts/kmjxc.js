@@ -395,6 +395,9 @@ function KMJXCSaleManager() {
     this.SyncMallTrades = function (params, callback) {
         this.AjaxCall("/api/Sale/SyncMallTrades", params, callback);
     }
+    this.HandleBackSaleDetail = function (params, callback) {
+        this.AjaxCall("/api/Sale/HandleBackSaleDetail", params, callback);
+    }
 }
 
 KMJXManager.prototype = new KMJXCBase();

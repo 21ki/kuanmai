@@ -55,7 +55,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale" Width="1.5" PointX="5.6073843378608039" PointY="10.809292917516684" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_Detail" Width="1.5" PointX="10.953123852123099" PointY="3.8577930349194411" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Leave_Stock" Width="1.5" PointX="10.691589474068763" PointY="4.5647026172674741" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_SyncTime" Width="1.5" PointX="2.1061294219019491" PointY="29.708493827706434" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_SyncTime" Width="1.5" PointX="4.4491691572820624" PointY="5.5901739921375055" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

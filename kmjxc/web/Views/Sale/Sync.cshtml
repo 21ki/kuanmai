@@ -38,7 +38,7 @@
         });
 
         tradeMger.InitializeHour($syncForm.find('#trade_sdate_hour'), 0);
-        $syncForm.find('#trade_sdate').attr("readonly", true);
+        //$syncForm.find('#trade_sdate').attr("readonly", true);
         tradeMger.InitializeHour($syncForm.find('#trade_edate_hour'), 0);
         tradeMger.InitializeMinute($syncForm.find('#trade_sdate_minute'), 0);
         tradeMger.InitializeMinute($syncForm.find('#trade_edate_minute'), 0);
@@ -50,9 +50,10 @@
             var month = 0;
             var day = 0;
             if (res != null) {
-                stime = new Date(res.Last);  
-                $syncForm.find('#trade_sdate_hour').attr("disabled", true);
-                $syncForm.find('#trade_sdate_minute').attr("disabled", true)
+                //alert(tradeMger.GetDateTime(res.LastTradeStartEndTime));
+                stime = new Date(res.LastTradeStartEndTime * 1000);
+                //$syncForm.find('#trade_sdate_hour').attr("disabled", true);
+                //$syncForm.find('#trade_sdate_minute').attr("disabled", true)
                
             } else {
                 stime = new Date();
@@ -115,10 +116,10 @@
             var stime = 0;
             var etime = 0;
             if (sdate != null) {
-                stime=sdate.getTime().toString().substring(0, 10);
+                stime = sdate.getTime() / 1000;
             }
             if (edate != null) {
-                etime = edate.getTime().toString().substring(0, 10);
+                etime = edate.getTime() / 1000;
             }
             tradeMger.SyncMallTrades({
                 'start': stime,

@@ -25,5 +25,6 @@ namespace KM.JXC.BL.Models
         public int Parent_Product_ID { get; set; }
         public BProduct Product { get; set; }
         public string ImageUrl { get; set; }
+        public string Message { get; set; }
     }
 }

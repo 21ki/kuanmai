@@ -20,7 +20,7 @@ namespace KM.JXC.DBA
         public double Price { get; set; }
         public Nullable<int> Created { get; set; }
         public string Description { get; set; }
-        public short Status { get; set; }
+        public int Status { get; set; }
         public int Parent_Product_ID { get; set; }
         public double Refound { get; set; }
         public string Order_ID { get; set; }

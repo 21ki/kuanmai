@@ -59,23 +59,37 @@ namespace KM.JXC.BL.Open.TaoBao
             if (!string.IsNullOrEmpty(status) && this.status.Contains(status))
             {
                 List<BSale> tmpTrades = this.SyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
-                if (totalTrades % pageSize == 0)
+                if (tmpTrades != null && tmpTrades.Count > 0)
                 {
-                    totalPage = totalTrades / pageSize;
+                    trades = trades.Concat(tmpTrades).ToList<BSale>();
                 }
-                else
-                {
-                    totalPage = totalTrades / pageSize + 1;
-                }
+                //if (totalTrades % pageSize == 0)
+                //{
+                //    totalPage = totalTrades / pageSize;
+                //}
+                //else
+                //{
+                //    totalPage = totalTrades / pageSize + 1;
+                //}
 
-                while ((totalPage - 1) >= 0)
+                //while ((totalPage - 1) >= 0)
+                //{
+                //    tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                //    if (tmpTrades != null)
+                //    {
+                //        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                //    }
+                //    totalPage--;
+                //}                
+
+                while (hasNextPage)
                 {
+                    curPage++;
                     tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
-                    if (tmpTrades != null)
+                    if (tmpTrades != null && tmpTrades.Count>0)
                     {
                         trades = trades.Concat(tmpTrades).ToList<BSale>();
                     }
-                    totalPage--;
                 }
             }
             else
@@ -83,23 +97,37 @@ namespace KM.JXC.BL.Open.TaoBao
                 foreach (string state in this.status)
                 {
                     List<BSale> tmpTrades = this.SyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
-                    if (totalTrades % pageSize == 0)
+                    if (tmpTrades != null && tmpTrades.Count > 0)
                     {
-                        totalPage = totalTrades / pageSize;
+                        trades = trades.Concat(tmpTrades).ToList<BSale>();
                     }
-                    else
-                    {
-                        totalPage = totalTrades / pageSize + 1;
-                    }
+                    //if (totalTrades % pageSize == 0)
+                    //{
+                    //    totalPage = totalTrades / pageSize;
+                    //}
+                    //else
+                    //{
+                    //    totalPage = totalTrades / pageSize + 1;
+                    //}
 
-                    while ((totalPage - 1) >= 0)
+                    //while ((totalPage - 1) >= 0)
+                    //{
+                    //    tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                    //    if (tmpTrades != null)
+                    //    {
+                    //        trades = trades.Concat(tmpTrades).ToList<BSale>();
+                    //    }
+                    //    totalPage--;
+                    //}
+
+                    while (hasNextPage)
                     {
+                        curPage++;
                         tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
-                        if (tmpTrades != null)
+                        if (tmpTrades != null && tmpTrades.Count > 0)
                         {
                             trades = trades.Concat(tmpTrades).ToList<BSale>();
                         }
-                        totalPage--;
                     }
                 }
             }
@@ -114,7 +142,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="totalTrades"></param>
         /// <param name="hasNextPage"></param>
         /// <returns></returns>
-        public List<BSale> IncrementSyncMallTrades(int lastSyncTime, string status)
+        public List<BSale> IncrementSyncMallTrades(int lastEndTime, int timeEnd, string status)
         {
             List<BSale> trades = new List<BSale>();
             long totalTrades = 0;
@@ -124,16 +152,16 @@ namespace KM.JXC.BL.Open.TaoBao
             long curPage=1;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
-            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
+            int timeNow = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
             int endTime = 0;
-            if (lastSyncTime == 0)
+            if (lastEndTime == 0)
             {
                 eDate = DateTime.Now;
                 sDate = eDate.AddDays(-1);                
             }
             else
             {
-                sDate = DateTimeUtil.ConvertToDateTime(lastSyncTime);
+                sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);
                 
                 eDate = sDate.AddDays(1);
                 endTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
@@ -491,6 +519,7 @@ namespace KM.JXC.BL.Open.TaoBao
                             {
                                 containRefound = true;
                                 order.Status1 = 1;
+                                sale.Amount = sale.Amount - order.Amount;
                             }
                             order.StockStatus = 0;
                             order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;
