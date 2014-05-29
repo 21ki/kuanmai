@@ -46,11 +46,18 @@
             $form.submit();
 
         });
+
+        $('#orderTabs').tabs();
     });
 
 </script>
 
-<div class="normallist">
+<div id="orderTabs">
+     <ul>
+            <li><a href="#orderList">订单查询</a></li>     
+            
+     </ul>
+    <div id="orderList">
     <div>
         <form id="searchform" action="/Sale/Search?page=1" method="get">
             <table class="searchTable">
@@ -81,7 +88,7 @@
 
     <div id="saleTable" style="margin-top:20px;">
         <div class="s_title shead">
-            <span style="width:320px; text-align:center;display:inline-block;font-weight:bold;">产品</span>
+            <span style="width:295px; text-align:center;display:inline-block;font-weight:bold;">产品</span>
             <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">单价</span>
             <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">数量</span>
             <span style="width:120px; text-align:center;display:inline-block;font-weight:bold;">买家</span>
@@ -187,5 +194,7 @@
     
     
 </div>
+</div>
+
 
 

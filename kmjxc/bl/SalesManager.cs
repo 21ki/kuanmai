@@ -781,7 +781,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int? status, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
         {
             if (pageIndex <= 0)
             {
@@ -890,6 +890,11 @@ namespace KM.JXC.BL
                                  Title=l_product.Name
                               }
                           };
+
+                if (status != null)
+                {
+                    tmp = tmp.Where(t=>t.Status==status);
+                }
                 tmp = tmp.OrderBy(b=>b.Status).OrderBy(b=>b.BackSaleID);
 
                 totalRecords = tmp.Count();
@@ -1031,6 +1036,88 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="user_id"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="syncType"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BSaleSyncLog> SearchTradeSyncLog(int user_id,int startTime,int endTime,int? syncType,int page,int pageSize,out int totalRecords)
+        {
+            List<BSaleSyncLog> log = new List<BSaleSyncLog>();
+            if(page<=0)
+            {
+                page=1;
+            }
+            if(pageSize<=0)
+            {
+                pageSize=20;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                totalRecords = 0;
+                int[] child_shop = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var tmp = from sync in db.Sale_SyncTime
+                          where sync.ShopID == this.Shop.Shop_ID || sync.ShopID == this.Main_Shop.Shop_ID || child_shop.Contains(sync.ShopID)
+                          select sync;
+
+                if (user_id > 0)
+                {
+                    tmp = tmp.Where(t => t.SyncUser == user_id);
+                }
+
+                if (startTime > 0)
+                {
+                    tmp = tmp.Where(t => t.LastSyncTime >= startTime);
+                }
+
+                if (endTime > 0)
+                {
+                    tmp = tmp.Where(t => t.LastSyncTime <= endTime);
+                }
+
+                if (syncType != null)
+                {
+                    tmp = tmp.Where(t => t.SyncType == syncType);
+                }
+
+                var tmpSyncLog = from sync in tmp
+                                 join user in db.User on sync.SyncUser equals user.User_ID into lUser
+                                 from l_user in lUser.DefaultIfEmpty()
+                                 join shop in db.Shop on sync.ShopID equals shop.Shop_ID into lShop
+                                 from l_shop in lShop.DefaultIfEmpty()
+                                 select new BSaleSyncLog
+                                 {
+                                     Type=sync.SyncType,
+                                     LastModifiedEndTime = sync.LastTradeModifiedEndTime,
+                                     LastStartEndTime = sync.LastTradeStartEndTime,
+                                     LastSyncTime = sync.LastSyncTime,
+                                     Shop = new BShop
+                                     {
+                                         ID=l_shop.Shop_ID,
+                                         Title=l_shop.Name
+                                     },
+                                     User = new BUser
+                                     {
+                                         ID=l_user.User_ID,
+                                         Mall_Name=l_user.Mall_Name,
+                                         Mall_ID=l_user.Mall_ID
+                                     }
+                                 };
+                totalRecords = tmpSyncLog.Count();
+
+                log = tmpSyncLog.OrderByDescending(a => a.LastSyncTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSaleSyncLog>();
+            }
+
+            return log;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="backSale"></param>
         /// <param name="details"></param>
         public void CreateBackSale(BBackSale backSale)
@@ -1139,8 +1226,87 @@ namespace KM.JXC.BL
                 else if (status == 2)
                 {
                     //no need to back stock, update wastage
-
+                    this.HandleWastageBackSale(backSaleID, order_ids, status);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backSaleId"></param>
+        /// <param name="order_id"></param>
+        /// <param name="status"></param>
+        private void HandleWastageBackSale(int backSaleId,string[] order_id,int status)
+        {
+            if (backSaleId <= 0)
+            {
+                throw new KMJXCException("没有退货单信息");
+            }
+
+            if (order_id == null || order_id.Length == 0)
+            {
+                throw new KMJXCException("没有退货产品信息");
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Back_Sale backSake=(from bs in db.Back_Sale where bs.Back_Sale_ID==backSaleId select bs).FirstOrDefault<Back_Sale>();
+                if (backSake == null)
+                {
+                    throw new KMJXCException("编号为:"+backSaleId+" 的退货单信息不存在");
+                }
+
+                List<Back_Sale_Detail> details=(from bsd in db.Back_Sale_Detail where bsd.Back_Sale_ID==backSaleId && order_id.Contains(bsd.Order_ID) select bsd).ToList<Back_Sale_Detail>();
+
+                int[] child_shop=(from child in this.ChildShops select child.Shop_ID).ToArray<int>();
+
+                List<Stock_Waste> wastage=(from waste in db.Stock_Waste 
+                                           where waste.Shop_ID==this.Shop.Shop_ID || waste.Shop_ID==this.Main_Shop.Shop_ID || child_shop.Contains(waste.Shop_ID) 
+                                           select waste).ToList<Stock_Waste>();
+
+                foreach (Back_Sale_Detail detail in details)
+                {
+                    if (detail.Product_ID > 0)
+                    {
+                        Stock_Waste w = (from waste in wastage where waste.Product_ID == detail.Product_ID select waste).FirstOrDefault<Stock_Waste>();
+                        if (w == null)
+                        {
+                            w = new Stock_Waste();
+                            w.Parent_ProductID = detail.Parent_Product_ID;
+                            w.Price = detail.Price;
+                            w.Product_ID = w.Product_ID;
+                            w.Quantity = detail.Quantity;
+                            w.Shop_ID = this.Shop.Shop_ID;
+                            db.Stock_Waste.Add(w);
+                        }
+                        else
+                        {
+                            w.Quantity += detail.Quantity;
+                        }
+                    }
+                    else
+                    {
+                        Stock_Waste w = (from waste in wastage where waste.Product_ID == detail.Parent_Product_ID select waste).FirstOrDefault<Stock_Waste>();
+                        if (w == null)
+                        {
+                            w = new Stock_Waste();
+                            w.Parent_ProductID = 0;
+                            w.Price = detail.Price;
+                            w.Product_ID = detail.Parent_Product_ID;
+                            w.Quantity = detail.Quantity;
+                            w.Shop_ID = this.Shop.Shop_ID;
+                            db.Stock_Waste.Add(w);
+                        }
+                        else
+                        {
+                            w.Quantity += detail.Quantity;
+                        }
+                    }
+
+                    detail.Status = status;
+                }
+
+                db.SaveChanges();
             }
         }
 

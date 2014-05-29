@@ -2,8 +2,8 @@
     font-size: 12px;
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
     color: #555;
-    background-color: #fff;
-    background: url('/Content/images/main-bg.png') repeat;
+    background-color: #efefef;
+    
     line-height:22px;
 }
 
@@ -38,6 +38,7 @@ border: 1px solid #ccc;
 border-radius: 2px;
 height: 20px;
 padding: 1px;
+padding-left:3px;
 margin-left: 0px;
 vertical-align: middle;
 color: #808080;
@@ -131,9 +132,19 @@ textarea {
 }
 
 
-.jxcMain,.jxcfoot {margin: 0 auto;width:1000px;overflow: hidden;}
+.jxcMain,.jxcfoot {margin: 0 auto;width:1070px;overflow: hidden;}
 .jxcfoot {
     text-align: center;
+}
+.jxcMain {
+background-color:#FFF;
+padding:10px 10px;
+border: 1px solid #ddd;
+background: #fff;
+border-radius: 6px;
+box-shadow: 0px 3px 3px -3px rgba(0, 0, 0, .30);
+/* vertical-align: top; */
+
 }
 .btn1 {
     padding-left:15px;padding-right:15px;
@@ -145,16 +156,17 @@ textarea {
 }
 .jxcLeftMenu {
     float:left;
-    padding-right:10px;
-    border-right:2px solid #7b9ebd;
+    padding-right:10px;    
 }
+    .jxcLeftMenu .menu_wd1 {
+        width:160px;
+        
+    }
 
 .jxcRight {
-    margin-left:10px;
-    padding-left:10px;
-    padding-right:10px;
+    margin-top:2px;    
     float:left;
-    width:850px;
+    width:862px;
     background-color:#FFF;
     min-height:600px;
 }
@@ -227,28 +239,25 @@ textarea {
 .menuContainer {
     padding-left:0px;
 }
-    .menuContainer ul li {
+    .jxcLeftMenu ul li {
         padding:1px 2px 1px 2px;
         /*background-color:#FFF;*/
     }
-        .menuContainer ul li .link,.menuContainer ul li .links {
-              text-align:center;
+        .jxcLeftMenu ul li .link,.jxcLeftMenu ul li .links {              
               display: block;
               text-decoration: none;
               height:25px;
               line-height:25px;   
               color:#555;    
         }
-        .menuContainer ul li .links {
-            background-color: #31a2e0;
-            color:#FFF;
+        .jxcLeftMenu ul li .links {            
+            color:#31a2e0;
         }
-        .menuContainer ul li:hover {
+        .jxcLeftMenu ul li:hover {
             
         }
-            .menuContainer ul li .link:hover {
-                background-color: #31a2e0;
-                color:#FFF;
+            .jxcLeftMenu ul li .link:hover {                
+                color:#31a2e0;
             }
 .newCategory {
 }
@@ -264,9 +273,9 @@ textarea {
     }
 
 .normallist {
-    padding:10px 10px;
+    /*padding:10px 10px;*/    
 }
-.row {
+.row, .rowS {
     overflow:hidden;
     padding-top:3px;padding-bottom:3px;
 }
@@ -280,6 +289,13 @@ textarea {
     width:55px;
     text-align:right;
     padding-right:5px;
+}
+.rowS label {
+    display:inline-block;
+    text-align:center;
+}
+.rowS .wd1 {
+    width:50px;
 }
 .row .label1{
     width:85px;
@@ -622,7 +638,7 @@ td.tdc {
     float:left;
 }
 .colw1 {
-    width:250px;
+    width:230px;
 }
 .colw2 {
     width:100px;
@@ -653,4 +669,5 @@ td.tdc {
         .lstable .cell {
             float:left;
         }
+
         

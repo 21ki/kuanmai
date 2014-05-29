@@ -187,6 +187,7 @@
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Parent_Product_ID" Type="mediumint" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="mediumint" />
+          <Property Name="Status" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
@@ -639,7 +640,7 @@
           <Property Name="Product_ID" Type="mediumint" Nullable="false" />
           <Property Name="Parent_ProductID" Type="mediumint" Nullable="false" />
           <Property Name="Quantity" Type="mediumint" Nullable="false" />
-          <Property Name="Price" Type="decimal" Nullable="false" Scale="2" />
+          <Property Name="Price" Type="double" Nullable="false" />
         </EntityType>
         <EntityType Name="Store_House">
           <Key>
@@ -742,7 +743,6 @@
           <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Product_Specifications" />
           <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Product_Class" />
           <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
-          <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Stock_Waste" />
           <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Image" />
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Buy_Detail" />
@@ -758,6 +758,7 @@
           <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Sale_Detail" />
           <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Leave_Stock" />
           <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Sale_SyncTime" />
+          <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Stock_Waste" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1196,17 +1197,6 @@
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Created" Nullable="false" />
         </EntityType>
-        <EntityType Name="Stock_Waste">
-          <Key>
-            <PropertyRef Name="Stock_Waste_ID" />
-          </Key>
-          <Property Type="Int32" Name="Stock_Waste_ID" Nullable="false" />
-          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int32" Name="Product_ID" Nullable="false" />
-          <Property Type="Int32" Name="Quantity" Nullable="false" />
-          <Property Type="Decimal" Name="Price" Nullable="false" Precision="10" Scale="2" />
-          <Property Type="Int32" Name="Parent_ProductID" Nullable="false" />
-        </EntityType>
         <EntityType Name="Image">
           <Key>
             <PropertyRef Name="ID" />
@@ -1292,6 +1282,7 @@
           <Property Type="Double" Name="Price" Nullable="false" />
           <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
           <Property Type="Int32" Name="StoreHouse_ID" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
         </EntityType>
         <EntityType Name="Express">
           <Key>
@@ -1402,6 +1393,17 @@
           <Property Type="Int32" Name="LastTradeModifiedEndTime" Nullable="false" />
           <Property Type="Int32" Name="SyncUser" Nullable="false" />
           <Property Type="Int32" Name="SyncType" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Stock_Waste">
+          <Key>
+            <PropertyRef Name="Stock_Waste_ID" />
+          </Key>
+          <Property Type="Int32" Name="Stock_Waste_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_ProductID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
+          <Property Type="Double" Name="Price" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1866,18 +1868,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Stock_Waste">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Waste">
-              <MappingFragment StoreEntitySet="Stock_Waste">
-                <ScalarProperty Name="Parent_ProductID" ColumnName="Parent_ProductID" />
-                <ScalarProperty Name="Price" ColumnName="Price" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
-                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-                <ScalarProperty Name="Stock_Waste_ID" ColumnName="Stock_Waste_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Image">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Image">
               <MappingFragment StoreEntitySet="Image">
@@ -1959,6 +1949,7 @@
           <EntitySetMapping Name="Back_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Stock_Detail">
               <MappingFragment StoreEntitySet="Back_Stock_Detail">
+                <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
                 <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
@@ -2078,6 +2069,18 @@
                 <ScalarProperty Name="LastTradeStartEndTime" ColumnName="LastTradeStartEndTime" />
                 <ScalarProperty Name="LastSyncTime" ColumnName="LastSyncTime" />
                 <ScalarProperty Name="ShopID" ColumnName="ShopID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Stock_Waste">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Waste">
+              <MappingFragment StoreEntitySet="Stock_Waste">
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Parent_ProductID" ColumnName="Parent_ProductID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Stock_Waste_ID" ColumnName="Stock_Waste_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

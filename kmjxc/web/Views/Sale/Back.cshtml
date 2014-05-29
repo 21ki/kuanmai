@@ -14,34 +14,23 @@
     $(function () {
         $form = $('#editnewform');
         var obj = {
-            width: 830, height: 600, title: "销售退货单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "销售退货单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {               
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];               
             },
-            freezeCols: 4
+            freezeCols: 3
         };
 
         obj.colModel = [                                           
                         
                         {
-                            title: "编号", width: 70, dataType: "integer", dataIndx: "BackSaleID", editable: false,
+                            title: "退货编号", width: 70, dataType: "integer", dataIndx: "BackSaleID", editable: false,
                             //render: function (ui) {
                             //    return "<a href=\"/Stock/BackSaleDetail/" + ui.rowData["Sale"].ID + "\" target=\"_blank\">" + ui.rowData["Sale"].ID + "</a>";
                             //}
                         },
 
-                        {
-                            title: "店铺", width: 100, dataType: "string", dataIndx: "BackSale.Shop.Title", editable: false,
-                            render: function (ui) {                               
-                                if (ui.rowData["BackSale"].Shop.FromMainShop == "true") {
-                                    return ui.rowData["BackSale"].Shop.Title + " 主店铺";
-                                } else if (ui.rowData["BackSale"].Shop.FromChildShop == "true") {
-                                    return ui.rowData["BackSale"].Shop.Title + " 子店铺";
-                                } else {                                   
-                                    return ui.rowData["BackSale"].Shop.Title;
-                                }
-                            }
-                        },
+                       
                         {
                             title: "状态", width: 100, dataType: "string", dataIndx: "Status", editable: false,
                             render: function (ui) {
@@ -56,12 +45,23 @@
                         },
                         { title: "订单号", width: 150, dataType: "string", dataIndx: "BackSale.Sale.Sale_ID", editable: false },
                         { title: "产品", width: 150, dataType: "string", dataIndx: "Product.Title", editable: false },
-                        //{ title: "退货金额", width: 150, dataType: "string", dataIndx: "Amount", editable: false },
-                        //{ title: "买家", width: 150, dataType: "string", dataIndx: "BackSale.Sale.Buyer.Mall_ID", editable: false },
-                        ////{ title: "买家电话", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Phone", editable: false },
-                        ////{ title: "买家地址", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Address", editable: false },
+                        { title: "退货数量", width: 150, dataType: "string", dataIndx: "Quantity", editable: false },
+                       
+                      
                         { title: "退货员", width: 150, dataType: "string", dataIndx: "BackSale.Created_By.Mall_Name", editable: false },
                         { title: "退货日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                        {
+                             title: "店铺", width: 100, dataType: "string", dataIndx: "BackSale.Shop.Title", editable: false,
+                             render: function (ui) {
+                                 if (ui.rowData["BackSale"].Shop.FromMainShop == "true") {
+                                     return ui.rowData["BackSale"].Shop.Title + " 主店铺";
+                                 } else if (ui.rowData["BackSale"].Shop.FromChildShop == "true") {
+                                     return ui.rowData["BackSale"].Shop.Title + " 子店铺";
+                                 } else {
+                                     return ui.rowData["BackSale"].Shop.Title;
+                                 }
+                             }
+                        }
         ];
 
         obj.dataModel = {
@@ -79,8 +79,9 @@
                 var sale_id = $($searchform).find("#sale_id").val();
                 var sdate = $($searchform).find("#back_sdate").val();
                 var edate = $($searchform).find("#back_edate").val();
+                var status = $($searchform).find("#sale_status").val();
                 return {
-                    url: "/api/Sale/SearchBackSaleDetails", data: "page=" + this.curPage + "&pageSize=" + this.rPP + "&sale_id=" + sale_id + "&sdate=" + sdate + "&edate=" + edate
+                    url: "/api/Sale/SearchBackSaleDetails", data: "page=" + this.curPage + "&pageSize=" + this.rPP + "&sale_id=" + sale_id + "&sdate=" + sdate + "&edate=" + edate+"&status="+status
                 };
             },
             getData: function (dataJSON) {                
@@ -106,6 +107,13 @@
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;
                 
+                for (var i = 0; i < selectedRows.length; i++) {
+                    if (data[selectedRows[i]]["Status"] != 0) {
+                        alert("请不要选择已经处理过的退货单");
+                        return;
+                    }
+                }
+
                 $('#popup_handle_backsale').dialog({
                     position: { my: "top", at: "top", of: $("#backSaleTable") },
                     width: 550,
@@ -139,9 +147,13 @@
                             var order_id = "";
                             var backSale_id = "";
                             var sale_id = [];
+                            var hasHandled = false;
                             for (var i = 0; i < selectedRows.length; i++) {
                                 var bsId = data[selectedRows[i]]["BackSaleID"];
-                                var oId = data[selectedRows[i]]["Order_ID"];
+                                var oId = data[selectedRows[i]]["Order_ID"];                               
+                                if (data[selectedRows[i]]["Status"] != 0) {
+                                    hasHandled = true;
+                                }
                                 if (sale_id.length == 0) {
                                     sale_id.push(bsId);
                                     continue;
@@ -186,6 +198,10 @@
                                 }
                             }
                           
+                            if (hasHandled) {
+                                alert("请不要选择已经处理过的退货单");
+                                return;
+                            }
                             saleMgr.HandleBackSaleDetail(
                                 {
                                     'order_id': order_id,
@@ -207,13 +223,20 @@
 
 
             $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
-            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
-            $("<label class=\"label1\">销售单号:</label>").appendTo($srow);
+            var $srow = $("<div class=\"rowS\" style=\"padding-top:1px;padding-bottom:1px;\"></div>").appendTo($searchform);
+            $("<label class=\"wd1\">状态:</label>").appendTo($srow);
+            var $status = $("<select id=\"sale_status\" class=\"W_inputsel\"></select>").appendTo($srow);
+            $("<option value=\"\">--所有--</option>").appendTo($status);
+            $("<option value=\"0\">未处理</option>").appendTo($status);
+            $("<option value=\"1\">已经退库</option>").appendTo($status);
+            $("<option value=\"2\">已经报损</option>").appendTo($status);
+            $("<label class=\"wd1\">订单:</label>").appendTo($srow);
             $("<input id=\"sale_id\" title='销售单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
 
             });
-            $("<label class=\"label1 searchField\">退货日期范围:</label>").appendTo($srow);
-            $("<input id=\"back_sdate\" title='开始日期' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).datepicker(
+            var $srow1 = $("<div class=\"rowS\" style=\"padding-top:2px;padding-bottom:2px;\"></div>").appendTo($searchform);
+            $("<label class=\"wd1\">日期:</label>").appendTo($srow1);
+            $("<input id=\"back_sdate\" title='开始日期' type='text' class='W_input' style='height:22px;'/>").appendTo($srow1).datepicker(
                 {
                     currentText: "Now",
                     dateFormat: "yy-mm-dd",
@@ -222,7 +245,8 @@
                     changeYear: true,
                     buttonImageOnly: true,
                 });
-            $("<input id=\"back_edate\" title='结束日期' type='text' class='W_input searchField' style='height:22px;'/>").appendTo($srow).datepicker(
+            $("<span> 到 </span>").appendTo($srow1);
+            $("<input id=\"back_edate\" title='结束日期' type='text' class='W_input searchField' style='height:22px;'/>").appendTo($srow1).datepicker(
                 {
                     currentText: "Now",
                     dateFormat: "yy-mm-dd",
@@ -232,7 +256,7 @@
                     buttonImageOnly: true,
                 });
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
-                   .appendTo($srow)
+                   .appendTo($srow1)
                    .button({ text: true }).bind("click", function (evt) {
                        $grid.pqGrid("refreshDataAndView");
                    });

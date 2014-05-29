@@ -11,10 +11,13 @@ namespace KM.JXC.Web.Controllers
         //
         // GET: /Permission/
 
-        public ActionResult Index()
+        public ActionResult Account()
         {
             return View();
         }
-
+        public ActionResult Role()
+        {
+            return View();
+        }
     }
 }

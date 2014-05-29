@@ -121,35 +121,91 @@
             if (edate != null) {
                 etime = edate.getTime() / 1000;
             }
+
+            var $progress = new ShowProgress("sync_trade_progress_bar", function () { },"正在同步，同步过程中，不要关闭浏览器，请耐心等待...");
+
             tradeMger.SyncMallTrades({
                 'start': stime,
                 'end': etime,
                 'status': $syncForm.find('#trade_status').val(),
                 'syncType': syncType
             }, function (res) {
-                alert("Finished");
+                Boxy.get($('#sync_trade_progress_bar')).hide();
+                getSyncLog();
             });
         });
+
+        $('#orderSync').tabs();
+        getSyncLog();
+        function getSyncLog() {
+            tradeMger.SearchTradeSyncLog({ 'page': 1, 'pageSize': 20 }, function (res) {
+                var $container = $syncForm.find('#syncLogDiv');
+                $container.html("");
+                var header = $("<div class=\"row\"></div>").appendTo($container);
+                $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">同步时间</div>").appendTo(header);
+                $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">同步用户</div>").appendTo(header);
+                $("<div class=\"cell\" style=\"width:70px;padding-right:10px;\">类型</div>").appendTo(header);
+                $("<div class=\"cell\" style=\"width:200px;padding-right:10px;\">条件</div>").appendTo(header);
+                $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">店铺</div>").appendTo(header);
+
+                if (res != null && res.totalRecords > 0) {
+                    $(res.data).each(function (index, item) {
+                        var row = $("<div class=\"row\"></div>").appendTo($container);
+                        $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">" + tradeMger.GetDateTime(item.LastSyncTime) + "</div>").appendTo(row);
+                        $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">" + item.User.Mall_Name + "</div>").appendTo(row);
+                        var syncType = "";
+                        var condition = "";
+                        if (item.Type == 0) {
+                            syncType = "一般同步";
+                            condition = "按照交易创建时间同步，交易创建时间的截止时间:" + tradeMger.GetDateTime(item.LastStartEndTime);
+                        } else if (item.Type == 1) {
+                            syncType = "增量同步";
+                            condition = "按照交易修改时间同步，交易修改时间的截止时间:" + tradeMger.GetDateTime(item.LastModifiedEndTime);
+                        }
+                        $("<div class=\"cell\" style=\"width:70px;padding-right:10px;\">" + syncType + "</div>").appendTo(row);
+                        $("<div class=\"cell\" style=\"width:200px;padding-right:10px;\">" + condition + "</div>").appendTo(row);
+                        $("<div class=\"cell\" style=\"width:150px;padding-right:10px;\">" + item.Shop.Title + "</div>").appendTo(row);
+                        // var condition="";
+                        //$("<div class=\"cell\" style=\"width:200px;\">" + tradeMger.GetDateTime(item.LastSyncTime) + "</div>").appendTo(row);
+                    });
+                }
+            });
+        }
     });
 </script>
 
-<div class="normallist">
+<div id="orderSync">
     <form id="syncForm">
+        <ul>
+            <li><a href="#syncDiv">交易同步</a></li>      
+            <li><a href="#syncLogDiv">同步日志</a></li>
+        </ul>
          <div id="syncDiv">
-             <div class="row">
-                 <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select><label>同步增量:</label><input type="checkbox" id="trade_incre"/>
+             <p>
+                 同步主要有两种方式<br/>
+                 1. 按照交易的创建时间（同步时必须输入开始和结束时间），下次同步的开始时间是上次同步的结束时间<br/>
+                 2. 按照交易的修改时间，选择增量同步，无需输入时间范围，此方式可以同步方式1中修改过的交易，比如退货，或者部分退货
+             </p>
+             <div class="rowS">
+                 <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select>
+             </div>
+             <div class="rowS">
+                 <label>增量同步:</label><input type="checkbox" id="trade_incre"/>
              </div>
              <div id="trade_time_range">
-                 <div class="row">
+                 <div class="rowS">
                      <label>开始时间:</label><input class="W_input" id="trade_sdate" /> <select class="W_inputsel" id="trade_sdate_hour"></select> <select class="W_inputsel" id="trade_sdate_minute"></select>
                  </div>
-                    <div class="row">
+                    <div class="rowS">
                      <label>结束时间:</label><input class="W_input" id="trade_edate" /> <select class="W_inputsel" id="trade_edate_hour"></select> <select class="W_inputsel" id="trade_edate_minute"></select>
                  </div>
              </div>
-             <div class="row nolabel1">
+             <div class="rowS nolabel1">
                  <span id="trade_btn_sync">同步</span>
              </div>
+         </div>
+         <div id="syncLogDiv" class="lstable" style="overflow:hidden">
+
          </div>
     </form>   
 </div>

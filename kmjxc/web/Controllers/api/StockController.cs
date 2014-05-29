@@ -187,7 +187,22 @@ namespace KM.JXC.Web.Controllers.api
             }
             return message;
         }
-        
+
+        [HttpPost]
+        public List<BProduct> GetProductStockDetails()
+        {
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int product_id = 0;
+
+            int.TryParse(request["product_id"],out product_id);
+            List<BProduct> stores = stockManager.GetProductStockDetails(product_id);
+            return stores;
+        }
 
         [HttpPost]
         public PQGridData SearchProductsStore()
@@ -330,6 +345,7 @@ namespace KM.JXC.Web.Controllers.api
             int uid = 0;
             int stime = 0;
             int etime = 0;
+            int storeHouseId = 0;
             if (!string.IsNullOrEmpty(request["sdate"]))
             {
                 DateTime sdate = DateTime.MinValue;
@@ -369,7 +385,7 @@ namespace KM.JXC.Web.Controllers.api
             {
                 saleids = new string[] { sale_id.ToString() };
             }
-            data.data = stockManager.SearchBackStocks(backids, saleids, userids, stime, etime, page, pageSize, out total);
+            data.data = stockManager.SearchBackStockDetails(backids, saleids, userids,storeHouseId, stime, etime, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;

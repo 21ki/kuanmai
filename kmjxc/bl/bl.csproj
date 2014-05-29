@@ -84,6 +84,7 @@
     <Compile Include="Models\BProductStore.cs" />
     <Compile Include="Models\BProductWastage.cs" />
     <Compile Include="Models\BProperty.cs" />
+    <Compile Include="Models\BSaleSyncLog.cs" />
     <Compile Include="Models\BShop.cs" />
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />

@@ -11,14 +11,14 @@
     $(function () {
 
         var obj = {
-            width: 830, height: 600, title: "采购订单验货单查询", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "采购订单验货单查询", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
 
             }
         };
 
         obj.colModel = [{
-                            title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
+                            title: "验货单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
                             render: function (ui) {
                                 return "<a target=\"_blank\" href=\"/Buy/BuyDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
@@ -28,6 +28,16 @@
                            render: function (ui) {
                                return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["Order"]["ID"] + "\">" + ui.rowData["Order"]["ID"] + "</a>";
                            }
+                       },
+                       {
+                             title: "状态", width: 150, dataType: "string", dataIndx: "Status", editable: false, render: function (ui) {
+                                 var cellData = ui.rowData["Status"];
+                                 if (cellData == 0) {
+                                     return "未入库";
+                                 } else if (cellData == 1) {
+                                     return "已经入库";
+                                 }
+                             }
                        },
                        {
                             title: "总金额", width: 150, dataType: "json", dataIndx: "Details", editable: false, render: function (ui) {
@@ -42,17 +52,8 @@
                        },
                        { title: "采购员", width: 150, dataType: "string", dataIndx: "Order.Created_By.Mall_Name", editable: false },
                        { title: "验货人", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },                       
-                       { title: "验货日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
-                       {
-                           title: "状态", width: 150, dataType: "string", dataIndx: "Status", editable: false, render: function (ui) {
-                               var cellData = ui.rowData["Status"];
-                               if (cellData == 0) {
-                                   return "未入库";
-                               } else if (cellData == 1) {
-                                   return "已经入库";
-                               } 
-                           }
-                       },
+                       { title: "验货日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false }
+                     
 
         ];
 

@@ -13,33 +13,20 @@
     $(function () {
         $form = $('#editnewform');
         var obj = {
-            width: 830, height: 600, title: "销售出库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "销售出库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {               
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];               
             },
-            freezeCols:3
+            freezeCols:2
         };
 
         obj.colModel = [
                         {
-                            title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
-                            render: function (ui) {
-                                return "<a href=\"/Stock/LeaveDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
-                            }
-                        },                     
-                       
-                        {
-                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
-                            render: function (ui) {                               
-                                if (ui.rowData["FromMainShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 主店铺";
-                                } else if (ui.rowData["FromChildShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 子店铺";
-                                } else {                                   
-                                    return ui.rowData["Shop"].Title;
-                                }
-                            }
-                        },
+                            title: "出库编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false
+                            //render: function (ui) {
+                            //    return "<a href=\"/Stock/LeaveDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
+                            //}
+                        }, 
                         { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale.Sale_ID", editable: false },
                         { title: "交易总金额", width: 150, dataType: "string", dataIndx: "Sale.Amount", editable: false },
                         { title: "买家", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Mall_ID", editable: false },
@@ -47,6 +34,10 @@
                         { title: "买家地址", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Address", editable: false },
                         { title: "出库员", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
                         { title: "出库时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false
+
+                        },
         ];
 
         obj.dataModel = {
@@ -147,12 +138,12 @@
                 $("#popup_detail").dialog("open");
             });
             $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
-            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
-            $("<label class=\"label1\">销售单号:</label>").appendTo($srow);
+            var $srow = $("<div class=\"rowS\"></div>").appendTo($searchform);
+            $("<label class=\"wd1\">订单:</label>").appendTo($srow);
             $("<input id=\"sale_id\" title='销售单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
 
             });
-            $("<label class=\"label1 searchField\">出库日期范围:</label>").appendTo($srow);
+            $("<label class=\"wd1\">日期:</label>").appendTo($srow);
             $("<input id=\"leave_sdate\" title='开始日期' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).datepicker(
                 {
                     currentText: "Now",
@@ -162,6 +153,7 @@
                     changeYear: true,
                     buttonImageOnly: true,
                 });
+            $("<span> 到 </span>").appendTo($srow);
             $("<input id=\"leave_edate\" title='结束日期' type='text' class='W_input searchField' style='height:22px;'/>").appendTo($srow).datepicker(
                 {
                     currentText: "Now",

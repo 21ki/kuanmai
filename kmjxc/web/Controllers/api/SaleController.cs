@@ -99,6 +99,15 @@ namespace KM.JXC.Web.Controllers.api
             int uid = 0;
             int stime = 0;
             int etime = 0;
+            int? status = null;
+            int status1 = 0;
+            string state=request["status"];
+            if (!string.IsNullOrEmpty(state))
+            {
+                int.TryParse(state, out status1);
+                status = status1;
+            }
+
             if (!string.IsNullOrEmpty(request["sdate"]))
             {
                 DateTime sdate = DateTime.MinValue;
@@ -138,7 +147,7 @@ namespace KM.JXC.Web.Controllers.api
             {
                 saleids = new string[] { sale_id.ToString() };
             }
-            data.data = saleManager.SearchBackSaleDetails(saleids, userids, stime, etime, page, pageSize, out total);
+            data.data = saleManager.SearchBackSaleDetails(saleids, userids,status, stime, etime, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;
@@ -221,6 +230,36 @@ namespace KM.JXC.Web.Controllers.api
 
             time = saleManager.GetSyncTime();
             return time;
+        }
+
+        [HttpPost]
+        public PQGridData SearchTradeSyncLog()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int.TryParse(request["page"],out page);
+            if (page == 0)
+            {
+                page = 1;
+            }
+            int pageSize = 20;
+            int.TryParse(request["pageSize"],out pageSize);
+            if (pageSize == 0)
+            {
+                pageSize = 20;
+            }
+            int total = 0;
+
+            data.data = saleManager.SearchTradeSyncLog(0, 0, 0, null, page, pageSize, out total);
+            data.totalRecords = total;
+            data.curPage = page;
+            return data;
         }
 
         [HttpPost]

@@ -14,7 +14,7 @@
         
 
         var obj = {
-            width: 830, height: 600, title: "库存列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "库存列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
                 //alert(obj.rowIndxPage);
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];
@@ -25,46 +25,16 @@
 
         obj.colModel = [{ title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
                         { title: "产品名称", width: 220, dataType: "string", dataIndx: "Title", editable: false },
-                        { title: "产品类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
-                        //{
-                        //    title: "价格", width: 80, dataType: "double", dataIndx: "Price", editable: false,
-                        //    render: function (ui) {
-                        //        var cellData = ui.rowData[ui.dataIndx];
-                        //        if (cellData == 0) {
-                        //            return "暂无入库单";
-                        //        }
-                        //    }
-                        //},
+                        { title: "产品类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },                       
                         {
-                            title: "库存", width: 80, dataType: "double", dataIndx: "Quantity", editable: false,
-                            render: function (ui) {
-                                return "<a href=\"/Stock/StockDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["Quantity"] + "</a>";
-                            }
+                            title: "库存", width: 80, dataType: "double", dataIndx: "Quantity", editable: false
                         },
                         
                         {
                              title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Name", editable: false
                             
-                        },
-                        {
-                            title: "主店铺产品", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
-                            render: function (ui) {
-                                var cellData = ui.rowData[ui.dataIndx];
-                                if (cellData.Parent_ID == 0) {
-                                    return "是";
-                                } else {
-                                    return "否";
-                                }
-                            },
-                        },
-                        //{ title: "创建者", width: 150, dataType: "string", dataIndx: "User.Mall_Name", editable: false },
-                        //{ title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "CreateTime", editable: false },
-                        //{
-                        //    title: "操作", width: 100, dataType: "string", dataIndx: "", editable: false,
-                        //    render: function (ui) {
-                        //        return "<input onclick=\"EditProduct("+ui.rowData["ID"]+")\" class=\"\" type=\"button\" value=\"修改\" />";
-                        //    }
-                        //},
+                        }
+                       
         ];
 
         obj.dataModel = {
@@ -174,10 +144,83 @@
                     });
 
 
-            //$("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">查看库存</span>").appendTo($menubar).button().click(function (evt) {
+                var selectedRows = getRowIndx();
+                if (selectedRows == null) {
+                    alert("请选择一个产品");
+                    return;
+                }
 
+                if (selectedRows.length>1) {
+                    alert("只能选择一个产品");
+                    return;
+                }
+                
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var product_id = data[selectedRows[0]]["ID"];
+                if (data[selectedRows[0]]["Quantity"] == 0) {
+                    alert("此产品没有库存");
+                    return;
+                }
 
-            //});
+                $('#popup_stock_detail').dialog({
+                    position: { my: "top", at: "top", of: $("#stockTable") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "库存详情 - " + data[selectedRows[0]]["Title"],
+                    modal: true,
+                    buttons: {
+                        "关闭": function (e) {
+                            $(this).dialog("close");
+                        }
+                    },
+                    open: function (e) {
+                        var that = this;
+                        stockMgr.GetProductStockDetails({ 'product_id': product_id }, function (res) {
+                            if (res != null) {
+
+                                var table = $("<div class=\"lstable\"></div>").appendTo(that);
+                                if ($(res).size() > 0) {
+                                    var header = $("<div class=\"row\"></div>").appendTo(table);
+                                    $("<div class=\"cell\" style=\"width:100px;font-weight:bold\">库存编码</div>").appendTo(header);
+                                    $("<div class=\"cell\" style=\"width:200px;font-weight:bold\">属性</div>").appendTo(header);
+                                    $("<div class=\"cell\" style=\"width:50px;font-weight:bold\">库存</div>").appendTo(header);
+                                }
+
+                                $(res).each(function (index, item) {
+                                    var pdt = null;
+                                    if (index < ($(res).size() - 1)) {
+                                        pdt = $("<div class=\"row\"></div>").appendTo(table);
+                                    } else {
+                                        pdt = $("<div class=\"rowl\"></div>").appendTo(table);
+                                    }
+
+                                    $("<div class=\"cell\" style=\"width:100px;\">" + item.ID + "</div>").appendTo(pdt);
+                                    if (item.Properties != null) {
+                                        var props = "";
+                                        $(item.Properties).each(function (index1, item1) {
+                                            if (props == "") {
+                                                props = item1.PName + ":" + item1.PValue;
+                                            } else {
+                                                props += " " + item1.PName + ":" + item1.PValue;
+                                            }
+                                        });
+                                        $("<div class=\"cell\" style=\"width:200px;\">" + props + "</div>").appendTo(pdt);
+                                    }
+                                    $("<div class=\"cell\" style=\"width:50px;\">" + item.Quantity + "</div>").appendTo(pdt);
+                                });
+                            }
+                        });
+                    },
+                    close: function (e) {
+                        $(this).html("");
+                    }
+                });
+
+                $('#popup_stock_detail').dialog("open");
+            });
             $("<span id=\"get_ccate\">修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
 
             });
@@ -191,15 +234,15 @@
 
 
         function getRowIndx() {
+            var rows = [];
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
             if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndx;
-
-                //if (rowIndx != null && colIndx == null) {
-                return rowIndx;
+                for (var i = 0; i < arr.length; i++) {
+                    rows.push(arr[i].rowIndx);
+                }
+                return rows;
             }
             else {
-                alert("请选择一行");
                 return null;
             }
         }
@@ -209,4 +252,5 @@
 
 <div class="normallist">
     <div id="stockTable"></div>
+    <div id="popup_stock_detail"></div>
 </div>

@@ -44,7 +44,7 @@
         });
 
         var obj = {
-            width: 830, height: 600, title: "采购订单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "采购订单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
 
             }
@@ -54,7 +54,21 @@
                             title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false, render: function (ui) {
                                 return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
-                        },
+                         },
+
+                         {
+                             title: "状态", width: 150, dataType: "integer", dataIndx: "Status", editable: false,
+                             render: function (ui) {
+                                 var cellData = ui.rowData["Status"];
+                                 if (cellData == 0) {
+                                     return "未验货";
+                                 } else if (cellData == 1) {
+                                     return "已验货，验货单已生成";
+                                 } else if (cellData == 2) {
+                                     return "验货未通过";
+                                 }
+                             }
+                         },
                         { title: "供应商", width: 150, dataType: "string", dataIndx: "Supplier.Name", editable: false },
                         { title: "采购员", width: 150, dataType: "string", dataIndx: "OrderUser.Mall_Name", editable: false },
                         {
@@ -77,19 +91,7 @@
                                 return total;
                             }
                         },
-                        {
-                            title: "状态", width: 150, dataType: "integer", dataIndx: "Status", editable: false,
-                            render: function (ui) {
-                                var cellData = ui.rowData["Status"];
-                                if (cellData == 0) {
-                                    return "未验货";
-                                } else if (cellData == 1) {
-                                    return "已验货，验货单已生成";
-                                } else if (cellData == 2) {
-                                    return "验货未通过";
-                                }
-                            }
-                        },
+                       
                         { title: "录入员", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
                         { title: "录入日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
 

@@ -13,46 +13,38 @@
     $(function () {
         $form = $('#editnewform');
         var obj = {
-            width: 830, height: 600, title: "销售退库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            width: 859, height: 600, title: "销售退库单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {               
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];               
-            }
+            },
+            freezeCols: 2
         };
 
         obj.colModel = [
                         {
-                            title: "退库单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
-                            render: function (ui) {
-                                return "<a href=\"/Stock/BackStockDetail/"+ui.rowData["ID"]+"\" target=\"_blank\">"+ui.rowData["ID"]+"</a>";
-                            }
-                        },                     
-                        
+                            title: "退库编号", width: 100, dataType: "integer", dataIndx: "BackStock.ID", editable: false
+                        }, 
+                        { title: "产品", width: 150, dataType: "string", dataIndx: "Product.Title", editable: false },
                         {
-                            title: "退货单编号", width: 100, dataType: "integer", dataIndx: "Sale.ID", editable: false,
+                            title: "库存状态", width: 150, dataType: "string", dataIndx: "Status", editable: false,
                             render: function (ui) {
-                                return "<a href=\"/Stock/BackSaleDetail/" + ui.rowData["Sale"].ID + "\" target=\"_blank\">" + ui.rowData["Sale"].ID + "</a>";
-                            }
-                        },
-
-                        {
-                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
-                            render: function (ui) {                               
-                                if (ui.rowData["FromMainShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 主店铺";
-                                } else if (ui.rowData["FromChildShop"] == "true") {
-                                    return ui.rowData["Shop"].Title + " 子店铺";
-                                } else {                                   
-                                    return ui.rowData["Shop"].Title;
+                                if (ui.rowData["Status"] == 1) {
+                                    return "已经更新到库存";
+                                } else if (ui.rowData["Status"] == 0) {
+                                    return "未更新到库存";
                                 }
                             }
                         },
-                        { title: "订单号", width: 150, dataType: "string", dataIndx: "Sale.Mall_Trade_ID", editable: false },
-                        { title: "退货总金额", width: 150, dataType: "string", dataIndx: "Sale.Amount", editable: false },
-                        { title: "买家", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Mall_Name", editable: false },
-                        { title: "买家电话", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Phone", editable: false },
-                        { title: "买家地址", width: 150, dataType: "string", dataIndx: "Sale.Buyer.Address", editable: false },
-                        { title: "退库员", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
-                        { title: "退库日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                       
+                        { title: "所属订单", width: 150, dataType: "string", dataIndx: "BackStock.BackSale.Sale.Sale_ID", editable: false },
+                        
+                        { title: "退库数量", width: 150, dataType: "string", dataIndx: "Quantity", editable: false },
+                        { title: "仓库", width: 150, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },
+                        { title: "退库员", width: 150, dataType: "string", dataIndx: "BackStock.Created_By.Mall_Name", editable: false },
+                        { title: "退库日期", width: 150, dataType: "timestamp", dataIndx: "BackStock.Created", editable: false },
+                        {
+                            title: "店铺", width: 120, dataType: "string", dataIndx: "BackStock.Shop.Title", editable: false
+                        },
         ];
 
         obj.dataModel = {
@@ -70,8 +62,12 @@
                 var sale_id = $($searchform).find("#sale_id").val();
                 var sdate = $($searchform).find("#back_sdate").val();
                 var edate = $($searchform).find("#back_edate").val();
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }
                 return {
-                    url: "/api/Stock/SearchBackStock", data: "page="+this.curPage+"&pageSize="+this.rPP+"&sale_id="+sale_id+"&sdate="+sdate+"&edate="+edate
+                    url: "/api/Stock/SearchBackStock", data: "page=" + page + "&pageSize=" + this.rPP + "&sale_id=" + sale_id + "&sdate=" + sdate + "&edate=" + edate
                 };
             },
             getData: function (dataJSON) {                

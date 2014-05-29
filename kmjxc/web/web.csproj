@@ -685,6 +685,11 @@
     <Content Include="Views\Sale\Sync.cshtml" />
     <Content Include="Views\Product\Detail.cshtml" />
     <Content Include="Views\Stock\LeaveDetail.cshtml" />
+    <Content Include="Views\Shop\Account.cshtml" />
+    <Content Include="Views\Shop\Child.cshtml" />
+    <Content Include="Views\Shop\Express.cshtml" />
+    <Content Include="Views\Permission\Role.cshtml" />
+    <Content Include="Views\Permission\Account.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

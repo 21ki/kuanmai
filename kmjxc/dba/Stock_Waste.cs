@@ -17,8 +17,8 @@ namespace KM.JXC.DBA
         public int Stock_Waste_ID { get; set; }
         public int Shop_ID { get; set; }
         public int Product_ID { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
         public int Parent_ProductID { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; }
     }
 }

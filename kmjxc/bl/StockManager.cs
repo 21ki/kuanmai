@@ -66,12 +66,26 @@ namespace KM.JXC.BL
                     if (dbBackStock == null)
                     {
                         dbBackStock = new Back_Stock();
-                        dbBackStock.Back_Date = backStock.BackDateTime;
+                        if (backStock.BackDateTime > 0)
+                        {
+                            dbBackStock.Back_Date = backStock.BackDateTime;
+                        }
+                        else
+                        {
+                            dbBackStock.Back_Date = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        }
                         dbBackStock.Back_Sale_ID = backStock.BackSale.ID;
                         dbBackStock.Back_Sock_ID = 0;
                         dbBackStock.Description = backStock.Description;
                         dbBackStock.Shop_ID = this.Shop.Shop_ID;
-                        dbBackStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        if (backStock.Created > 0)
+                        {
+                            dbBackStock.Created = backStock.Created;
+                        }
+                        else
+                        {
+                            dbBackStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        }
                         dbBackStock.User_ID = this.CurrentUser.ID;
                         db.Back_Stock.Add(dbBackStock);
                         db.SaveChanges();
@@ -172,7 +186,8 @@ namespace KM.JXC.BL
                         backStock.UpdateStock = false;
                     }
                     backStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    backStock.CreatedBy = new BUser() { ID = this.CurrentUser.ID };
+                    backStock.BackDateTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    backStock.Created_By = new BUser() { ID = this.CurrentUser.ID };
                     if (!string.IsNullOrEmpty(dbbackSale.Description))
                     {
                         backStock.Description = dbbackSale.Description + "<br/> 生成了退库单";
@@ -544,6 +559,146 @@ namespace KM.JXC.BL
         /// <param name="back_stock_ids"></param>
         /// <param name="sale_ids"></param>
         /// <param name="user_ids"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BBackStockDetail> SearchBackStockDetails(int[] back_stock_ids, string[] sale_ids, int[] user_ids, int storeHouseId, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
+        {
+            List<BBackStockDetail> bStockDetails = new List<BBackStockDetail>();
+            List<BBackStock> stocks = new List<BBackStock>();
+            totalRecords = 0;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (cspids == null)
+                {
+                    cspids = new int[] { 0 };
+                }
+                var dbstocks = from stock in db.Back_Stock
+                               where stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)
+                               select stock;
+
+                if (back_stock_ids != null)
+                {
+                    dbstocks = dbstocks.Where(s => back_stock_ids.Contains(s.Back_Sock_ID));
+                }
+
+                if (sale_ids != null)
+                {
+                    int[] backSaleIds = (from backSale in db.Back_Sale where sale_ids.Contains(backSale.Sale_ID) select backSale.Back_Sale_ID).ToArray<int>();
+                    if (backSaleIds != null && backSaleIds.Length > 0)
+                    {
+                        dbstocks = dbstocks.Where(s => backSaleIds.Contains(s.Back_Sale_ID));
+                    }
+                }
+
+                if (user_ids != null && user_ids.Length > 0)
+                {
+                    dbstocks = dbstocks.Where(s => user_ids.Contains(s.User_ID));
+                }
+
+                if (startTime > 0)
+                {
+                    dbstocks = dbstocks.Where(s => s.Back_Date >= startTime);
+                }
+
+                if (endTime > 0)
+                {
+                    dbstocks = dbstocks.Where(s => s.Back_Date <= endTime);
+                }
+
+
+                int[] backStockId = (from bstock in dbstocks select bstock.Back_Sock_ID).ToArray<int>();
+                if (backStockId != null && backStockId.Length > 0)
+                {
+                    var tmpObj = from stockDetail in db.Back_Stock_Detail
+                                 where backStockId.Contains(stockDetail.Back_Stock_ID)
+                                 join backStock in db.Back_Stock on stockDetail.Back_Stock_ID equals backStock.Back_Sock_ID into lBackStock
+                                 from l_backStock in lBackStock.DefaultIfEmpty()
+                                 join backSale in db.Back_Sale on l_backStock.Back_Sale_ID equals backSale.Back_Sale_ID into lBackSale
+                                 from l_backSale in lBackSale.DefaultIfEmpty()
+                                 join user in db.User on l_backSale.User_ID equals user.User_ID into lUser
+                                 from l_user in lUser.DefaultIfEmpty()
+                                 join product in db.Product on stockDetail.Parent_Product_ID equals product.Product_ID into lProduct
+                                 from l_product in lProduct.DefaultIfEmpty()
+                                 join house in db.Store_House on stockDetail.StoreHouse_ID equals house.StoreHouse_ID into lHouse
+                                 from l_house in lHouse.DefaultIfEmpty()
+                                 join shop in db.Shop on l_backStock.Shop_ID equals shop.Shop_ID into lShop
+                                 from l_shop in lShop.DefaultIfEmpty()
+                                 select new BBackStockDetail
+                                 {
+                                     BackStock = new BBackStock
+                                     {
+                                         BackDateTime = l_backStock.Back_Date,
+                                         BackSaleID = l_backStock.Back_Sale_ID,
+                                         BackSale = new BBackSale
+                                         {
+                                             Amount = l_backSale.Amount,
+                                             BackTime = l_backSale.Back_Date,
+                                             Created = l_backSale.Created,
+                                             Sale = new BSale
+                                             {
+                                                 Sale_ID = l_backSale.Sale_ID
+                                             }
+                                         },
+                                         Created = l_backStock.Created,
+                                         Created_By = new BUser
+                                         {
+                                             ID = l_user.User_ID,
+                                             Mall_ID = l_user.Mall_ID,
+                                             Mall_Name = l_user.Mall_Name
+                                         },
+                                         Shop = new BShop
+                                         {
+                                             ID = l_shop.Shop_ID,
+                                             Title = l_shop.Name
+                                         },
+                                         ID = l_backStock.Back_Sock_ID
+                                     },
+                                     ParentProductID = stockDetail.Parent_Product_ID,
+                                     ProductID = stockDetail.Product_ID,
+                                     Price = stockDetail.Price,
+                                     Quantity = stockDetail.Quantity,
+                                     Product = new BProduct
+                                     {
+                                         ID = l_product.Product_ID,
+                                         Title = l_product.Name
+                                     },
+                                     StoreHouse = new BStoreHouse
+                                     {
+                                         ID = l_house.StoreHouse_ID,
+                                         Name = l_house.Title
+                                     },
+                                     Status = stockDetail.Status
+                                 };
+
+                    if (storeHouseId > 0)
+                    {
+                        tmpObj = tmpObj.Where(t => t.StoreHouse.ID == storeHouseId);
+                    }
+
+                    tmpObj = tmpObj.OrderBy(t => t.BackStock.ID);
+
+                    totalRecords = tmpObj.Count();
+                    if (totalRecords > 0)
+                    {
+                        bStockDetails = tmpObj.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BBackStockDetail>();
+                    }
+                }
+            }
+            return bStockDetails;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="back_stock_ids"></param>
+        /// <param name="sale_ids"></param>
+        /// <param name="user_ids"></param>
         /// <param name="leaveStartTime"></param>
         /// <param name="leaveEndTime"></param>
         /// <param name="pageIndex"></param>
@@ -628,7 +783,7 @@ namespace KM.JXC.BL
                               BackDateTime = stock.Back_Date,
                               BackSaleID = backsale.Back_Sale_ID,
                               Created = stock.Created,
-                              CreatedBy = new BUser
+                              Created_By = new BUser
                               {
                                   ID = user.User_ID,
                                   Mall_Name = user.Mall_Name,
@@ -1593,7 +1748,65 @@ namespace KM.JXC.BL
             }
 
             return houses;
-        }        
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="product_id"></param>
+        public List<BProduct> GetProductStockDetails(int product_id)
+        {
+            List<BProduct> stores = new List<BProduct>();
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child_product=(from product in db.Product where product.Parent_ID==product_id select product.Product_ID).ToArray<int>();
+
+                List<BProductProperty> childs = (from prop in db.Product_Specifications
+                                                 join ps in db.Product_Spec on prop.Product_Spec_ID equals ps.Product_Spec_ID
+                                                 join psv in db.Product_Spec_Value on prop.Product_Spec_Value_ID equals psv.Product_Spec_Value_ID
+                                                 where child_product.Contains(prop.Product_ID)
+                                                 select new BProductProperty
+                                                 {
+                                                     ProductID = prop.Product_ID,
+                                                     PID = prop.Product_Spec_ID,
+                                                     PName = ps.Name,
+                                                     PVID = prop.Product_Spec_Value_ID,
+                                                     PValue = psv.Name
+                                                 }).ToList<BProductProperty>();
+
+                var stocks = from stock in db.Stock_Pile
+                             where child_product.Contains(stock.Product_ID)
+                             group stock by stock.Product_ID into lStock
+                             select new
+                             {
+                                 Product_ID=lStock.Key,
+                                 Quantity = lStock.Sum(s=>s.Quantity)
+                             };
+
+                var tmp = from product in db.Product
+                          join stock in stocks on product.Product_ID equals stock.Product_ID into lStock
+                          from l_stock in lStock.DefaultIfEmpty()
+                          join pproduct in db.Product on product.Parent_ID equals pproduct.Product_ID into lPProduct
+                          from l_ppproduct in lPProduct.DefaultIfEmpty()
+                          where child_product.Contains(product.Product_ID)
+                          select new BProduct
+                          {
+                              Title = l_ppproduct.Name,
+                              Quantity = l_stock.Quantity,
+                              ID = product.Product_ID
+                              
+                          };
+
+                stores = tmp.ToList<BProduct>();
+                foreach (BProduct product in stores)
+                {
+                    product.Properties = (from prop in childs where prop.ProductID == product.ID select prop).ToList<BProductProperty>();
+                }
+            }
+
+            return stores;
+        }
 
         /// <summary>
         /// 
