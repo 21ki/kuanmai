@@ -690,6 +690,7 @@
     <Content Include="Views\Shop\Express.cshtml" />
     <Content Include="Views\Permission\Role.cshtml" />
     <Content Include="Views\Permission\Account.cshtml" />
+    <Content Include="Views\Shared\master_km.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
