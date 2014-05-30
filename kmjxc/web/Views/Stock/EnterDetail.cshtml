@@ -24,10 +24,18 @@
                 }
             });
         });
+
+        $('#enterstockDetail').tabs();
     });
 </script>
+<div id="enterstockDetail">
+    <ul>
+        <li><a href="#infodetail">入库单详细信息</a></li>
+    </ul>
+<div id="infodetail">
 <h3>入库单信息</h3>
 <div class="normallist b1 f1">
+   
     <table class="infolist" id="enterStockTable">
         <tr>
             <td>入库单编号:
@@ -315,5 +323,7 @@
         @Html.Raw("</table>")
         }
     }
+</div>
+</div>
 </div>
 

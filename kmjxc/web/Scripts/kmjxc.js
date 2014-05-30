@@ -197,6 +197,9 @@ function KMJXCBase() {
     this.GetAreas = function (params, callback) {
         return this.AjaxCall("/api/Common/GetAreas", params, callback);
     }
+    this.GetAllExpresses = function (params, callback) {
+        return this.AjaxCall("/api/Common/GetExpresses", params, callback);
+    }
     this.GetUsers = function (params, callback) {
         return this.AjaxCall("/api/Users/GetUsers", params, callback);
     }
@@ -405,6 +408,28 @@ function KMJXCSaleManager() {
 
     this.SearchTradeSyncLog = function (params, callback) {
         this.AjaxCall("/api/Sale/SearchTradeSyncLog", params, callback);
+    }
+}
+
+KMJXCShopManager.prototype = new KMJXCBase();
+function KMJXCShopManager() {
+    this.SearchExpresses = function (params, callback) {
+        this.AjaxCall("/api/Shop/SearchExpresses", params, callback);
+    }
+    this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Shop/SearchExpressFee", params, callback);
+    }
+    this.GetNonAddedExpresses = function (params, callback) {
+        this.AjaxCall("/api/Shop/GetNonAddedExpresses", params, callback);
+    }
+    this.CreateShopExpress = function (params, callback) {
+        this.AjaxCall("/api/Shop/CreateShopExpress", params, callback);
+    }
+    this.GetNonExpressedHouses = function (params, callback) {
+        this.AjaxCall("/api/Shop/GetNonExpressedHouses", params, callback);
+    }
+    this.SetDefaultExpress = function (params, callback) {
+        this.AjaxCall("/api/Shop/SetDefaultExpress", params, callback);
     }
 }
 

@@ -38,5 +38,12 @@ namespace KM.JXC.Web.Controllers.api
             
             return status;
         }
+
+        [HttpPost]
+        public List<Express> GetExpresses()
+        {
+            CommonManager commonMgr = new CommonManager();
+            return commonMgr.GetExpresses();
+        }
     }
 }

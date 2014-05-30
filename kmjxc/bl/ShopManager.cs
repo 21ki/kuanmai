@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
@@ -211,6 +212,388 @@ namespace KM.JXC.BL
                         
             }
             return customers;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void CreateShopExpress(BShopExpress express)
+        {
+            if (this.CurrentUserPermission.ADD_SHOP_EXPRESS == 0)
+            {
+                throw new KMJXCException("没有权限添加店铺快递信息");
+            }
+
+            if (express == null)
+            {
+                throw new KMJXCException("异常出错");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                using (TransactionScope trans = new TransactionScope())
+                {
+                    Express_Shop es=(from exp in db.Express_Shop where exp.Express_ID==express.ID && exp.Shop_ID==this.Shop.Shop_ID select exp).FirstOrDefault<Express_Shop>();
+                    if (es != null)
+                    {
+                        throw new KMJXCException("已经添加过此快递公司");
+                    }
+
+                    es = new Express_Shop();
+                    es.Shop_ID = this.Shop.Shop_ID;
+                    es.Express_ID = express.ID;
+                    es.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    es.Modified = es.Created;
+                    es.Created_By = this.CurrentUser.ID;
+                    es.Modified_By = es.Created_By;
+                    if (express.IsDefault)
+                    {
+                        es.IsDefault = 1;
+
+                        //revert old default exp
+                        Express_Shop defaultExp=(from exp in db.Express_Shop where exp.IsDefault==1 && exp.Shop_ID==es.Shop_ID select exp).FirstOrDefault<Express_Shop>();
+                        if (defaultExp != null)
+                        {
+                            defaultExp.IsDefault = 0;
+                        }
+                    }
+                    else
+                    {
+                        es.IsDefault = 0;
+                    }
+                    db.Express_Shop.Add(es);
+                    db.SaveChanges();
+
+                    if (express.Fees != null && express.Fees.Count > 0)
+                    {
+                        foreach (BExpressFee fee in express.Fees)
+                        {
+                            Express_Fee sFee = new Express_Fee();
+                            if (fee.City != null)
+                            {
+                                sFee.City_ID = fee.City.ID;
+                            }
+                            sFee.Created = es.Created;
+                            sFee.Created_By = es.Created_By;
+                            sFee.Express_ID = es.Express_ID;
+                            sFee.Fee = fee.Fee;
+                            sFee.Modified = es.Modified;
+                            sFee.Modified_By = es.Modified_By;
+                            if (fee.Province != null)
+                            {
+                                sFee.Province_ID = fee.Province.ID;
+                            }
+                            if (fee.StoreHouse != null && fee.StoreHouse.ID > 0)
+                            {
+                                sFee.StoreHouse_ID = fee.StoreHouse.ID;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            sFee.Shop_ID = es.Shop_ID;
+                            db.Express_Fee.Add(sFee);
+                        }
+                    }
+
+                    db.SaveChanges();
+
+                    trans.Complete();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Express> GetNonAddedExpresses()
+        {
+            List<Express> expresses = new List<Express>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+
+                int[] express_ids=(from sp_exp in db.Express_Shop where sp_exp.Shop_ID==this.Shop.Shop_ID select sp_exp.Express_ID).Distinct().ToArray<int>();
+
+                expresses = (from express in db.Express where !express_ids.Contains(express.Express_ID) orderby express.Express_ID ascending select express).ToList<Express>();
+            }
+            return expresses;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BStoreHouse> GetNonExpressedHouses(int express_id,int shop_id=0)
+        {
+            if (express_id == 0)
+            {
+                throw new KMJXCException("必须选择快递公司来查询没有此快递公司费用的仓库");
+            }
+            List<BStoreHouse> houses = new List<BStoreHouse>();
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child_shop=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var tmpHouse = from house in db.Store_House
+                               select house;
+
+                if (shop_id == 0)
+                {
+                    tmpHouse = tmpHouse.Where(h => h.Shop_ID == this.Shop.Shop_ID || h.Shop_ID == this.Main_Shop.Shop_ID || child_shop.Contains(h.Shop_ID));
+                }
+                else
+                {
+                    tmpHouse = tmpHouse.Where(h => h.Shop_ID == shop_id);
+                }
+
+                var epf = from fee in db.Express_Fee
+                          where fee.Express_ID == express_id
+                          select fee.StoreHouse_ID;
+
+                int[] house_ids = epf.Distinct().ToArray<int>();
+
+                if (house_ids != null && house_ids.Length > 0)
+                {
+                    tmpHouse = tmpHouse.Where(h => !house_ids.Contains(h.StoreHouse_ID));
+                }
+
+                var tmp = from house in tmpHouse
+                          select new BStoreHouse
+                          {
+                              Address = house.Address,
+                              ID = house.StoreHouse_ID,
+                              Name = house.Title
+                          };
+
+                houses = tmp.ToList<BStoreHouse>();
+            }
+
+            return houses;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BShopExpress> SearchExpresses()
+        {
+            List<BShopExpress> expresses = new List<BShopExpress>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from shop_express in db.Express_Shop
+                          join express in db.Express on shop_express.Express_ID equals express.Express_ID
+                          join shop in db.Shop on shop_express.Shop_ID equals shop.Shop_ID
+                          join created_by in db.User on shop_express.Created_By equals created_by.User_ID
+                          join modified_by in db.User on shop_express.Modified_By equals modified_by.User_ID
+                          select new BShopExpress
+                          {
+                              ID = shop_express.Express_ID,
+                              Name = express.Name,
+                              Created = shop_express.Created,
+                              Modified = shop_express.Modified,
+                              Shop = new BShop
+                              {
+                                  ID = shop.Shop_ID,
+                                  Title = shop.Name
+                              },
+                              Created_By = new BUser
+                              {
+                                  ID = created_by.User_ID,
+                                  Mall_ID = created_by.Mall_ID,
+                                  Mall_Name = created_by.Mall_Name
+                              },
+                              Modified_By = new BUser
+                              {
+                                  ID = modified_by.User_ID,
+                                  Mall_ID = modified_by.Mall_ID,
+                                  Mall_Name = modified_by.Mall_Name
+                              },
+                              IsDefault = shop_express.IsDefault == 0 ? false : true
+                          };
+
+                expresses = tmp.OrderBy(a => a.ID).ToList<BShopExpress>();
+            }
+            return expresses;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="express_id"></param>
+        /// <param name="shop_id"></param>
+        public void SetDefaultExpress(int express_id,int shop_id=0) 
+        {
+            if (express_id <= 0)
+            {
+                throw new KMJXCException("快递公司不能为空");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child_shop = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var tmpNew = from express in db.Express_Shop
+                             where (express.IsDefault == 0 && express.Express_ID==express_id)
+                             select express;
+                var tmp = from express in db.Express_Shop
+                          where express.IsDefault==1
+                          select express;
+
+                if (shop_id > 0)
+                {
+                    tmp = tmp.Where(t => t.Shop_ID == shop_id);
+                    tmpNew = tmpNew.Where(t => t.Shop_ID == shop_id);
+                }
+                else
+                {
+                    tmp = tmp.Where(t => t.Shop_ID == this.Shop.Shop_ID);
+                    tmpNew = tmpNew.Where(t => t.Shop_ID == this.Shop.Shop_ID);
+                }
+
+                Express_Shop old = tmp.FirstOrDefault<Express_Shop>();
+                Express_Shop newDefault = tmpNew.FirstOrDefault<Express_Shop>();
+                if (old != null)
+                {
+                    old.IsDefault = 0;
+                    old.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    old.Modified_By = this.CurrentUser.ID;
+                    db.Entry(old).State = System.Data.EntityState.Modified;
+                    
+                    //db.Express_Shop.SqlQuery("Update Express_Shop set IsDefault=0 where Express_ID="+old.Express_ID+" and Shop_ID="+old.Shop_ID);
+                }                
+                
+                if (newDefault != null)
+                {
+                    newDefault.IsDefault = 1;
+                    newDefault.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    newDefault.Modified_By = this.CurrentUser.ID;
+                    db.Entry(newDefault).State = System.Data.EntityState.Modified;
+                    
+                    //db.Express_Shop.SqlQuery("Update Express_Shop set IsDefault=1 where Express_ID=" + newDefault.Express_ID + " and Shop_ID=" + newDefault.Shop_ID);
+                }
+                else
+                {
+                    throw new KMJXCException("设置默认快递公司前，请先确保快递公司已经添加到店铺");
+                }
+
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="express_id"></param>
+        /// <param name="province_id"></param>
+        /// <param name="city_id"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
+        /// <returns></returns>
+        public List<BExpressFee> SearchExpressFee(int express_id,int province_id,int city_id,int page, int pageSize, out long totalRecords)
+        {
+            totalRecords = 0;
+            List<BExpressFee> express_fees = new List<BExpressFee>();
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child_shop=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var tmpFee = from express_fee in db.Express_Fee
+                          where express_fee.Shop_ID==this.Shop.Shop_ID || express_fee.Shop_ID==this.Main_Shop.Shop_ID || child_shop.Contains(express_fee.Shop_ID)
+                          select express_fee;
+
+                if (express_id > 0)
+                {
+                    tmpFee = tmpFee.Where(f=>f.Express_ID==express_id);
+                }
+
+                if (province_id > 0)
+                {
+                    tmpFee = tmpFee.Where(f => f.Province_ID == province_id);
+                }
+
+                if (city_id > 0)
+                {
+                    tmpFee = tmpFee.Where(f => f.City_ID == city_id);
+                }
+
+                var tmp = from fee in tmpFee
+                          join express in db.Express on fee.Express_ID equals express.Express_ID into lExpress
+                          from l_express in lExpress.DefaultIfEmpty()
+                          join shop in db.Shop on fee.Shop_ID equals shop.Shop_ID into lShop
+                          from l_shop in lShop.DefaultIfEmpty()
+                          join created_by in db.User on fee.Created_By equals created_by.User_ID into lCreatedBy
+                          from l_created_by in lCreatedBy.DefaultIfEmpty()
+                          join modified_by in db.User on fee.Modified_By equals modified_by.User_ID into lModifiedBy
+                          from l_modified_by in lModifiedBy.DefaultIfEmpty()
+                          join house in db.Store_House on fee.StoreHouse_ID equals house.StoreHouse_ID into lHouse
+                          from l_house in lHouse.DefaultIfEmpty()
+                          join province in db.Common_District on fee.Province_ID equals province.id into lProvince
+                          from l_province in lProvince.DefaultIfEmpty()
+                          join city in db.Common_District on fee.City_ID equals city.id into lCity
+                          from l_city in lCity.DefaultIfEmpty()
+                          select new BExpressFee
+                          {
+                              ID = fee.Express_Fee_ID,
+                              Created = fee.Created,
+                              Modified = fee.Modified,
+                              Fee=fee.Fee,
+                              City = new BArea
+                              {
+                                  ID = l_city.id,
+                                  Name = l_city.name
+                              },
+                              Province = new BArea
+                              {
+                                  ID = l_province.id,
+                                  Name = l_province.name
+                              },
+                              Created_By = new BUser
+                              {
+                                  ID = l_created_by.User_ID,
+                                  Mall_Name = l_created_by.Mall_Name,
+                                  Mall_ID = l_created_by.Mall_ID
+                              },
+                              Modified_By = new BUser
+                              {
+                                  ID = l_modified_by.User_ID,
+                                  Mall_Name = l_modified_by.Mall_Name,
+                                  Mall_ID = l_modified_by.Mall_ID
+                              },
+                              Express = new BExpress
+                              {
+                                  ID = l_express.Express_ID,
+                                  Name = l_express.Name
+                              },
+                              Shop = new BShop
+                              {
+                                  ID = l_shop.Shop_ID,
+                                  Title = l_shop.Name
+                              },
+                              StoreHouse = new BStoreHouse
+                              {
+                                  ID = l_house.StoreHouse_ID,
+                                  Name = l_house.Title,
+                                  Address = l_house.Address
+                              }
+                          };
+
+                totalRecords = tmp.Count();
+                if (totalRecords > 0)
+                {
+                    express_fees = tmp.OrderBy(f => f.ID).Skip((page-1)*pageSize).Take(pageSize).ToList<BExpressFee>();
+                }
+            }
+            return express_fees;
         }
     }
 }

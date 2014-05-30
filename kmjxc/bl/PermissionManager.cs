@@ -83,6 +83,10 @@ namespace KM.JXC.BL
         public int ADD_PORPERTY = 0;
         public int UPDATE_PORPERTY = 0;
         public int DISABLE_CATEGORY = 0;
+
+        //Express
+        public int ADD_SHOP_EXPRESS = 0;
+        public int UPDATE_SHOP_EXPRESS = 0;
     }
 
     public class PermissionManager

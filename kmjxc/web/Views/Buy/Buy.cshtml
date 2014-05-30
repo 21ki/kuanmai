@@ -9,7 +9,7 @@
     var $grid = null;
     var loadingBox = null;
     $(function () {
-
+        $(document).tooltip();
         var obj = {
             width: 859, height: 600, title: "采购订单验货单查询", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
@@ -153,7 +153,7 @@
                                 }
                             });
 
-                            $("<div id=\"update_stock\" class=\"row\"><span>更新库存<span>: <input class=\"W_input\" type=\"checkbox\"> 入库信息无误,并且以后不需要修改,可以直接更新库存</div>").appendTo(that);
+                            $("<div id=\"update_stock\" class=\"row\"><span>更新库存<span>: <input class=\"W_input\" type=\"checkbox\" title=\"入库信息无误,并且以后不需要修改,可以直接更新库存\"> </div>").appendTo(that);
                         });
                     },
                     close: function (evt) {

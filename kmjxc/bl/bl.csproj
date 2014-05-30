@@ -41,6 +41,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Entity.Design" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Transactions" />
@@ -60,6 +63,8 @@
     <Compile Include="BBaseManager.cs" />
     <Compile Include="Models\BCustomer.cs" />
     <Compile Include="Models\BData.cs" />
+    <Compile Include="Models\BExpress.cs" />
+    <Compile Include="Models\BExpressFee.cs" />
     <Compile Include="Models\BLeaveStock.cs" />
     <Compile Include="Models\BLeaveStockDetail.cs" />
     <Compile Include="Models\BProductStoreProperty.cs" />
@@ -86,6 +91,7 @@
     <Compile Include="Models\BProperty.cs" />
     <Compile Include="Models\BSaleSyncLog.cs" />
     <Compile Include="Models\BShop.cs" />
+    <Compile Include="Models\BShopExpress.cs" />
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />
     <Compile Include="Models\BSale.cs" />

@@ -16,6 +16,10 @@ namespace KM.JXC.DBA
     {
         public int Express_ID { get; set; }
         public int Shop_ID { get; set; }
-        public bool IsDefault { get; set; }
+        public int IsDefault { get; set; }
+        public int Created { get; set; }
+        public int Created_By { get; set; }
+        public int Modified { get; set; }
+        public int Modified_By { get; set; }
     }
 }

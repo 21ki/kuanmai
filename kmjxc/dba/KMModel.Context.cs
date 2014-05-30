@@ -68,13 +68,13 @@ namespace KM.JXC.DBA
         public DbSet<Back_Stock> Back_Stock { get; set; }
         public DbSet<Back_Stock_Detail> Back_Stock_Detail { get; set; }
         public DbSet<Express> Express { get; set; }
-        public DbSet<Express_Fee> Express_Fee { get; set; }
-        public DbSet<Express_Shop> Express_Shop { get; set; }
         public DbSet<Back_Sale> Back_Sale { get; set; }
         public DbSet<Sale> Sale { get; set; }
         public DbSet<Sale_Detail> Sale_Detail { get; set; }
         public DbSet<Leave_Stock> Leave_Stock { get; set; }
         public DbSet<Sale_SyncTime> Sale_SyncTime { get; set; }
         public DbSet<Stock_Waste> Stock_Waste { get; set; }
+        public DbSet<Express_Fee> Express_Fee { get; set; }
+        public DbSet<Express_Shop> Express_Shop { get; set; }
     }
 }

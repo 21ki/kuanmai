@@ -49,5 +49,19 @@ namespace KM.JXC.BL
             }
             return areas;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<Express> GetExpresses()
+        {
+            List<Express> expresses = new List<Express>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                expresses=(from express in db.Express orderby express.Express_ID ascending select express).ToList<Express>();
+            }
+            return expresses;
+        }
     }
 }

@@ -14,10 +14,16 @@ namespace KM.JXC.DBA
     
     public partial class Express_Fee
     {
-        public int Shop_ID { get; set; }
+        public int Express_Fee_ID { get; set; }
         public int Express_ID { get; set; }
+        public int Shop_ID { get; set; }
+        public int StoreHouse_ID { get; set; }
         public int Province_ID { get; set; }
         public int City_ID { get; set; }
         public double Fee { get; set; }
+        public int Created { get; set; }
+        public int Modified { get; set; }
+        public int Created_By { get; set; }
+        public int Modified_By { get; set; }
     }
 }
