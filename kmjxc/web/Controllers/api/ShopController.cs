@@ -399,5 +399,38 @@ namespace KM.JXC.Web.Controllers.api
             data.curPage = 1;
             return data;
         }
+
+        [HttpPost]
+        public ApiMessage HandleAddChildRequest()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            int reqId = 0;
+            int status = 0;
+            int.TryParse(request["reqId"],out reqId);
+            int.TryParse(request["status"],out status);
+            try
+            {
+                shopManager.HandleAddChildRequest(reqId, status);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Message = kex.Message;
+                message.Status = "failed";
+            }
+            catch
+            {
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
     }
 }

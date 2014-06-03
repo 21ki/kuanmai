@@ -107,6 +107,50 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="reqId"></param>
+        /// <param name="status"></param>
+        public void HandleAddChildRequest(int reqId, int status)
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Shop_Child_Request request=(from req in db.Shop_Child_Request where req.ID==reqId select req).FirstOrDefault<Shop_Child_Request>();
+                if (request == null)
+                {
+                    throw new KMJXCException("请求已经被删除，不能操作");
+                }
+
+                int child_shop = request.Child_Shop_ID;
+
+                Shop cshop=(from shop in db.Shop where shop.User_ID==this.CurrentUser.ID select shop).FirstOrDefault<Shop>();
+                if (cshop == null)
+                {
+                    throw new KMJXCException("您没有权限处理请求，请用子店铺主账户登录来处理请求");
+                }
+
+                if (cshop.Shop_ID != child_shop)
+                {
+                    throw new KMJXCException("您没有权限操作此请求");
+                }
+
+                request.Status = status;
+                request.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                request.Modified_By = this.CurrentUser.ID;
+                if (status == 1)
+                {
+                    var sps = from sp in db.Shop where sp.Shop_ID == request.Child_Shop_ID select sp;
+                    Shop childShop = sps.FirstOrDefault<Shop>();
+                    if (childShop != null)
+                    {
+                        childShop.Parent_Shop_ID = request.Shop_ID;
+                    }
+                }
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="child_shop_id"></param>
         /// <returns></returns>
         public bool AddChildShop(int mall_type,string child_shop_name)
@@ -166,38 +210,7 @@ namespace KM.JXC.BL
             return result;
         }
 
-        /// <summary>
-        /// Approved to be child shop
-        /// </summary>
-        /// <param name="scr"></param>
-        /// <returns></returns>
-        public bool HandleChildShopRequest(int request_id,int status)
-        {
-            bool result = false;
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                Shop_Child_Request scr=(from request in db.Shop_Child_Request where request.ID==request_id && request.Status==0 select request).FirstOrDefault<Shop_Child_Request>();
-                if (scr == null)
-                {
-                    throw new KMJXCException("添加子店铺请求已被删除，无法批准");
-                }
-
-                scr.Status = status;
-                scr.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                scr.Modified_By = (int)this.CurrentUser.ID;
-                db.Shop_Child_Request.Attach(scr);
-
-                var sps = from sp in db.Shop where sp.Shop_ID == scr.Child_Shop_ID select sp;
-                Shop childShop = sps.FirstOrDefault<Shop>();
-                if (childShop != null)
-                {
-                    childShop.Parent_Shop_ID = scr.Shop_ID;
-                }
-                db.SaveChanges();
-                result = true;
-            }
-            return result;
-        }
+        
 
         public List<BAddChildRequest> SearchReceivedAddChildRequests()
         {

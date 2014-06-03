@@ -125,13 +125,41 @@
             }
         };
 
+        function HandleRequest(status) {
+            var rows = [];
+            var arr = $grid1.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                for (var i = 0; i < arr.length; i++) {
+                    rows.push(arr[i].rowIndx);
+                }
+            }
+
+            if (rows.length <= 0) {
+                alert("请选择一条请求进行操作");
+                return;
+            }
+
+            var DM = $grid.pqGrid("option", "dataModel");
+            var data = DM.data;
+            var row = data[rows[0]];
+            var reqId = row["ID"];
+            alert(reqId);
+            shopMgr.HandleAddChildRequest({'reqId':reqId,'status':status}, function (res) {
+                if (res.Status == "ok") {
+                    $("#childReceivedRequests").pqGrid("refreshDataAndView");
+                } else {
+                    alert(res.Message);
+                }
+            });
+        }
+
         $("#childReceivedRequests").on("pqgridrender", function (evt, obj) {
             var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-            $("<span id=\"add_cate\">批准</span>").appendTo($menubar).button().click(function (evt) {
-               
+            $("<span id=\"add_cate\">批准</span>").appendTo($menubar).button().click(function (evt) {               
+                HandleRequest(1);
             });
             $("<span id=\"add_cate\">拒绝</span>").appendTo($menubar).button().click(function (evt) {
-
+                HandleRequest(2);
             });
         });
 
