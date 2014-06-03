@@ -20,6 +20,7 @@
     var $expFeetxt = null;
     var $expHouses = null;
     var $expDefault = null;
+    var $expAddImg = null;
     var addedFees = [];
 
     function AddValueRow() {
@@ -125,6 +126,7 @@
         $expFeetxt = $form.find("#express_fee");
         $expHouses = $form.find("#exp_store_house");
         $expDefault = $form.find("#chk_express_default");
+        $expAddImg = $form.find('#express_fee_add');
         shopMgr.GetNonAddedExpresses({}, function (res) {
            
             if (res != null) {
@@ -148,7 +150,7 @@
             if (expId > 0) {
                 $($expHouses).empty();
                 $($expHouses).append("<option value=\"0\">--选择--</option>");
-                shopMgr.GetNonExpressedHouses({ 'express_id': expId }, function (res) {                    
+                shopMgr.GetStoreHouses({ 'express_id': expId }, function (res) {
                     if (res != null) {
                         $(res).each(function (index, item) {
                             $($expHouses).append("<option value=\""+item.ID+"\">"+item.Name+"</option>");
@@ -158,14 +160,30 @@
             }
         });
 
-        function Initialize() {
+        function Initialize(addFee) {
+            addedFees = [];
             $shopExp.val(0);
             $($expChk).removeAttr('checked');
             $prov.val(0);
             $city.hide();
-            $addedExpArea.find("ui").html("");
+            $("#express_fees_ul").html("");                     
             $addedExpArea.hide();
+            $($expHouses).empty();
             $areasel.hide();
+            $('#exp_set_default').show();
+            $('#exp_set_fee').show();
+            $($expAddImg).show();
+            $($expFeetxt).val("");
+            if (addFee && addFee == true) {
+                $areasel.show();
+                $('#exp_set_default').hide();
+                $('#exp_set_fee').hide();
+                $($shopExp).empty();
+            }
+            $shopExp.removeAttr("disabled");
+            $($expHouses).removeAttr("disabled");
+            $($prov).removeAttr("disabled");
+            $($city).removeAttr("disabled");
         }
 
         $($expChk).change(function () {
@@ -202,32 +220,34 @@
             rowSelect: function (event, obj) {
 
             }
-            ,freezeCols: 3
+            ,freezeCols: 4
         };
 
         obj2.colModel = [
-
-                       {
-                           title: "省份", width: 100, dataType: "integer", dataIndx: "Province.Name", editable: false
-                       },
-                       {
-                           title: "城市", width: 70, dataType: "integer", dataIndx: "City.Name", editable: false
-                       },
-                       {
-                           title: "快递费", width: 150, dataType: "string", dataIndx: "Fee", editable: false
-                       },
-                       {
-                           title: "创建时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
-                       },
-                       {
-                           title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false
-                       },
-                       {
-                           title: "修改时间", width: 150, dataType: "timestamp", dataIndx: "Modified", editable: false
-                       },
-                       {
-                           title: "修改者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
-                       }
+                           {
+                               title: "仓库", width: 100, dataType: "string", dataIndx: "StoreHouse.Name", editable: false
+                           },
+                           {
+                               title: "省份", width: 100, dataType: "integer", dataIndx: "Province.Name", editable: false
+                           },
+                           {
+                               title: "城市", width: 70, dataType: "integer", dataIndx: "City.Name", editable: false
+                           },
+                           {
+                               title: "快递费", width: 150, dataType: "string", dataIndx: "Fee", editable: false
+                           },
+                           {
+                               title: "创建时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
+                           },
+                           {
+                               title: "创建者", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false
+                           },
+                           {
+                               title: "修改时间", width: 150, dataType: "timestamp", dataIndx: "Modified", editable: false
+                           },
+                           {
+                               title: "修改者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
+                           }
         ];
 
         obj2.dataModel = {
@@ -266,6 +286,173 @@
             }
         };
 
+        $("#ExpressFeeTable").on("pqgridrender", function (evt, obj) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">添加快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+                $('#popup_dialog').dialog({
+                    position: { my: "top", at: "top", of: $("#ExpressTable") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "添加快递费用",
+                    modal: true,
+                    open: function () {
+                        var rows = getRowIndx();
+                        var DM = $grid.pqGrid("option", "dataModel");
+                        var data = DM.data;
+                        var row = data[rows[0]];
+                        var expId = row["ID"];                        
+                        var expName = row["Name"];
+                        
+                        Initialize(true);                       
+                       
+                        $("#shop_express").empty();
+                        $("#shop_express").append("<option value=\"" + expId + "\">" + expName + "</option>");
+                        $($expHouses).empty();
+                        $($expHouses).append("<option value=\"0\">--选择--</option>");
+                        shopMgr.GetStoreHouses({ 'express_id': expId }, function (res) {
+                            if (res != null) {
+                                $(res).each(function (index, item) {
+                                    $($expHouses).append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                                });
+                            }
+                        });
+                        
+                    },
+                    close: function () {
+                        addedFees = [];
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var expId = $("#shop_express").val();
+                            var buffer = "{\"id\":" + expId + ",\"fees\":[";
+                            if (addedFees.length <= 0) {
+                                alert("至少添加一组快递费用");
+                                return;
+                            }
+                            for (var i = 0; i < addedFees.length; i++) {
+                                var str = "{";
+                                str += "\"pid\":" + addedFees[i].pid + ",";
+                                str += "\"cid\":" + addedFees[i].cid + ",";
+                                str += "\"fee\":" + addedFees[i].fee + ",";
+                                str += "\"hid\":" + addedFees[i].hid + "";
+                                str += "}";
+                                buffer += str;
+                                if (i < (addedFees.length - 1)) {
+                                    buffer += ",";
+                                }
+                            }
+                            buffer += "]}";
+
+                            shopMgr.CreateExpressFees({ 'express': encodeURIComponent(buffer) }, function (res) {
+                                if (res.Status == 'ok') {
+                                    $(that).dialog("close");
+                                    $feeGrid.pqGrid("refreshDataAndView");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            });
+                        },
+                        "关闭": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup_dialog').dialog("open");
+            });
+
+            $("<span id=\"add_cate\">修改快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+
+                var rows = [];
+                var arr = $feeGrid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+                if (arr && arr.length > 0) {
+                    for (var i = 0; i < arr.length; i++) {
+                        rows.push(arr[i].rowIndx);
+                    }
+                }
+                
+                if (rows.length <= 0) {
+                    alert("请选择一组快递费用进行修改");
+                    return;
+                }
+
+                if (rows.length > 1) {
+                    alert("只能选择一组快递费用进行修改");
+                    return;
+                }
+
+                var DM = $feeGrid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var row = data[rows[0]];
+
+                $('#popup_dialog').dialog({
+                    position: { my: "top", at: "top", of: $("#ExpressTable") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "修改快递费用",
+                    modal: true,
+                    open: function () {                        
+                       
+                        var expId = row["Express"].ID;
+                        var expName = row["Express"].Name;
+                        var provId = row["Province"].ID;
+                        var provName = row["Province"].Name;
+                        var houseId = row["StoreHouse"].ID;
+                        var houseName = row["StoreHouse"].Name;
+                        var cityId = row["City"].ID;
+                        var cityName = row["City"].Name;
+                        var fee = row["Fee"];
+                        Initialize(true);
+                        $($expAddImg).hide();
+                        $("#shop_express").empty();
+                        $("#shop_express").append("<option value=\"" + expId + "\">" + expName + "</option>").attr("disabled", true);
+                        $($expHouses).empty();
+                        $($expHouses).append("<option value=\"" + houseId + "\">" + houseName + "</option>");
+                        $($expHouses).attr("disabled", true);
+                        $($prov).val(provId).attr("disabled", true);
+                        $($expFeetxt).val(fee);
+                       
+                        if (provId > 0 && provId != 1 && provId != 2 && provId != 9 && provId != 22) {
+                            $($city).append("<option value=\"" + cityId + "\">" + cityName + "</option>");
+                            $($city).show().attr("disabled",true);
+                        }
+                        
+                    },
+                    close: function () {
+                        addedFees = [];
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var expFeeID = row["ID"];
+                            var fee = $($expFeetxt).val();
+                            if (isNaN(fee)) {
+                                alert("快递费只能是整数");
+                                return;
+                            }
+
+                            shopMgr.UpdateExpressFee({ 'express_fee_id': expFeeID, 'fee': fee }, function (res) {
+                                if (res.Status == "ok") {
+                                    $(that).dialog("close");
+                                    $feeGrid.pqGrid("refreshDataAndView");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            });
+                            
+                        },
+                        "关闭": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup_dialog').dialog("open");
+            });
+        });
 
         var obj = {
             width: 859, height: 600, title: "快递列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
@@ -436,6 +623,11 @@
                 var data = DM.data;
                 var row = data[rows[0]];
                 var expId = row["ID"];
+                var isDefault = row["IsDefault"];
+                if (isDefault && isDefault == true) {
+                    alert("此快递已经是默认快递公司，请选择别的快递");
+                    return;
+                }
                 shopMgr.SetDefaultExpress({ 'express_id': expId }, function (res) {
                     if (res.Status == "ok") {
                         $grid.pqGrid("refreshDataAndView");
@@ -481,23 +673,23 @@
         <div class="row">
             <label>快递公司:</label><select class="W_inputsel" id="shop_express"></select>
         </div>
-        <div class="row">
+        <div class="row" id="exp_set_default">
             <label>设为默认:</label><input type="checkbox" id="chk_express_default" title="同步订单时会通过默认快递公司计算实际快递费用"/>
         </div>
-        <div class="row">
+        <div class="row" id="exp_set_fee">
             <label>设置费用:</label><input type="checkbox" id="chk_expres_fee" title="选择此项来设置仓库到不同省市的快递费用"/>
         </div>
         <div id="express_fees_sel" class="row" style="display:none;">
              <div class="row">
-                 <label>仓库:</label><select title="仓库选项会根据快递公司的变化而变化" class="W_inputsel" id="exp_store_house"><option value="0">--选择--</option></select>
+                 <label>仓库:</label><select class="W_inputsel" id="exp_store_house"><option value="0">--选择--</option></select>
              </div>
              <div class="row">
-                 <label>快递费用:</label><select class="W_inputsel" id="area_province"></select> <select class="W_inputsel" id="area_city" style="display:none;"></select> <input type="text" id="express_fee" class="W_input" style="width:40px;" title="仓库所在城市到所选省份或城市的快递费用,必须是整数"/> <span class="simg"><img src="/Content/images/add.png" onclick="AddValueRow()"></span>
+                 <label>快递费用:</label><select class="W_inputsel" id="area_province"></select> <select class="W_inputsel" id="area_city" style="display:none;"></select> <input type="text" id="express_fee" class="W_input" style="width:40px;" title="仓库所在城市到所选省份或城市的快递费用,必须是整数"/> <span class="simg"><img id="express_fee_add" src="/Content/images/add.png" onclick="AddValueRow()"></span>
              </div>
             
         </div>
         <div id="express_fees_div" class="rowS" style="height:auto;display:none;">
-            <ul>
+            <ul id="express_fees_ul">
 
             </ul>
         </div>

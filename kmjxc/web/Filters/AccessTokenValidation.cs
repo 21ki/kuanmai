@@ -41,6 +41,9 @@ namespace KM.JXC.Web.Filters
             {
                 filterContext.HttpContext.Response.Redirect("/Home/Login?message=授权信息已经过期，请重新登录并授权");
             }
+            
+            filterContext.Controller.ViewData["CurrentShop"]=userMgr.Shop;
+            filterContext.Controller.ViewData["ChildShop"] = userMgr.ChildShops;
         }
     }
 }

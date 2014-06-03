@@ -1,0 +1,148 @@
+﻿@{
+    ViewBag.Title = "ChildRequests";
+    Layout = "~/Views/Shared/master_default.cshtml";
+}
+
+<script>
+    var $grid = null;
+    var $grid1 = null;
+    var shopMgr = new KMJXCShopManager();
+    $(function () {
+
+        var obj2 = {
+            width: 859, height: 600, title: "发出的请求", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+            //, freezeCols: 4
+        };
+
+       
+
+        obj2.colModel = [
+                           {
+                               title: "主店铺", width: 200, dataType: "string", dataIndx: "Parent.Title", editable: false
+                           },
+                           {
+                               title: "子店铺", width: 200, dataType: "string", dataIndx: "Child.Title", editable: false
+                           },
+                           
+                           {
+                               title: "申请时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
+                           },
+                           {
+                               title: "申请者", width: 150, dataType: "timestamp", dataIndx: "Created_By.Mall_Name", editable: false
+                           }
+                           , {
+                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified.Mall_Name", editable: false
+                           }
+                            , {
+                                title: "处理者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
+                            }
+
+        ];
+
+        obj2.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            //paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 40,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 60, 80, 100],
+            getUrl: function (prgrid) {
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }
+                return {
+                    url: "/api/Shop/SearchSentChildRequets", data: "page=" + page + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+
+        var obj1 = {
+            width: 859, height: 600, title: "收到的请求", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+            //, freezeCols: 4
+        };
+
+
+
+        obj1.colModel = [
+                           {
+                               title: "主店铺", width: 200, dataType: "string", dataIndx: "Parent.Title", editable: false
+                           },
+                           {
+                               title: "子店铺", width: 200, dataType: "string", dataIndx: "Child.Title", editable: false
+                           },
+
+                           {
+                               title: "申请时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
+                           },
+                           {
+                               title: "申请者", width: 150, dataType: "timestamp", dataIndx: "Created_By.Mall_Name", editable: false
+                           }
+                           , {
+                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified.Mall_Name", editable: false
+                           }
+                            , {
+                                title: "处理者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
+                            }
+
+        ];
+        obj1.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            //paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 40,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 60, 80, 100],
+            getUrl: function (prgrid) {
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }
+                return {
+                    url: "/api/Shop/SearchReceivedChildRequets", data: "page=" + page + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        $("#childReceivedRequests").on("pqgridrender", function (evt, obj) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">批准</span>").appendTo($menubar).button().click(function (evt) {
+               
+            });
+            $("<span id=\"add_cate\">拒绝</span>").appendTo($menubar).button().click(function (evt) {
+
+            });
+        });
+
+        $grid = $("#childSentRequests").pqGrid(obj2);
+        $grid1 = $("#childReceivedRequests").pqGrid(obj1);
+    });
+</script>
+
+<div id="childSentRequests">
+
+</div>
+<div style="margin-top:10px;" id="childReceivedRequests">
+
+</div>

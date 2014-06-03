@@ -103,7 +103,29 @@ namespace KM.JXC.BL
                 db.SaveChanges();
             }
         }
-       
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="child_shop_id"></param>
+        /// <returns></returns>
+        public bool AddChildShop(int mall_type,string child_shop_name)
+        {
+            bool result = false;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Shop shop = (from sp in db.Shop where sp.Name == child_shop_name && sp.Mall_Type_ID==mall_type select sp).FirstOrDefault<Shop>();
+                if (shop == null)
+                {
+                    throw new KMJXCException("您要添加的子店铺信息不存在，请先使用子店铺的主账户登录进销存，然后在执行添加子店铺操作");
+                }
+
+                result = this.AddChildShop(this.Shop, shop);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Add child shop
         /// </summary>
@@ -116,28 +138,29 @@ namespace KM.JXC.BL
 
             if (shop == null)
             {
-                throw new KMJXCException("淘宝或者天猫没有此名称的店铺");
-            }
-
-            this.CreateNewShop(shop);
-            if (shop.Shop_ID <= 0)
-            {
-                throw new KMJXCException("本地创建店铺失败");
+                throw new KMJXCException("您要添加的子店铺信息不存在，请先使用子店铺的主账户登录进销存，然后在执行添加子店铺操作");
             }
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Shop_Child_Request scr = new Shop_Child_Request();
-                scr.Shop_ID = (int)parent_shop.Shop_ID;
-                scr.Request_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                scr.Child_Shop_ID = (int)shop.Shop_ID;
-                scr.User_ID = (int)this.CurrentUser.ID;
-                scr.Status = "0";
-                scr.Approve_User_ID = 0;
-                scr.Approve_Time = 0;
-                db.Shop_Child_Request.Add(scr);
-                db.SaveChanges();
-                result = true;
+                Shop_Child_Request scr = (from sr in db.Shop_Child_Request where sr.Shop_ID == parent_shop.Shop_ID && sr.Child_Shop_ID == shop.Shop_ID && sr.Status == 0 select sr).FirstOrDefault<Shop_Child_Request>();
+                if (scr == null)
+                {
+                    scr.Shop_ID = (int)parent_shop.Shop_ID;
+                    scr.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    scr.Child_Shop_ID = (int)shop.Shop_ID;
+                    scr.Created_By = (int)this.CurrentUser.ID;
+                    scr.Status = 0;
+                    scr.Modified_By = 0;
+                    scr.Modified = 0;
+                    db.Shop_Child_Request.Add(scr);
+                    db.SaveChanges();
+                    result = true;
+                }
+                else
+                {
+                    throw new KMJXCException("已经发送过添加子店铺请求，请不要重复发送");
+                }
             }
 
             return result;
@@ -148,23 +171,156 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="scr"></param>
         /// <returns></returns>
-        public bool ApproveChildShopRequest(Shop_Child_Request scr)
+        public bool HandleChildShopRequest(int request_id,int status)
         {
             bool result = false;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                scr.Status = "1";
-                scr.Approve_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                scr.Approve_User_ID = (int)this.CurrentUser.ID;
+                Shop_Child_Request scr=(from request in db.Shop_Child_Request where request.ID==request_id && request.Status==0 select request).FirstOrDefault<Shop_Child_Request>();
+                if (scr == null)
+                {
+                    throw new KMJXCException("添加子店铺请求已被删除，无法批准");
+                }
+
+                scr.Status = status;
+                scr.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                scr.Modified_By = (int)this.CurrentUser.ID;
                 db.Shop_Child_Request.Attach(scr);
 
                 var sps = from sp in db.Shop where sp.Shop_ID == scr.Child_Shop_ID select sp;
-                Shop childShop = sps.ToList<Shop>()[0];
-                childShop.Parent_Shop_ID = scr.Shop_ID;
+                Shop childShop = sps.FirstOrDefault<Shop>();
+                if (childShop != null)
+                {
+                    childShop.Parent_Shop_ID = scr.Shop_ID;
+                }
                 db.SaveChanges();
                 result = true;
             }
             return result;
+        }
+
+        public List<BAddChildRequest> SearchReceivedAddChildRequests()
+        {
+            List<BAddChildRequest> requests = new List<BAddChildRequest>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from request in db.Shop_Child_Request where request.Child_Shop_ID == this.Shop.Shop_ID select request;
+
+                var tmpRequests = from request in tmp
+                                  join pshop in db.Shop on request.Shop_ID equals pshop.Shop_ID into lPshop
+                                  from l_pshop in lPshop.DefaultIfEmpty()
+
+                                  join cshop in db.Shop on request.Child_Shop_ID equals cshop.Shop_ID into lCshop
+                                  from l_cshop in lCshop.DefaultIfEmpty()
+
+                                  join luser in db.User on request.Created_By equals luser.User_ID into lUser
+                                  from l_user in lUser.DefaultIfEmpty()
+
+                                  join lmuser in db.User on request.Modified_By equals lmuser.User_ID into lMUser
+                                  from l_muser in lMUser.DefaultIfEmpty()
+                                  select new BAddChildRequest
+                                  {
+                                      ID=request.ID,
+                                      Child = new BShop
+                                      { 
+                                          ID=l_cshop.Shop_ID,
+                                          Title=l_cshop.Name
+                                      },
+                                      Parent=new BShop
+                                      {
+                                          ID = l_pshop.Shop_ID,
+                                          Title = l_pshop.Name
+                                      },
+                                      Created_By = l_user != null ? new BUser
+                                      {
+                                          ID = l_user.User_ID,
+                                          Mall_Name = l_user.Mall_Name,
+                                          Mall_ID = l_user.Mall_ID
+                                      } : new BUser
+                                      {
+                                          ID = 0,
+                                          Mall_Name = "",
+                                          Mall_ID = ""
+                                      },
+                                      Modified_By = l_muser != null ? new BUser()
+                                      {
+                                          ID = l_muser.User_ID,
+                                          Mall_Name = l_muser.Mall_Name,
+                                          Mall_ID = l_muser.Mall_ID
+                                      } : new BUser
+                                      {
+                                          ID = 0,
+                                          Mall_Name = "",
+                                          Mall_ID = ""
+                                      },
+                                      Created = request.Created,
+                                      Modified = (int)request.Modified
+                                  };
+
+                requests = tmpRequests.ToList<BAddChildRequest>();
+            }
+            return requests;
+        }
+
+        public List<BAddChildRequest> SearchSentAddChildRequests()
+        {
+            List<BAddChildRequest> requests = new List<BAddChildRequest>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from request in db.Shop_Child_Request where request.Shop_ID == this.Shop.Shop_ID select request;
+
+                var tmpRequests = from request in tmp
+                                  join pshop in db.Shop on request.Shop_ID equals pshop.Shop_ID into lPshop
+                                  from l_pshop in lPshop.DefaultIfEmpty()
+
+                                  join cshop in db.Shop on request.Child_Shop_ID equals cshop.Shop_ID into lCshop
+                                  from l_cshop in lCshop.DefaultIfEmpty()
+
+                                  join luser in db.User on request.Created_By equals luser.User_ID into lUser
+                                  from l_user in lUser.DefaultIfEmpty()
+
+                                  join lmuser in db.User on request.Modified_By equals lmuser.User_ID into lMUser
+                                  from l_muser in lMUser.DefaultIfEmpty()
+                                  select new BAddChildRequest
+                                  {
+                                      ID = request.ID,
+                                      Child = new BShop
+                                      {
+                                          ID = l_cshop.Shop_ID,
+                                          Title = l_cshop.Name
+                                      },
+                                      Parent = new BShop
+                                      {
+                                          ID = l_pshop.Shop_ID,
+                                          Title = l_pshop.Name
+                                      },
+                                      Created_By = l_user != null ? new BUser
+                                      {
+                                          ID = l_user.User_ID,
+                                          Mall_Name = l_user.Mall_Name,
+                                          Mall_ID = l_user.Mall_ID
+                                      } : new BUser {
+                                          ID = 0,
+                                          Mall_Name = "",
+                                          Mall_ID = ""
+                                      },
+                                      Modified_By =l_muser!=null? new BUser()
+                                      {
+                                          ID = l_muser.User_ID,
+                                          Mall_Name = l_muser.Mall_Name,
+                                          Mall_ID = l_muser.Mall_ID
+                                      }: new BUser {
+                                          ID = 0,
+                                          Mall_Name = "",
+                                          Mall_ID = ""
+                                      },
+                                      Created = request.Created,
+                                      Modified = (int)request.Modified
+                                  };
+
+                requests = tmpRequests.ToList<BAddChildRequest>();
+            }
+            return requests;
         }
 
         /// <summary>
@@ -294,6 +450,98 @@ namespace KM.JXC.BL
 
                             sFee.Shop_ID = es.Shop_ID;
                             db.Express_Fee.Add(sFee);
+                        }
+                    }
+
+                    db.SaveChanges();
+
+                    trans.Complete();
+                }
+            }
+        }
+
+        public void CreateExpressFees(BShopExpress express)
+        {
+            if (this.CurrentUserPermission.ADD_SHOP_EXPRESS == 0)
+            {
+                throw new KMJXCException("没有权限添加店铺快递信息");
+            }
+
+            if (express == null)
+            {
+                throw new KMJXCException("异常出错");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                using (TransactionScope trans = new TransactionScope())
+                {
+                    Express_Shop es = (from exp in db.Express_Shop where exp.Express_ID == express.ID && exp.Shop_ID == this.Shop.Shop_ID select exp).FirstOrDefault<Express_Shop>();
+                    if (es == null)
+                    {
+                        throw new KMJXCException("店铺还没有添加此快递公司，请先添加快递公司，然后再添加快递费用");
+                    }
+
+                    List<Express_Fee> allFees=(from fee in db.Express_Fee where fee.Shop_ID==es.Shop_ID select fee).ToList<Express_Fee>();
+                  
+
+                    if (express.Fees != null && express.Fees.Count > 0)
+                    {
+                        foreach (BExpressFee fee in express.Fees)
+                        {
+                            if (fee.City == null && fee.Province == null)
+                            {
+                                continue;
+                            }
+
+                            if (fee.City == null)
+                            {
+                                fee.City = new BArea() { ID = 0 };
+                            }
+
+                            if (fee.Province == null)
+                            {
+                                fee.Province = new BArea() { ID = 0 };
+                            }
+
+                            Express_Fee sFee = (from efee in allFees where efee.Express_ID==es.Express_ID && efee.Province_ID == fee.Province.ID && efee.City_ID == fee.City.ID && efee.StoreHouse_ID == fee.StoreHouse.ID select efee).FirstOrDefault<Express_Fee>();
+                            bool isNew = false;
+                            if (sFee == null)
+                            {
+                                isNew = true;
+                                sFee = new Express_Fee();
+                            }                           
+                           
+                            sFee.Fee = fee.Fee;
+                            sFee.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                            sFee.Modified_By = this.CurrentUser.ID;
+                           
+                            if (fee.StoreHouse != null && fee.StoreHouse.ID > 0)
+                            {
+                                sFee.StoreHouse_ID = fee.StoreHouse.ID;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                            
+                            if (isNew)
+                            {
+                                if (fee.Province != null)
+                                {
+                                    sFee.Province_ID = fee.Province.ID;
+                                }
+
+                                if (fee.City != null)
+                                {
+                                    sFee.City_ID = fee.City.ID;
+                                }
+                                sFee.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                sFee.Created_By = this.CurrentUser.ID;
+                                sFee.Express_ID = es.Express_ID;
+                                sFee.Shop_ID = es.Shop_ID;
+                                db.Express_Fee.Add(sFee);
+                            }
                         }
                     }
 
@@ -484,6 +732,32 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="express_fee_id"></param>
+        /// <param name="fee"></param>
+        public void UpdateExpressFee(int express_fee_id, double fee)
+        {
+            if (this.CurrentUserPermission.UPDATE_SHOP_EXPRESS == 0)
+            {
+                throw new KMJXCException("没有权限更新快递以及快递费用");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Express_Fee express_fee=(from expfee in db.Express_Fee where expfee.Express_Fee_ID==express_fee_id select expfee).FirstOrDefault<Express_Fee>();
+                if (express_fee == null)
+                {
+                    throw new KMJXCException("要修改的快递费用不存在");
+                }
+                express_fee.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                express_fee.Modified_By = this.CurrentUser.ID;
+                express_fee.Fee = fee;
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="express_id"></param>
         /// <param name="province_id"></param>
         /// <param name="city_id"></param>
@@ -546,11 +820,15 @@ namespace KM.JXC.BL
                               ID = fee.Express_Fee_ID,
                               Created = fee.Created,
                               Modified = fee.Modified,
-                              Fee=fee.Fee,
-                              City = new BArea
+                              Fee = fee.Fee,
+                              City = l_city != null ? new BArea
                               {
                                   ID = l_city.id,
                                   Name = l_city.name
+                              } : new BArea
+                              {
+                                  ID = 0,
+                                  Name = ""
                               },
                               Province = new BArea
                               {
@@ -594,6 +872,51 @@ namespace KM.JXC.BL
                 }
             }
             return express_fees;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mainShop"></param>
+        /// <returns></returns>
+        public List<BShop> SearchChildShops(int mainShop=0)
+        {
+            List<BShop> shops = new List<BShop>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int main = this.Shop.Shop_ID;
+                if (mainShop > 0)
+                {
+                    main = mainShop;
+                }
+                var tmp = from shop in db.Shop where shop.Parent_Shop_ID == main select shop;
+
+                var tmpShops = from shop in tmp
+                               join user in db.User on shop.User_ID equals user.User_ID into lUser
+                               from l_user in lUser.DefaultIfEmpty()
+                               join mtype in db.Mall_Type on shop.Mall_Type_ID equals mtype.Mall_Type_ID into lMtype
+                               from l_mtype in lMtype.DefaultIfEmpty()
+                               select new BShop
+                               {
+                                   Created = (int)shop.Created,
+                                   Description = shop.Description,
+                                   ID = shop.Shop_ID,
+                                   Mall_ID = shop.Mall_Shop_ID,
+                                   Synced = (int)shop.Synced,
+                                   Title = shop.Name,
+                                   Type = l_mtype,
+                                   Created_By = new BUser
+                                   {
+                                       ID = l_user.User_ID,
+                                       Mall_ID = l_user.Mall_ID,
+                                       Mall_Name = l_user.Mall_Name
+                                   }
+                               };
+
+                shops = tmpShops.ToList<BShop>();
+            }
+            
+            return shops;
         }
     }
 }

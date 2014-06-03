@@ -203,6 +203,9 @@ function KMJXCBase() {
     this.GetUsers = function (params, callback) {
         return this.AjaxCall("/api/Users/GetUsers", params, callback);
     }
+    this.GetMallTypes = function (params, callback) {
+        return this.AjaxCall("/api/Common/GetMallTypes", params, callback);
+    }
     this.GetTradeStatusForSyncTrade = function () {
         var status = [
                       { 'value': 'WAIT_BUYER_CONFIRM_GOODS', 'name': '已发货', 'selected': false },
@@ -214,6 +217,8 @@ function KMJXCBase() {
 
         return status;
     }
+
+    
 
     this.InitializeHour = function (obj,hour) {
         for (var i = 0; i <= 23; i++) {
@@ -425,11 +430,26 @@ function KMJXCShopManager() {
     this.CreateShopExpress = function (params, callback) {
         this.AjaxCall("/api/Shop/CreateShopExpress", params, callback);
     }
+
+    this.UpdateExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Shop/UpdateExpressFee", params, callback);
+    }
+
+    this.CreateExpressFees = function (params, callback) {
+        this.AjaxCall("/api/Shop/CreateExpressFees", params, callback);
+    }
+
     this.GetNonExpressedHouses = function (params, callback) {
         this.AjaxCall("/api/Shop/GetNonExpressedHouses", params, callback);
     }
+    this.GetStoreHouses = function (params, callback) {
+        this.AjaxCall("/api/Shop/GetStoreHouses", params, callback);
+    }
     this.SetDefaultExpress = function (params, callback) {
         this.AjaxCall("/api/Shop/SetDefaultExpress", params, callback);
+    }
+    this.AddChildShop = function (params, callback) {
+        this.AjaxCall("/api/Shop/AddChildShop", params, callback);
     }
 }
 

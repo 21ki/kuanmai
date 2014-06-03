@@ -17,5 +17,6 @@ namespace KM.JXC.BL.Models
         public Mall_Type Type { get; set; }
         public int Created { get; set; }
         public int Synced { get; set; }
+        public BUser Created_By { get; set; }
     }
 }

@@ -109,6 +109,100 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public List<BStoreHouse> GetStoreHouses()
+        {
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager shopManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            return shopManager.GetStoreHouses();
+        }
+
+        [HttpPost]
+        public ApiMessage UpdateExpressFee()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            int express_fee_id = 0;
+            double fee = 0;
+            int.TryParse(request["express_fee_id"],out express_fee_id);
+            double.TryParse(request["fee"],out fee);
+            try
+            {
+                shopManager.UpdateExpressFee(express_fee_id, fee);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误，请联系管理员";
+            }
+            finally
+            {
+                
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage CreateExpressFees()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+
+            string jsonStr = request["express"];
+
+            jsonStr = HttpUtility.UrlDecode(jsonStr);
+
+            JObject json = JObject.Parse(jsonStr);
+            int express_id = (int)json["id"];           
+            BShopExpress express = new BShopExpress() { ID = express_id };
+            express.IsDefault = false;
+            JArray fees = (JArray)json["fees"];
+            if (fees.Count > 0)
+            {
+                express.Fees = new List<BExpressFee>();
+            }
+
+            for (int i = 0; i < fees.Count; i++)
+            {
+                JObject o = (JObject)fees[i];
+                int pid = (int)o["pid"];
+                int cid = (int)o["cid"];
+                double fee = (double)o["fee"];
+                int hid = (int)o["hid"];
+                BExpressFee feeObj = new BExpressFee() { Fee = fee, Province = new BArea() { ID = pid }, City = new BArea() { ID = cid }, StoreHouse = new BStoreHouse { ID = hid } };
+                express.Fees.Add(feeObj);
+            }
+
+            try
+            {
+                shopManager.CreateExpressFees(express);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+
+            return message;
+        }
+
+        [HttpPost]
         [System.Web.Mvc.ValidateInput(false)]
         public ApiMessage CreateShopExpress()
         {
@@ -210,6 +304,100 @@ namespace KM.JXC.Web.Controllers.api
             }
 
             return message;
+        }
+
+        [HttpPost]
+        public PQGridData SearchChildShop()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            List<BShop> shops= shopManager.SearchChildShops();
+            data.totalRecords = shops.Count;
+            data.data = shops;
+            data.curPage = 1;
+            return data;
+        }
+
+        [HttpPost]
+        public ApiMessage AddChildShop()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            string child_shop = request["shop_name"];
+            int mtype = 0;
+            int.TryParse(request["type"],out mtype);
+             
+            try
+            {
+                if (shopManager.AddChildShop(mtype, child_shop))
+                {
+                    message.Status = "failed";
+                    message.Message = "添加失败";
+                }
+                else
+                {
+                    message.Message = "添加子店铺请求已经发出，等待子店铺主账户登录进销存批准请求";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+                message.Status = "failed";
+                message.Message = "未知错误，请联系管理员";
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public PQGridData SearchSentChildRequets()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            List<BAddChildRequest> requests = shopManager.SearchSentAddChildRequests();
+            data.data = requests;
+            data.totalRecords = requests.Count;
+            data.curPage = 1;
+            return data;
+        }
+
+        [HttpPost]
+        public PQGridData SearchReceivedChildRequets()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            List<BAddChildRequest> requests = shopManager.SearchReceivedAddChildRequests();
+            data.data = requests;
+            data.totalRecords = requests.Count;
+            data.curPage = 1;
+            return data;
         }
     }
 }

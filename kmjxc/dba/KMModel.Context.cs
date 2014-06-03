@@ -47,7 +47,6 @@ namespace KM.JXC.DBA
         public DbSet<Product_Supplier> Product_Supplier { get; set; }
         public DbSet<Product_Unit> Product_Unit { get; set; }
         public DbSet<Shop> Shop { get; set; }
-        public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
         public DbSet<Shop_User> Shop_User { get; set; }
         public DbSet<Stock_Pile> Stock_Pile { get; set; }
         public DbSet<Supplier> Supplier { get; set; }
@@ -76,5 +75,6 @@ namespace KM.JXC.DBA
         public DbSet<Stock_Waste> Stock_Waste { get; set; }
         public DbSet<Express_Fee> Express_Fee { get; set; }
         public DbSet<Express_Shop> Express_Shop { get; set; }
+        public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
     }
 }

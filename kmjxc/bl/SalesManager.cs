@@ -604,16 +604,31 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BSale> SearchSales(int[] pdtids,string productName, int[] customers, string customer_nick, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords)
+        public List<BSale> SearchSales(int[] pdtids,string productName, int[] customers, string customer_nick, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords,int shop_id=0)
         {
             List<BSale> sales = null;
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
-                var trades = from sale in db.Sale
-                             where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
+                var trades = from sale in db.Sale                             
                              select sale;
+
+                if (shop_id == 0)
+                {
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        trades = trades.Where(t => (t.Shop_ID == this.Shop.Shop_ID || cspids.Contains(t.Shop_ID)));
+                    }
+                    else
+                    {
+                        trades = trades.Where(t => t.Shop_ID == this.Shop.Shop_ID);
+                    }
+                }
+                else
+                {
+                    trades = trades.Where(t => t.Shop_ID ==shop_id);
+                }
 
                 if (pdtids != null && pdtids.Length > 0)
                 {

@@ -26,11 +26,13 @@ namespace KM.JXC.Web.Controllers
             string eMinutes = Request["trade_edate_minute"];
             string productName=Request["pdt_name"];
             string buyer_nick = Request["buyer_nick"];
+            int shop = 0;
             int page = 1;
             int pageSize = 30;
 
             int.TryParse(Request["page"],out page);
             int.TryParse(Request["pagesize"], out pageSize);
+            int.TryParse(Request["trade_shop"],out shop);
             if(page<=0)
             {
                 page = 1;
@@ -67,7 +69,7 @@ namespace KM.JXC.Web.Controllers
             BUser user = userMgr.CurrentUser;
             StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
             int total = 0;
             int sTime = 0;
             int eTime = 0;
@@ -79,13 +81,16 @@ namespace KM.JXC.Web.Controllers
             {
                 eTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
             }
-            List<BSale> sales = saleManager.SearchSales(null, productName, null, buyer_nick, sTime, eTime, page, pageSize, out total);
+            List<BSale> sales = saleManager.SearchSales(null, productName, null, buyer_nick, sTime, eTime, page, pageSize, out total,shop);
             BPageData data = new BPageData();
             data.Data = sales;
             data.TotalRecords = total;
             data.Page = page;
             data.PageSize = pageSize;
             data.URL = Request.RawUrl;
+            List<BShop> childShops = shopManager.SearchChildShops();
+            ViewData["ChildShop"] = childShops;
+            ViewData["CurrentShop"] = userMgr.Shop;
             return View(data);
         }
 

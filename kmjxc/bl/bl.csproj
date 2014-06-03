@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
+    <Compile Include="Models\BAddChildRequest.cs" />
     <Compile Include="Models\BCustomer.cs" />
     <Compile Include="Models\BData.cs" />
     <Compile Include="Models\BExpress.cs" />

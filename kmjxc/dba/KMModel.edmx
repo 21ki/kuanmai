@@ -610,11 +610,11 @@
           </Key>
           <Property Name="ID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
-          <Property Name="User_ID" Type="mediumint" Nullable="false" />
-          <Property Name="Request_Time" Type="int" Nullable="false" />
-          <Property Name="Status" Type="char" MaxLength="1" />
-          <Property Name="Approve_Time" Type="int" />
-          <Property Name="Approve_User_ID" Type="mediumint" />
+          <Property Name="Created_By" Type="mediumint" Nullable="false" />
+          <Property Name="Created" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" />
+          <Property Name="Modified" Type="int" />
+          <Property Name="Modified_By" Type="mediumint" />
           <Property Name="Child_Shop_ID" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_User">
@@ -739,7 +739,6 @@
           <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Product_Supplier" />
           <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Product_Unit" />
           <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Shop" />
-          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Shop_Child_Request" />
           <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Shop_User" />
           <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Stock_Pile" />
           <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Supplier" />
@@ -768,6 +767,7 @@
           <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Stock_Waste" />
           <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Express_Fee" />
           <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Express_Shop" />
+          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Shop_Child_Request" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1033,19 +1033,6 @@
           <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
           <Property Type="Int32" Name="Created" />
           <Property Type="Int32" Name="Synced" />
-        </EntityType>
-        <EntityType Name="Shop_Child_Request">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
-          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int32" Name="User_ID" Nullable="false" />
-          <Property Type="Int32" Name="Request_Time" Nullable="false" />
-          <Property Type="String" Name="Status" MaxLength="1" FixedLength="true" Unicode="false" />
-          <Property Type="Int32" Name="Approve_Time" />
-          <Property Type="Int32" Name="Approve_User_ID" />
-          <Property Type="Int32" Name="Child_Shop_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Shop_User">
           <Key>
@@ -1423,6 +1410,19 @@
           <Property Type="Int32" Name="Modified" Nullable="false" />
           <Property Type="Int32" Name="Modified_By" Nullable="false" />
         </EntityType>
+        <EntityType Name="Shop_Child_Request">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created_By" Nullable="false" />
+          <Property Type="Int32" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Status" />
+          <Property Type="Int32" Name="Modified" />
+          <Property Type="Int32" Name="Modified_By" />
+          <Property Type="Int32" Name="Child_Shop_ID" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1705,20 +1705,6 @@
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Mall_Shop_ID" ColumnName="Mall_Shop_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Shop_Child_Request">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_Child_Request">
-              <MappingFragment StoreEntitySet="Shop_Child_Request">
-                <ScalarProperty Name="Child_Shop_ID" ColumnName="Child_Shop_ID" />
-                <ScalarProperty Name="Approve_User_ID" ColumnName="Approve_User_ID" />
-                <ScalarProperty Name="Approve_Time" ColumnName="Approve_Time" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Request_Time" ColumnName="Request_Time" />
-                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2109,6 +2095,20 @@
                 <ScalarProperty Name="IsDefault" ColumnName="IsDefault" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Shop_Child_Request">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop_Child_Request">
+              <MappingFragment StoreEntitySet="Shop_Child_Request">
+                <ScalarProperty Name="Child_Shop_ID" ColumnName="Child_Shop_ID" />
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

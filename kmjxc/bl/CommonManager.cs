@@ -17,6 +17,18 @@ namespace KM.JXC.BL
         {
         }
 
+        public List<Mall_Type> GetMallTypes()
+        {
+            List<Mall_Type> types = null;
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                types = (from mtype in db.Mall_Type select mtype).ToList<Mall_Type>();
+            }
+
+            return types;
+        }
+
         /// <summary>
         /// 
         /// </summary>

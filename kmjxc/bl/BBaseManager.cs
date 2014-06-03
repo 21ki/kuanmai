@@ -14,7 +14,7 @@ using KM.JXC.BL.Models;
 
 namespace KM.JXC.BL
 {
-    public class BBaseManager
+    public class BBaseManager:CommonManager
     {
         public Shop Shop { get; private set; }
         public Shop Main_Shop { get; private set; }

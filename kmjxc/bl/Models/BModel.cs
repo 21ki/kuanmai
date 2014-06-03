@@ -8,6 +8,7 @@ namespace KM.JXC.BL.Models
 {
     public class BModel
     {
+        public int ID { get; set; }
         public bool FromMainShop { get; set; }
         public bool FromChildShop { get; set; }
     }

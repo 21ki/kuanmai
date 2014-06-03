@@ -1,6 +1,132 @@
 ﻿@{
-    ViewBag.Title = "Child";
+    ViewBag.Title = "子店铺";
     Layout = "~/Views/Shared/master_default.cshtml";
+    List<KM.JXC.DBA.Mall_Type> mtypes = (List<KM.JXC.DBA.Mall_Type>)Model;
 }
 
-<h2>Child</h2>
+<script>
+    var $grid = null;
+    var shopMgr = new KMJXCShopManager();
+    $(function () {
+        
+        var obj2 = {
+            width: 859, height: 600, title: "子店铺", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+           //, freezeCols: 4
+        };
+
+        obj2.colModel = [
+                           {
+                               title: "店铺名称", width: 100, dataType: "string", dataIndx: "Title", editable: false
+                           },
+                           {
+                               title: "店铺账户", width: 100, dataType: "integer", dataIndx: "Created_By.Mall_Name", editable: false
+                           },
+                           {
+                               title: "同步日期", width: 100, dataType: "timestamp", dataIndx: "Created", editable: false
+                           },
+                           
+        ];
+
+        obj2.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            //paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 40,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 60, 80, 100],
+            getUrl: function (prgrid) {
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }
+                return {
+                    url: "/api/Shop/SearchChildShop", data: "page=" + page + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        $("#shopList").on("pqgridrender", function (evt, obj) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">添加子店铺</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+                $('#popup_newedit').dialog({
+                    position: { my: "top", at: "top", of: $("#shopList") },
+                    width: 550,
+                    //height:550,
+                    resizable: false,
+                    title: "添加子店铺",
+                    modal: true,
+                    open: function () {
+                        $('#resultmessage').html("").hide();
+                    },
+                    close: function () {
+                       
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var type = $('#shop_type').val();
+                            var name = $('#shop_name').val();
+                            if (type == 0) {
+                                $('#resultmessage').html("请选择店铺类型").show();
+                                return;
+                            }
+
+                            if ($.trim(name) == "") {
+                                $('#resultmessage').html("请输入子店铺名称").show();
+                                return;
+                            }
+
+                            $('#resultmessage').html("").hide();
+
+                            shopMgr.AddChildShop({'shop_name':name,'type':type}, function (res) {
+                                if (res.Status == "ok") {
+                                    $(that).dialog("close");
+                                } else if (res.Status == 'failed') {
+                                    $('#resultmessage').html(res.Message).show();
+                                }
+                            });
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup_newedit').dialog("open");
+            });
+        });
+
+        $grid = $("#shopList").pqGrid(obj2);
+    });
+</script>
+
+<div id="tabs">
+    <div id="shopList">
+
+    </div>
+    <div id="popup_newedit" style="display:none;">
+       <div class="row">
+           <label>店铺类型:</label><select id="shop_type" class="W_inputsel"><option value="0">--选择--</option>
+               @if (mtypes != null && mtypes.Count > 0) {
+                   foreach (KM.JXC.DBA.Mall_Type type in mtypes) { 
+                        <option value="@Html.Raw(type.Mall_Type_ID)">@Html.Raw(type.Name)</option>
+                   }
+               }
+           </select>
+       </div>
+       <div class="row">
+           <label>店铺名称:</label><input class="W_input" type="text" id="shop_name"/>
+       </div>
+       <div id="resultmessage" class="message1 nolabel2" style="height:auto;display:none;"></div>
+    </div>
+</div>

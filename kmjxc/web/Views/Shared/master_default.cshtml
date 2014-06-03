@@ -362,7 +362,7 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       子账户管理
+                       账户管理
                       </a>
                    </li>                   
                    <li>
@@ -377,6 +377,20 @@
                        } 
                            >
                        子店铺
+                        </a>
+                   </li>
+                   <li>
+                       <a href="/Shop/ChildRequests"
+                       @if (action == "ChildRequests")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       子店铺添加请求
                         </a>
                    </li>
                    <li> <a href="/Shop/Express"
