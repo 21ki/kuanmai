@@ -13,144 +13,143 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
-    public class PCategory : System.Attribute
+    public class AdminActionAttribute : System.Attribute
     {
         public int ID { get; set; }
-        public string Name { get; set; }
+        public string CategoryName { get; set; }
+        public string ActionDescription { get; set; }
     }
 
     public class Permission
     {
         //User 
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription="删除用户")]
         public int DELETE_USER = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "禁用用户")]
         public int DISABLE_USER = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
-        public int UPDATE_USER;
-        [PCategory(ID = 1, Name = "用户管理")]
-        public int MAPP_USER_EMPLOYEE;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "更新用户")]
+        public int UPDATE_USER;       
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "同步商城用户")]
         public int SYNC_MALLUSER;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "添加用户")]
         public int ADD_USER = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "查看员工信息")]
         public int VIEW_EMPLOYEE = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "更新员工信息")]
         public int UPDATE_EMPLOYEE = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "删除员工信息")]
         public int DELETE_EMPLOYEE = 0;
-        [PCategory(ID = 1, Name = "用户管理")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "创建员工信息")]
         public int CREATE_EMPLOYEE;
 
         //Sale Order  
-        [PCategory(ID = 6, Name = "订单管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "订单管理",ActionDescription = "同步订单")]
         public int SYNC_ORDER = 0;
-        [PCategory(ID = 6, Name = "订单管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "处理退货订单")]
         public int HANDLE_BACK_SALE = 0;
         //Customer
-        [PCategory(ID = 6, Name = "订单管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "查看客户信息")]
         public int VIEW_CUSTOMER = 0;
-        [PCategory(ID = 6, Name = "订单管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "删除客户")]
         public int DELETE_CUSTOMER = 0;
-        [PCategory(ID = 6, Name = "订单管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "更新客户信息")]
         public int UPDATE_CUSTOMER = 0;
 
         //Buy
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看验货单")]
         public int VIEW_BUY = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "添加验货单")]
         public int ADD_BUY = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看采购订单")]
         public int VIEW_BUY_ORDER;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "添加采购订单")]
         public int ADD_BUY_ORDER = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "更新采购订单")]
         public int UPDATE_BUY_ORDER = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "删除采购订单")]
         public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "删除验货单")]
         public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted       
         //Supplier
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "添加供应商")]
         public int ADD_SUPPLIER = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "更新供应商")]
         public int UPDATE_SUPPLIER = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看供应商信息")]
         public int VIEW_SUPPLIER_SUMMARY = 0;
-        [PCategory(ID = 4, Name = "采购管理")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看供应商详细信息")]
         public int VIEW_SUPPLIER_DETAIL = 0;
 
         //Product
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品")]
         public int ADD_PRODUCT = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品")]
         public int UPDATE_PRODUCT = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除产品")]
         public int DELETE_PRODUCT = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
         public int ADD_PRODUCT_CLASS = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
         public int UPDATE_PRODUCT_CLASS = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除类目")]
         public int DELETE_PRODUCT_CLASS = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品单位")]
         public int ADD_PRODUCT_UNIT = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品单位")]
         public int UPDATE_PRODUCT_UNIT = 0;
         //Category and Property
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
         public int ADD_CATEGORY = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
         public int UPDATE_CATEGORY = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加属性")]
         public int ADD_PORPERTY = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新属性")]
         public int UPDATE_PORPERTY = 0;
-        [PCategory(ID = 3, Name = "产品管理")]
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "禁用类目")]
         public int DISABLE_CATEGORY = 0;
 
         //Stock
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加入库单")]
         public int ADD_ENTER_STOCK = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加出库单")]
         public int ADD_LEAVE_STOCK = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加退库单")]
         public int ADD_BACK_STOCK = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新入库单到库存")]
         public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加仓库")]
         public int ADD_STORE_HOUSE = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新仓库")]
         public int UPDATE_STORE_HOUSE = 0;
-        [PCategory(ID = 2, Name = "库存管理")]
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "删除仓库")]
         public int DELETE_STORE_HOUSE = 0;
 
 
 
         //Express
-        [PCategory(ID = 6, Name = "店铺管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "添加快递")]
         public int ADD_SHOP_EXPRESS = 0;
-        [PCategory(ID = 6, Name = "店铺管理")]
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "更新快递")]
         public int UPDATE_SHOP_EXPRESS = 0;
 
 
         //User Permission
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "查看权限管理")]
         public int HAS_PERMISSION_ADMIN = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "添加管理分组")]
         public int ADD_ADMIN_ROLE = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "更新管理分组")]
         public int UPDATE_ADMIN_ROLE = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "删除管理分组")]
         public int DELETE_ADMIN_ROLE = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "查看管理分组")]
         public int VIEW_ADMIN_ROLE = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "查看用户权限")]
         public int VIEW_USER_PERMISSION = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "更新用户权限")]
         public int UPDATE_USER_PERMISSION = 0;
-        [PCategory(ID = 5, Name = "权限管理")]
+        [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "更新管理分组权限")]
         public int UPDATE_ROLE_ACTION = 0;
         //Report
 

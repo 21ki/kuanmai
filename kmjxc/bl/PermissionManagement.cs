@@ -170,6 +170,53 @@ namespace KM.JXC.BL
             return actions;
         }
 
+        public List<BAdminRole> GetUserAdminRoles(int user_id,int shop_id=0)
+        {
+            int shopId=this.Shop.Shop_ID;
+            if(shop_id>0)
+            {
+                shopId=shop_id;
+            }
+
+            List<BAdminRole> roles = new List<BAdminRole>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                List<Admin_Action> allActions=(from action in db.Admin_Action select action).ToList<Admin_Action>();
+                int[] role_ids=(from role in db.Admin_Role where role.shop_id==shopId select role.id).ToArray<int>();
+                List<Admin_Role_Action> role_Actions=(from roleAction in db.Admin_Role_Action where role_ids.Contains(roleAction.role_id) select roleAction).ToList<Admin_Role_Action>();
+                var tmp = from user_role in db.Admin_User_Role
+                          where user_role.user_id == user_id
+                          join role in db.Admin_Role on user_role.role_id equals role.id into lRole
+                          from l_role in lRole.DefaultIfEmpty()
+                          join shop in db.Shop on l_role.shop_id equals shop.Shop_ID into lShop
+                          from l_shop in lShop.DefaultIfEmpty()
+                          select new BAdminRole
+                          {
+                              ID = user_role.role_id,
+                              Name = l_role.role_name,
+                              Shop = new BShop
+                              {
+                                   ID=l_shop.Shop_ID,
+                                   Title=l_shop.Name
+                              }
+                          };
+
+                roles = tmp.ToList<BAdminRole>();
+
+                foreach (BAdminRole role in roles)
+                {
+                    var actions = from action in role_Actions
+                                  where action.role_id == role.ID
+                                  join action1 in allActions on action.action_id equals action1.id into lAction1
+                                  from l_action1 in lAction1.DefaultIfEmpty()
+                                  select new Admin_Action
+                                  {
+                                  };
+                }
+            }
+            return roles;
+        }
+
         /// <summary>
         /// Sync actions with Permission object
         /// </summary>
@@ -186,12 +233,12 @@ namespace KM.JXC.BL
 
             try
             {
-                List<PCategory> cates=new List<PCategory>();
+                List<AdminActionAttribute> cates=new List<AdminActionAttribute>();
                 List<Admin_Action> allActions=(from action in db.Admin_Action select action).ToList<Admin_Action>();
                 List<Admin_Category> allCates=(from cate in db.Admin_Category select cate).ToList<Admin_Category>();
                 foreach (FieldInfo field in fields)
                 {
-                    PCategory attr = field.GetCustomAttribute<PCategory>(); 
+                    AdminActionAttribute attr = field.GetCustomAttribute<AdminActionAttribute>(); 
                     Admin_Action action = (from a in allActions where a.action_name == field.Name select a).FirstOrDefault<Admin_Action>();
                     if (action == null)
                     {
@@ -207,7 +254,7 @@ namespace KM.JXC.BL
                     if (attr != null)
                     {
                         action.category_id = attr.ID;
-                        PCategory existed = (from pcate in cates where pcate.ID == attr.ID select pcate).FirstOrDefault<PCategory>();
+                        AdminActionAttribute existed = (from pcate in cates where pcate.ID == attr.ID select pcate).FirstOrDefault<AdminActionAttribute>();
                         if (existed == null)
                         {
                             cates.Add(attr);
@@ -238,14 +285,14 @@ namespace KM.JXC.BL
                 db.SaveChanges();
 
                 //category
-                foreach (PCategory pcate in cates)
+                foreach (AdminActionAttribute pcate in cates)
                 {
                     Admin_Category dbCate=(from c in allCates where c.ID==pcate.ID select c).FirstOrDefault<Admin_Category>();
                     if (dbCate == null)
                     {
                         dbCate = new Admin_Category();
                         dbCate.ID = pcate.ID;
-                        dbCate.Name = pcate.Name;
+                        dbCate.Name = pcate.CategoryName;
                         dbCate.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         db.Admin_Category.Add(dbCate);                        
                     }
