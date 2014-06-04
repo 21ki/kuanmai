@@ -1,6 +1,8 @@
 ﻿@{
     ViewBag.Title = "ChildRequests";
     Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
 }
 
 <script>
@@ -26,7 +28,18 @@
                            {
                                title: "子店铺", width: 200, dataType: "string", dataIndx: "Child.Title", editable: false
                            },
-                           
+                           {
+                               title: "状态", width: 200, dataType: "string", dataIndx: "Status", editable: false,
+                               render: function (ui) {
+                                   if (ui.rowData["Status"] == 1) {
+                                       return "已经批准";
+                                   } else if (ui.rowData["Status"] == 0) {
+                                       return "还未处理";
+                                   } else if (ui.rowData["Status"] == 2) {
+                                       return "已经拒绝";
+                                   }
+                               }
+                           },
                            {
                                title: "申请时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
                            },
@@ -34,7 +47,7 @@
                                title: "申请者", width: 150, dataType: "timestamp", dataIndx: "Created_By.Mall_Name", editable: false
                            }
                            , {
-                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified.Mall_Name", editable: false
+                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified", editable: false
                            }
                             , {
                                 title: "处理者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
@@ -85,7 +98,18 @@
                            {
                                title: "子店铺", width: 200, dataType: "string", dataIndx: "Child.Title", editable: false
                            },
-
+                           {
+                                title: "状态", width: 200, dataType: "string", dataIndx: "Status", editable: false,
+                                render: function (ui) {
+                                    if (ui.rowData["Status"] == 1) {
+                                        return "已经批准";
+                                    } else if (ui.rowData["Status"] == 0) {
+                                        return "还未处理";
+                                    } else if (ui.rowData["Status"] == 2) {
+                                        return "已经拒绝";
+                                    }
+                                }
+                           },
                            {
                                title: "申请时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
                            },
@@ -93,7 +117,7 @@
                                title: "申请者", width: 150, dataType: "timestamp", dataIndx: "Created_By.Mall_Name", editable: false
                            }
                            , {
-                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified.Mall_Name", editable: false
+                               title: "处理时间", width: 150, dataType: "timestamp", dataIndx: "Modified", editable: false
                            }
                             , {
                                 title: "处理者", width: 150, dataType: "timestamp", dataIndx: "Modified_By.Mall_Name", editable: false
@@ -125,6 +149,21 @@
             }
         };
 
+       
+
+        $("#childReceivedRequests").on("pqgridrender", function (evt, obj) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">批准</span>").appendTo($menubar).button().click(function (evt) {               
+                HandleRequest(1);
+            });
+            $("<span id=\"add_cate\">拒绝</span>").appendTo($menubar).button().click(function (evt) {
+                HandleRequest(2);
+            });
+        });
+
+        $grid = $("#childSentRequests").pqGrid(obj2);
+        $grid1 = $("#childReceivedRequests").pqGrid(obj1);
+
         function HandleRequest(status) {
             var rows = [];
             var arr = $grid1.pqGrid("selection", { type: 'row', method: 'getSelection' });
@@ -139,12 +178,12 @@
                 return;
             }
 
-            var DM = $grid.pqGrid("option", "dataModel");
+            var DM = $grid1.pqGrid("option", "dataModel");
             var data = DM.data;
             var row = data[rows[0]];
             var reqId = row["ID"];
-            alert(reqId);
-            shopMgr.HandleAddChildRequest({'reqId':reqId,'status':status}, function (res) {
+           
+            shopMgr.HandleAddChildRequest({ 'reqId': reqId, 'status': status }, function (res) {
                 if (res.Status == "ok") {
                     $("#childReceivedRequests").pqGrid("refreshDataAndView");
                 } else {
@@ -152,25 +191,24 @@
                 }
             });
         }
-
-        $("#childReceivedRequests").on("pqgridrender", function (evt, obj) {
-            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-            $("<span id=\"add_cate\">批准</span>").appendTo($menubar).button().click(function (evt) {               
-                HandleRequest(1);
-            });
-            $("<span id=\"add_cate\">拒绝</span>").appendTo($menubar).button().click(function (evt) {
-                HandleRequest(2);
-            });
-        });
-
-        $grid = $("#childSentRequests").pqGrid(obj2);
-        $grid1 = $("#childReceivedRequests").pqGrid(obj1);
     });
 </script>
 
-<div id="childSentRequests">
+<div id="childSentRequests"
+   @* @if(CurrentShop.Shop_ID==MainShop.Shop_ID){
+        @Html.Raw("style=\"display:block;\"")
+    }else{
+        @Html.Raw("style=\"display:none;\"")
+    }*@
+    >
 
 </div>
-<div style="margin-top:10px;" id="childReceivedRequests">
+<div style="margin-top:10px" id="childReceivedRequests"
+  @*  @if(CurrentShop.Shop_ID==MainShop.Shop_ID){
+        @Html.Raw("style=\"margin-top:10px;display:none;\"")
+    }else{
+        @Html.Raw("style=\"margin-top:10px;display:block;\"")
+    }*@
+    >
 
 </div>

@@ -502,12 +502,8 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                List<int> childShops = new List<int>();
-                if (this.Shop.Parent_Shop_ID == 0)
-                {
-                    childShops=(from shop in db.Shop where shop.Shop_ID==this.Shop.Shop_ID select shop.Shop_ID).ToList<int>();
-                }
-                int[] childshop_ids = childShops.ToArray<int>();
+
+                int[] childshop_ids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
 
                 var dbps = from product in db.Product
                            //join employee in db.Employee on product.User_ID equals employee.User_ID                           
@@ -612,9 +608,7 @@ namespace KM.JXC.BL
                     if (product.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                     {
                         product.FromMainShop = true;
-                    }
-
-                    if (childShops != null && childShops.Count > 0 && childShops.Contains(product.Shop.Shop_ID))
+                    }else if (childshop_ids != null && childshop_ids.Length > 0 && childshop_ids.Contains(product.Shop.Shop_ID))
                     {
                         product.FromChildShop = true;
                     }

@@ -353,11 +353,11 @@ namespace KM.JXC.BL
                     {
                         if (this.Main_Shop.Shop_ID == bpw.Product.BShop.ID)
                         {
-                            bpw.Product.BShop.FromMainShop = true;
+                            bpw.Product.FromMainShop = true;
                         }
                         else if (cspids != null && cspids.Length > 0 && cspids.Contains(bpw.Product.BShop.ID))
                         {
-                            bpw.Product.BShop.FromChildShop = true;
+                            bpw.Product.FromChildShop = true;
                         }
                     }
                 }
@@ -397,8 +397,18 @@ namespace KM.JXC.BL
                 int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
 
                 var dbStocks = from stock in db.Leave_Stock
-                               where stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)
+                               //where stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)
                                select stock;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    dbStocks = dbStocks.Where(stock => (stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)));
+                }
+                else
+                {
+                    dbStocks = dbStocks.Where(stock => (stock.Shop_ID == this.Shop.Shop_ID));
+
+                }
 
                 if (leave_stock_ids != null && leave_stock_ids.Length > 0)
                 {
@@ -453,7 +463,7 @@ namespace KM.JXC.BL
                                               City = l_dist,
                                               Province = l_distp,
                                               Email = l_cus.Email,
-                                              Type = l_mtype
+                                              Type = l_mtype != null ? new BMallType { ID=l_mtype.Mall_Type_ID,Name=l_mtype.Name } : new BMallType { ID=0,Name=""}
                                           },
                                           Sale_ID = l_sale.Mall_Trade_ID,
                                           Amount = l_sale.Amount,
@@ -580,6 +590,15 @@ namespace KM.JXC.BL
                 var dbstocks = from stock in db.Back_Stock
                                where stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)
                                select stock;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    dbstocks=dbstocks.Where(stock=>(stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)));
+                }
+                else
+                {
+                    dbstocks = dbstocks.Where(stock => (stock.Shop_ID == this.Shop.Shop_ID));
+                }
 
                 if (back_stock_ids != null)
                 {
@@ -766,7 +785,7 @@ namespace KM.JXC.BL
                                   Created = backsale.Created,
                                   Description = backsale.Description,
                                   Sale = new BSale
-                                  {                                      
+                                  {
                                       Amount = order.Amount,
                                       Modified = (int)order.Modified,
                                       Sale_ID = order.Mall_Trade_ID,
@@ -776,7 +795,7 @@ namespace KM.JXC.BL
                                           ID = customer.Customer_ID,
                                           Mall_Name = customer.Mall_Name,
                                           Mall_ID = customer.Mall_ID,
-                                          Type = mtype
+                                          Type = new BMallType { ID = mtype.Mall_Type_ID, Name = mtype.Name, Description = mtype.Description }
                                       }
                                   },
                               },
@@ -788,7 +807,7 @@ namespace KM.JXC.BL
                                   ID = user.User_ID,
                                   Mall_Name = user.Mall_Name,
                                   Mall_ID = user.Mall_ID,
-                                  Type = mtype
+                                  Type = new BMallType {  ID=mtype.Mall_Type_ID,Name=mtype.Name,Description=mtype.Description}
                               },
                               Description = stock.Description,
                               Shop = new BShop
@@ -929,12 +948,15 @@ namespace KM.JXC.BL
                          select o;  
 
                 int[] cshop_ids=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
-                if (cshop_ids == null)
-                {
-                    cshop_ids = new int[0];
-                }
 
-                os=os.Where(o1=>o1.Shop_ID==this.Shop_Id || o1.Shop_ID==this.Main_Shop.Shop_ID || cshop_ids.Contains(o1.Shop_ID));
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    os = os.Where(o1 => o1.Shop_ID == this.Shop_Id || o1.Shop_ID == this.Main_Shop.Shop_ID || cshop_ids.Contains(o1.Shop_ID));
+                }
+                else
+                {
+                    os = os.Where(o1 => o1.Shop_ID == this.Shop_Id);
+                }
 
                 if (enter_stock_id > 0)
                 {
@@ -1681,24 +1703,24 @@ namespace KM.JXC.BL
             {
                 int[] spids = (from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
                 var hs = from house in db.Store_House select house;
-                if (spids != null && spids.Length > 0)
+                if (this.Shop.Shop_ID==this.Main_Shop.Shop_ID)
                 {
-                    hs = hs.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
+                    hs = hs.Where(a => (a.Shop_ID == this.Shop.Shop_ID || spids.Contains(a.Shop_ID)));
                 }
                 else
                 {
                     hs = hs.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID);
                 }
 
-                houses = (from hos in hs
+                var tmp = from hos in hs
                           select new BStoreHouse
                           {
                               ID = hos.StoreHouse_ID,
                               Name = hos.Title,
                               Created = (int)hos.Create_Time,
-                              Address=hos.Address,
-                              Phone=hos.Phone,
-                              IsDefault=(bool)hos.Default,
+                              Address = hos.Address,
+                              Phone = hos.Phone,
+                              IsDefault = (bool)hos.Default,
                               Guard = (from user in db.User
                                        where user.User_ID == hos.User_ID
                                        select new BUser
@@ -1721,10 +1743,12 @@ namespace KM.JXC.BL
                                       where shop.Shop_ID == hos.Shop_ID
                                       select new BShop
                                           {
-                                              ID=shop.Shop_ID,
-                                              Title=shop.Name
+                                              ID = shop.Shop_ID,
+                                              Title = shop.Name
                                           }).FirstOrDefault<BShop>()
-                          }).OrderBy(a=>a.ID).ToList<BStoreHouse>();
+                          };
+
+                houses = tmp.ToList<BStoreHouse>();
 
                 foreach (BStoreHouse house in houses)
                 {
@@ -1838,9 +1862,18 @@ namespace KM.JXC.BL
                     child_ids = new int[] { 0 };
                 }
 
-                var products = from product in db.Product
-                               where product.Parent_ID==0 && (product.Shop_ID == this.Shop.Shop_ID || product.Shop_ID == this.Main_Shop.Shop_ID || child_ids.Contains(product.Shop_ID))
+                var products = from product in db.Product      
+                               where product.Parent_ID==0
                                select product;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    products = products.Where(product => (product.Shop_ID == this.Shop.Shop_ID || child_ids.Contains(product.Shop_ID)));
+                }
+                else
+                {
+                    products = products.Where(product => (product.Shop_ID == this.Shop.Shop_ID || product.Shop_ID==this.Main_Shop.Shop_ID));
+                }
 
                 if (category_id >0)
                 {
@@ -1915,6 +1948,18 @@ namespace KM.JXC.BL
                                               Mall_ID = u.Mall_ID,
                                           }).FirstOrDefault<BUser>()
                               }).OrderBy(a=>a.ID).Skip((page-1)*pageSize).Take(pageSize).ToList<BProduct>();
+
+                    foreach (BProduct product in stocks)
+                    {
+                        if (product.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                        {
+                            product.FromMainShop = true;
+                        }
+                        else if (child_ids != null && child_ids.Length > 0 && child_ids.Contains(product.Shop.Shop_ID))
+                        {
+                            product.FromChildShop = true;
+                        }
+                    }
                 }
             }
 

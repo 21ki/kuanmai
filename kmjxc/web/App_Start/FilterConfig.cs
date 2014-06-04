@@ -11,7 +11,7 @@ namespace KM.JXC.Web
         {
             filters.Add(new HandleErrorAttribute());
             filters.Add(new KmJxcAuthorize());
-            //filters.Add(new AccessTokenValidation());
+            filters.Add(new GolbalSettingFilter());
         }
     }
 }

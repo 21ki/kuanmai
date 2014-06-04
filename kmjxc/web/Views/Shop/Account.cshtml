@@ -1,6 +1,83 @@
 ﻿@{
-    ViewBag.Title = "User";
+    ViewBag.Title = "账户列表";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 
-<h2>User</h2>
+<script>
+    var $grid = null;
+    $(function () {
+        var obj2 = {
+            width: 859, height: 600, title: "账户列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+        };
+
+        obj2.colModel = [
+                           {
+                               title: "编号", width: 100, dataType: "string", dataIndx: "ID", editable: false
+                           },
+                           {
+                               title: "账户", width: 150, dataType: "string", dataIndx: "Mall_Name", editable: false
+                           },                         
+                           {
+                               title: "店铺", width: 220, dataType: "string", dataIndx: "Shop.Title", editable: false
+                           },
+                           {
+                               title: "创建时间", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false
+                           }
+                          
+        ];
+
+        obj2.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 40,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [40, 60, 80, 100],
+            getUrl: function (prgrid) {
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }                
+                var shopId = 0;
+
+                return {
+                    url: "/api/Shop/SearchShopUsers", data: "shop_id=" + shopId + "&page=" + page + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        $("#shopUsers").on("pqgridrender", function (evt, obj) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+        });
+
+        $grid = $("#shopUsers").pqGrid(obj2);
+
+        function getRowIndx() {
+            var rows = [];
+            var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            if (arr && arr.length > 0) {
+                for (var i = 0; i < arr.length; i++) {
+                    rows.push(arr[i].rowIndx);
+                }
+                return rows;
+            }
+            else {
+                return null;
+            }
+        }
+    });
+
+</script>
+<div id="shopUsers">
+
+</div>

@@ -57,7 +57,7 @@ namespace KM.JXC.BL
                 }
                 else
                 {
-                    bo = bo.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID);
+                    bo = bo.Where(a => a.Shop_ID == this.Shop.Shop_ID);
                 }
 
                 if (user_ids !=null && user_ids.Length>0)
@@ -103,7 +103,7 @@ namespace KM.JXC.BL
                                          Description = border.Description,
                                          EndTime = (long)border.End_Date,
                                          InsureTime = (long)border.Insure_Date,
-                                         WriteTime=(long)border.Write_Date,                                         
+                                         WriteTime = (long)border.Write_Date,
                                          OrderUser = (from u in db.User
                                                       where u.User_ID == border.Order_User_ID
                                                       select new BUser
@@ -123,8 +123,16 @@ namespace KM.JXC.BL
                                                            Mall_ID = u.Mall_ID,
                                                            Mall_Name = u.Mall_Name,
                                                            Name = u.Name
-                                                       }).FirstOrDefault<BUser>(),     
-                                       
+                                                       }).FirstOrDefault<BUser>(),
+                                         Shop = (from sp in db.Shop
+                                                 where sp.Shop_ID == border.Shop_ID
+                                                 select new BShop
+                                                 {
+                                                     ID = sp.Shop_ID,
+                                                     Mall_ID = sp.Mall_Shop_ID,
+                                                     Title = sp.Name
+                                                 }).FirstOrDefault<BShop>()
+
                                      }).ToList<BBuyOrder>();
 
                     foreach (BBuyOrder o in buyOrders)
@@ -148,6 +156,15 @@ namespace KM.JXC.BL
 
                         List<BBuyOrderDetail> dss = ds.ToList<BBuyOrderDetail>();
                         o.Details = dss;
+
+                        if (o.Shop.ID == this.Main_Shop.Shop_ID)
+                        {
+                            o.FromMainShop = true;
+                        }
+                        else if (spids != null && spids.Contains(o.Shop.ID))
+                        {
+                            o.FromChildShop = true;
+                        }
                     }
                 }
             }
@@ -179,8 +196,18 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var vbo = from vb in db.Buy 
-                          where vb.Shop_ID == this.Shop.Shop_ID || vb.Shop_ID==this.Main_Shop.Shop_ID 
+                          //where vb.Shop_ID == this.Shop.Shop_ID || vb.Shop_ID==this.Main_Shop.Shop_ID 
                           select vb;
+
+                int[] spids = (from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                if (spids != null && spids.Length > 0)
+                {
+                    vbo = vbo.Where(o => (o.Shop_ID == this.Shop.Shop_ID || spids.Contains(o.Shop_ID)));
+                }
+                else
+                {
+                    vbo = vbo.Where(o => (o.Shop_ID == this.Shop.Shop_ID));
+                }
 
                 if (user_ids != null && user_ids.Length>0)
                 {
@@ -218,8 +245,8 @@ namespace KM.JXC.BL
                     var vboo = from vbb in vbo
                                select new BBuy
                                {
-                                   Status=vbb.Status,
-                                   Order =(from o in db.Buy_Order where o.Buy_Order_ID==vbb.Buy_Order_ID select new BBuyOrder{ ID=o.Buy_Order_ID}).FirstOrDefault<BBuyOrder>(),
+                                   Status = vbb.Status,
+                                   Order = (from o in db.Buy_Order where o.Buy_Order_ID == vbb.Buy_Order_ID select new BBuyOrder { ID = o.Buy_Order_ID }).FirstOrDefault<BBuyOrder>(),
                                    ComeDate = vbb.Come_Date,
                                    Description = vbb.Description,
                                    Created = vbb.Create_Date,
@@ -237,7 +264,13 @@ namespace KM.JXC.BL
                                                Password = u.Password,
                                                //Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).ToList<Mall_Type>()[0]
                                            }).FirstOrDefault<BUser>(),
-                                   Shop = (from sp in db.Shop where sp.Shop_ID == vbb.Shop_ID select new BShop { ID = sp.Shop_ID }).FirstOrDefault<BShop>()
+                                   Shop = (from sp in db.Shop
+                                           where sp.Shop_ID == vbb.Shop_ID
+                                           select new BShop
+                                           {
+                                               ID = sp.Shop_ID,
+                                               Title = sp.Name
+                                           }).FirstOrDefault<BShop>()
                                };
                     verifications = vboo.ToList<BBuy>();
                     int[] orderIds;
@@ -273,6 +306,15 @@ namespace KM.JXC.BL
                                 {
                                     d.Product = pdtManager.GetProductFullInfo(d.ProductId);
                                 }
+                            }
+
+                            if (b.Shop.ID == this.Main_Shop.Shop_ID)
+                            {
+                                b.FromMainShop = true;
+                            }
+                            else if (spids != null && spids.Contains(b.Shop.ID))
+                            {
+                                b.FromChildShop = true;
                             }
                         }
                     }

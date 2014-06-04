@@ -30,6 +30,21 @@
                            }
                        },
                        {
+                            title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false
+
+                        },
+                        {
+                            title: "主店铺", width: 70, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {
+                                if (ui.rowData["FromMainShop"] == true) {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            }
+
+                        },
+                       {
                              title: "状态", width: 150, dataType: "string", dataIndx: "Status", editable: false, render: function (ui) {
                                  var cellData = ui.rowData["Status"];
                                  if (cellData == 0) {

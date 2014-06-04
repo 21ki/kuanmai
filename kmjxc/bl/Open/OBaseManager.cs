@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 using KM.JXC.DBA;
 using Top.Api;
+using KM.JXC.BL.Models;
 
 namespace KM.JXC.BL.Open
 {
     public class OBaseManager
     {
-        public Mall_Type MallType { get; set; }
+        public BMallType  MallType { get; set; }
         public Access_Token Access_Token { get; set; }
         public Open_Key Open_Key { get; set; }
         public ITopClient client {get;set;}
@@ -59,10 +60,10 @@ namespace KM.JXC.BL.Open
                     throw new Exception("Didn't find app key and secret for Mall Type ID:" + this.Mall_Type_ID);
                 }
 
-                var t = from tp in db.Mall_Type where tp.Mall_Type_ID == this.Mall_Type_ID select tp;
-                if (t.ToList<Mall_Type>().Count == 1)
+                var t = from tp in db.Mall_Type where tp.Mall_Type_ID == this.Mall_Type_ID select new BMallType { ID=tp.Mall_Type_ID,Name=tp.Name };
+                if (t.ToList<BMallType>().Count == 1)
                 {
-                    this.MallType = t.ToList<Mall_Type>()[0];
+                    this.MallType = t.ToList<BMallType>()[0];
                 }
 
             }

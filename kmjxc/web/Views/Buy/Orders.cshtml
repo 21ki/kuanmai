@@ -54,6 +54,21 @@
                             title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false, render: function (ui) {
                                 return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
+                        },
+                        {
+                            title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false
+                            
+                        },
+                        {
+                            title: "主店铺", width: 70, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {
+                                if (ui.rowData["FromMainShop"] == true) {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            }
+
                          },
 
                          {

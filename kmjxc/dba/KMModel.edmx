@@ -86,7 +86,7 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="mediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="ID" Type="mediumint" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Created" Type="int" Nullable="false" />
         </EntityType>
@@ -278,6 +278,7 @@
             <PropertyRef Name="Employee_ID" />
           </Key>
           <Property Name="Employee_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Department" Type="varchar" MaxLength="45" />
           <Property Name="Name" Type="varchar" MaxLength="45" />
           <Property Name="Duty" Type="varchar" MaxLength="45" />
@@ -289,7 +290,6 @@
           <Property Name="Address" Type="varchar" MaxLength="45" />
           <Property Name="Phone" Type="varchar" MaxLength="15" />
           <Property Name="Email" Type="varchar" MaxLength="45" />
-          <Property Name="User_ID" Type="umediumint" />
         </EntityType>
         <EntityType Name="Enter_Stock">
           <Key>
@@ -698,7 +698,7 @@
           <Key>
             <PropertyRef Name="User_ID" />
           </Key>
-          <Property Name="User_ID" Type="umediumint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="User_ID" Type="umediumint" Nullable="false" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Parent_Mall_ID" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Name" Type="varchar" Nullable="false" MaxLength="45" />
@@ -730,7 +730,6 @@
           <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Buy_Order_Detail" />
           <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Customer" />
           <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Customer_Shop" />
-          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Employee" />
           <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Enter_Stock" />
           <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Enter_Stock_Detail" />
           <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Mall_Type" />
@@ -743,14 +742,12 @@
           <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Stock_Pile" />
           <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Supplier" />
           <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Supplier_Shop" />
-          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
           <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Mall_Product" />
           <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" />
           <EntitySet Name="Product_Spec" EntityType="KM.JXC.DBA.Model.Product_Spec" />
           <EntitySet Name="Product_Spec_Value" EntityType="KM.JXC.DBA.Model.Product_Spec_Value" />
           <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Product_Specifications" />
           <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Product_Class" />
-          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
           <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Image" />
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Common_District" />
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Buy_Detail" />
@@ -768,6 +765,9 @@
           <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Express_Fee" />
           <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Express_Shop" />
           <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Shop_Child_Request" />
+          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Employee" />
+          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.User" />
+          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -914,24 +914,6 @@
           </Key>
           <Property Type="Int32" Name="Customer_ID" Nullable="false" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Employee">
-          <Key>
-            <PropertyRef Name="Employee_ID" />
-          </Key>
-          <Property Type="Int32" Name="Employee_ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
-          <Property Type="String" Name="Department" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Duty" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Gendar" MaxLength="1" FixedLength="true" Unicode="false" />
-          <Property Type="Int64" Name="BirthDate" />
-          <Property Type="Int64" Name="HireDate" />
-          <Property Type="Int64" Name="MatureDate" />
-          <Property Type="String" Name="IdentityCard" MaxLength="18" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Address" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Phone" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Email" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="User_ID" />
         </EntityType>
         <EntityType Name="Enter_Stock">
           <Key>
@@ -1086,24 +1068,6 @@
           <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
         </EntityType>
-        <EntityType Name="User">
-          <Key>
-            <PropertyRef Name="User_ID" />
-          </Key>
-          <Property Type="Int32" Name="User_ID" Nullable="false" />
-          <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Parent_Mall_ID" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Mall_Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Parent_Mall_Name" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Mall_Type" Nullable="false" />
-          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Parent_User_ID" />
-          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
-          <Property Type="Int32" Name="Created" />
-          <Property Type="Int32" Name="Modified" />
-          <Property Type="Int32" Name="Modified_By" />
-        </EntityType>
         <EntityType Name="Mall_Product">
           <Key>
             <PropertyRef Name="Mall_ID" />
@@ -1184,14 +1148,6 @@
           <Property Type="Boolean" Name="Enabled" Nullable="false" />
           <Property Type="String" Name="Mall_CID" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Mall_PCID" MaxLength="20" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="Admin_Category">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Created" Nullable="false" />
         </EntityType>
         <EntityType Name="Image">
           <Key>
@@ -1423,6 +1379,50 @@
           <Property Type="Int32" Name="Modified_By" />
           <Property Type="Int32" Name="Child_Shop_ID" Nullable="false" />
         </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Employee_ID" />
+          </Key>
+          <Property Type="Int32" Name="Employee_ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="String" Name="Department" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Duty" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Gendar" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Type="Int64" Name="BirthDate" />
+          <Property Type="Int64" Name="HireDate" />
+          <Property Type="Int64" Name="MatureDate" />
+          <Property Type="String" Name="IdentityCard" MaxLength="18" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Address" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Phone" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Email" MaxLength="45" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Parent_Mall_ID" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mall_Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Parent_Mall_Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Mall_Type" Nullable="false" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Password" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Parent_User_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="Created" />
+          <Property Type="Int32" Name="Modified" />
+          <Property Type="Int32" Name="Modified_By" />
+        </EntityType>
+        <EntityType Name="Admin_Category">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Created" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1579,25 +1579,6 @@
               <MappingFragment StoreEntitySet="Customer_Shop">
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Customer_ID" ColumnName="Customer_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Employee">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Employee">
-              <MappingFragment StoreEntitySet="Employee">
-                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Phone" ColumnName="Phone" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="IdentityCard" ColumnName="IdentityCard" />
-                <ScalarProperty Name="MatureDate" ColumnName="MatureDate" />
-                <ScalarProperty Name="HireDate" ColumnName="HireDate" />
-                <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
-                <ScalarProperty Name="Gendar" ColumnName="Gendar" />
-                <ScalarProperty Name="Duty" ColumnName="Duty" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Department" ColumnName="Department" />
-                <ScalarProperty Name="Employee_ID" ColumnName="Employee_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1762,25 +1743,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="User">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
-              <MappingFragment StoreEntitySet="User">
-                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
-                <ScalarProperty Name="Modified" ColumnName="Modified" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
-                <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
-                <ScalarProperty Name="Password" ColumnName="Password" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Mall_Type" ColumnName="Mall_Type" />
-                <ScalarProperty Name="Parent_Mall_Name" ColumnName="Parent_Mall_Name" />
-                <ScalarProperty Name="Mall_Name" ColumnName="Mall_Name" />
-                <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
-                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
-                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Mall_Product">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Product">
               <MappingFragment StoreEntitySet="Mall_Product">
@@ -1860,15 +1822,6 @@
                 <ScalarProperty Name="Parent_ID" ColumnName="Parent_ID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Product_Class_ID" ColumnName="Product_Class_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Category">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Category">
-              <MappingFragment StoreEntitySet="Admin_Category">
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2108,6 +2061,53 @@
                 <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Created_By" ColumnName="Created_By" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employee">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Phone" ColumnName="Phone" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="IdentityCard" ColumnName="IdentityCard" />
+                <ScalarProperty Name="MatureDate" ColumnName="MatureDate" />
+                <ScalarProperty Name="HireDate" ColumnName="HireDate" />
+                <ScalarProperty Name="BirthDate" ColumnName="BirthDate" />
+                <ScalarProperty Name="Gendar" ColumnName="Gendar" />
+                <ScalarProperty Name="Duty" ColumnName="Duty" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Employee_ID" ColumnName="Employee_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Parent_User_ID" ColumnName="Parent_User_ID" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Mall_Type" ColumnName="Mall_Type" />
+                <ScalarProperty Name="Parent_Mall_Name" ColumnName="Parent_Mall_Name" />
+                <ScalarProperty Name="Mall_Name" ColumnName="Mall_Name" />
+                <ScalarProperty Name="Parent_Mall_ID" ColumnName="Parent_Mall_ID" />
+                <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Category">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Category">
+              <MappingFragment StoreEntitySet="Admin_Category">
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -17,7 +17,9 @@ namespace KM.JXC.Web.Filters
         {
             base.OnActionExecuting(filterContext);
             string user_id = filterContext.HttpContext.User.Identity.Name;
-
+            if (string.IsNullOrEmpty(user_id)) {
+                filterContext.HttpContext.Response.Redirect("/Home/Login?message=登录信息过期，请重新登录");
+            }
             //Verify if the cookie user is a valid user
             UserManager userMgr = new UserManager(int.Parse(user_id),null);
             BUser user = userMgr.GetUser(int.Parse(user_id));
@@ -29,7 +31,7 @@ namespace KM.JXC.Web.Filters
 
             //Verify if logon user already has access token in db
             KuanMaiEntities db = new KuanMaiEntities();
-            Access_Token token = (from t in db.Access_Token where t.User_ID == user.ID && t.Mall_Type_ID == user.Type.Mall_Type_ID select t).FirstOrDefault<Access_Token>();
+            Access_Token token = (from t in db.Access_Token where t.User_ID == user.ID && t.Mall_Type_ID == user.Type.ID select t).FirstOrDefault<Access_Token>();
 
             if (token == null) {
                 filterContext.HttpContext.Response.Redirect("/Home/Login?message=没有授权信息，请登录并授权");
@@ -41,9 +43,6 @@ namespace KM.JXC.Web.Filters
             {
                 filterContext.HttpContext.Response.Redirect("/Home/Login?message=授权信息已经过期，请重新登录并授权");
             }
-            
-            filterContext.Controller.ViewData["CurrentShop"]=userMgr.Shop;
-            filterContext.Controller.ViewData["ChildShop"] = userMgr.ChildShops;
         }
     }
 }

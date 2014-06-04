@@ -14,8 +14,9 @@ namespace test
     {
         static void Main(string[] args)
         {
-            
-            
+
+            PermissionTest ptest = new PermissionTest();
+            ptest.SyncPermissionsWithActions();
         }
     }
 }

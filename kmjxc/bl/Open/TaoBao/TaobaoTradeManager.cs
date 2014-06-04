@@ -355,7 +355,7 @@ namespace KM.JXC.BL.Open.TaoBao
                     {
                         sale.Amount = double.Parse(trade.Payment);
                     }
-                    sale.Buyer = new BCustomer() { Type = new Mall_Type() { Mall_Type_ID = this.Mall_Type_ID }, Mall_ID = trade.BuyerNick, Name = trade.ReceiverName, Address = trade.ReceiverAddress, Phone = trade.ReceiverMobile, Province = new Common_District { name = trade.ReceiverState }, City = new Common_District() { name = trade.ReceiverCity } };
+                    sale.Buyer = new BCustomer() { Type = new BMallType() { ID = this.Mall_Type_ID }, Mall_ID = trade.BuyerNick, Name = trade.ReceiverName, Address = trade.ReceiverAddress, Phone = trade.ReceiverMobile, Province = new Common_District { name = trade.ReceiverState }, City = new Common_District() { name = trade.ReceiverCity } };
                     if (trade.Orders != null)
                     {
                         foreach (TB.Order o in trade.Orders)
@@ -492,7 +492,7 @@ namespace KM.JXC.BL.Open.TaoBao
 
                     sale.Province = new Common_District() { name=trade.ReceiverState };
                     sale.City = new Common_District() { name = trade.ReceiverState };
-                    sale.Buyer = new BCustomer() {Type=new Mall_Type(){ Mall_Type_ID=this.Mall_Type_ID},  Mall_ID = trade.BuyerNick, Name = trade.ReceiverName, Address = trade.ReceiverAddress, Phone = trade.ReceiverMobile, Province = new Common_District { name = trade.ReceiverState }, City = new Common_District() { name=trade.ReceiverCity } };
+                    sale.Buyer = new BCustomer() {Type=new BMallType(){ ID=this.Mall_Type_ID},  Mall_ID = trade.BuyerNick, Name = trade.ReceiverName, Address = trade.ReceiverAddress, Phone = trade.ReceiverMobile, Province = new Common_District { name = trade.ReceiverState }, City = new Common_District() { name=trade.ReceiverCity } };
                     if (trade.Orders != null)
                     {
                         foreach (TB.Order o in trade.Orders)

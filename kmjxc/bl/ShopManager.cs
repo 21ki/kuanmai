@@ -161,7 +161,16 @@ namespace KM.JXC.BL
                 Shop shop = (from sp in db.Shop where sp.Name == child_shop_name && sp.Mall_Type_ID==mall_type select sp).FirstOrDefault<Shop>();
                 if (shop == null)
                 {
-                    throw new KMJXCException("您要添加的子店铺信息不存在，请先使用子店铺的主账户登录进销存，然后在执行添加子店铺操作");
+                    throw new KMJXCException("您要添加的子店铺(" + child_shop_name + ")信息不存在，请先使用子店铺的主账户登录进销存，然后在执行添加子店铺操作");
+                }
+
+                if (shop.Parent_Shop_ID > 0) 
+                {
+                    Shop mainshop = (from sp in db.Shop where sp.Shop_ID==shop.Parent_Shop_ID select sp).FirstOrDefault<Shop>();
+                    if (mainshop != null) 
+                    {
+                        throw new KMJXCException(child_shop_name+" 已经是 "+mainshop.Name+" 的子店铺，不能重复添加或者添加为别的店铺的子店铺");
+                    }
                 }
 
                 result = this.AddChildShop(this.Shop, shop);
@@ -190,6 +199,7 @@ namespace KM.JXC.BL
                 Shop_Child_Request scr = (from sr in db.Shop_Child_Request where sr.Shop_ID == parent_shop.Shop_ID && sr.Child_Shop_ID == shop.Shop_ID && sr.Status == 0 select sr).FirstOrDefault<Shop_Child_Request>();
                 if (scr == null)
                 {
+                    scr = new Shop_Child_Request();
                     scr.Shop_ID = (int)parent_shop.Shop_ID;
                     scr.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     scr.Child_Shop_ID = (int)shop.Shop_ID;
@@ -208,9 +218,7 @@ namespace KM.JXC.BL
             }
 
             return result;
-        }
-
-        
+        }        
 
         public List<BAddChildRequest> SearchReceivedAddChildRequests()
         {
@@ -267,7 +275,8 @@ namespace KM.JXC.BL
                                           Mall_ID = ""
                                       },
                                       Created = request.Created,
-                                      Modified = (int)request.Modified
+                                      Modified = (int)request.Modified,
+                                      Status=(int)request.Status
                                   };
 
                 requests = tmpRequests.ToList<BAddChildRequest>();
@@ -328,7 +337,8 @@ namespace KM.JXC.BL
                                           Mall_ID = ""
                                       },
                                       Created = request.Created,
-                                      Modified = (int)request.Modified
+                                      Modified = (int)request.Modified,
+                                      Status=(int)request.Status
                                   };
 
                 requests = tmpRequests.ToList<BAddChildRequest>();
@@ -352,18 +362,18 @@ namespace KM.JXC.BL
                           join mtype in db.Mall_Type on cus.Mall_Type_ID equals mtype.Mall_Type_ID
                           join shop_cus in db.Customer_Shop on cus.Customer_ID equals shop_cus.Customer_ID
                           join shop in db.Shop on shop_cus.Shop_ID equals shop.Shop_ID
-                          where shop_cus.Shop_ID == this.Shop.Shop_ID || shop_cus.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(shop_cus.Shop_ID)
+                          where shop_cus.Shop_ID == this.Shop.Shop_ID || csp_ids.Contains(shop_cus.Shop_ID)
 
                           select new BCustomer
                           {
-                              ID=cus.Customer_ID,
+                              ID = cus.Customer_ID,
                               Address = cus.Address,
                               Mall_ID = cus.Mall_ID,
                               Mall_Name = cus.Mall_Name,
-                              Type = mtype,
+                              Type = new BMallType {  ID=mtype.Mall_Type_ID,Name=mtype.Name,Description=mtype.Description},
                               Email = cus.Email,
                               Phone = cus.Phone,
-                              Name=cus.Name,
+                              Name = cus.Name,
                               Shop = new BShop
                               {
                                   Title = shop.Name,
@@ -930,6 +940,128 @@ namespace KM.JXC.BL
             }
             
             return shops;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="total"></param>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
+        public List<BUser> SearchShopUsers(int page,int pageSize,out long total,int shop_id=0)
+        {
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            List<BUser> users = new List<BUser>();
+            total = 0;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from shop_user in db.User
+                          select shop_user;
+
+                if (shop_id == 0)
+                {
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        int[] childs = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                        tmp = tmp.Where(u => (u.Shop_ID == this.Shop.Shop_ID || childs.Contains(u.Shop_ID)));
+                    }
+                    else
+                    {
+                        tmp = tmp.Where(u => u.Shop_ID == this.Shop.Shop_ID);
+                    }
+                }
+                else
+                {
+                    tmp = tmp.Where(u => u.Shop_ID == shop_id);
+                }
+
+                var tmpUser = from user in tmp
+                              join shop in db.Shop on user.Shop_ID equals shop.Shop_ID into lShop
+                              from l_shop in lShop.DefaultIfEmpty()
+                              join mtype in db.Mall_Type on user.Mall_Type equals mtype.Mall_Type_ID into lType
+                              from l_mtype in lType.DefaultIfEmpty()
+                              join employee in db.Employee on user.User_ID equals employee.User_ID into lEmployee
+                              from l_employee in lEmployee.DefaultIfEmpty()
+                              join parent in db.User on user.Parent_User_ID equals parent.User_ID into lParent
+                              from l_parent in lParent.DefaultIfEmpty()
+                              select new BUser
+                              {
+                                  Created = (int)user.Created,
+                                  Mall_ID = user.Mall_ID,
+                                  Mall_Name = user.Mall_Name,
+                                  ID = user.User_ID,
+                                  Name = user.Name,
+                                  Type = l_mtype != null ? new BMallType
+                                  {
+                                      ID = l_mtype.Mall_Type_ID,
+                                      Name = l_mtype.Name,
+                                      Description = l_mtype.Description
+                                  } : new BMallType { ID = 0, Name = "", Description = "" },
+                                  EmployeeInfo = l_employee != null ? new BEmployee
+                                  {
+                                      ID = l_employee.Employee_ID,
+                                      Address = l_employee.Address,
+                                      User_ID = user.User_ID,
+                                      Phone = l_employee.Phone,
+                                      MatureDate = (int)l_employee.MatureDate,
+                                      IdentityCard = l_employee.IdentityCard,
+                                      HireDate = (int)l_employee.HireDate,
+                                      Gendar = l_employee.Gendar,
+                                      Email = l_employee.Email,
+                                      Duty = l_employee.Duty,
+                                      Department = l_employee.Department,
+                                      BirthDate = (int)l_employee.BirthDate,
+                                      Name = l_employee.Name
+                                  } : new BEmployee
+                                  {
+                                      ID = 0,
+                                      Address = "",
+                                      User_ID = 0,
+                                      Phone = "",
+                                      MatureDate = 0,
+                                      IdentityCard = "",
+                                      HireDate = 0,
+                                      Gendar = "",
+                                      Email = "",
+                                      Duty = "",
+                                      Department = "",
+                                      BirthDate = 0,
+                                      Name = ""
+                                  },                                 
+                                  Shop = l_shop != null ?
+                                  new BShop
+                                  {
+                                      ID = l_shop.Shop_ID,
+                                      Mall_ID = l_shop.Mall_Shop_ID,
+                                      Title = l_shop.Name
+                                  } :
+                                  new BShop
+                                  {
+                                      ID = 0,
+                                      Mall_ID = "",
+                                      Title = ""
+                                  }
+                              };
+
+                total = tmpUser.Count();
+                if (total > 0)
+                {
+                    users = tmpUser.OrderBy(u => u.Shop.ID).OrderBy(u=>u.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BUser>();
+                }
+            }
+
+            return users;
         }
     }
 }

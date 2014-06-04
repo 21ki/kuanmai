@@ -62,12 +62,15 @@
     <Compile Include="AccessManager.cs" />
     <Compile Include="BBaseManager.cs" />
     <Compile Include="Models\BAddChildRequest.cs" />
+    <Compile Include="Models\BAdminRole.cs" />
     <Compile Include="Models\BCustomer.cs" />
     <Compile Include="Models\BData.cs" />
+    <Compile Include="Models\BEmployee.cs" />
     <Compile Include="Models\BExpress.cs" />
     <Compile Include="Models\BExpressFee.cs" />
     <Compile Include="Models\BLeaveStock.cs" />
     <Compile Include="Models\BLeaveStockDetail.cs" />
+    <Compile Include="Models\BMallType.cs" />
     <Compile Include="Models\BProductStoreProperty.cs" />
     <Compile Include="ImageManager.cs" />
     <Compile Include="Models\Area.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Open\TaoBao\TaobaoShopManager.cs" />
     <Compile Include="Open\TaoBao\TaobaoTradeManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoUserManager.cs" />
+    <Compile Include="PermissionManagement.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />
     <Compile Include="SalesManager.cs" />

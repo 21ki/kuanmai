@@ -454,6 +454,9 @@ function KMJXCShopManager() {
     this.HandleAddChildRequest = function (params, callback) {
         this.AjaxCall("/api/Shop/HandleAddChildRequest", params, callback);
     }
+    this.SearchShopUsers = function (params, callback) {
+        this.AjaxCall("/api/Shop/SearchShopUsers", params, callback);
+    }
 }
 
 KMJXManager.prototype = new KMJXCBase();

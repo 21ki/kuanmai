@@ -20,20 +20,33 @@
                 var pdtId = obj.data[obj.rowIndxPage]['ID'];
                 //alert(pdtId);
             },
-            freezeCols:2
+            freezeCols:4
         };
 
         obj.colModel = [{ title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+                       
+                        {
+                            title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Name", editable: false
+
+                        },
+                        {
+                            title: "主店铺", width: 70, dataType: "string", dataIndx: "Shop.Name", editable: false,
+                            render: function (ui) {
+                                 if (ui.rowData["FromMainShop"] == true) {
+                                     return "是";
+                                 } else {
+                                     return "否";
+                                 }
+                             }
+
+                        },
                         { title: "产品名称", width: 220, dataType: "string", dataIndx: "Title", editable: false },
                         { title: "产品类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },                       
                         {
                             title: "库存", width: 80, dataType: "double", dataIndx: "Quantity", editable: false
-                        },
-                        
-                        {
-                             title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Name", editable: false
-                            
                         }
+                        
+                        
                        
         ];
 

@@ -51,7 +51,7 @@ namespace KM.JXC.BL.Open.TaoBao
                 shop.Description = response.Shop.Desc;
                 shop.Name = response.Shop.Title;
                 shop.Mall_Shop_ID = response.Shop.Sid.ToString();
-                shop.Mall_Type_ID = this.MallType.Mall_Type_ID;
+                shop.Mall_Type_ID = this.MallType.ID;
                 shop.Parent_Shop_ID = 0;
                 shop.Shop_ID = 0;
                 shop.User_ID = user.ID;

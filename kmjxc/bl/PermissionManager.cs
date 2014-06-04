@@ -13,83 +13,150 @@ using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
 namespace KM.JXC.BL
 {
+    public class PCategory : System.Attribute
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+    }
+
     public class Permission
     {
-        //User
+        //User 
+        [PCategory(ID = 1, Name = "用户管理")]
         public int DELETE_USER = 0;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int DISABLE_USER = 0;
-        public int VIEW_USER_PERMISSION = 0;
-        public int GRANT_USER_PERMISSION = 0;
-        public int UPDATE_USER;        
+        [PCategory(ID = 1, Name = "用户管理")]
+        public int UPDATE_USER;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int MAPP_USER_EMPLOYEE;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int SYNC_MALLUSER;
-        public int ADD_USER;
-
-        //Employee
+        [PCategory(ID = 1, Name = "用户管理")]
+        public int ADD_USER = 0;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int VIEW_EMPLOYEE = 0;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int UPDATE_EMPLOYEE = 0;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int DELETE_EMPLOYEE = 0;
+        [PCategory(ID = 1, Name = "用户管理")]
         public int CREATE_EMPLOYEE;
 
-        //Store
-        public int ADD_STORE_HOUSE = 0;
-        public int UPDATE_STORE_HOUSE = 0;
-        public int DELETE_STORE_HOUSE = 0;
-
-        //Sale Order       
+        //Sale Order  
+        [PCategory(ID = 6, Name = "订单管理")]
         public int SYNC_ORDER = 0;
+        [PCategory(ID = 6, Name = "订单管理")]
         public int HANDLE_BACK_SALE = 0;
-
-        //Supplier
-        public int ADD_SUPPLIER = 0;
-        public int UPDATE_SUPPLIER = 0;
-        public int VIEW_SUPPLIER_SUMMARY = 0;
-        public int VIEW_SUPPLIER_DETAIL = 0;
-
         //Customer
+        [PCategory(ID = 6, Name = "订单管理")]
         public int VIEW_CUSTOMER = 0;
+        [PCategory(ID = 6, Name = "订单管理")]
         public int DELETE_CUSTOMER = 0;
+        [PCategory(ID = 6, Name = "订单管理")]
         public int UPDATE_CUSTOMER = 0;
 
         //Buy
+        [PCategory(ID = 4, Name = "采购管理")]
         public int VIEW_BUY = 0;
-        public int ADD_BUY = 0;        
+        [PCategory(ID = 4, Name = "采购管理")]
+        public int ADD_BUY = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
         public int VIEW_BUY_ORDER;
+        [PCategory(ID = 4, Name = "采购管理")]
         public int ADD_BUY_ORDER = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
         public int UPDATE_BUY_ORDER = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
         public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
+        [PCategory(ID = 4, Name = "采购管理")]
         public int DELETE_BUY = 0;//only this buy doesn't has buy detail could be deleted       
+        //Supplier
+        [PCategory(ID = 4, Name = "采购管理")]
+        public int ADD_SUPPLIER = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
+        public int UPDATE_SUPPLIER = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
+        public int VIEW_SUPPLIER_SUMMARY = 0;
+        [PCategory(ID = 4, Name = "采购管理")]
+        public int VIEW_SUPPLIER_DETAIL = 0;
 
         //Product
-        public int VIEW_PRODUCT = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int ADD_PRODUCT = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int UPDATE_PRODUCT = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int DELETE_PRODUCT = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int ADD_PRODUCT_CLASS = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int UPDATE_PRODUCT_CLASS = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int DELETE_PRODUCT_CLASS = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int ADD_PRODUCT_UNIT = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int UPDATE_PRODUCT_UNIT = 0;
-
-        //Stock
-        public int ADD_ENTER_STOCK = 0;
-        public int ADD_LEAVE_STOCK = 0;
-        public int ADD_BACK_STOCK = 0;
-        public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
-
         //Category and Property
+        [PCategory(ID = 3, Name = "产品管理")]
         public int ADD_CATEGORY = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int UPDATE_CATEGORY = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int ADD_PORPERTY = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int UPDATE_PORPERTY = 0;
+        [PCategory(ID = 3, Name = "产品管理")]
         public int DISABLE_CATEGORY = 0;
 
+        //Stock
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int ADD_ENTER_STOCK = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int ADD_LEAVE_STOCK = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int ADD_BACK_STOCK = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int ADD_STORE_HOUSE = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int UPDATE_STORE_HOUSE = 0;
+        [PCategory(ID = 2, Name = "库存管理")]
+        public int DELETE_STORE_HOUSE = 0;
+
+
+
         //Express
+        [PCategory(ID = 6, Name = "店铺管理")]
         public int ADD_SHOP_EXPRESS = 0;
+        [PCategory(ID = 6, Name = "店铺管理")]
         public int UPDATE_SHOP_EXPRESS = 0;
+
+
+        //User Permission
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int HAS_PERMISSION_ADMIN = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int ADD_ADMIN_ROLE = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int UPDATE_ADMIN_ROLE = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int DELETE_ADMIN_ROLE = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int VIEW_ADMIN_ROLE = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int VIEW_USER_PERMISSION = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int UPDATE_USER_PERMISSION = 0;
+        [PCategory(ID = 5, Name = "权限管理")]
+        public int UPDATE_ROLE_ACTION = 0;
+        //Report
+
     }
 
-    public class PermissionManager
+    internal class PermissionManager
     {
         public int Shop_Id { get; set; }       
 

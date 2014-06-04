@@ -9,12 +9,11 @@ using KM.JXC.BL;
 namespace test
 {
     public class PermissionTest
-    {
-        public PermissionManager pm = new PermissionManager(1);
+    {        
 
         public void SyncPermissionsWithActions()
         {
-            pm.SyncPermissionWithAction();
+            PermissionManagement.SyncPermissionWithAction();
         }
     }
 }

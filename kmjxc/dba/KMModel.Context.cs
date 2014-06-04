@@ -38,7 +38,6 @@ namespace KM.JXC.DBA
         public DbSet<Buy_Order_Detail> Buy_Order_Detail { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Customer_Shop> Customer_Shop { get; set; }
-        public DbSet<Employee> Employee { get; set; }
         public DbSet<Enter_Stock> Enter_Stock { get; set; }
         public DbSet<Enter_Stock_Detail> Enter_Stock_Detail { get; set; }
         public DbSet<Mall_Type> Mall_Type { get; set; }
@@ -51,14 +50,12 @@ namespace KM.JXC.DBA
         public DbSet<Stock_Pile> Stock_Pile { get; set; }
         public DbSet<Supplier> Supplier { get; set; }
         public DbSet<Supplier_Shop> Supplier_Shop { get; set; }
-        public DbSet<User> User { get; set; }
         public DbSet<Mall_Product> Mall_Product { get; set; }
         public DbSet<Mall_Product_Sku> Mall_Product_Sku { get; set; }
         public DbSet<Product_Spec> Product_Spec { get; set; }
         public DbSet<Product_Spec_Value> Product_Spec_Value { get; set; }
         public DbSet<Product_Specifications> Product_Specifications { get; set; }
         public DbSet<Product_Class> Product_Class { get; set; }
-        public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Image> Image { get; set; }
         public DbSet<Common_District> Common_District { get; set; }
         public DbSet<Buy_Detail> Buy_Detail { get; set; }
@@ -76,5 +73,8 @@ namespace KM.JXC.DBA
         public DbSet<Express_Fee> Express_Fee { get; set; }
         public DbSet<Express_Shop> Express_Shop { get; set; }
         public DbSet<Shop_Child_Request> Shop_Child_Request { get; set; }
+        public DbSet<Employee> Employee { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<Admin_Category> Admin_Category { get; set; }
     }
 }

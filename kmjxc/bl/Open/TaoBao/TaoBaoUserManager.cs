@@ -41,7 +41,7 @@ namespace KM.JXC.BL.Open.TaoBao
             user.ID = 0;
             user.Mall_ID = response.User.Uid;
             user.Mall_Name = response.User.Nick;
-            user.Type = new Mall_Type() {  Mall_Type_ID=this.Mall_Type_ID};
+            user.Type = new BMallType() {  ID=this.Mall_Type_ID};
             user.Parent = null;
             user.Password = "";           
             return user;
@@ -87,7 +87,7 @@ namespace KM.JXC.BL.Open.TaoBao
                 user.Parent.Mall_Name = response.SubFullinfo.UserNick;
                 user.Parent.Type = this.MallType;
                 user.Parent.Parent = null;
-                Employee employee = new Employee(); ;
+                BEmployee employee = new BEmployee();
                 user.EmployeeInfo = employee;
                 employee.Department = response.SubFullinfo.DepartmentName;
                 employee.Duty = response.SubFullinfo.DutyName;

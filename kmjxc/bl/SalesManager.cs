@@ -814,13 +814,19 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
-                if (cspids == null)
-                {
-                    cspids = new int[] { 0 };
-                }
+               
                 var dbBackSales = from sale in db.Back_Sale
-                                  where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
+                                  //where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
                                   select sale;
+
+                if (cspids != null && cspids.Length > 0)
+                {
+                    dbBackSales = dbBackSales.Where(bs => (bs.Shop_ID == this.Shop.Shop_ID || cspids.Contains(bs.Shop_ID)));
+                }
+                else
+                {
+                    dbBackSales = dbBackSales.Where(bs => (bs.Shop_ID == this.Shop.Shop_ID));
+                }
 
                 if (sale_ids != null && sale_ids.Length > 0)
                 {
@@ -995,12 +1001,12 @@ namespace KM.JXC.BL
                                   Mall_ID = user.Mall_ID,
                                   Mall_Name = user.Mall_Name,
                                   Created = (int)user.Created,
-                                  Type = mtype
+                                  Type = new BMallType { ID = mtype.Mall_Type_ID, Name = mtype.Name, Description = mtype.Description }
                               },
-                            
+
                               Description = sale.Description,
                               ID = sale.Back_Sale_ID,
-                              Amount=sale.Amount,
+                              Amount = sale.Amount,
                               Sale = new BSale
                               {
                                   Amount = order.Amount,
@@ -1011,8 +1017,8 @@ namespace KM.JXC.BL
                                       Mall_Name = customer.Mall_Name,
                                       Phone = customer.Phone,
                                       //Addres=customer.Address,
-                                      Type = mtype,
-                                     Address=customer.Address
+                                      Type = new BMallType {  ID=mtype.Mall_Type_ID,Name=mtype.Name,Description=mtype.Description},
+                                      Address = customer.Address
                                   },
                                   Created = (int)order.Created,
                                   Sale_ID = order.Mall_Trade_ID,

@@ -24,7 +24,7 @@ namespace KM.JXC.BL
         public int Shop_Id { get; private set; }
         public int Main_Shop_Id { get; private set; }
         public Permission CurrentUserPermission {get;private set;}
-        public PermissionManager permissionManager;
+        private PermissionManager permissionManager;
         public Access_Token AccessToken { get; private set; }
 
         public BBaseManager(BUser user,int shop_id,Permission permission)
@@ -88,18 +88,32 @@ namespace KM.JXC.BL
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-               var cu = from us in db.User where us.User_ID == user_id 
-                                    select new BUser
-                                    {
-                                         EmployeeInfo=(from employee in db.Employee where employee.User_ID==us.User_ID select employee).FirstOrDefault<Employee>(),
-                                         ID=us.User_ID,
-                                         Mall_ID=us.Mall_ID,
-                                         Mall_Name=us.Mall_Name,
-                                         Name=us.Name,                                        
-                                         Parent_ID=(int)us.Parent_User_ID,
-                                         Password=us.Password,
-                                         Type= (from mtype in db.Mall_Type where mtype.Mall_Type_ID==us.Mall_Type select mtype).FirstOrDefault<Mall_Type>()
-                                    };
+                var cu = from us in db.User
+                         where us.User_ID == user_id
+                         select new BUser
+                         {
+                             EmployeeInfo = (from employee in db.Employee
+                                             where employee.User_ID == us.User_ID
+                                             select new BEmployee 
+                                             {
+                                                ID=employee.Employee_ID,
+                                                Name=employee.Name
+                                             }).FirstOrDefault<BEmployee>(),
+                             ID = us.User_ID,
+                             Mall_ID = us.Mall_ID,
+                             Mall_Name = us.Mall_Name,
+                             Name = us.Name,
+                             Parent_ID = (int)us.Parent_User_ID,
+                             Password = us.Password,
+                             Type = (from mtype in db.Mall_Type
+                                     where mtype.Mall_Type_ID == us.Mall_Type
+                                     select new BMallType 
+                                     {
+                                         ID=mtype.Mall_Type_ID,
+                                         Name=mtype.Name,
+                                         Description = mtype.Description
+                                     }).FirstOrDefault<BMallType>()
+                         };
                this.CurrentUser = cu.ToList<BUser>()[0];
                 if (this.CurrentUser != null && this.CurrentUser.Parent_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent.Mall_ID))
                 {
@@ -107,7 +121,13 @@ namespace KM.JXC.BL
                                      where us.User_ID == this.CurrentUser.Parent_ID
                                      select new BUser
                                      {
-                                         EmployeeInfo = (from employee in db.Employee where employee.User_ID == us.User_ID select employee).FirstOrDefault<Employee>(),
+                                         EmployeeInfo = (from employee in db.Employee
+                                                         where employee.User_ID == us.User_ID
+                                                         select new BEmployee
+                                                         {
+                                                             ID = employee.Employee_ID,
+                                                             Name = employee.Name
+                                                         }).FirstOrDefault<BEmployee>(),
                                          ID = us.User_ID,
                                          Mall_ID = us.Mall_ID,
                                          Mall_Name = us.Mall_Name,
@@ -115,7 +135,14 @@ namespace KM.JXC.BL
                                          Parent = null,
                                          Parent_ID = (int)us.Parent_User_ID,
                                          Password = us.Password,
-                                         Type = (from mtype in db.Mall_Type where mtype.Mall_Type_ID == us.Mall_Type select mtype).FirstOrDefault<Mall_Type>()
+                                         Type = (from mtype in db.Mall_Type
+                                                 where mtype.Mall_Type_ID == us.Mall_Type
+                                                 select new BMallType
+                                                 {
+                                                     ID = mtype.Mall_Type_ID,
+                                                     Name = mtype.Name,
+                                                     Description=mtype.Description
+                                                 }).FirstOrDefault<BMallType>()
                                      }).FirstOrDefault<BUser>();
                 }
                 else
@@ -188,11 +215,12 @@ namespace KM.JXC.BL
                 if (this.Shop.Parent_Shop_ID > 0)
                 {
                     this.Main_Shop = (from s in db.Shop where s.Shop_ID == this.Shop.Parent_Shop_ID select s).FirstOrDefault<Shop>();
+                    this.ChildShops = new List<Shop>();
                 }
                 else
                 {
                     this.Main_Shop = this.Shop;
-                    this.ChildShops = (from s in db.Shop where s.Parent_Shop_ID == this.MainUser.ID select s).ToList();
+                    this.ChildShops = (from s in db.Shop where s.Parent_Shop_ID == this.Main_Shop.Shop_ID select s).ToList();
                 }
             }
         }

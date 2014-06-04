@@ -51,13 +51,25 @@ namespace KM.JXC.BL
                          select new BUser
                              {
                                  ID = u.User_ID,
-                                 EmployeeInfo = (from e in db.Employee where e.User_ID == u.User_ID select e).FirstOrDefault<Employee>(),
+                                 EmployeeInfo = (from e in db.Employee
+                                                 where e.User_ID == u.User_ID
+                                                 select
+                                                     new BEmployee
+                                                     {
+                                                        ID=e.Employee_ID,
+                                                        Name=e.Name
+                                                     }).FirstOrDefault<BEmployee>(),
                                  Mall_ID = u.Mall_ID,
-                                 Mall_Name = u.Mall_Name,                                
+                                 Mall_Name = u.Mall_Name,
                                  Name = u.Name,
                                  Password = u.Password,
-                                 Parent_ID=(int)u.Parent_User_ID,
-                                 Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type select t).FirstOrDefault<Mall_Type>(),                                 
+                                 Parent_ID = (int)u.Parent_User_ID,
+                                 Type = (from t in db.Mall_Type where t.Mall_Type_ID == u.Mall_Type 
+                                         select new BMallType
+                                         { 
+                                             ID=t.Mall_Type_ID,
+                                             Name=t.Name
+                                         }).FirstOrDefault<BMallType>(),
                              };
                 user = us.FirstOrDefault<BUser>();
                 if (user.Parent_ID > 0)
@@ -112,7 +124,7 @@ namespace KM.JXC.BL
                 dbUser.Mall_ID = user.Mall_ID;
                 dbUser.Mall_Name = user.Mall_Name;
                 dbUser.Name = user.Name;
-                dbUser.Mall_Type = user.Type.Mall_Type_ID;
+                dbUser.Mall_Type = user.Type.ID;
                 if (user.Parent != null)
                 {
                     dbUser.Parent_Mall_ID = user.Parent.Mall_ID;
@@ -197,7 +209,8 @@ namespace KM.JXC.BL
                                     //EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
                                     Mall_ID = us.Mall_ID,
                                     Mall_Name = us.Mall_Name,
-                                    Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
+                                    Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type 
+                                            select new BMallType { ID=type.Mall_Type_ID,Name=type.Name,Description=type.Description }).FirstOrDefault<BMallType>(),
                                     Parent_ID = (int)us.Parent_User_ID,
                                     Parent = null,
                                     Name = us.Name,
@@ -219,7 +232,8 @@ namespace KM.JXC.BL
                                                 //EmployeeInfo = (from e in db.Employee where e.User_ID == us.User_ID select e).FirstOrDefault<Employee>(),
                                                 Mall_ID = us.Mall_ID,
                                                 Mall_Name = us.Mall_Name,
-                                                Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type select type).FirstOrDefault<Mall_Type>(),
+                                                Type = (from type in db.Mall_Type where type.Mall_Type_ID == us.Mall_Type 
+                                                        select new BMallType { ID=type.Mall_Type_ID,Name=type.Name,Description=type.Description }).FirstOrDefault<BMallType>(),
                                                 Parent_ID = (int)us.Parent_User_ID,
                                                 Parent = null,
                                                 Name = us.Name,
@@ -250,7 +264,7 @@ namespace KM.JXC.BL
                         dbUser1.Mall_ID = user.Mall_ID;
                         dbUser1.Mall_Name = user.Mall_Name;
                         dbUser1.Name = user.Name;
-                        dbUser1.Mall_Type = user.Type.Mall_Type_ID;
+                        dbUser1.Mall_Type = user.Type.ID;
                         if (user.Parent != null)
                         {
                             dbUser1.Parent_Mall_ID = user.Parent.Mall_ID;
@@ -262,7 +276,20 @@ namespace KM.JXC.BL
 
                         if (user.EmployeeInfo != null && dbUser1.User_ID>0)
                         {
-                            db.Employee.Add(user.EmployeeInfo);
+                            Employee employee = new Employee();
+                            employee.Name = user.EmployeeInfo.Name;
+                            employee.IdentityCard = user.EmployeeInfo.IdentityCard;
+                            employee.MatureDate = user.EmployeeInfo.MatureDate;
+                            employee.Phone = user.EmployeeInfo.Phone;
+                            employee.User_ID = user.EmployeeInfo.User_ID;
+                            employee.HireDate = user.EmployeeInfo.HireDate;
+                            employee.Gendar = user.EmployeeInfo.Gendar;
+                            employee.Duty = user.EmployeeInfo.Duty;
+                            employee.Email = user.EmployeeInfo.Email;
+                            employee.Department = user.EmployeeInfo.Department;
+                            employee.BirthDate = user.EmployeeInfo.BirthDate;
+                            employee.Address = user.EmployeeInfo.Address;
+                            db.Employee.Add(employee);
                         }
 
                         Shop_User sp = new Shop_User();
@@ -355,11 +382,33 @@ namespace KM.JXC.BL
                                    ID = user.User_ID,
                                    Name = user.Name,
                                    Mall_Name = user.Mall_Name,
-                                   Mall_ID = user.Mall_ID,                                   
-                                   EmployeeInfo = (from employee in db.Employee where employee.User_ID == user.User_ID select employee).FirstOrDefault<Employee>(),
+                                   Mall_ID = user.Mall_ID,
+                                   EmployeeInfo = (from employee in db.Employee where employee.User_ID == user.User_ID 
+                                                   select new BEmployee
+                                                   {
+                                                     ID=employee.Employee_ID,
+                                                      Name=employee.Name,
+                                                     Address=employee.Address,
+                                                     BirthDate = (int)employee.BirthDate,
+                                                     Department=employee.Department,
+                                                     Duty=employee.Duty,
+                                                     Email=employee.Email,
+                                                     Gendar=employee.Gendar,
+                                                     HireDate=(int)employee.HireDate,
+                                                     IdentityCard=employee.IdentityCard,
+                                                     MatureDate = (int)employee.MatureDate,
+                                                     Phone=employee.Phone,
+                                                     User_ID=(int)employee.User_ID
+                                                   }).FirstOrDefault<BEmployee>(),
                                    Parent_ID = (int)user.Parent_User_ID,
                                    Password = user.Password,
-                                   Type = (from type in db.Mall_Type where type.Mall_Type_ID == user.Mall_Type select type).FirstOrDefault<Mall_Type>()
+                                   Type = (from type in db.Mall_Type where type.Mall_Type_ID == user.Mall_Type 
+                                           select new BMallType 
+                                           {
+                                            ID=type.Mall_Type_ID,
+                                            Name=type.Name,
+                                            Description=type.Description
+                                           }).FirstOrDefault<BMallType>()
                                };
 
                 total = usersobj.Count();

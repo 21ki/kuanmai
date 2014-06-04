@@ -63,9 +63,10 @@ namespace KM.JXC.BL
                     spps = spps.Where(a => sids.Contains(a.Supplier_ID));
                 }
 
+                int[] cshops =null;
                 if (this.ChildShops != null && this.ChildShops.Count > 0)
                 {
-                    int[] cshops = (from shop in this.ChildShops select shop.Shop_ID).ToArray<int>();
+                    cshops = (from shop in this.ChildShops select shop.Shop_ID).ToArray<int>();
                     spps = spps.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || cshops.Contains(a.Shop_ID));
                 }
                 else
@@ -128,20 +129,17 @@ namespace KM.JXC.BL
                 List<int> cspids = (from csp in this.ChildShops select csp.Shop_ID).ToList<int>();
                 foreach (BSupplier sp in suppliers) 
                 {
-                    if (sp.Shop.ID != this.Shop.Shop_ID)
+                    if (sp.Shop.ID == this.Main_Shop.Shop_ID)
                     {
-                        if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                        sp.FromMainShop = true;
+                    }
+                    else if (cshops != null && cshops.Length > 0)
+                    {
+                        if (cshops.Contains(sp.Shop.ID))
                         {
-                            if (cspids.Contains(sp.Shop.ID))
-                            {
-                                sp.FromChildShop = true;
-                            }
+                            sp.FromChildShop = true;
                         }
-                        else
-                        {
-                            sp.FromMainShop = true;
-                        };
-                    }                   
+                    }
                 }
             }
             catch (Exception ex)

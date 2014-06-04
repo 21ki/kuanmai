@@ -111,15 +111,19 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var allpcs = (from pc in db.Product_Class
+                              
                               select pc);
-                if (!fromMailShop)
+
+                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                 {
-                    allpcs = allpcs.Where(a => a.Shop_ID == Shop.Shop_ID);
+                    allpcs = allpcs.Where(c => (c.Shop_ID == this.Shop.Shop_ID || childs.Contains(c.Shop_ID)));
                 }
                 else
                 {
-                    allpcs = allpcs.Where(a => a.Shop_ID == Main_Shop.Shop_ID);
+                    allpcs = allpcs.Where(c => (c.Shop_ID == this.Shop.Shop_ID || c.Shop_ID==this.Main_Shop.Shop_ID));
                 }
+                
                 if (parentId != null)
                 {
                     allpcs = allpcs.Where(a => a.Parent_ID == parentId);
@@ -181,7 +185,13 @@ namespace KM.JXC.BL
                                               Name = u.Name,
                                               Mall_ID = u.Mall_ID,
                                               Mall_Name = u.Mall_Name,
-                                              EmployeeInfo = (from em in db.Employee where em.User_ID == ca.Create_User_ID select em).FirstOrDefault<Employee>()
+                                              EmployeeInfo = (from employee in db.Employee
+                                                              where employee.User_ID == u.User_ID
+                                                              select new BEmployee
+                                                              {
+                                                                  ID = employee.Employee_ID,
+                                                                  Name = employee.Name
+                                                              }).FirstOrDefault<BEmployee>(),
                                           }).FirstOrDefault<BUser>();
 
                     category.Shop = (from sp in db.Shop
@@ -195,11 +205,15 @@ namespace KM.JXC.BL
 
                                      }).FirstOrDefault<BShop>();
 
-                    if (this.Shop.Parent_Shop_ID > 0 && category.Shop.ID==this.Shop.Parent_Shop_ID)
-                    {
-                        category.FromMainShop = true;
-                    }
-                    categories.Add(category);                    
+                   if(category.Shop.ID==this.Main_Shop.Shop_ID)
+                   {
+                       category.FromMainShop=true;
+                   }else if(childs!=null && childs.Length>0 && childs.Contains(category.Shop.ID))
+                   {
+                       category.FromChildShop=true;
+                   }
+                    
+                   categories.Add(category);                    
                 }
             }
             
@@ -616,7 +630,20 @@ namespace KM.JXC.BL
 
             try
             {
-                var props = from prop in db.Product_Spec where (prop.Shop_ID == this.Shop.Shop_ID || prop.Shop_ID == this.Main_Shop.Shop_ID) select prop;
+                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                var props = from prop in db.Product_Spec 
+                            //where (prop.Shop_ID == this.Shop.Shop_ID || prop.Shop_ID == this.Main_Shop.Shop_ID) 
+                            select prop;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    props = props.Where(prop => (prop.Shop_ID == this.Shop.Shop_ID || childs.Contains(prop.Shop_ID)));
+                }
+                else
+                {
+                    props = props.Where(prop => (prop.Shop_ID == this.Shop.Shop_ID || prop.Shop_ID==this.Main_Shop.Shop_ID));
+                }
+
                 if (categoryId > 0)
                 {
                     props = props.Where(a => a.Product_Class_ID == categoryId);
@@ -663,23 +690,23 @@ namespace KM.JXC.BL
                     foreach (BProperty p in properties)
                     {
                         p.Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.ID select ps).ToList<Product_Spec_Value>();
-                        Shop shop = (from sp in db.Shop where sp.Shop_ID == p.Shop.ID select sp).FirstOrDefault<Shop>();
+                        BShop shop = p.Shop;
                         if (shop != null)
                         {
-                            if (shop.Parent_Shop_ID > 0)
+                            if (shop.ID==this.Main_Shop.Shop_ID)
                             {
                                 p.FromMainShop = true;
-                                p.Shop.Parent = (from sp in db.Shop
-                                                 where sp.Shop_ID == shop.Parent_Shop_ID
-                                                 select new BShop
-                                                 {
-                                                     ID = sp.Shop_ID,
-                                                     Title = sp.Name,
-                                                     Created = (int)sp.Created,
-                                                 }).FirstOrDefault<BShop>();
+                                //p.Shop.Parent = (from sp in db.Shop
+                                //                 where sp.Shop_ID == shop.Parent_Shop_ID
+                                //                 select new BShop
+                                //                 {
+                                //                     ID = sp.Shop_ID,
+                                //                     Title = sp.Name,
+                                //                     Created = (int)sp.Created,
+                                //                 }).FirstOrDefault<BShop>();
                             }
-                            else {
-                                p.FromMainShop = false;
+                            else if(childs!=null && childs.Contains(p.Shop.ID)){
+                                p.FromChildShop = true;
                             }
                         }
                     }

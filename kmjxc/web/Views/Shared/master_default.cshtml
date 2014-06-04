@@ -1,8 +1,10 @@
 ﻿@{
-       string controller = ViewContext.RouteData.Values["controller"].ToString();
-       string action = ViewContext.RouteData.Values["action"].ToString();
-       string modelStyle = "";
-       string menuStyle = "class=link";
+    string controller = ViewContext.RouteData.Values["controller"].ToString();
+    string action = ViewContext.RouteData.Values["action"].ToString();
+    string modelStyle = "";
+    string menuStyle = "class=link";
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
     }
 <!DOCTYPE html>
 <html>
@@ -66,7 +68,8 @@
            <h3 class="menu_wd1">采购管理</h3>
            
            <div id="buyMenuContainer"
-               @if (controller != "Buy") {
+               @if (controller != "Buy")
+               {
                    modelStyle = "style=display:none;";
                    @modelStyle
                }               
@@ -75,9 +78,11 @@
                    <li><a href="/Buy/Orders" 
                        @if (action == "Orders")
                        {                           
-                           @Html.Raw("class=links");                         
-                       }else{
-                           @Html.Raw("class=link");  
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
                        }                        
                        
                        >采购单管理 </a></li>
@@ -109,10 +114,11 @@
 
            <h3 class="menu_wd1">销售管理</h3>
            <div id="saleMenuContainer" 
-                @if (controller != "Sale") {
-                   modelStyle = "style=display:none;";
+                @if (controller != "Sale")
+                {
+                    modelStyle = "style=display:none;";
                    @modelStyle
-               }    
+                }    
                >
                <ul>
                     <li>
@@ -150,7 +156,7 @@
                    <li>
                        <a href="/Sale/Back"
                        
-                       @if (action == "Back" && controller=="Sale")
+                       @if (action == "Back" && controller == "Sale")
                        {
                            @Html.Raw("class=links");
                        }
@@ -199,7 +205,8 @@
            <h3 class="menu_wd1">库存管理</h3>
            <div id="stockMenuContainer"
                
-               @if (controller != "Stock") {
+               @if (controller != "Stock")
+               {
                    modelStyle = "style=display:none;";
                    @modelStyle
                } 
@@ -207,13 +214,13 @@
                <ul>
                    <li><a href="/Stock/Search"
                         @if (action == "Search")
-                       {
+                        {
                            @Html.Raw("class=links");
-                       }
-                       else
-                       {
+                        }
+                        else
+                        {
                            @Html.Raw("class=link");
-                       } 
+                        } 
                        >库存查询</a></li> 
                    <li><a href="/Stock/Enter"
                        @if (action == "Enter")
@@ -229,13 +236,13 @@
                    <li><a href="/Stock/Leave"
                        
                         @if (action == "Leave")
-                       {
+                        {
                            @Html.Raw("class=links");
-                       }
-                       else
-                       {
+                        }
+                        else
+                        {
                            @Html.Raw("class=link");
-                       } 
+                        } 
                        >销售出库</a></li>    
                    <li><a href="/Stock/Back"
                        @if (action == "Back" && controller == "Stock")
@@ -259,20 +266,21 @@
                        >产品损耗</a></li>   
                    <li><a href="/Stock/Stores"
                         @if (action == "Stores")
-                       {
+                        {
                            @Html.Raw("class=links");
-                       }
-                       else
-                       {
+                        }
+                        else
+                        {
                            @Html.Raw("class=link");
-                       } 
+                        } 
                        >仓库管理</a></li>                         
                </ul>
            </div>
 
            <h3 class="menu_wd1">产品管理</h3>
            <div id="productMenuContainer" 
-               @if (controller != "Product") {
+               @if (controller != "Product")
+               {
                    modelStyle = "style=display:none;";
                    @modelStyle
                }     
@@ -282,7 +290,7 @@
                        @{menuStyle = "class=link"; }
                        @if (action == "List")
                        {
-                           menuStyle = "class=links";                          
+                           menuStyle = "class=links";
                        } 
                        
                        @menuStyle   
@@ -309,7 +317,7 @@
                        @{menuStyle = "class=link"; }
                        @if (action == "Categories")
                        {
-                           menuStyle = "class=links";                          
+                           menuStyle = "class=links";
                        } 
                        
                        @menuStyle
@@ -327,7 +335,7 @@
                        @{menuStyle = "class=link"; }
                        @if (action == "Properties")
                        {
-                           menuStyle = "class=links";                          
+                           menuStyle = "class=links";
                        } 
                        
                        @menuStyle
@@ -345,10 +353,11 @@
            </div>
            <h3 class="menu_wd1">店铺管理</h3>
            <div id="shopMenuContainer"
-                @if (controller != "Shop") {
-                   modelStyle = "style=display:none;";
+                @if (controller != "Shop")
+                {
+                    modelStyle = "style=display:none;";
                    @modelStyle
-               }   
+                }   
                >
                <ul> 
                    <li>
@@ -364,8 +373,10 @@
                            >
                        账户管理
                       </a>
-                   </li>                   
-                   <li>
+                   </li>     
+                   @if (CurrentShop.Shop_ID == MainShop.Shop_ID)
+                   {              
+                     <li>
                        <a href="/Shop/Child"
                        @if (action == "Child")
                        {
@@ -378,7 +389,8 @@
                            >
                        子店铺
                         </a>
-                   </li>
+                     </li>
+                   }
                    <li>
                        <a href="/Shop/ChildRequests"
                        @if (action == "ChildRequests")
@@ -390,7 +402,7 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       子店铺添加请求
+                       子店铺请求
                         </a>
                    </li>
                    <li> <a href="/Shop/Express"
@@ -412,9 +424,9 @@
            <div id="permissionMenuContainer"
                  @if (controller != "Permission")
                  {
-                   modelStyle = "style=display:none;";
+                     modelStyle = "style=display:none;";
                    @modelStyle
-               }  >
+                 }  >
                <ul>                   
                    <li>
                        <a href="/Permission/Role"

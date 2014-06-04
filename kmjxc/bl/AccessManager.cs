@@ -57,7 +57,7 @@ namespace KM.JXC.BL
             }
 
 
-            requester.Type = new Mall_Type() { Mall_Type_ID = this.Mall_Type_ID };
+            requester.Type = new BMallType() { ID = this.Mall_Type_ID };
             requester.Mall_ID = request_token.Mall_User_ID;
             requester.Mall_Name = request_token.Mall_User_Name;
             requester.Parent_ID = 0;
@@ -108,7 +108,7 @@ namespace KM.JXC.BL
                             BUser mainUser = null;
 
                             var u = from us in db.User
-                                    where us.Mall_ID == subUser.Parent.Mall_ID && us.Mall_Type == requester.Type.Mall_Type_ID && us.Mall_Name == subUser.Parent.Mall_Name
+                                    where us.Mall_ID == subUser.Parent.Mall_ID && us.Mall_Type == requester.Type.ID && us.Mall_Name == subUser.Parent.Mall_Name
                                     select new BUser
                                     {
                                         ID = us.User_ID,
@@ -117,7 +117,7 @@ namespace KM.JXC.BL
                                         Mall_ID = us.Mall_ID,
                                         Password = us.Password,
                                         Parent_ID = (int)us.Parent_User_ID,
-                                        Type = new Mall_Type { Mall_Type_ID = us.Mall_Type }
+                                        Type = new BMallType { ID = us.Mall_Type }
                                     };
                             if (u.ToList<BUser>().Count() == 1)
                             {
@@ -145,7 +145,7 @@ namespace KM.JXC.BL
                     dbUser.Mall_ID = requester.Mall_ID;
                     dbUser.Mall_Name = requester.Mall_Name;
                     dbUser.Name = requester.Name;
-                    dbUser.Mall_Type = requester.Type.Mall_Type_ID;
+                    dbUser.Mall_Type = requester.Type.ID;
                     dbUser.Parent_Mall_ID = "";
                     dbUser.Parent_Mall_Name = "";
                     dbUser.Parent_User_ID = 0;
@@ -174,7 +174,20 @@ namespace KM.JXC.BL
                     if (requester.Parent_ID > 0 && requester.EmployeeInfo != null)
                     {
                         requester.EmployeeInfo.User_ID = requester.ID;
-                        db.Employee.Add(requester.EmployeeInfo);
+                        Employee employee = new Employee();
+                        employee.Name = requester.EmployeeInfo.Name;
+                        employee.IdentityCard = requester.EmployeeInfo.IdentityCard;
+                        employee.MatureDate = requester.EmployeeInfo.MatureDate;
+                        employee.Phone = requester.EmployeeInfo.Phone;
+                        employee.User_ID=requester.EmployeeInfo.User_ID;
+                        employee.HireDate = requester.EmployeeInfo.HireDate;
+                        employee.Gendar = requester.EmployeeInfo.Gendar;
+                        employee.Duty = requester.EmployeeInfo.Duty;
+                        employee.Email = requester.EmployeeInfo.Email;
+                        employee.Department = requester.EmployeeInfo.Department;
+                        employee.BirthDate = requester.EmployeeInfo.BirthDate;
+                        employee.Address = requester.EmployeeInfo.Address;
+                        db.Employee.Add(employee);
                     }
 
                     if (shop != null)

@@ -11,19 +11,25 @@
 
         var obj = { width: 859, height: 600, title: "属性列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' } };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
-                        { title: "属性名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
-                        { title: "类目名称", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
                         {
-                          title: "主店铺属性", width: 100, dataType: "string", dataIndx: "IsMainShopProp", editable: false,
-                            render: function (ui) {
-                                var cellData = ui.rowData[ui.dataIndx];
-                                if (!cellData) {
-                                    return "否";
-                                } else {
-                                    return "是";
-                                }
-                            },
+                            title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false
+
                         },
+
+                         {
+                             title: "主店铺", width: 70, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                             render: function (ui) {
+                                 if (ui.rowData["FromMainShop"] == true) {
+                                     return "是";
+                                 } else {
+                                     return "否";
+                                 }
+                             }
+
+                         },
+                        { title: "属性名称", width: 80, dataType: "string", dataIndx: "Name", editable: false },
+                        { title: "类目名称", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false },
+                       
                         { title: "创建者", width: 200, dataType: "string", dataIndx: "Created_By.Name", editable: false },
                         { title: "创建日期", width: 200, dataType: "timestamp", dataIndx: "Created", editable: false },
         ];

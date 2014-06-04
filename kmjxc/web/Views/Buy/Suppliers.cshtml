@@ -23,6 +23,17 @@
         });
         obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
                         { title: "名称", width: 250, dataType: "string", dataIndx: "Name", editable: false },
+                        { title: "店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false },
+                        {
+                            title: "主店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render:function(ui){
+                                if (ui.rowData["FromMainShop"] == true) {
+                                    return "是";
+                                } else {
+                                    return "否";
+                                }
+                            }
+                        },
                         {
                             title: "地址", width: 250, dataType: "string", dataIndx: "Address", editable: false,
                             render: function (ui) {

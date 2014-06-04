@@ -32,6 +32,22 @@
 
         var obj = { width: 859, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true } };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
+                        {
+                             title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false
+
+                         },
+
+                         {
+                             title: "主店铺", width: 70, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                             render: function (ui) {
+                                 if (ui.rowData["FromMainShop"] == true) {
+                                     return "是";
+                                 } else {
+                                     return "否";
+                                 }
+                             }
+
+                         },
                         { title: "类目名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
                         {
                             title: "子类目数", width: 150, dataType: "object", dataIndx: "Children", editable: false,
@@ -47,17 +63,7 @@
                                 }
                             }
                         },
-                        {
-                            title: "主店铺类目", width: 100, dataType: "boolean", dataIndx: "IsMainShopProp", editable: false,
-                            render: function (ui) {
-                                if (ui.rowData[ui.dataIndx]) {
-                                    return "是";
-                                } else {
-                                    return "否";
-                                }
-                            }
-                            
-                        },
+                       
                         {
                             title: "状态", width: 50, dataType: "boolean", dataIndx: "Enabled", editable: false,
                             render: function (ui) {

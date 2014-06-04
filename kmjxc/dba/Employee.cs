@@ -15,6 +15,7 @@ namespace KM.JXC.DBA
     public partial class Employee
     {
         public int Employee_ID { get; set; }
+        public int User_ID { get; set; }
         public string Department { get; set; }
         public string Name { get; set; }
         public string Duty { get; set; }
@@ -26,6 +27,5 @@ namespace KM.JXC.DBA
         public string Address { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public Nullable<int> User_ID { get; set; }
     }
 }

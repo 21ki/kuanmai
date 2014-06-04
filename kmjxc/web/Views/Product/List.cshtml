@@ -653,11 +653,8 @@
                         {
                             title: "主店铺产品", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
                             render: function (ui) {
-                                var cellData = ui.rowData[ui.dataIndx];
-                                if (cellData.Parent_ID == 0) {
+                                if (ui.rowData["FromMainShop"] == true) {
                                     return "是";
-                                } else {
-                                    return "否";
                                 }
                             },
                         },
