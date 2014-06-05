@@ -12,7 +12,7 @@ namespace KM.JXC.Web.Controllers.api
     {
         public int[] ConvertToIntArrar(string str)
         {
-            int[] ids = null;
+            int[] ids = new int[0];
 
             if (string.IsNullOrEmpty(str))
             {

@@ -33,6 +33,7 @@ namespace KM.JXC.Web.Filters
             filterContext.Controller.ViewData["CurrentShop"] = userMgr.Shop;
             filterContext.Controller.ViewData["MainShop"] = userMgr.Main_Shop;
             filterContext.Controller.ViewData["ChildShop"] = userMgr.ChildShops;
+            filterContext.Controller.ViewData["CurrentPermission"] = userMgr.CurrentUserPermission;
         }
     }
 }

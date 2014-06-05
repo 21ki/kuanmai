@@ -1,6 +1,250 @@
 ﻿@{
-    ViewBag.Title = "Role";
+    ViewBag.Title = "管理权限分组";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 
-<h2>Role</h2>
+<script>
+    var perMgt = new KMJXCPermissionManager();
+    $(function () {
+
+        function GetAdminRoles(div, status) {
+            perMgt.GetAdminRoles({ 'enabled': status }, function (res) {
+                if (res != null) {
+                    if (res.Status == "ok") {
+                        if (res.Item != null && res.Item != "") {
+                            var $rolesList = $('#' + div);
+                            var $ul = $rolesList.find("ul");
+                            $ul.html("");
+                            $(res.Item).each(function (index, item) {
+                                $("<li value=\"" + item.ID + "\" title=\"" + item.Description + "\">" + item.Name + "</li>").appendTo($ul);
+                            });
+
+                        } else {
+                            $('#message').html("暂时没有分组").show();
+                        }
+                    }
+                }
+            });
+        }
+
+        $('#tab').tabs({
+            activate: function (event, ui) {
+                var id = ui.newTab.attr("id");
+                if (id == "disabledRole") {
+                    GetAdminRoles("drolesList", 0);
+                } else if (id == "enabledRole") {
+                    GetAdminRoles("rolesList", 1);                    
+                }
+            }
+        });
+        $(document).tooltip();
+        GetAdminRoles("rolesList", 1);
+
+        $('#rolesList').find("ul").delegate("li", "click", function (evt) {
+            var $list = $('#roleActionsList');
+            var role_id = $(this).attr("value");
+            var that = this;
+            
+            if ($(that).hasClass("sel")) {
+                $(that).removeClass("sel");
+                $list.html("");
+                return;
+            };
+
+            $(that).addClass("sel");
+            var parent = $(that).parent();
+            $(parent).find("li").each(function (index, item) {
+                var id = $(this).attr("value");
+                if (id != role_id) {
+                    $(this).removeClass("sel");
+                }
+            });
+
+            perMgt.GetAdminActions({'role':role_id}, function (res) {
+                if (res != null) {
+                    if (res.Status == "ok") {                      
+                        $list.html("");
+                        $(res.Item).each(function (index, item) {
+                            var categoryName = item.Category.Name;
+                            var $group = $("<div class=\"singlePG\"></div>").appendTo($list);
+                            $("<div class=\"title\">" + categoryName + "</div>").appendTo($group);
+                            var $pUl = $("<ul class=\"ulchk\"></ul>").appendTo($group);
+                            $(item.Actions).each(function (index1, item1) {
+                                if (item1.HasPermission == true) {
+                                    $("<li class=\"liprefx1\"><input checked value=\"" + item1.ID + "\" type=\"checkbox\"/><span style=\"margin-left:3px;\">" + item1.Description + "</span></li>").appendTo($pUl);
+                                } else {
+                                    $("<li class=\"liprefx1\"><input value=\"" + item1.ID + "\" type=\"checkbox\"/><span style=\"margin-left:3px;\">" + item1.Description + "</span></li>").appendTo($pUl);
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        });
+
+        $('#btn_add_role').button({ icons: { primary: "ui-icon-plusthick" } }).click(function (e) {
+            $('#popup_newedit').dialog({
+                position: { my: "top", at: "top", of: $("#roleDiv") },
+                width: 850,
+                //height:550,
+                resizable: false,
+                title: "添加权限分组",
+                modal: true,
+                open: function () {
+                    perMgt.GetAdminActions({}, function (res) {
+                        if (res != null) {
+                            if (res.Status == "ok") {
+                                var $list = $('#f_permission_list');
+                                $(res.Item).each(function (index, item) {
+                                    var categoryName = item.Category.Name;
+                                    var $group = $("<div class=\"singlePG\"></div>").appendTo($list);
+                                    $("<div class=\"title\">" + categoryName + "</div>").appendTo($group);
+                                    var $pUl = $("<ul class=\"ulchk\"></ul>").appendTo($group);
+                                    $(item.Actions).each(function (index1, item1) {
+                                        $("<li class=\"liprefx1\"><input value=\"" + item1.ID + "\" type=\"checkbox\"/><span style=\"margin-left:3px;\">" + item1.Description + "</span></li>").appendTo($pUl);
+                                    });
+                                });
+                            }
+                        }
+                    });
+                },
+                close: function () {
+                    $('#f_permission_list').html("").hide();
+                    $("#f_role_grant_rights").removeAttr("checked");
+                },
+                buttons: [
+                    {
+                        text: "保存", click: function () {
+                            SaveRole();
+                        },
+                        icons: { primary: "ui-icon-disk" }
+                    },
+                    {
+                        text: "取消", click: function () {
+                            $(this).dialog("close");
+                        },
+                        icons: { primary: "ui-icon-close" }
+                    }
+                ]
+            });
+
+            $('#popup_newedit').dialog("open");
+        });
+
+        function SaveRole() {
+            var role_id = $('#f_role_id').val();
+            var role_name = $('#f_role_name').val();
+            var desc = $('#f_role_desc').val();
+            var actions = "";
+            if (role_name == "") {
+                alert("请输入分组名称");
+                return;
+            }
+            if (role_name.length > 6) {
+                alert("最多只允许六个汉字");
+                return;
+            }
+            $('#f_permission_list').find("input[type='checkbox']").each(function () {
+                var checked = $(this).attr("checked");
+                var id = $(this).attr("value");
+                if (checked == 'checked') {
+                    if (actions == "") {
+                        actions = id;
+                    } else {
+                        actions += "," + id;
+                    }
+                }
+            });
+
+            if (role_id == 0) {
+                //check if the name is existed
+            }           
+
+            perMgt.CreateRole({'role':role_name,'desc':desc,'actions':actions}, function (res) {
+                if (res != null) {
+                    if (res.Status == "ok") {
+                        var role = res.Item;
+                        var $rolesList = $('#rolesList');
+                        var $ul = $rolesList.find("ul");
+                        $("<li title=\"" + role.Description + "\">" + role.Name + "</li>").appendTo($ul);
+                        $('#f_role_id').val("");
+                        $('#f_role_name').val("");
+                        $('#popup_newedit').dialog("close");
+                    } else {
+                        alert(res.Message);
+                    }
+                }
+            });
+        }
+
+        $('#btn_update_role').button({ icons: { primary: "ui-icon-pencil" } }).click(function (e) {
+            
+        });
+        $('#btn_delete_role').button({ icons: { primary: "ui-icon-locked" } }).click(function (e) {
+
+        });
+
+        $('#dbtn_delete_role').button({ icons: { primary: "ui-icon-unlocked" } }).click(function (e) {
+
+        });
+
+        $("#f_role_grant_rights").change(function (e) {
+            var checked = $(this).attr("checked");
+            if (checked == "checked") {
+                $('#f_permission_list').show();
+            } else {
+                $('#f_permission_list').hide();
+            }
+        });
+    });
+</script>
+
+<div id="tab">
+    <ul>
+        <li id="enabledRole"><a href="#roleDiv">可用的分组</a></li>
+        <li id="disabledRole"><a href="#disabledRoleDiv">禁用的分组</a></li>
+    </ul>
+    <div id="roleDiv" class="list prefx1">
+        <div id="topBar" class="list prefx2">            
+            <div id="menubar" class="row">
+               <span id="btn_add_role">添加分组</span>
+               <span id="btn_update_role">更新权限</span>
+               <span id="btn_delete_role">禁用分组</span>
+            </div>
+            <div id="message" class="row message1" style="display:none;"></div>
+        </div>
+        <div id="rolesList" class="list prefx2">
+           <ul class="ulhlist"></ul>
+        </div>
+        <div id="roleActionsList">
+
+        </div>
+    </div>
+    <div id="disabledRoleDiv" class="list prefx1">
+        <div id="dtopBar" class="list prefx2">            
+            <div id="dmenubar" class="row">              
+               <span id="dbtn_delete_role">启用分组</span>
+            </div>
+            <div id="dmessage" class="row message1" style="display:none;"></div>
+            <div id="drolesList" class="list prefx2">
+                <ul class="ulhlist"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="popup_newedit" style="display:none;">
+    <input type="hidden" value="0" id="f_role_id"/>
+    <div class="rowS">
+        <label class="label1" style="text-align:left;">分组名称:</label><input id="f_role_name" class="W_input" type="text" value=""/>
+    </div>
+    <div class="rowS">
+        <label class="label1" style="text-align:left;">分组描述:</label><textarea class="W_input" id="f_role_desc"></textarea>
+    </div>
+    <div class="rowS">
+        <label class="label1" style="text-align:left;">分配权限:</label><input id="f_role_grant_rights" type="checkbox" />
+    </div>
+    <div class="rowS" style="height:auto;display:none;" id="f_permission_list">
+        
+    </div>
+</div>

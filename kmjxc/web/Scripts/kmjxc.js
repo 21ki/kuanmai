@@ -459,6 +459,25 @@ function KMJXCShopManager() {
     }
 }
 
+KMJXCPermissionManager.prototype = new KMJXCBase();
+function KMJXCPermissionManager() {
+    this.GetAdminRoles = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/GetAdminRoles", params, callback);
+    }
+    this.GetAdminActions = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/GetAdminActions", params, callback);
+    }
+    this.UpdateUserRoles = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/UpdateUserRoles", params, callback);
+    }
+    this.UpdateRoleActions = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/UpdateRoleActions", params, callback);
+    }
+    this.CreateRole = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/CreateRole", params, callback);
+    }
+}
+
 KMJXManager.prototype = new KMJXCBase();
 function KMJXManager() {
     this.UserManager = new KMJXCUserManager();

@@ -127,6 +127,7 @@
     <Compile Include="Controllers\api\BaseApiController.cs" />
     <Compile Include="Controllers\api\CategoriesController.cs" />
     <Compile Include="Controllers\api\CommonController.cs" />
+    <Compile Include="Controllers\api\PermissionController.cs" />
     <Compile Include="Controllers\api\ProductsController.cs" />
     <Compile Include="Controllers\api\SaleController.cs" />
     <Compile Include="Controllers\api\ShopController.cs" />

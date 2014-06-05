@@ -443,16 +443,19 @@ div.pq-grid-toolbar-crud
 {
     text-align:center;
 }
-
+.ulhlist {
+    overflow:hidden;
+}
 .ulchk {
     
 }
-    .ulchk li {
+    .ulchk li, .ulhlist li{
         padding: 5px 5px;
         
         display:block;
     }
-        .ulchk li:hover {
+.ulhlist li {float:left; border-radius:3px;border:1px solid #eeeeee;padding-top:2px;padding-bottom:2px;margin-right:5px;width:80px;text-align:center;}
+        .ulchk li:hover,.ulhlist li:hover {
             background-color:#eeeeee;
             cursor:pointer;
         }
@@ -460,6 +463,9 @@ div.pq-grid-toolbar-crud
             margin-left:5px;
             display:inline-block;
         }
+    .ulchk .sel,.ulhlist .sel {
+        background-color:#eeeeee;
+    }
 .floatlist {
     padding:2px 2px;
 }
@@ -670,4 +676,41 @@ td.tdc {
             float:left;
         }
 
+.list {
+    overflow:hidden;
+}
+.prefx1 {
+    padding:10px 10px;
+}
+
+.prefx2 {
+    padding-bottom:10px;
+}
+  
+    .list .left {
+        float:left;
+        width:300px;
+    }
+    .list .right {
+        float:left;
+        width:500px;
+    }
+.singlePG {
+    float:left;margin-right:5px;
+}
+    .singlePG .title {
+        font-weight:bold;
+    }
+    .singlePG .plist {
+    
+    }
+        .singlePG .plist li {
+            padding-top:2px;padding-bottom:2px;
+        }
+.labalign1 {
+    text-align:left;
+}
+.liprefx1 {
+    padding-left:0px;
+}
         

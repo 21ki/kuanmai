@@ -28,8 +28,9 @@ namespace KM.JXC.BL
         /// <param name="name"></param>
         /// <param name="desc"></param>
         /// <param name="shop_id"></param>
-        public void CreateRole(string name,string desc,int shop_id=0)
+        public BAdminRole CreateRole(string name,string desc,int[] actions,int shop_id=0)
         {
+            BAdminRole badminRole = null;
             if (this.CurrentUserPermission.ADD_ADMIN_ROLE == 0)
             {
                 throw new KMJXCException("没有权限创建权限分组");
@@ -38,9 +39,9 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 int shop=this.Shop.Shop_ID;
-                if(shop_id>0)
+                if (shop_id > 0)
                 {
-                    shop=shop_id;
+                    shop = shop_id;
                 }
                 Admin_Role admin_role=(from role in db.Admin_Role where role.shop_id==shop && role.role_name==name select role).FirstOrDefault<Admin_Role>();
                 if (admin_role != null)
@@ -57,6 +58,13 @@ namespace KM.JXC.BL
                 admin_role.create_date = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.Admin_Role.Add(admin_role);
                 db.SaveChanges();
+                if (actions != null)
+                {
+                    this.UpdateRoleActions(admin_role.id,actions);
+                }
+
+                badminRole = new BAdminRole() { ID = admin_role.id, Name = admin_role.role_name, Description = admin_role.description };
+                return badminRole;
             }
         }
 
@@ -65,9 +73,9 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns></returns>
-        public List<Admin_Role> GetAdminRoles(int shop_id=0)
+        public List<BAdminRole> GetAdminRoles(int shop_id=0,bool enabled=true)
         {
-            List<Admin_Role> roles = new List<Admin_Role>();
+            List<BAdminRole> roles = new List<BAdminRole>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 int shop=this.Shop.Shop_ID;
@@ -75,7 +83,14 @@ namespace KM.JXC.BL
                 {
                     shop=shop_id;
                 }
-                roles=(from role in db.Admin_Role where role.shop_id==shop select role).ToList<Admin_Role>();
+                roles = (from role in db.Admin_Role
+                         where role.shop_id == shop && role.enabled == enabled
+                         select new BAdminRole
+                         {
+                             ID = role.id,
+                             Name = role.role_name,
+                             Description=role.description
+                         }).ToList<BAdminRole>();
             }
             return roles;
         }
@@ -106,6 +121,7 @@ namespace KM.JXC.BL
 
                 List<Admin_Action> all_actions=(from action in db.Admin_Action select action).ToList<Admin_Action>();
 
+                //add new
                 foreach (int action in actions)
                 {
                     Admin_Action dbAction=(from dba in all_actions where dba.id==action select dba).FirstOrDefault<Admin_Action>();
@@ -128,19 +144,41 @@ namespace KM.JXC.BL
                     db.Admin_Role_Action.Add(dbRoleAction);
                 }
 
+                //remove deleted
+                foreach (Admin_Role_Action action in role_actions)
+                {
+                    if (!actions.Contains(action.action_id))
+                    {
+                        db.Admin_Role_Action.Remove(action);
+                    }
+                }
                 db.SaveChanges();
             }
         }
 
         /// <summary>
-        /// 
+        /// Get all actions by category
         /// </summary>
+        /// <param name="role_id"></param>
         /// <returns></returns>
-        public List<BAdminCategoryAction> GetActionsByCategory()
+        public List<BAdminCategoryAction> GetActionsByCategory(int role_id=0)
         {
             List<BAdminCategoryAction> actions = new List<BAdminCategoryAction>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                List<Admin_Action> roleActions = new List<Admin_Action>();
+                if (role_id > 0)
+                {
+                    var tmp = from roleA in db.Admin_Role_Action
+                              where roleA.role_id == role_id
+                              join action in db.Admin_Action on roleA.action_id equals action.id into lAction
+                              from l_action in lAction.DefaultIfEmpty()
+                              select l_action;
+
+                    roleActions = (from action in tmp
+                                  where action.enable == true
+                                  select action).ToList<Admin_Action>();
+                }
                 List<BAdminCategory> categories = (from category in db.Admin_Category
                                                    select new BAdminCategory
                                                    {
@@ -155,14 +193,23 @@ namespace KM.JXC.BL
                     cateAction.Category = category;
 
                     cateAction.Actions = (from action in db.Admin_Action
-                                          where action.category_id == category.ID
+                                          where action.category_id == category.ID && action.enable==true
                                           select new BAdminAction
                                           {
-                                              Action = action.action_name,
+                                              ActionName = action.action_name,
                                               Description = action.action_description,
                                               ID = action.id,
                                               Enabled = action.enable
                                           }).ToList<BAdminAction>();
+
+                    foreach (BAdminAction bAction in cateAction.Actions)
+                    {
+                        Admin_Action dbAction = (from action in roleActions where action.id == bAction.ID select action).FirstOrDefault<Admin_Action>();
+                        if (dbAction != null)
+                        {
+                            bAction.HasPermission = true;
+                        }
+                    }
 
                     actions.Add(cateAction);
                 }
@@ -170,8 +217,48 @@ namespace KM.JXC.BL
             return actions;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="roles"></param>
+        /// <param name="user_id"></param>
+        public void UpdateUserRoles(int[] roles,int user_id)
+        {
+            if (this.CurrentUserPermission.UPDATE_USER_PERMISSION == 0)
+            {
+                throw new KMJXCException("没有权限执行此操作");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] userRoles=(from role in db.Admin_User_Role where role.user_id==user_id select role.role_id ).ToArray<int>();
+
+                foreach (int role in roles)
+                {
+                    if (!userRoles.Contains(role))
+                    {
+                        Admin_User_Role uRole = new Admin_User_Role() { role_id=role, user_id=user_id };
+                        db.Admin_User_Role.Add(uRole);
+                    }
+                }
+
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user_id"></param>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
         public List<BAdminRole> GetUserAdminRoles(int user_id,int shop_id=0)
         {
+            if (this.CurrentUserPermission.VIEW_USER_PERMISSION == 0)
+            {
+                throw new KMJXCException("没有权限查看用户权限");
+            }
+
             int shopId=this.Shop.Shop_ID;
             if(shop_id>0)
             {
@@ -209,9 +296,14 @@ namespace KM.JXC.BL
                                   where action.role_id == role.ID
                                   join action1 in allActions on action.action_id equals action1.id into lAction1
                                   from l_action1 in lAction1.DefaultIfEmpty()
-                                  select new Admin_Action
+                                  select new BAdminAction
                                   {
+                                      ActionName = l_action1.action_name,
+                                      Description = l_action1.action_description,
+                                      ID = action.action_id
                                   };
+
+                    role.Actions = actions.ToList<BAdminAction>();
                 }
             }
             return roles;
@@ -244,7 +336,7 @@ namespace KM.JXC.BL
                     {
                         action = new Admin_Action();
                         action.action_name = field.Name;
-                        action.action_description = field.Name;
+                        //action.action_description = field.Name;
                         action.enable = true;
                                              
 
@@ -254,6 +346,7 @@ namespace KM.JXC.BL
                     if (attr != null)
                     {
                         action.category_id = attr.ID;
+                        action.action_description = attr.ActionDescription;
                         AdminActionAttribute existed = (from pcate in cates where pcate.ID == attr.ID select pcate).FirstOrDefault<AdminActionAttribute>();
                         if (existed == null)
                         {
@@ -278,7 +371,8 @@ namespace KM.JXC.BL
 
                     if (!found)
                     {
-                        db.Admin_Action.Remove(action);
+                        action.enable = false;
+                        //db.Admin_Action.Remove(action);
                     }
                 }
 
