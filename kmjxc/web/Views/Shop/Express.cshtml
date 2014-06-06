@@ -288,7 +288,7 @@
 
         $("#ExpressFeeTable").on("pqgridrender", function (evt, obj) {
             var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-            $("<span id=\"add_cate\">添加快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">添加快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
                 $('#popup_dialog').dialog({
                     position: { my: "top", at: "top", of: $("#ExpressTable") },
                     width: 550,
@@ -363,7 +363,7 @@
                 $('#popup_dialog').dialog("open");
             });
 
-            $("<span id=\"add_cate\">修改快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">修改快递费用</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
 
                 var rows = [];
                 var arr = $feeGrid.pqGrid("selection", { type: 'row', method: 'getSelection' });
@@ -532,7 +532,7 @@
 
         $("#ExpressTable").on("pqgridrender", function (evt, obj) {
             var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
                 $('#popup_dialog').dialog({
                     position: { my: "top", at: "top", of: $("#ExpressTable") },
                     width: 550,
@@ -607,7 +607,7 @@
                 $('#popup_dialog').dialog("open");
             });
 
-            $("<span id=\"add_cate\">设置为默认</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function () {
+            $("<span id=\"add_cate\">设置为默认</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-wrench" } }).click(function () {
                 var rows = getRowIndx();
                 if (rows == null) {
                     alert("请选择一个快递公司");

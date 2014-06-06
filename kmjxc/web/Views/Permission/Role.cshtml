@@ -8,6 +8,8 @@
     $(function () {
 
         function GetAdminRoles(div, status) {
+            $('#droleActionsList').html("");
+            $('#roleActionsList').html("");
             perMgt.GetAdminRoles({ 'enabled': status }, function (res) {
                 if (res != null) {
                     if (res.Status == "ok") {
@@ -16,11 +18,9 @@
                             var $ul = $rolesList.find("ul");
                             $ul.html("");
                             $(res.Item).each(function (index, item) {
-                                $("<li value=\"" + item.ID + "\" title=\"" + item.Description + "\">" + item.Name + "</li>").appendTo($ul);
+                                $("<li class=\"\" value=\"" + item.ID + "\" title=\"" + item.Description + "\">" + item.Name + "</li>").appendTo($ul);
                             });
 
-                        } else {
-                            $('#message').html("暂时没有分组").show();
                         }
                     }
                 }
@@ -40,11 +40,11 @@
         $(document).tooltip();
         GetAdminRoles("rolesList", 1);
 
-        $('#rolesList').find("ul").delegate("li", "click", function (evt) {
-            var $list = $('#roleActionsList');
+        $('#drolesList').find("ul").delegate("li", "click", function (evt) {            
+            var $list = $('#droleActionsList');
             var role_id = $(this).attr("value");
             var that = this;
-            
+
             if ($(that).hasClass("sel")) {
                 $(that).removeClass("sel");
                 $list.html("");
@@ -57,6 +57,50 @@
                 var id = $(this).attr("value");
                 if (id != role_id) {
                     $(this).removeClass("sel");
+                }
+            });
+
+            perMgt.GetAdminActions({ 'role': role_id }, function (res) {
+                if (res != null) {
+                    if (res.Status == "ok") {
+                        $list.html("");
+                        $(res.Item).each(function (index, item) {
+                            var categoryName = item.Category.Name;
+                            var $group = $("<div class=\"singlePG\"></div>").appendTo($list);
+                            $("<div class=\"title\">" + categoryName + "</div>").appendTo($group);
+                            var $pUl = $("<ul class=\"ulchk\"></ul>").appendTo($group);
+                            $(item.Actions).each(function (index1, item1) {
+                                if (item1.HasPermission == true) {
+                                    $("<li class=\"liprefx1\"><input checked value=\"" + item1.ID + "\" type=\"checkbox\"/><span style=\"margin-left:3px;\">" + item1.Description + "</span></li>").appendTo($pUl);
+                                } else {
+                                    $("<li class=\"liprefx1\"><input value=\"" + item1.ID + "\" type=\"checkbox\"/><span style=\"margin-left:3px;\">" + item1.Description + "</span></li>").appendTo($pUl);
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        });
+
+        $('#rolesList').find("ul").delegate("li", "click", function (evt) {
+            var $list = $('#roleActionsList');
+            var role_id = $(this).attr("value");
+            var that = this;
+            
+            if ($(that).hasClass("sel")) {
+                $(that).removeClass("sel");               
+                $list.html("");
+                return;
+            };
+
+            $(that).addClass("sel");          
+            var parent = $(that).parent();
+            $(parent).find("li").each(function (index, item) {
+                var id = $(this).attr("value");
+                if (id != role_id) {
+                    if ($(this).hasClass("sel")) {
+                        $(this).removeClass("sel");                                       
+                    }                    
                 }
             });
 
@@ -178,14 +222,93 @@
         }
 
         $('#btn_update_role').button({ icons: { primary: "ui-icon-pencil" } }).click(function (e) {
+            var actions = "";
+            var role_id = 0;
+           
+            $('#roleActionsList').find("input[type='checkbox']").each(function () {
+                var checked = $(this).attr("checked");
+                var id = $(this).attr("value");
+                if (checked == 'checked') {
+                    if (actions == "") {
+                        actions = id;
+                    } else {
+                        actions += "," + id;
+                    }
+                }
+            });
+
+            $('#rolesList').find("ul").find("li").each(function (index, item) {
+
+                if ($(this).hasClass("sel")) {
+                    role_id = $(this).attr("value");                   
+                }
+            });
+
+            if (role_id == 0) {
+                alert("请先选择一个分组（鼠标点击分组名称），然后再更新权限");
+                return;
+            }
+
+            perMgt.UpdateRoleActions({ 'role': role_id, 'actions': actions }, function (res) {
+                if (res.Status == 'ok') {
+                    alert("权限更新成功");
+                } else {
+                    alert("权限更新失败:"+res.Message);
+                }
+            });
+        });
+
+        $('#btn_disable_role').button({ icons: { primary: "ui-icon-locked" } }).click(function (e) {
+            var role_id = 0;
+            var found = false;
+            var that = this;
+            var obj = null;
+            $('#rolesList').find("ul").find("li").each(function (index, item) {
+                         
+                if ($(this).hasClass("sel")) {
+                    role_id = $(this).attr("value");
+                    found = true;
+                    obj = this;
+                }
+            });
+
+            if (!found) {
+                alert("请先选择一个分组（鼠标点击分组名称），然后点击禁用分组");
+                return;
+            }
             
+            perMgt.SetAdminRoleStatus({ 'role': role_id, 'status': 0 }, function (res) {
+                if (res.Status == 'ok') {
+                    $('#roleActionsList').html("");
+                    $(obj).remove();
+                }
+            })
         });
-        $('#btn_delete_role').button({ icons: { primary: "ui-icon-locked" } }).click(function (e) {
 
-        });
+        $('#dbtn_enable_role').button({ icons: { primary: "ui-icon-unlocked" } }).click(function (e) {
+            var role_id = 0;
+            var found = false;
+            var obj = null;
+            $('#drolesList').find("ul").find("li").each(function (index, item) {
+                
+                if ($(this).hasClass("sel")) {
+                    role_id = $(this).attr("value");
+                    found = true;
+                    obj = this;
+                }
+            });
 
-        $('#dbtn_delete_role').button({ icons: { primary: "ui-icon-unlocked" } }).click(function (e) {
+            if (!found) {
+                alert("请先选择一个分组（鼠标点击分组名称），然后点击启用分组");
+                return;
+            }
 
+            perMgt.SetAdminRoleStatus({ 'role': role_id, 'status': 1 }, function (res) {
+                if (res.Status == 'ok') {
+                    $('#droleActionsList').html("");
+                    $(obj).remove();
+                }
+            })
         });
 
         $("#f_role_grant_rights").change(function (e) {
@@ -209,26 +332,29 @@
             <div id="menubar" class="row">
                <span id="btn_add_role">添加分组</span>
                <span id="btn_update_role">更新权限</span>
-               <span id="btn_delete_role">禁用分组</span>
+               <span id="btn_disable_role">禁用分组</span>
             </div>
             <div id="message" class="row message1" style="display:none;"></div>
         </div>
         <div id="rolesList" class="list prefx2">
            <ul class="ulhlist"></ul>
         </div>
-        <div id="roleActionsList">
+        <div id="roleActionsList" style="overflow:hidden;">
 
         </div>
     </div>
     <div id="disabledRoleDiv" class="list prefx1">
         <div id="dtopBar" class="list prefx2">            
             <div id="dmenubar" class="row">              
-               <span id="dbtn_delete_role">启用分组</span>
+               <span id="dbtn_enable_role">启用分组</span>
             </div>
-            <div id="dmessage" class="row message1" style="display:none;"></div>
-            <div id="drolesList" class="list prefx2">
+            <div id="dmessage" class="row message1" style="display:none;"></div>           
+        </div>
+        <div id="drolesList" class="list prefx2">
                 <ul class="ulhlist"></ul>
-            </div>
+        </div>
+        <div id="droleActionsList" style="overflow:hidden;">
+
         </div>
     </div>
 </div>

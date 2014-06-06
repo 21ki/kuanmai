@@ -457,6 +457,7 @@ function KMJXCShopManager() {
     this.SearchShopUsers = function (params, callback) {
         this.AjaxCall("/api/Shop/SearchShopUsers", params, callback);
     }
+
 }
 
 KMJXCPermissionManager.prototype = new KMJXCBase();
@@ -475,6 +476,12 @@ function KMJXCPermissionManager() {
     }
     this.CreateRole = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Permission/CreateRole", params, callback);
+    }
+    this.SetAdminRoleStatus = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/SetAdminRoleStatus", params, callback);
+    }
+    this.GetUserAdminRoles = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/GetUserAdminRoles", params, callback);
     }
 }
 

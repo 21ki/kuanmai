@@ -152,12 +152,12 @@
 
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
                     .appendTo($srow)
-                    .button({ text: true }).bind("click", function (evt) {
+                    .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
                         $grid.pqGrid("refreshDataAndView");
                     });
 
 
-            $("<span id=\"add_cate\">查看库存</span>").appendTo($menubar).button().click(function (evt) {
+            $("<span id=\"add_cate\">查看库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-info" } }).click(function (evt) {
                 var selectedRows = getRowIndx();
                 if (selectedRows == null) {
                     alert("请选择一个产品");

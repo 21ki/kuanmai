@@ -449,6 +449,7 @@ namespace KM.JXC.Web.Controllers.api
 
             int.TryParse(request["page"],out page);
             int.TryParse(request["pageSize"],out pageSize);
+            int.TryParse(request["shop"], out shop_id);
             if (page <= 0)
             {
                 page = 1;

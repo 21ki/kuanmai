@@ -122,15 +122,7 @@
                     title: "退货处理",
                     modal: true,
                     open: function () {
-                        var that = this;
-                        var $row = $("<div class=\"row\"></div>").appendTo(that);
-                        $("<label>处理类型:</label>").appendTo($row);
-                        var $select = $("<select class=\"W_inputsel\" id=\"back_sale_type\"></select>").appendTo($row);
-                        $("<option value=\"\">--选择--</option>").appendTo($select);
-                        $("<option value=\"1\">退库，更新库存</option>").appendTo($select);
-                        $("<option value=\"2\">损耗，不更新库存</option>").appendTo($select);
-                        //$("<option value=\"3\">换货，原货损耗</option>").appendTo($select);
-                        //$("<option value=\"4\">换货，原货入库</option>").appendTo($select);
+                        $('#back_sale_type').val(0);
                     },
                     close: function () {
                         var that = this;
@@ -139,9 +131,13 @@
                     buttons: {
                         "确定": function () {
                             var status = $(this).find("#back_sale_type").val();
-                            if (status == "") {
+                            if (status == 0) {
                                 alert("请选择处理类型");
                                 return;
+                            }
+
+                            if (status == 3) {
+
                             }
 
                             var order_id = "";
@@ -257,7 +253,7 @@
                 });
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
                    .appendTo($srow1)
-                   .button({ text: true }).bind("click", function (evt) {
+                   .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
                        $grid.pqGrid("refreshDataAndView");
                    });
         });
@@ -284,6 +280,17 @@
 <div class="normallist">
     <div id="backSaleTable"></div>
     <div id="popup_handle_backsale">
+        <div class="row">
+            <label>处理类型:</label><select class="W_inputsel" id="back_sale_type">
+                                        <option value="0">--选择--</option>
+                                        <option value="1">全部退库，更新库存</option>
+                                        <option value="2">全部损耗，不退库</option>
+                                        <option value="3">部分损耗，部分退库</option>
+                                </select>
+        </div>
+        <div class="row" id="back_sale_wastage">
+            <label>损耗数量:</label><input type="text" class="W_input"/>
+        </div>
     </div>    
 </div>
 

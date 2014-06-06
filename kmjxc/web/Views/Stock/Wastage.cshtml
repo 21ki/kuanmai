@@ -154,7 +154,7 @@
 
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
                     .appendTo($srow)
-                    .button({ text: true }).bind("click", function (evt) {
+                    .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
                         $grid.pqGrid("refreshDataAndView");
                     });
         });

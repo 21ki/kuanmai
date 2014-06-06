@@ -212,5 +212,77 @@ namespace KM.JXC.Web.Controllers.api
             }
             return message;
         }
+
+        [HttpPost]
+        public ApiMessage SetAdminRoleStatus()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            List<BAdminRole> roles = new List<BAdminRole>();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            PermissionManagement permissionMgt = new PermissionManagement(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int role_id = 0;
+            bool status = true;
+
+            int.TryParse(request["role"], out role_id);
+            if (!string.IsNullOrEmpty(request["status"]) && request["status"] == "1")
+            {
+                status = true;
+            }
+            else if (!string.IsNullOrEmpty(request["status"]) && request["status"] == "0")
+            {
+                status = false;
+            }
+
+            try
+            {
+                permissionMgt.SetAdminRoleStatus(role_id, status);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+            }
+            finally { }
+
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage GetUserAdminRoles()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            List<BAdminRole> roles = new List<BAdminRole>();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            PermissionManagement permissionMgt = new PermissionManagement(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int uid = 0;     
+            int.TryParse(request["user"], out uid);
+            try
+            {
+                roles=permissionMgt.GetUserAdminRoles(uid);
+                message.Item = roles;
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+            }
+            finally { }
+
+            return message;
+        }        
     }
 }

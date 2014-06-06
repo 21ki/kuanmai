@@ -1,6 +1,104 @@
 ﻿@{
-    ViewBag.Title = "User";
+    ViewBag.Title = "用户权限管理";
     Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
 }
 
-<h2>User</h2>
+<script>
+    var shopMgr = new KMJXCShopManager();
+    var perMgr = new KMJXCPermissionManager();
+    var currentUID=@CurrentUser.ID
+    $(function () {
+        $('#tabs').tabs();
+        //$('#btn_Search').button({ icons: {primary:"ui-icon-search"}}).click(function (evt) {
+
+        //});
+        var shop_id=@CurrentShop.Shop_ID
+        shopMgr.SearchShopUsers({ 'shop': shop_id, 'page': 1, 'pageSize': 5000 }, function (res) {
+            if (res.data != null) {
+                var $ul = $('#users').find("ul");
+                $(res.data).each(function (index, item) {
+                    if (item.ID != currentUID) {
+                        $("<li><input value=\"" + item.ID + "\" type=\"radio\" name=\"user_permission\" class=\"\" /><span>" + item.Mall_Name + "</span></li>").appendTo($ul);
+                    }                   
+                });
+            }
+        });
+
+        $('#btn_update_role').button({ icons: { primary: "ui-icon-pencil" } }).click(function () {
+
+            var $ul = $('#users').find("ul");
+            var uid = $($ul).find('input:radio[name="user_permission"]:checked').val();
+            if (uid == null) {
+                alert("请先选择一个用户");
+                return;
+            }
+            
+            $('#popup_user_roles').dialog({
+                position: { my: "top", at: "top", of: $("#userPermission") },
+                width: 850,
+                //height:550,
+                resizable: false,
+                title: "查看或者修改用户权限分组",
+                modal: true,
+                open: function () {
+                    perMgr.GetUserAdminRoles({'user':uid}, function (res) {
+                        
+                    });
+                },
+                close: function () { },
+                buttons: [
+                    //{
+                    //    text: "保存", click: function () {
+                            
+                    //    },
+                    //    icons: { primary: "ui-icon-disk" }
+                    //},
+                    {
+                        text: "关闭", click: function () {
+                            $(this).dialog("close");
+                        },
+                        icons: { primary: "ui-icon-close" }
+                    }
+                ]
+            });
+
+            $('#popup_user_roles').dialog("open");
+        });
+    });
+</script>
+<div id="tabs">
+    <ul>
+        <li><a href="#userPermission">用户权限</a></li>
+    </ul>
+
+    <div id="userPermission">
+         <div id="topBar" class="list">            
+            <div id="menubar" class="row">             
+               <span id="btn_update_role">查看/更新权限</span>               
+            </div>
+            <div id="message" class="row message1" style="display:none;"></div>
+        </div>
+
+        <div id="users">
+            <ul class="ulnormalList">
+
+            </ul>
+        </div>
+        <div id="permissionRoles">
+
+        </div>
+    </div>
+</div>
+
+<div id="popup_user_roles" style="display:none">
+   
+    <div id="user_role_list">
+        <div id="list_bar"></div>
+        <div id="role_list"></div>
+    </div>
+    <div id="role_action_list">
+
+    </div>
+</div>

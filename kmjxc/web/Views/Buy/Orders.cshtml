@@ -544,7 +544,7 @@
         $("#buyorderstable").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
 
-            $("<span id=\"add_cate\">添加</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">添加</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
                 $('#popup-newedit-order').dialog({
                     position: { my: "top", at: "top", of: $("#buyorderstable") },
                     width: 650,
@@ -612,7 +612,7 @@
 
                 $('#popup-newedit-order').dialog("open");
             });
-            $("<span id=\"get_ccate\">生成验货单</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+            $("<span id=\"get_ccate\">生成验货单</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-newwin" } }).click(function (evt) {
                 var rowIndx = getRowIndx();
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;

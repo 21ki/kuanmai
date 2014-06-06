@@ -88,7 +88,7 @@
             }
         });
 
-        $syncForm.find('#trade_btn_sync').button().click(function (e) {
+        $syncForm.find('#trade_btn_sync').button({ icons: { primary: "ui-icon-transferthick-e-w" } }).click(function (e) {
             var strat = $syncForm.find('#trade_sdate').val() + " " + $syncForm.find('#trade_sdate_hour option:selected').text() + ":" + $syncForm.find('#trade_sdate_minute option:selected').text() + ":000";
             var end = "";
             var sdate = null;

@@ -449,12 +449,25 @@ div.pq-grid-toolbar-crud
 .ulchk {
     
 }
+.ulnormalList {
+
+}
+    .ulnormalList li {
+       border-bottom:1px solid #eeeeee;
+       padding: 5px 5px;
+    }
+        .ulnormalList li:hover {
+             background-color:#eeeeee;
+        }
+        .ulnormalList li span {
+            padding-left:5px;
+        }
     .ulchk li, .ulhlist li{
         padding: 5px 5px;
         
         display:block;
     }
-.ulhlist li {float:left; border-radius:3px;border:1px solid #eeeeee;padding-top:2px;padding-bottom:2px;margin-right:5px;width:80px;text-align:center;}
+.ulhlist li {float:left; border-radius:3px;border:1px solid #eeeeee;padding-top:2px;padding-bottom:2px;margin-right:5px;width:100px;text-align:center;}
         .ulchk li:hover,.ulhlist li:hover {
             background-color:#eeeeee;
             cursor:pointer;

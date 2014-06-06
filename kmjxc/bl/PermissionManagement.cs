@@ -269,7 +269,7 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 List<Admin_Action> allActions=(from action in db.Admin_Action select action).ToList<Admin_Action>();
-                int[] role_ids=(from role in db.Admin_Role where role.shop_id==shopId select role.id).ToArray<int>();
+                int[] role_ids=(from role in db.Admin_Role where role.shop_id==shopId && role.enabled==true select role.id).ToArray<int>();
                 List<Admin_Role_Action> role_Actions=(from roleAction in db.Admin_Role_Action where role_ids.Contains(roleAction.role_id) select roleAction).ToList<Admin_Role_Action>();
                 var tmp = from user_role in db.Admin_User_Role
                           where user_role.user_id == user_id
@@ -281,6 +281,7 @@ namespace KM.JXC.BL
                           {
                               ID = user_role.role_id,
                               Name = l_role.role_name,
+                              Description=l_role.description,
                               Shop = new BShop
                               {
                                    ID=l_shop.Shop_ID,
@@ -307,6 +308,26 @@ namespace KM.JXC.BL
                 }
             }
             return roles;
+        }
+
+        public void SetAdminRoleStatus(int role_id, bool status)
+        {
+            if (this.CurrentUserPermission.UPDATE_ADMIN_ROLE == 0)
+            {
+                throw new KMJXCException("没有权限更新分组状态");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Admin_Role role=(from r in db.Admin_Role where r.id==role_id select r).FirstOrDefault<Admin_Role>();
+                if(role==null)
+                {
+                    throw new KMJXCException("分组信息不存在");
+                }
+
+                role.enabled=status;
+                db.SaveChanges();
+            }
         }
 
         /// <summary>

@@ -43,7 +43,7 @@
         saleMgr.InitializeMinute($form.find('#trade_sdate_minute'), 0);
         saleMgr.InitializeMinute($form.find('#trade_edate_minute'), 0);
 
-        $form.find('#btn_Search').button().click(function (e) {
+        $form.find('#btn_Search').button({ icons: { primary: "ui-icon-search" } }).click(function (e) {
             $form.attr('action', "/Sale/Search?page=1");
             $form.submit();
 

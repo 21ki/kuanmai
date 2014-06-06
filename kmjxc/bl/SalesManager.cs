@@ -1082,8 +1082,17 @@ namespace KM.JXC.BL
                 totalRecords = 0;
                 int[] child_shop = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
                 var tmp = from sync in db.Sale_SyncTime
-                          where sync.ShopID == this.Shop.Shop_ID || sync.ShopID == this.Main_Shop.Shop_ID || child_shop.Contains(sync.ShopID)
+                          //where sync.ShopID == this.Shop.Shop_ID || sync.ShopID == this.Main_Shop.Shop_ID || child_shop.Contains(sync.ShopID)
                           select sync;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    tmp = tmp.Where(l => (l.ShopID == this.Shop.Shop_ID || child_shop.Contains(l.ShopID)));
+                }
+                else
+                {
+                    tmp = tmp.Where(l => (l.ShopID == this.Shop.Shop_ID));
+                }
 
                 if (user_id > 0)
                 {

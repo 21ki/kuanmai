@@ -758,12 +758,12 @@
           
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
                     .appendTo($srow)
-                    .button({text: true }).bind("click", function (evt) {
+                    .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
                         $grid.pqGrid("refreshDataAndView");
                     });
             
 
-            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-circle-plus" } }).click(function (evt) {
+            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
                 //AddNew();
                 $('#pop_edit_product').tabs({ active: 0 });
                 $("#pop_edit_product").dialog({

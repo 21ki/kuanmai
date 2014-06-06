@@ -73,7 +73,7 @@
         $("#leaveStockTable").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
             var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-            $("<span id=\"add_cate\">出库详情</span>").appendTo($menubar).button().click(function (e) {
+            $("<span id=\"add_cate\">出库详情</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-info" } }).click(function (e) {
                 var rowIndx = getRowIndx();
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;
@@ -165,7 +165,7 @@
                 });
             $("<span style='height:24px;line-height:24px;'>搜索</span>")
                    .appendTo($srow)
-                   .button({ text: true }).bind("click", function (evt) {
+                   .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
                        $grid.pqGrid("refreshDataAndView");
                    });
         });

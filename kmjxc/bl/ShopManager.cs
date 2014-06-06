@@ -684,6 +684,16 @@ namespace KM.JXC.BL
                               IsDefault = shop_express.IsDefault == 0 ? false : true
                           };
 
+                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    tmp = tmp.Where(e => (e.Shop.ID == this.Shop.Shop_ID || childs.Contains(e.Shop.ID)));
+                }
+                else
+                {
+                    tmp = tmp.Where(e => (e.Shop.ID == this.Shop.Shop_ID));
+                }
+
                 expresses = tmp.OrderBy(a => a.ID).ToList<BShopExpress>();
             }
             return expresses;
