@@ -153,7 +153,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="user"></param>
         /// <param name="shop"></param>
         /// <returns></returns>
-        public List<BMallProduct> GetOnSaleProducts(User user, Shop shop, long pageIndex,long pageSize, out long total)
+        public List<BMallProduct> GetOnSaleProducts(BUser user, Shop shop, long pageIndex,long pageSize, out long total)
         {
             List<BMallProduct> products = new List<BMallProduct>();
             total = 0;

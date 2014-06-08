@@ -11,7 +11,7 @@ namespace KM.JXC.BL.Open.Interface
 {
     public interface IOProductManager
     {
-        List<BMallProduct> GetOnSaleProducts(User user, Shop shop,long pageIndex,long pageSize,out long total);
+        List<BMallProduct> GetOnSaleProducts(BUser user, Shop shop,long pageIndex,long pageSize,out long total);
         bool MappingSku(string outer_id, string mall_sku_id,string mall_item_id, string properities);
         bool MappingProduct(string outer_id, string mall_item_id);
         bool UpdateProductQuantity(string mall_item_id, string sku_id,string outer_id, long quantity);       

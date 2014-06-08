@@ -9,7 +9,8 @@ using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Models;
-
+using KM.JXC.BL.Open.TaoBao;
+using KM.JXC.BL.Open;
 namespace KM.JXC.BL
 {
     public class ProductManager : BBaseManager
@@ -704,6 +705,31 @@ namespace KM.JXC.BL
                 db.Dispose();
             }
             return product;
+        }
+
+        public void SyncOnSaleMallProduct()
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                IOProductManager pdtMgr = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
+                long total = 0;
+                List<BMallProduct> products = pdtMgr.GetOnSaleProducts(this.CurrentUser, this.Shop, 1, 50, out total);
+                foreach (BMallProduct product in products)
+                {
+                    bool isNew = false;
+                    Mall_Product pdt = (from p in db.Mall_Product where p.Mall_ID == product.ID select p).FirstOrDefault<Mall_Product>();
+                    if (pdt == null)
+                    {
+                        pdt = new Mall_Product();
+                        isNew = true;
+                    }
+
+                    if (isNew)
+                    {
+                        db.Mall_Product.Add(pdt);
+                    }
+                }
+            }
         }
     }
 }

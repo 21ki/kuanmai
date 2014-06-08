@@ -52,6 +52,9 @@
                 case "Permission":
                     $(".jxcLeftMenu").accordion({ active: 5, heightStyle: "content" });
                     break;
+                case "Report":
+                    $(".jxcLeftMenu").accordion({ active: 6, heightStyle: "content" });
+                    break;
                 default:
                     $(".jxcLeftMenu").accordion({ active: 0, heightStyle: "content" });
                     break;
@@ -360,6 +363,31 @@
                 }   
                >
                <ul> 
+                   <li> <a href="/Shop/Dashboard"
+                       @if (action == "Dashboard")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       店铺信息统计
+                        </a></li>  
+                   <li>
+                   <li> <a href="/Shop/Product"
+                       @if (action == "Product")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       出售中的宝贝
+                        </a></li>  
                    <li>
                        <a href="/Shop/Account"
                        @if (action == "Account")
@@ -461,13 +489,46 @@
                </ul>
            </div>
            
-          @* <div class="menuItem"><a href="javascript:void(0)" onclick="manager.LeftMenuClick(this,'system','MenuContainer')">系统设置</a></div>
-           <div class="menuContainer" id="systemMenuContainer" style="display:none;">
+          <h3 class="menu_wd1">报表中心</h3>
+           <div class="menuContainer" id="reportContainer"
+                @if (controller != "Report")
+                 {
+                     modelStyle = "style=display:none;";
+                   @modelStyle
+                 }  >
+               
                <ul>
-                   <li>默认仓库</li> 
-                   <li>快递设置</li>                   
+                   <li>
+                    <a href="/Report/Sale"
+                       @if (action == "Sale")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       销售报表
+                       </a> 
+                    </li>
+                    <li>
+                    <a href="/Report/Buy"
+                       @if (action == "Buy")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       采购报表
+                       </a>   
+                    </li>            
+                                    
                </ul>
-           </div>*@
+           </div>
 
        </div>
        <div class="jxcRight">
