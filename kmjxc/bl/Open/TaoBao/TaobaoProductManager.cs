@@ -182,7 +182,8 @@ namespace KM.JXC.BL.Open.TaoBao
                 product.PicUrl = item.PicUrl;
                 product.Price = item.Price;
                 product.Quantity = item.Num;
-                product.Shop = new Shop();
+                product.Description = item.Desc;
+                product.Shop = shop;                
                 if (product.Skus == null)
                 {
                     product.Skus = new List<BMallSku>();
@@ -227,6 +228,7 @@ namespace KM.JXC.BL.Open.TaoBao
             req.IsTaobao = true;
             req.IsEx = true;
             req.PageSize = pageSize;
+           
             ItemsOnsaleGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             if(!response.IsError)
             {

@@ -10,6 +10,7 @@ using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Models;
+using KM.JXC.BL.Open.TaoBao;
 namespace KM.JXC.BL
 {
     public class ShopManager:BBaseManager
@@ -1072,6 +1073,97 @@ namespace KM.JXC.BL
             }
 
             return users;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<BMallProduct> SyncMallOnSaleProducts()
+        {
+            List<BMallProduct> newProducts = new List<BMallProduct>();
+            List<BMallProduct> products = new List<BMallProduct>();
+            IOProductManager productManager = new TaobaoProductManager(this.AccessToken,this.Shop.Mall_Type_ID);
+
+            long total = 0;
+            long page = 1;
+            long pageSize = 50;
+            List<BMallProduct> tmp = new List<BMallProduct>();
+            tmp = productManager.GetOnSaleProducts(this.CurrentUser, this.Shop, page, pageSize, out total);
+
+            if (tmp != null)
+            {
+                products = products.Concat(tmp).ToList<BMallProduct>();
+            }
+
+            long totalPage = 1;
+
+            if (total > pageSize)
+            {
+                if (total % pageSize == 0)
+                {
+                    totalPage = total / pageSize;
+                }
+                else
+                {
+                    totalPage = total / pageSize + 1 ;                    
+                }
+            }
+
+            if (totalPage > 1)
+            {                
+                page++;
+                while (page <= totalPage)
+                {
+                    tmp = productManager.GetOnSaleProducts(this.CurrentUser, this.Shop, page, pageSize, out total);
+                    products = products.Concat(tmp).ToList<BMallProduct>();
+                    page++;
+                }
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                List<Mall_Product> dbMallProducts=(from pdt in db.Mall_Product
+                                                   where pdt.Shop_ID==this.Shop.Shop_ID
+                                                   select pdt).ToList<Mall_Product>();
+
+
+                foreach (BMallProduct product in products)
+                {
+                    Mall_Product dbProduct=(from dbPdt in dbMallProducts where dbPdt.Mall_ID==product.ID select dbPdt).FirstOrDefault<Mall_Product>();
+                    bool isNew = false;
+                    if (dbProduct == null)
+                    {
+                        isNew = true;
+                        dbProduct = new Mall_Product();                       
+                    }
+
+                    dbProduct.Created = product.Created;
+                    dbProduct.Description = product.Description;
+                    dbProduct.Mall_ID = product.ID;
+                    dbProduct.Modified = product.Modified;
+                    dbProduct.Outer_ID = int.Parse(product.OuterID);
+                    dbProduct.PicUrl = product.PicUrl;
+                    dbProduct.Price = double.Parse(product.Price);
+                    dbProduct.Quantity = (int)product.Quantity;
+                    dbProduct.Shop_ID = this.Shop.Shop_ID;
+                    if (product.Shop != null)
+                    {
+                        dbProduct.Shop_ID = product.Shop.Shop_ID;
+                    }
+
+                    dbProduct.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    dbProduct.Title = product.Title;
+
+                    if (isNew)
+                    {
+                        db.Mall_Product.Add(dbProduct);
+                        newProducts.Add(product);
+                    }                  
+                }
+            }
+
+            return newProducts;
         }
     }
 }

@@ -1,5 +1,27 @@
 ﻿@{
     ViewBag.Title = "Product";
 }
+<script>
+    $(function () {
+        $('#tabs').tabs();
+        $('#btnSync').button({ icons: { primary: "ui-icon-transferthick-e-w" } }).click(function (e) {
 
-<h2>Product</h2>
+        });
+    });    
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#mallpdtlist">出售中的宝贝</a></li>
+    </ul>
+    <div id="mallpdtlist">
+        <div id="syncMallPdt">
+            <div id="rowS">
+                <span id="btnSync">同步</span> <span>上次同步:2014-05-29 18:30</span>
+            </div>            
+        </div>
+        <div id="mallProducts">
+
+        </div>
+    </div>
+</div>

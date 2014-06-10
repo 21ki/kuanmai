@@ -22,6 +22,7 @@ namespace KM.JXC.BL.Models
         {
             this.Skus = new List<BMallSku>();
         }
+        public string Description { get; set; }
     }
 
     public class BMallSku

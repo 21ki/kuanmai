@@ -466,5 +466,33 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
+
+        [HttpPost]
+        public ApiMessage SyncMallSoldProducts()
+        {
+            ApiMessage message = new ApiMessage();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            try
+            {
+                
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+            }
+            finally
+            {
+            }
+            return message;
+        }
     }
 }
