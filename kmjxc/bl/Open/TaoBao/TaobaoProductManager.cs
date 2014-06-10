@@ -225,8 +225,7 @@ namespace KM.JXC.BL.Open.TaoBao
             req.Fields = "num_iid,title,price,pic_url,outer_id,approve_status,num,created,modified,skus";           
             req.PageNo = pageNo;         
             req.OrderBy = "list_time:desc";
-            req.IsTaobao = true;
-            req.IsEx = true;
+            //req.IsTaobao = true;           
             req.PageSize = pageSize;
            
             ItemsOnsaleGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);

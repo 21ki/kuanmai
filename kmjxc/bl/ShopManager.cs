@@ -1087,7 +1087,7 @@ namespace KM.JXC.BL
 
             long total = 0;
             long page = 1;
-            long pageSize = 50;
+            long pageSize = 40;
             List<BMallProduct> tmp = new List<BMallProduct>();
             tmp = productManager.GetOnSaleProducts(this.CurrentUser, this.Shop, page, pageSize, out total);
 

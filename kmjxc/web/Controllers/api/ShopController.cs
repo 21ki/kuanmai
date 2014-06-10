@@ -479,7 +479,7 @@ namespace KM.JXC.Web.Controllers.api
             ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
             try
             {
-                
+                shopManager.SyncMallOnSaleProducts();
             }
             catch (KMJXCException kex)
             {
