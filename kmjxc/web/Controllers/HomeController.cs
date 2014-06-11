@@ -77,5 +77,17 @@ namespace KM.JXC.Web.Controllers
             }
             return View(keys);
         }
+
+        public ActionResult Error()
+        {
+            string message = "";
+            if (!string.IsNullOrEmpty(Request["message"]))
+            {
+                message=Request["message"];
+            }
+
+            ViewData["message"] = message;
+            return View();
+        }    
     }
 }

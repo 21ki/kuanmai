@@ -66,7 +66,18 @@ namespace KM.JXC.Web.Utilities
                 pageHtml.Append("<a class=\"pn\" href=\"" + url + "page=" + (curPage - 1) + "\">上一页</a>");
             }
 
-            for (long i = 1; i <= totalPage; i++)
+            long start = 1;
+            long end = totalPage;
+            if (curPage - 5 > 0) {
+                start = curPage - 5;
+            }
+
+            if (curPage + 5 <= totalPage)
+            {
+                end = curPage + 5;
+            }
+
+            for (long i = start; i <= end; i++)
             {
               
 
@@ -84,8 +95,42 @@ namespace KM.JXC.Web.Utilities
                 pageHtml.Append("<a class=\"pn\" href=\"" + url + "page=" + (curPage + 1) + "\">下一页</a>");
             }
             pageHtml.Append("<a class=\"pn\" href=\"" + url + "page=" + totalPage.ToString() + "\">末页</a>");
-            pageHtml.Append("<span class=\"spn\">总记录:</span>"+total);
+            pageHtml.Append("<span>共:</span>"+totalPage+ "页");
             return pageHtml.ToString();
+        }
+
+        public static Dictionary<string, string> ParseURLParams(string url)
+        {
+            Dictionary<string, string> paras = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                if (url.IndexOf('?') > -1)
+                {
+                    string p = url.Substring(url.IndexOf('?')+1);
+                    string[] pcomd = p.Split('&');
+                    foreach (string pc in pcomd)
+                    {
+                        string[] kv = pc.Split('=');
+                        if (kv.Length == 2)
+                        {
+                            if (!paras.Keys.Contains(kv[0]))
+                            {
+                                paras[kv[0]] = kv[1];
+                            }
+                        }
+                        else if (kv.Length == 1)
+                        {
+                            if (!paras.Keys.Contains(kv[0]))
+                            {
+                                paras[kv[0]] = "";
+                            }
+                        }
+                    }
+                }
+            }
+
+            return paras;
         }
     }
 }

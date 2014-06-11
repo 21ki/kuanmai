@@ -172,30 +172,61 @@ namespace KM.JXC.BL.Open.TaoBao
                 return products;
             }
 
+            string num_idd = "";
+
             foreach (TB.Item item in items)
             {
+                if (num_idd == "")
+                {
+                    num_idd = item.NumIid.ToString();
+                }
+                else
+                {
+                    num_idd +=","+ item.NumIid.ToString();
+                }
+
                 BMallProduct product = new BMallProduct();
                 product.Created = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Created));
                 product.ID = item.NumIid.ToString();
                 product.Modified = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Modified));
-                product.OuterID = item.OuterId;
+                if (!string.IsNullOrEmpty(item.OuterId))
+                {
+                    int tmpId = 0;
+                    int.TryParse(item.OuterId, out tmpId);
+                    product.OuterID = tmpId;
+                }
                 product.PicUrl = item.PicUrl;
-                product.Price = item.Price;
+                if (!string.IsNullOrEmpty(item.Price))
+                {                   
+                    product.Price = double.Parse(item.Price);
+                }
                 product.Quantity = item.Num;
                 product.Description = item.Desc;
-                product.Shop = shop;                
+                product.Shop = new BShop { ID=shop.Shop_ID };
+                product.Title = item.Title;
                 if (product.Skus == null)
                 {
                     product.Skus = new List<BMallSku>();
                 }
 
-                if (item.Skus != null)
+                products.Add(product);
+            }
+
+            List<TB.Sku> skus = this.GetSuks(num_idd);
+            if (skus != null)
+            {
+                foreach (BMallProduct pdt in products)
                 {
-                    foreach (TB.Sku sku in item.Skus)
+                    List<TB.Sku> tmpskus = (from sku in skus where sku.NumIid == long.Parse(pdt.ID) select sku).ToList<TB.Sku>();
+                    foreach (TB.Sku sku in tmpskus)
                     {
                         BMallSku msku = new BMallSku();
-                        msku.OuterID = sku.OuterId;
-                        msku.MallProduct_ID = product.ID;
+
+                        int tmpId = 0;
+                        int.TryParse(sku.OuterId, out tmpId);
+
+                        msku.OuterID = tmpId;
+                        msku.MallProduct_ID = pdt.ID;
                         msku.PropertiesName = sku.PropertiesName;
                         msku.Quantity = sku.Quantity;
                         msku.SkuID = sku.SkuId.ToString();
@@ -204,12 +235,37 @@ namespace KM.JXC.BL.Open.TaoBao
                         {
                             msku.Price = double.Parse(sku.Price);
                         }
-                        product.Skus.Add(msku);
+                        pdt.Skus.Add(msku);
                     }
                 }
             }
 
             return products;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="num_idds"></param>
+        /// <returns></returns>
+        private List<TB.Sku> GetSuks(string num_idds)
+        {
+            List<TB.Sku> skus = new List<TB.Sku>();
+
+            ItemSkusGetRequest req = new ItemSkusGetRequest();
+            req.Fields = "sku_id,num_iid,properties,outer_id,properties_name,barcode,created,modified,quantity,price";
+            req.NumIids = num_idds;
+            ItemSkusGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
+
+            if (!response.IsError)
+            {
+                if (response.Skus != null)
+                {
+                    skus = response.Skus;
+                }
+            }
+
+            return skus;
         }
 
         /// <summary>
@@ -225,8 +281,8 @@ namespace KM.JXC.BL.Open.TaoBao
             req.Fields = "num_iid,title,price,pic_url,outer_id,approve_status,num,created,modified,skus";           
             req.PageNo = pageNo;         
             req.OrderBy = "list_time:desc";
-            req.IsTaobao = true;
-            req.IsEx = true;
+            //req.IsTaobao = true;
+            //req.IsEx = true;
             req.PageSize = pageSize;
            
             ItemsOnsaleGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);

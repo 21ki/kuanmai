@@ -56,6 +56,8 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="6.7862811325054064" PointY="8.2361592092719675" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product" Width="1.5" PointX="9.9272171137515528" PointY="22.621063049240533" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" Width="1.5" PointX="9.77094179846856" PointY="30.746801360858047" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.SyncWithMall" Width="1.5" PointX="10.302537285863672" PointY="11.423612510517058" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.SystemSettings" Width="1.5" PointX="5.2201651992370213" PointY="24.373955559159608" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

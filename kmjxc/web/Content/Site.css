@@ -135,6 +135,8 @@ textarea {
 .jxcMain,.jxcfoot {margin: 0 auto;width:1070px;overflow: hidden;}
 .jxcfoot {
     text-align: center;
+    margin-top:15px;
+    margin-bottom:50px;
 }
 .jxcMain {
 background-color:#FFF;
@@ -669,8 +671,24 @@ td.tdc {
     .pager .pn, .pager .spn {
         display:inline-block;
         margin-right:4px;
-        padding:3px;
+        padding: 0 5px;
+        min-width: 18px;
+        height: 26px;
+        line-height: 26px;
+    }
+    .pager .pn {
+        color: #3b5998;
+        text-decoration: none;
+        border: 1px solid #ccd3e4;
+        background-color: #f0f0f0;
         
+    }
+    .pager .spn {
+        color: #FFF;
+        text-decoration: none;
+        border: 1px solid #3b5998;
+        background-color: #3b5998;
+        cursor: default;
     }
 .lstable {
     border: 1px solid #E0E0E0;
@@ -726,4 +744,59 @@ td.tdc {
 .liprefx1 {
     padding-left:0px;
 }
+
+.jxclist1 {
+    border-bottom:1px solid rgb(238, 238, 238);
+    padding-top:10px;padding-bottom:10px;
+    padding-left:10px;
+}
+
+
+.jxcheader1 {
+    margin-bottom:5px;
+}
+
+    .jxclist1 span,.jxcheader1 span {
+        margin-left:20px;
+        display:inline-block;
+    }
+    .jxcheader1 span {
+        font-weight:bold;
+    }
+.spanw1 {
+    width:350px;
+    word-break:break-all;
+}
+.spanw2 {
+    width:70px;
+}
+.spanw3 {
+    width:50px;
+}
+
+.connected {
+    color:green;
+    font-weight:bold;
+}
+
+.disconnected {
+    color:red;
+    font-weight:bold;
+}
+
+.taba1,.tabasel1 {
+    display:inline-block;
+    text-decoration:none;
+    cursor:pointer;
+    padding-left:5px;
+    padding-right:5px;
+    border-radius:3px;
+}
+
+    .taba1:hover,.tabasel1 {
+        text-decoration:none;
+        background-color:#e8f2ff;
+        
+    }
+
         

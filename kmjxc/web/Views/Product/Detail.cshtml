@@ -1,5 +1,84 @@
 ﻿@{
-    ViewBag.Title = "Detail";
+    ViewBag.Title = "产品详细信息";
+    if(Model==null){
+        Response.Redirect("/Home/Error?message=没有获取到相关的产品信息");
+    }
+    KM.JXC.BL.Models.BProduct product = (KM.JXC.BL.Models.BProduct)Model;
 }
 
-<h2>Detail</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#productInfo">产品信息</a></li>
+        <li><a href="#productImages">产品图片</a></li>
+    </ul>
+    <div id="productInfo">       
+        <div class="row">
+            <label for="productName">编号:</label><span id="productNumber">@Html.Raw(product.ID)</span>
+        </div>
+        <div class="row">
+            <label for="productName">名称:</label>@Html.Raw(product.Title)
+        </div>
+        <div class="row">
+            <label for="pCategory">类目:</label> @if (product.Category != null)
+                                                 {
+                                                       if (product.Category.Parent != null) {
+                                                           @product.Category.Parent.Name
+                                                           @Html.Raw(" ")
+                                                       }
+                                                       
+                                                       @product.Category.Name
+                                                 }        
+        </div>
+        <div class="row">
+            <label style="float:left;">属性:</label>
+            <div style="float:left;">
+            @if (product.Children != null) {                 
+                     foreach (KM.JXC.BL.Models.BProduct child in product.Children) { 
+                        <ul class="row propul" style="margin-left:0px;">
+                                <li style="float:left;display:inline-block;">库存编号:@Html.Raw(child.ID)</li>
+                            @foreach(KM.JXC.BL.Models.BProductProperty prop in child.Properties){
+                                <li style="float:left;display:inline-block;">@Html.Raw(prop.PName+":"+prop.PValue)</li>
+                            }
+                        </ul>
+                     }
+                
+            }
+            </div>
+        </div>
+        <div class="row">
+            <label style="float:left;">供应商:</label>
+            <ul style="float:left;">
+               @if (product.Suppliers != null) {
+                   foreach (KM.JXC.DBA.Supplier supplier in product.Suppliers) { 
+                        <li style="display:block;width:200px;margin-bottom:2px;border:0px;"><span style="display:inline-block;">@Html.Raw(supplier.Name)</span></li>
+                   }
+               }
+            </ul>
+        </div>
+        <div class="row" style="height:auto;">
+            <label style="display:inline-block;float:left;">描述:</label>
+            <div style="float:left;word-break:break-all;width:750px;">
+                @Html.Raw(product.Description)
+            </div>
+        </div>
+        
+    </div>
+
+     <div id="productImages">
+        <div class="row" style="height:auto;">
+             <ul id="pdtimagelist" class="piclist">
+                 @if (product.Images != null) {
+                     foreach (KM.JXC.DBA.Image image in product.Images) { 
+                        <li><img src="@image.Path"/></li>
+                     }
+                 }
+             </ul>
+        </div>
+    </div>
+</div>

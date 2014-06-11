@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "访问错误";
+    Layout = "~/Views/Shared/master_default.cshtml";
+    string message = "";
+    
+    if(ViewData.ContainsKey("message")){
+        message = ViewData["message"] as string;
+    }
+}
+
+<h2>@message</h2>

@@ -21,9 +21,27 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
-        public ActionResult Detail(int id)
+        public ActionResult Detail(string id)
         {
-            return View();
+            if (id == null)
+            {
+                return Redirect("/Home/Error?message="+HttpUtility.UrlEncode("请输入正确的产品ID"));
+            }
+
+            int product_id = 0;
+            int.TryParse(id, out product_id);
+            if (product_id == 0)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的产品ID"));
+            }
+
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            BProduct product = pdtManager.GetProductFullInfo(product_id);
+            return View(product);
         }
 
         public ActionResult New()

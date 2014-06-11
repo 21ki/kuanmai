@@ -215,6 +215,12 @@
     <Compile Include="Supplier_Shop.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="SyncWithMall.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SystemSettings.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="User.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

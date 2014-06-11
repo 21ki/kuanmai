@@ -29,7 +29,47 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Product()
         {
-            return View();
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;           
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            int total = 0;
+            int page = 1;
+            int pageSize = 30;
+            bool? connected = null;
+            int.TryParse(Request["page"],out page);
+            int.TryParse(Request["pageSize"], out pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            if (Request["connected"] != null)
+            {
+                if (Request["connected"] == "1")
+                {
+                    connected = true;
+                }
+                else if (Request["connected"] == "0")
+                {
+                    connected = false;
+                }
+            }
+
+            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(page, pageSize, out total, connected);
+            BPageData data = new BPageData();
+            data.Data = products;
+            data.TotalRecords = total;
+            data.Page = page;
+            data.PageSize = pageSize;
+            data.URL = Request.RawUrl;
+            return View(data);
         }
 
         public ActionResult Express()
@@ -40,9 +80,7 @@ namespace KM.JXC.Web.Controllers
         {
             string user_id = HttpContext.User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
-            BUser user = userMgr.CurrentUser;
-            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            BUser user = userMgr.CurrentUser;          
             ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
 
             List<Mall_Type> mtypes = shopManager.GetMallTypes();

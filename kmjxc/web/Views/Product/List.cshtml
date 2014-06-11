@@ -509,7 +509,7 @@
                     var $ui = $("<ul id=\"propGroup_" + item.ID + "\" class=\"row propul\"></ul>").appendTo($props);
                     var pdtId = item.ID;
                     if (item.Properties != null && $(item.Properties).size() > 0) {
-                        $("<li style=\"float:left;display:inline-block;\">编号:" + pdtId + "</li>").appendTo($ui);
+                        $("<li style=\"float:left;display:inline-block;\">库存编号:" + pdtId + "</li>").appendTo($ui);
                         $(item.Properties).each(function (index, item) {
                             var json = { 'pdtid': pdtId, 'pid': item.PID, 'pvalue': item.PName, 'vid': item.PVID, 'vvalue': item.PValue };
                             propGroup.push(json);
@@ -928,7 +928,7 @@
         <li><a href="#product_pics">产品图片</a></li>
     </ul>
     <div id="product_basic">
-         <div class="row">
+        <div class="row">
             <label for="productName">编号:</label><span id="productNumber"></span>
         </div>
         <div class="row">
@@ -936,12 +936,7 @@
         </div>
         <div class="row">
             <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="pCategory">
-                <option value="0">--选择--</option>
-                   @* @if (ViewData["category"]!=null){
-                        foreach (var cate in ViewData["category"] as List<KM.JXC.BL.Models.BCategory>) { 
-                            <option value="@cate.ID">@cate.Name</option>
-                        }
-                    }*@
+                <option value="0">--选择--</option>                  
                 </select>
                 <select class="W_input" style="height:24px;display:none;" id="cCategory">
 

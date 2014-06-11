@@ -22,8 +22,9 @@ namespace KM.JXC.DBA
         public string Description { get; set; }
         public Nullable<int> Created { get; set; }
         public Nullable<int> Synced { get; set; }
-        public Nullable<int> Shop_ID { get; set; }
+        public int Shop_ID { get; set; }
         public string PicUrl { get; set; }
         public Nullable<int> Modified { get; set; }
+        public Nullable<bool> Show { get; set; }
     }
 }

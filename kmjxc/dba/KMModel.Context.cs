@@ -76,5 +76,7 @@ namespace KM.JXC.DBA
         public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Mall_Product> Mall_Product { get; set; }
         public DbSet<Mall_Product_Sku> Mall_Product_Sku { get; set; }
+        public DbSet<SyncWithMall> SyncWithMall { get; set; }
+        public DbSet<SystemSettings> SystemSettings { get; set; }
     }
 }

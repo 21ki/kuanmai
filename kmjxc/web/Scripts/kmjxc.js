@@ -457,7 +457,9 @@ function KMJXCShopManager() {
     this.SearchShopUsers = function (params, callback) {
         this.AjaxCall("/api/Shop/SearchShopUsers", params, callback);
     }
-
+    this.SyncMallSoldProducts = function (params, callback) {
+        this.AjaxCall("/api/Shop/SyncMallSoldProducts", params, callback);
+    }
 }
 
 KMJXCPermissionManager.prototype = new KMJXCBase();
@@ -498,18 +500,14 @@ function ProductGrid(tableId) {
 }
 
 
-function MessageBox(message, time, width) {
+function MessageBox(message, time) {
     //check if the dom already contains the message box dialog
     box = Boxy.get($('#alertmsgbox'));
     if (box != undefined) {
         return;
     }
 
-    var w = 200;
-    if (width) {
-        w = width;
-    }
-    new Boxy("<div id=\"alertmsgbox\" style=\"width:" + w + "px;text-align:center\">" + message + "</div>",
+    new Boxy("<div id=\"alertmsgbox\" style=\"padding-left:20px;padding-right:20px;text-align:center\">" + message + "</div>",
               {
                   modal: false,
                   fixed: true,

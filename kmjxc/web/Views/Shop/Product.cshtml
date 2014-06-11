@@ -1,13 +1,57 @@
 ﻿@{
     ViewBag.Title = "Product";
+    KM.JXC.BL.Models.BPageData data = (KM.JXC.BL.Models.BPageData)Model;
+    List<KM.JXC.BL.Models.BMallProduct> products = (List<KM.JXC.BL.Models.BMallProduct>)data.Data;
+    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPager.ParseURLParams(Request.RawUrl);
 }
 <script>
+    var shopMgr = new KMJXCShopManager();
     $(function () {
         $('#tabs').tabs();
+        
         $('#btnSync').button({ icons: { primary: "ui-icon-transferthick-e-w" } }).click(function (e) {
-
+            var $progress = new ShowProgress("sync_trade_progress_bar", function () { }, "正在同步，同步过程中，不要关闭浏览器，请耐心等待...");
+            shopMgr.SyncMallSoldProducts({}, function (res) {
+                Boxy.get($('#sync_trade_progress_bar')).hide();
+                if (res.Status == 'ok') {
+                    new MessageBox("同步完成，新生成 " + res.Item + " 个出售中的宝贝到进销存",1500);                   
+                } else {
+                    alert("同步失败,"+res.Message);
+                }
+            });
         });
-    });    
+    });
+
+    function Guanlian(mall_id, parent_id) {
+        alert("请到淘宝编辑宝贝，为销售属性集合输入对应的商家编码（进销存产品的库存编码）以及宝贝的商家编码（进销存产品的编码）");
+        return;
+        $("#popup_guanlian").dialog({
+            position: { my: "top", at: "top", of: $("#tabs") },
+            width: 550,
+            //height:550,
+            resizable: false,
+            title: "关联宝贝和进销存产品",
+            modal: true,
+            open: function () { },
+            close: function () { },
+            buttons: [
+                {
+                    text: "保存", click: function () {
+                        alert(mall_id);
+                    },
+                    icons: { primary: "ui-icon-disk" }
+                },
+                    {
+                        text: "取消", click: function () {
+                            $(this).dialog("close");
+                        },
+                        icons: { primary: "ui-icon-close" }
+                    }
+            ]
+        });
+
+        $("#popup_guanlian").dialog("open");
+    }
 </script>
 
 <div id="tabs">
@@ -20,8 +64,104 @@
                 <span id="btnSync">同步</span> <span>上次同步:2014-05-29 18:30</span>
             </div>            
         </div>
-        <div id="mallProducts">
 
+        <div id="mallProducts">
+                <div class="row s_title shead jxcheader1">
+                    <span style="margin-left:0;" class="spanw3">缩略图</span><span class="spanw1">宝贝名称</span>
+                    <span class="spanw2">宝贝价格</span>
+                    <span class="spanw2">关联进销存</span>
+                </div>
+                <div class="row">
+                    @{
+                        string connected = "";
+                        
+                        if (paras.Keys.Contains("connected")){
+                            connected = paras["connected"];
+                        }
+                     }
+                    <a 
+                        @if(connected==""){
+                            @Html.Raw("class=\"tabasel1\"")
+                        }else{
+                             @Html.Raw("class=\"taba1\"")
+                        }
+                         href="/Shop/Product">所有宝贝</a>
+                    <a 
+                        @if(connected=="1"){
+                            @Html.Raw("class=\"tabasel1\"")
+                        }else{
+                             @Html.Raw("class=\"taba1\"")
+                        }
+                         href="/Shop/Product?connected=1">已关联宝贝</a>
+                    <a 
+                        @if(connected=="0"){
+                            @Html.Raw("class=\"tabasel1\"")
+                        }else{
+                             @Html.Raw("class=\"taba1\"")
+                        }
+                         href="/Shop/Product?connected=0">未关联宝贝</a>
+                </div>
+            @if (products != null) {
+                foreach (KM.JXC.BL.Models.BMallProduct product in products) { 
+                    <div class="row jxclist1">
+                        <div>
+                            <span style="margin-left:0;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
+                            <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
+                            <span class="spanw2">
+                                @if(product.OuterID>0){
+                                    @Html.Raw("<a class=\"connected\" style=\"color:green\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
+                                }
+                                else
+                                {
+                                    @Html.Raw("<a class=\"disconnected\" style=\"color:red\" href=\"javascript:void(0)\" onclick=\"Guanlian('"+product.ID+"')\">未关联</a>")
+                                }
+                            </span>
+                        </div>
+                        @if(product.Skus!=null){
+                         <div style="padding-left:50px;">
+                             @foreach (KM.JXC.BL.Models.BMallSku sku in product.Skus){
+                                <div>
+                                     <span class="spanw1">
+                                         @{
+                                                if(!string.IsNullOrEmpty(sku.Properities)){
+                                                    string[] pops = sku.Properities.Split(';');
+                                                    foreach(string p in pops){
+                                                        sku.PropertiesName=sku.PropertiesName.Replace(p+":", "");
+                                                    }
+                                                }
+                                                 
+                                          }
+                                         @Html.Raw(sku.PropertiesName)
+                                     </span>
+                                     <span class="spanw2">@Html.Raw(sku.Price.ToString("0.00"))</span>
+                                     <span class="spanw2">
+                                        @if(sku.OuterID>0){
+                                            @Html.Raw("<a class=\"connected\" style=\"color:green\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
+                                        }
+                                        else
+                                        {
+                                            @Html.Raw("<a class=\"disconnected\" style=\"color:red\" href=\"javascript:void(0)\" onclick=\"Guanlian('"+product.ID+"')\">未关联</a>")
+                                        }
+                                    </span>
+                                </div>
+                             }
+                         </div>
+                        }
+                    </div>
+                }
+            }
         </div>
+        @{
+        string pageHtml = KM.JXC.Web.Utilities.JXCPager.Pager(data);
+        if (!string.IsNullOrEmpty(pageHtml))
+        {
+            <div class="s_title spage pager">
+                 @Html.Raw(pageHtml)
+
+            </div>
+        }  
+     }
     </div>
 </div>
+
+<div id="popup_guanlian" style="display:none;"></div>

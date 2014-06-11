@@ -1087,7 +1087,7 @@ namespace KM.JXC.BL
 
             long total = 0;
             long page = 1;
-            long pageSize = 50;
+            long pageSize = 40;
             List<BMallProduct> tmp = new List<BMallProduct>();
             tmp = productManager.GetOnSaleProducts(this.CurrentUser, this.Shop, page, pageSize, out total);
 
@@ -1127,6 +1127,9 @@ namespace KM.JXC.BL
                                                    where pdt.Shop_ID==this.Shop.Shop_ID
                                                    select pdt).ToList<Mall_Product>();
 
+                List<Mall_Product_Sku> dbSkus = (from sku in db.Mall_Product_Sku
+                                                 where sku.Shop_ID == this.Shop.Shop_ID
+                                                 select sku).ToList<Mall_Product_Sku>();
 
                 foreach (BMallProduct product in products)
                 {
@@ -1142,14 +1145,17 @@ namespace KM.JXC.BL
                     dbProduct.Description = product.Description;
                     dbProduct.Mall_ID = product.ID;
                     dbProduct.Modified = product.Modified;
-                    dbProduct.Outer_ID = int.Parse(product.OuterID);
+                    dbProduct.Outer_ID = product.OuterID;
                     dbProduct.PicUrl = product.PicUrl;
-                    dbProduct.Price = double.Parse(product.Price);
+                    dbProduct.Price = product.Price;
                     dbProduct.Quantity = (int)product.Quantity;
                     dbProduct.Shop_ID = this.Shop.Shop_ID;
                     if (product.Shop != null)
                     {
-                        dbProduct.Shop_ID = product.Shop.Shop_ID;
+                        dbProduct.Shop_ID = product.Shop.ID;
+                    }
+                    else {
+                        product.Shop = new BShop { ID=this.Shop.Shop_ID };
                     }
 
                     dbProduct.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -1159,11 +1165,157 @@ namespace KM.JXC.BL
                     {
                         db.Mall_Product.Add(dbProduct);
                         newProducts.Add(product);
-                    }                  
+                    }
+
+                    if (product.Skus!=null)
+                    {
+                        foreach (BMallSku mSku in product.Skus)
+                        {
+                            bool skuNew = false;
+                            Mall_Product_Sku dbSku=(from dbs in dbSkus where mSku.SkuID== dbs.SKU_ID select dbs).FirstOrDefault<Mall_Product_Sku>();
+                            if (dbSku == null)
+                            {
+                                skuNew = true;
+                                dbSku = new Mall_Product_Sku();
+                            }
+
+                            dbSku.Outer_ID = mSku.OuterID;
+                            dbSku.Mall_ID = mSku.MallProduct_ID;
+                            dbSku.Price = mSku.Price;
+                            dbSku.Properties = mSku.Properities;
+                            dbSku.Properties_name = mSku.PropertiesName;
+                            dbSku.Quantity = (int)mSku.Quantity;
+                            dbSku.Shop_ID = product.Shop.ID;
+                            dbSku.SKU_ID = mSku.SkuID;
+                            if (skuNew)
+                            {
+                                db.Mall_Product_Sku.Add(dbSku);
+                            }
+                        }
+                    }
                 }
+
+                SyncWithMall sync = new SyncWithMall();
+                sync.Shop_ID = this.Shop.Shop_ID;
+                sync.User_ID = this.CurrentUser.ID;
+                sync.SyncType = 0;//宝贝同步
+                sync.SyncTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                db.SyncWithMall.Add(sync);
+                db.SaveChanges();
             }
 
             return newProducts;
+        }
+
+        public List<BMallProduct> SearchOnSaleMallProducts(int page, int pageSize, out int total,bool? connected=null, int shop_id = 0)
+        {
+            List<BMallProduct> products = new List<BMallProduct>();
+            total = 0;
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from item in db.Mall_Product
+                          select item;
+
+                var tmp1 = from sku in db.Mall_Product_Sku
+                           select sku;
+
+                if (shop_id > 0)
+                {
+                    tmp = tmp.Where(i => i.Shop_ID == shop_id);
+                    tmp1 = tmp1.Where(i => i.Shop_ID == shop_id);
+                }
+                else
+                {
+                    int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        tmp = tmp.Where(i => (i.Shop_ID == this.Shop.Shop_ID || childs.Contains(i.Shop_ID)));
+                        tmp1 = tmp1.Where(i => (i.Shop_ID == this.Shop.Shop_ID || childs.Contains(i.Shop_ID)));
+                    }
+                    else
+                    {
+                        tmp = tmp.Where(i => i.Shop_ID == this.Shop.Shop_ID);
+                        tmp1 = tmp1.Where(i => i.Shop_ID == this.Shop.Shop_ID);
+                    }
+                }
+
+                if (connected != null)
+                {
+                    if (connected == true)
+                    {
+                        tmp = tmp.Where(i => i.Outer_ID > 0);
+                    }
+                    else
+                    {
+                        tmp = tmp.Where(i => i.Outer_ID == 0);
+                    }
+                }
+
+                List<Mall_Product_Sku> skus = tmp1.OrderBy(i=>i.Mall_ID).ToList<Mall_Product_Sku>();
+
+                var tmpPdts = from item in tmp
+                              join product in db.Product on item.Outer_ID equals product.Product_ID into lProduct
+                              from l_product in lProduct.DefaultIfEmpty()
+                              join shop in db.Shop on item.Shop_ID equals shop.Shop_ID into lShop
+                              from l_shop in lShop.DefaultIfEmpty()
+                              join category in db.Product_Class on l_product.Product_Class_ID equals category.Product_Class_ID into lCategory
+                              from l_category in lCategory.DefaultIfEmpty()
+                              select new BMallProduct
+                              {
+                                  Created = (int)item.Created,
+                                  Description = item.Description,
+                                  ID = item.Mall_ID,
+                                  Modified = (int)item.Modified,
+                                  OuterID = item.Outer_ID,
+                                  PicUrl = item.PicUrl,
+                                  Price = (double)item.Price,
+                                  Product = new BProduct
+                                  {
+                                      Title = l_product.Name,
+                                      Category = l_category != null ? new BCategory { ID=l_category.Product_Class_ID,Name=l_category.Name } : new BCategory {ID=0,Name="" }
+                                  },
+                                  Quantity = (long)item.Quantity,
+                                  Shop = new BShop { ID = l_shop.Shop_ID, Title = l_shop.Name },
+                                  Title = item.Title
+                              };
+
+                total = tmpPdts.Count();
+                if (total > 0)
+                {
+                    products = tmpPdts.OrderByDescending(p => p.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BMallProduct>();
+                    foreach (BMallProduct product in products)
+                    {
+                        product.Skus = (from sku in skus
+                                        where sku.Mall_ID == product.ID
+                                        select new BMallSku
+                                        {
+                                            MallProduct_ID = sku.Mall_ID,
+                                            OuterID = sku.Outer_ID,
+                                            SkuID = sku.SKU_ID,
+                                            Price = (double)sku.Price,
+                                            Quantity = (int)sku.Quantity,
+                                            //Product = new BProduct 
+                                            //{
+
+                                            //},
+                                            Properities = sku.Properties,
+                                            PropertiesName = sku.Properties_name
+                                        }).ToList<BMallSku>();
+                    }
+                }
+                            
+            }
+            return products;
         }
     }
 }

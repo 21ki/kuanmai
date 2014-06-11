@@ -56,6 +56,14 @@
           <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Store.Supplier" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Store.Supplier_Shop" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="SyncWithMall" EntityType="KM.JXC.DBA.Model.Store.SyncWithMall" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="SystemSettings" EntityType="KM.JXC.DBA.Model.Store.SystemSettings" store:Type="Tables" store:Schema="kuanmai" store:Name="SystemSettings">
+            <DefiningQuery>SELECT
+      `SystemSettings`.`MallProductSyncTimes`, 
+      `SystemSettings`.`MallTradeSyncTimes`, 
+      `SystemSettings`.`Type`
+      FROM `SystemSettings` AS `SystemSettings`</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.Store.User" store:Type="Tables" Schema="kuanmai" />
         </EntityContainer>
         <EntityType Name="Access_Token">
@@ -404,9 +412,10 @@
           <Property Name="Description" Type="text" />
           <Property Name="Created" Type="int" />
           <Property Name="Synced" Type="int" />
-          <Property Name="Shop_ID" Type="mediumint" />
+          <Property Name="Shop_ID" Type="mediumint" Nullable="false" />
           <Property Name="PicUrl" Type="varchar" MaxLength="200" />
           <Property Name="Modified" Type="int" />
+          <Property Name="Show" Type="bool" />
         </EntityType>
         <EntityType Name="Mall_Product_Sku">
           <Key>
@@ -421,6 +430,7 @@
           <Property Name="Properties_name" Type="varchar" MaxLength="500" />
           <Property Name="Properties" Type="varchar" MaxLength="500" />
           <Property Name="Price" Type="double" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Type">
           <Key>
@@ -694,6 +704,29 @@
           <Property Name="Supplier_ID" Type="umediumint" Nullable="false" />
           <Property Name="Shop_ID" Type="umediumint" Nullable="false" />
         </EntityType>
+        <EntityType Name="SyncWithMall">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="User_ID" Type="int" Nullable="false" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="SyncTime" Type="int" Nullable="false" />
+          <Property Name="SyncType" Type="int" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'def.kuanmai.SystemSettings' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="SystemSettings">
+          <Key>
+            <PropertyRef Name="MallProductSyncTimes" />
+            <PropertyRef Name="MallTradeSyncTimes" />
+            <PropertyRef Name="Type" />
+          </Key>
+          <Property Name="MallProductSyncTimes" Type="mediumint" Nullable="false" />
+          <Property Name="MallTradeSyncTimes" Type="mediumint" Nullable="false" />
+          <Property Name="Type" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="User_ID" />
@@ -768,6 +801,8 @@
           <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
           <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Mall_Product" />
           <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" />
+          <EntitySet Name="SyncWithMall" EntityType="KM.JXC.DBA.Model.SyncWithMall" />
+          <EntitySet Name="SystemSettings" EntityType="KM.JXC.DBA.Model.SystemSettings" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1405,9 +1440,10 @@
           <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Created" />
           <Property Type="Int32" Name="Synced" />
-          <Property Type="Int32" Name="Shop_ID" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="String" Name="PicUrl" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Modified" />
+          <Property Type="Boolean" Name="Show" />
         </EntityType>
         <EntityType Name="Mall_Product_Sku">
           <Key>
@@ -1422,6 +1458,27 @@
           <Property Type="String" Name="Properties_name" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Properties" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="Double" Name="Price" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SyncWithMall">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+          <Property Type="Int32" Name="SyncTime" Nullable="false" />
+          <Property Type="Int32" Name="SyncType" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SystemSettings">
+          <Key>
+            <PropertyRef Name="MallProductSyncTimes" />
+            <PropertyRef Name="MallTradeSyncTimes" />
+            <PropertyRef Name="Type" />
+          </Key>
+          <Property Type="Int32" Name="MallProductSyncTimes" Nullable="false" />
+          <Property Type="Int32" Name="MallTradeSyncTimes" Nullable="false" />
+          <Property Type="Int32" Name="Type" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2085,6 +2142,7 @@
           <EntitySetMapping Name="Mall_Product">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Product">
               <MappingFragment StoreEntitySet="Mall_Product">
+                <ScalarProperty Name="Show" ColumnName="Show" />
                 <ScalarProperty Name="Modified" ColumnName="Modified" />
                 <ScalarProperty Name="PicUrl" ColumnName="PicUrl" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
@@ -2102,6 +2160,7 @@
           <EntitySetMapping Name="Mall_Product_Sku">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Mall_Product_Sku">
               <MappingFragment StoreEntitySet="Mall_Product_Sku">
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Properties" ColumnName="Properties" />
                 <ScalarProperty Name="Properties_name" ColumnName="Properties_name" />
@@ -2109,6 +2168,26 @@
                 <ScalarProperty Name="Outer_ID" ColumnName="Outer_ID" />
                 <ScalarProperty Name="Mall_ID" ColumnName="Mall_ID" />
                 <ScalarProperty Name="SKU_ID" ColumnName="SKU_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SyncWithMall">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.SyncWithMall">
+              <MappingFragment StoreEntitySet="SyncWithMall">
+                <ScalarProperty Name="SyncType" ColumnName="SyncType" />
+                <ScalarProperty Name="SyncTime" ColumnName="SyncTime" />
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SystemSettings">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.SystemSettings">
+              <MappingFragment StoreEntitySet="SystemSettings">
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="MallTradeSyncTimes" ColumnName="MallTradeSyncTimes" />
+                <ScalarProperty Name="MallProductSyncTimes" ColumnName="MallProductSyncTimes" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

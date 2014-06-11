@@ -470,7 +470,7 @@ namespace KM.JXC.Web.Controllers.api
         [HttpPost]
         public ApiMessage SyncMallSoldProducts()
         {
-            ApiMessage message = new ApiMessage();
+            ApiMessage message = new ApiMessage() { Status="ok"};
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
             HttpRequestBase request = context.Request;
             string user_id = User.Identity.Name;
@@ -479,7 +479,8 @@ namespace KM.JXC.Web.Controllers.api
             ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
             try
             {
-                
+                List<BMallProduct> newProducts= shopManager.SyncMallOnSaleProducts();
+                message.Item = newProducts.Count;
             }
             catch (KMJXCException kex)
             {
