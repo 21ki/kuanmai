@@ -430,15 +430,12 @@ function KMJXCShopManager() {
     this.CreateShopExpress = function (params, callback) {
         this.AjaxCall("/api/Shop/CreateShopExpress", params, callback);
     }
-
     this.UpdateExpressFee = function (params, callback) {
         this.AjaxCall("/api/Shop/UpdateExpressFee", params, callback);
     }
-
     this.CreateExpressFees = function (params, callback) {
         this.AjaxCall("/api/Shop/CreateExpressFees", params, callback);
     }
-
     this.GetNonExpressedHouses = function (params, callback) {
         this.AjaxCall("/api/Shop/GetNonExpressedHouses", params, callback);
     }
@@ -453,6 +450,9 @@ function KMJXCShopManager() {
     }
     this.HandleAddChildRequest = function (params, callback) {
         this.AjaxCall("/api/Shop/HandleAddChildRequest", params, callback);
+    }
+    this.SearchShopUsers = function (params, callback) {
+        this.AjaxCall("/api/Shop/SearchShopUsers", params, callback);
     }
     this.SearchShopUsers = function (params, callback) {
         this.AjaxCall("/api/Shop/SearchShopUsers", params, callback);

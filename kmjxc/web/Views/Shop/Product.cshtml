@@ -24,33 +24,7 @@
 
     function Guanlian(mall_id, parent_id) {
         alert("请到淘宝编辑宝贝，为销售属性集合输入对应的商家编码（进销存产品的库存编码）以及宝贝的商家编码（进销存产品的编码）");
-        return;
-        $("#popup_guanlian").dialog({
-            position: { my: "top", at: "top", of: $("#tabs") },
-            width: 550,
-            //height:550,
-            resizable: false,
-            title: "关联宝贝和进销存产品",
-            modal: true,
-            open: function () { },
-            close: function () { },
-            buttons: [
-                {
-                    text: "保存", click: function () {
-                        alert(mall_id);
-                    },
-                    icons: { primary: "ui-icon-disk" }
-                },
-                    {
-                        text: "取消", click: function () {
-                            $(this).dialog("close");
-                        },
-                        icons: { primary: "ui-icon-close" }
-                    }
-            ]
-        });
-
-        $("#popup_guanlian").dialog("open");
+        return;        
     }
 </script>
 

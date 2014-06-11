@@ -283,6 +283,7 @@ namespace KM.JXC.BL.Open.TaoBao
             req.OrderBy = "list_time:desc";
             //req.IsTaobao = true;
             //req.IsEx = true;
+
             req.PageSize = pageSize;
            
             ItemsOnsaleGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
