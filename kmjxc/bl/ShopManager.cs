@@ -1317,5 +1317,58 @@ namespace KM.JXC.BL
             }
             return products;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
+        public BShopStatistic GetShopStatistic(int shop_id = 0,bool containChildShop=false)
+        {
+            BShopStatistic statistic = new BShopStatistic();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] child=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                if (containChildShop)
+                {
+                    statistic.ChildShop = this.ChildShops.Count;
+
+                    statistic.Account=(from user in db.User where user.Shop_ID==this.Shop.Shop_ID || child.Contains(user.Shop_ID) select user.User_ID).Count();
+                    statistic.BackSale=(from bs in db.Back_Sale where bs.Shop_ID==this.Shop.Shop_ID || child.Contains(bs.Shop_ID) select bs.Back_Sale_ID).Count();                  
+
+                    var tmpbs = from bsd in db.Back_Sale_Detail
+                                join bs in db.Back_Sale on bsd.Back_Sale_ID equals bs.Back_Sale_ID into lBs
+                                from l_bs in lBs.DefaultIfEmpty()
+                                where (l_bs.Shop_ID == this.Shop_Id || child.Contains(l_bs.Shop_ID)) && bsd.Status==0
+                                select bsd.Back_Sale_ID;
+                    statistic.BackSaleUnhandled = tmpbs.Distinct().Count();
+
+                    statistic.BackStock=(from bs in db.Back_Stock where bs.Shop_ID==this.Shop_Id || child.Contains(bs.Shop_ID) select bs.Back_Sock_ID).Count();
+                    var tmpbs1 = from bsd in db.Back_Stock_Detail
+                                join bs in db.Back_Stock on bsd.Back_Stock_ID equals bs.Back_Sock_ID into lBs
+                                from l_bs in lBs.DefaultIfEmpty()
+                                where (l_bs.Shop_ID == this.Shop_Id || child.Contains(l_bs.Shop_ID)) && bsd.Status == 0
+                                select bsd.Back_Stock_ID;
+                    statistic.BackStockUnhandled = tmpbs1.Distinct().Count();
+
+                    statistic.Buy=(from buy in db.Buy where buy.Shop_ID==this.Shop.Shop_ID || child.Contains(buy.Shop_ID) select buy.Buy_ID).Count();
+                    var tmpbuy = from bsd in db.Buy_Detail
+                                 join bs in db.Buy on bsd.Buy_ID equals bs.Buy_ID into lBs
+                                 from l_bs in lBs.DefaultIfEmpty()
+                                 where (l_bs.Shop_ID == this.Shop_Id || child.Contains(l_bs.Shop_ID)) && l_bs.Status==0
+                                 select bsd.Buy_ID;
+                    statistic.BuyUnhandled = tmpbuy.Distinct().Count();
+
+                    statistic.BuyOrder=(from order in db.Buy_Order where order.Shop_ID==this.Shop.Shop_ID || child.Contains(order.Shop_ID) select order.Buy_Order_ID).Count();
+                    var tmpbuyorder = from bsd in db.Buy_Order_Detail
+                                 join bs in db.Buy_Order on bsd.Buy_Order_ID equals bs.Buy_Order_ID into lBs
+                                 from l_bs in lBs.DefaultIfEmpty()
+                                 where (l_bs.Shop_ID == this.Shop_Id || child.Contains(l_bs.Shop_ID)) && l_bs.Status == 0
+                                 select bsd.Buy_Order_ID;
+                    statistic.BuyOrderUnhandled = tmpbuyorder.Distinct().Count();
+                }
+            }
+            return statistic;
+        }
     }
 }

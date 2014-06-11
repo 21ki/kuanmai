@@ -2,4 +2,17 @@
     ViewBag.Title = "Dashboard";
 }
 
-<h2>Dashboard</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#shopinfo">店铺信息统计</a></li>
+    </ul>
+    <div id="shopinfo">
+
+    </div>
+</div>
