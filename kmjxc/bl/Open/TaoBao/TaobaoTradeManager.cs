@@ -52,8 +52,7 @@ namespace KM.JXC.BL.Open.TaoBao
         {
             List<BSale> trades = new List<BSale>();
             long totalTrades = 0;
-            bool hasNextPage = false;
-            long pageSize = 50;
+            bool hasNextPage = false;            
             long totalPage = 0;
             long curPage = 1;
             if (!string.IsNullOrEmpty(status) && this.status.Contains(status))
@@ -147,7 +146,7 @@ namespace KM.JXC.BL.Open.TaoBao
             List<BSale> trades = new List<BSale>();
             long totalTrades = 0;
             bool hasNextPage = false;
-            long pageSize = 50;
+           
             long totalPage = 0;
             long curPage=1;
             DateTime sDate = DateTime.MinValue;

@@ -593,7 +593,7 @@ td.tdc {
     overflow:hidden;   
 }
 .s_title {    
-    background-color:#e8f2ff;
+    background-color:rgb(238, 238, 238);
     padding-top:5px;
     padding-bottom:5px;
 }
@@ -603,7 +603,7 @@ td.tdc {
     padding-left:10px;
 }
 .shead {
-     border-bottom:1px solid #D4E7FF;
+     border-bottom:1px solid #e6e6e6;
 }
 .spage {
     text-align:center;
@@ -666,7 +666,7 @@ td.tdc {
 }
 
 .pager {
-    background-color:#e8f2ff;
+    background-color:rgb(238, 238, 238);
 }
     .pager .pn, .pager .spn {
         display:inline-block;
@@ -798,5 +798,59 @@ td.tdc {
         background-color:#e8f2ff;
         
     }
+.btna {
+    border: 1px solid #E0E0E0;
+    display:inline-block;
+    padding-left:10px;
+    padding-right:10px;
+    border-radius:4px;
+    text-decoration:none;
+}
+    .btna:hover {
+        background:#3b5998;
+        color:#FFF;
+        text-decoration:none;
+    }
+.sSection {    
+    margin-bottom:15px;
+    color:#666;     
+}
+
+    .sSection .sTitle {   
+        
+        border-bottom:2px solid #ccc;
+    }
+        .sSection .sTitle span {
+            background-color:#ccc;
+            padding-left:10px;
+            padding-right:10px;
+            display:inline-block;
+            height:25px;
+            line-height:25px;
+            border-top-left-radius:3px;
+            border-top-right-radius:3px;
+        }
+    .sSection .sContent {
+       
+        border:1px solid #ccc;
+        padding:10px 10px;
+    }
+        .sSection .sContent ul {
+            padding-left:10px;
+        }
+            .sSection .sContent ul li {
+                padding-top:5px;
+                padding-bottom:5px;
+            }
+            .sSection .sContent ul li span {
+                display:inline-block;
+            }
+            .sSection .sContent ul li .name {
+                width:70px;
+            }
+            .sSection .sContent ul li .value {
+                text-align:left;
+                width:100px;
+            }
 
         

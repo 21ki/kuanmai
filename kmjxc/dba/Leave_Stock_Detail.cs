@@ -23,5 +23,6 @@ namespace KM.JXC.DBA
         public string Message { get; set; }
         public double Amount { get; set; }
         public string Order_ID { get; set; }
+        public int Status { get; set; }
     }
 }

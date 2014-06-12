@@ -5,6 +5,7 @@
     string menuStyle = "class=link";
     KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
     KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
+    KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
     }
 <!DOCTYPE html>
 <html>
@@ -65,7 +66,10 @@
 
 <body>  
    
-   <div class="jxcMain">TOP</div>
+   <div class="jxcMain">
+       当前登录用户:@CurrentUser.Mall_Name <br/>
+       当前用户所在主店铺:@MainShop.Name
+   </div>
    <div class="jxcMain">       
        <div class="jxcLeftMenu">
            <h3 class="menu_wd1">采购管理</h3>
@@ -169,7 +173,7 @@
                        }                         
                        
                        >
-                       退货单处理</a>
+                       退货处理</a>
 
                    </li>    
                  @*  <li>
@@ -373,7 +377,7 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       店铺信息统计
+                       信息统计
                         </a></li>  
                    <li>
                    <li> <a href="/Shop/Product"
@@ -386,7 +390,7 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       出售中的宝贝
+                       在售宝贝
                         </a></li>  
                    <li>
                        <a href="/Shop/Account"
@@ -430,7 +434,7 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       子店铺请求
+                       子店请求
                         </a>
                    </li>
                    <li> <a href="/Shop/Express"

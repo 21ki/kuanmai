@@ -89,12 +89,18 @@ namespace KM.JXC.BL
                 foreach (BSale trade in trades)
                 {
                     Leave_Stock ls=(from leaveStock in leave_Stocks where leaveStock.Sale_ID==trade.Sale_ID select leaveStock).FirstOrDefault<Leave_Stock>();
+                    //no leave stock no need to create back sale
+                    if (ls == null) 
+                    {
+                        continue;
+                    }
+
                     Back_Sale bSale=(from b_Sale in back_Sales where b_Sale.Sale_ID==trade.Sale_ID select b_Sale).FirstOrDefault<Back_Sale>();
-                    bool isNew = false;
+                    bool isNewBackSale = false;
                     double totalRefound = 0;
                     if (bSale == null)
                     {
-                        isNew = true;                       
+                        isNewBackSale = true;                       
                         bSale = new Back_Sale();
                     }
 
@@ -106,7 +112,7 @@ namespace KM.JXC.BL
                     bSale.Status = 0;
                     bSale.User_ID = this.CurrentUser.ID;
 
-                    if (isNew)
+                    if (isNewBackSale)
                     {
                         db.Back_Sale.Add(bSale);
                         db.SaveChanges();
@@ -383,6 +389,20 @@ namespace KM.JXC.BL
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
+                var tmpExp = from expsp in db.Express_Shop
+                             join exp in db.Express on expsp.Express_ID equals exp.Express_ID into lExp
+                             from l_exp in lExp
+                             where expsp.Shop_ID==this.Shop.Shop_ID && expsp.IsDefault==1
+                             select l_exp;
+                Express defaultExp = tmpExp.FirstOrDefault<Express>();
+                List<Express_Fee> expFees = new List<Express_Fee>();
+                if (defaultExp != null)
+                {
+                    expFees = (from fee in db.Express_Fee
+                               where fee.Express_ID == defaultExp.Express_ID && fee.Shop_ID == this.Shop.Shop_ID
+                               select fee).ToList<Express_Fee>();
+                }
+
                 int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 var customers = from customer in db.Customer
                                 where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
@@ -408,14 +428,21 @@ namespace KM.JXC.BL
                     dbSale.City_ID = 0;
                     dbSale.Sync_User = this.CurrentUser.ID;
                     dbSale.HasRefound = sale.HasRefound;
-                    if (sale.Buyer != null)
+                    if (defaultExp != null)
                     {
+                        dbSale.Express_ID = defaultExp.Express_ID;
+                        dbSale.Express_Cop = defaultExp.Name;
+                    }
+                    List<Express_Fee> tmpFees = new List<Express_Fee>();
+                    if (sale.Buyer != null)
+                    {                        
                         if (sale.Buyer.Province != null)
                         {
                             sale.Buyer.Province = (from p in areas where p.name == sale.Buyer.Province.name select p).FirstOrDefault<Common_District>();
                             if (sale.Buyer.Province != null)
                             {
                                 dbSale.Province_ID = sale.Buyer.Province.id;
+                                tmpFees=(from fee in expFees where fee.Province_ID ==  dbSale.Province_ID select fee).ToList<Express_Fee>();
                             }
                         }
 
@@ -425,6 +452,7 @@ namespace KM.JXC.BL
                             if (sale.Buyer.City != null)
                             {
                                 dbSale.City_ID = sale.Buyer.City.id;
+                                tmpFees = (from fee in tmpFees where fee.City_ID == dbSale.City_ID select fee).ToList<Express_Fee>();
                             }
                         }
 
@@ -473,6 +501,11 @@ namespace KM.JXC.BL
                             dbSale.Buyer_ID = cus.Customer_ID;
                         }
                     }
+                    if (tmpFees != null && tmpFees.Count > 0)
+                    {
+                        dbSale.Post_Fee1 = tmpFees[0].Fee;
+                    }
+
                     dbSale.Sale_Time = sale.SaleDateTime;
                     dbSale.Shop_ID = this.Shop.Shop_ID;
                     dbSale.Status = sale.Status;
@@ -1224,42 +1257,61 @@ namespace KM.JXC.BL
         /// <param name="backSaleID"></param>
         /// <param name="product_id"></param>
         /// <param name="status"></param>
-        public void HandleBackSaleDetail(int backSaleID,string[] order_ids, int status)
+        public void HandleBackSaleDetail_BackStock(int backSaleID,List<BOrder> borders, int status)
         {
+            if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
+            {
+                throw new KMJXCException("没有处理退货单的权限");
+            }
+
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
-                {
-                    throw new KMJXCException("没有处理退货单的权限");
-                }
-
-                var bsDetail = from bsd in db.Back_Sale_Detail
-                               where bsd.Back_Sale_ID == backSaleID
-                               select bsd;
-
-                if (order_ids!=null)
-                {
-                    bsDetail = bsDetail.Where(b => order_ids.Contains(b.Order_ID));
-                }
-
-                Back_Sale_Detail detail = bsDetail.FirstOrDefault<Back_Sale_Detail>();
-                if (detail == null)
+                if (backSaleID <= 0 || borders == null || borders.Count <= 0)
                 {
                     throw new KMJXCException("没有找到退货单信息");
                 }
 
-                if (status == 1)
-                {
-                    //back stock and update stock pile
-                    stockManager.CreateBackStock(backSaleID, order_ids, status);
-                }
-                else if (status == 2)
-                {
-                    //no need to back stock, update wastage
-                    this.HandleWastageBackSale(backSaleID, order_ids, status);
-                }
+                stockManager.CreateBackStock(backSaleID, borders, status);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void HandleBackSaleDetail_PartialWaste(int backSaleID, List<BOrder> orders, int status)
+        {
+            if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
+            {
+                throw new KMJXCException("没有处理退货单的权限");
+            }
+
+            if (backSaleID == 0 || orders == null || orders.Count <= 0)
+            {
+                throw new KMJXCException("退货单信息有错误");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                string[] order_id=(from o in orders select o.Order_ID).ToArray<string>();
+                List<Back_Sale_Detail> details = (from bsd in db.Back_Sale_Detail
+                                                  where bsd.Back_Sale_ID == backSaleID && order_id.Contains(bsd.Order_ID)
+                                                  select bsd).ToList<Back_Sale_Detail>();
+
+                this.HandleWastageBackSale_TotalWaste(backSaleID,orders,status);
+
+                List<BOrder> bkOrders = new List<BOrder>();
+                foreach (BOrder o in orders)
+                {
+                    Back_Sale_Detail detail=(from d in details where d.Order_ID==o.Order_ID select d).FirstOrDefault<Back_Sale_Detail>();
+                    if (detail.Quantity - o.Quantity > 0)
+                    {
+                        bkOrders.Add(new BOrder() { Order_ID = o.Order_ID, Quantity = detail.Quantity - o.Quantity });
+                    }
+                }
+
+                this.HandleBackSaleDetail_BackStock(backSaleID, bkOrders, status);
+            }
+        }        
 
         /// <summary>
         /// 
@@ -1267,17 +1319,22 @@ namespace KM.JXC.BL
         /// <param name="backSaleId"></param>
         /// <param name="order_id"></param>
         /// <param name="status"></param>
-        private void HandleWastageBackSale(int backSaleId,string[] order_id,int status)
+        public void HandleWastageBackSale_TotalWaste(int backSaleId,List<BOrder> borders,int status)
         {
-            if (backSaleId <= 0)
+            if (this.CurrentUserPermission.HANDLE_BACK_SALE == 0)
+            {
+                throw new KMJXCException("没有处理退货单的权限");
+            }
+
+            string[] order_id = null;
+
+            if (backSaleId <= 0 || borders==null || borders.Count==0)
             {
                 throw new KMJXCException("没有退货单信息");
             }
 
-            if (order_id == null || order_id.Length == 0)
-            {
-                throw new KMJXCException("没有退货产品信息");
-            }
+            order_id=(from o in borders select o.Order_ID).ToArray<string>();
+
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 Back_Sale backSake=(from bs in db.Back_Sale where bs.Back_Sale_ID==backSaleId select bs).FirstOrDefault<Back_Sale>();
@@ -1294,46 +1351,43 @@ namespace KM.JXC.BL
                                            where waste.Shop_ID==this.Shop.Shop_ID || waste.Shop_ID==this.Main_Shop.Shop_ID || child_shop.Contains(waste.Shop_ID) 
                                            select waste).ToList<Stock_Waste>();
 
+                Leave_Stock leave_Stock = (from ls in db.Leave_Stock where ls.Sale_ID == backSake.Sale_ID select ls).FirstOrDefault<Leave_Stock>();
+
+                //no leave no need to set to wastage
+                if (leave_Stock == null)
+                {
+                    return;
+                }
+
+                List<Leave_Stock_Detail> leaveDetails = (from ld in db.Leave_Stock_Detail where ld.Leave_Stock_ID == leave_Stock.Leave_Stock_ID select ld).ToList<Leave_Stock_Detail>();
+
                 foreach (Back_Sale_Detail detail in details)
                 {
-                    if (detail.Product_ID > 0)
+                    Leave_Stock_Detail leaveDetail=(from ld in leaveDetails where ld.Order_ID==detail.Order_ID && ld.Product_ID==detail.Product_ID select ld).FirstOrDefault<Leave_Stock_Detail>();
+                    if (leaveDetail == null)
                     {
-                        Stock_Waste w = (from waste in wastage where waste.Product_ID == detail.Product_ID select waste).FirstOrDefault<Stock_Waste>();
-                        if (w == null)
-                        {
-                            w = new Stock_Waste();
-                            w.Parent_ProductID = detail.Parent_Product_ID;
-                            w.Price = detail.Price;
-                            w.Product_ID = w.Product_ID;
-                            w.Quantity = detail.Quantity;
-                            w.Shop_ID = this.Shop.Shop_ID;
-                            db.Stock_Waste.Add(w);
-                        }
-                        else
-                        {
-                            w.Quantity += detail.Quantity;
-                        }
+                        continue;
+                    }
+
+                    int q=(from o in borders where o.Order_ID == detail.Order_ID select o.Quantity).FirstOrDefault<int>();
+                    Stock_Waste w = (from waste in wastage where waste.Product_ID == detail.Product_ID select waste).FirstOrDefault<Stock_Waste>();
+                    if (w == null)
+                    {
+                        w = new Stock_Waste();
+                        w.Parent_ProductID = detail.Parent_Product_ID;
+                        w.Price = detail.Price;
+                        w.Product_ID = w.Product_ID;
+                        w.Quantity = q;
+                        w.Shop_ID = this.Shop.Shop_ID;
+                        db.Stock_Waste.Add(w);
                     }
                     else
                     {
-                        Stock_Waste w = (from waste in wastage where waste.Product_ID == detail.Parent_Product_ID select waste).FirstOrDefault<Stock_Waste>();
-                        if (w == null)
-                        {
-                            w = new Stock_Waste();
-                            w.Parent_ProductID = 0;
-                            w.Price = detail.Price;
-                            w.Product_ID = detail.Parent_Product_ID;
-                            w.Quantity = detail.Quantity;
-                            w.Shop_ID = this.Shop.Shop_ID;
-                            db.Stock_Waste.Add(w);
-                        }
-                        else
-                        {
-                            w.Quantity += detail.Quantity;
-                        }
+                        w.Quantity += q;
                     }
 
                     detail.Status = status;
+                    leaveDetail.Status = status;
                 }
 
                 db.SaveChanges();

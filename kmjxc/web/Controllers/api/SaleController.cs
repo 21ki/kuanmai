@@ -273,31 +273,54 @@ namespace KM.JXC.Web.Controllers.api
             BUser user = userMgr.CurrentUser;
             StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            string backSaleIDs = request["back_sale_id"];
-            int status=0;
-            //int product_id = 0;
-            string orderId = request["order_id"];            
+            string backSales = request["back_sales"];
+            int status=0;                
             int.TryParse(request["status"],out status);
-            //int.TryParse(request["product_id"],out product_id);
-            if (string.IsNullOrEmpty(backSaleIDs) || string.IsNullOrEmpty(orderId))
+           
+            if (string.IsNullOrEmpty(backSales))
             {
                 message.Status = "failed";
-                message.Message = "输入参数不正确";
+                message.Message = "没有任何退货信息";
                 return message;
             }
+
+            backSales = HttpUtility.UrlDecode(backSales);
+
             try
-            {                
-                int[] backSaleID=base.ConvertToIntArrar(backSaleIDs);
-                string[] orders=orderId.Split(';');
-                if (backSaleID.Length == orders.Length)
+            {
+                JArray jsons = JArray.Parse(backSales);
+                if (jsons != null && jsons.Count > 0)
                 {
-                    for (int i = 0; i < backSaleID.Length; i++)
+                    for (int i = 0; i < jsons.Count; i++)
                     {
-                        string[] os = orders[i].Split(',');
-                        saleManager.HandleBackSaleDetail(backSaleID[i], os, status);
+                        JObject json = (JObject)jsons[i];
+                        int back_Sale_ID = (int)json["back_sale_id"];
+                        JArray orders=(JArray)json["orders"];
+                        List<BOrder> bOrders = new List<BOrder>();
+                        for(int j = 0; j < orders.Count; j++)
+                        {
+                            JObject o=(JObject)orders[j];
+                            string order_id=(string)o["order_id"];
+                            int quantity = (int)o["quantity"];
+                            bOrders.Add(new BOrder() {  Order_ID=order_id,Quantity=quantity});
+                        }
+
+                        switch (status)
+                        {
+                            case 1:
+                                saleManager.HandleBackSaleDetail_BackStock(back_Sale_ID, bOrders, status);
+                                break;
+                            case 2:
+                                saleManager.HandleBackSaleDetail_PartialWaste(back_Sale_ID, bOrders, status);
+                                break;
+                            case 3:
+                                saleManager.HandleWastageBackSale_TotalWaste(back_Sale_ID, bOrders, status);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
-                
                 message.Status = "ok";
             }
             catch (KM.JXC.Common.KMException.KMJXCException kex)

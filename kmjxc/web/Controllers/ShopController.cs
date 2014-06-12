@@ -24,7 +24,12 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Dashboard()
         {
-            return View();
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            BShopStatistic statistic = shopManager.GetShopStatistic(0, true);
+            return View(statistic);
         }
 
         public ActionResult Product()

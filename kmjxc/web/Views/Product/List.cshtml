@@ -1,5 +1,18 @@
 ﻿@{
     ViewBag.Title = "产品列表";
+    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPageUtil.ParseURLParams(Request.RawUrl);
+    string isEdit = "0";
+    int product_id = 0;
+    if(paras.ContainsKey("type")){
+        if(paras["type"]=="edit"){
+            isEdit = "1";
+        }
+    }
+
+    if (paras.ContainsKey("id"))
+    {
+        int.TryParse(paras["id"],out product_id);
+    }
 }
 
 <script>
@@ -18,7 +31,9 @@
     var images = [];    
     var allSuppliers=[];
     var selectedSuppliers = [];
-
+    var isEdit = '@isEdit';
+    var pdtID = '@product_id';
+   
     function SaveProduct(obj) {
         var buffer = "";
         var product_id = $editform.find("#productNumber").html().trim();
@@ -798,42 +813,58 @@
                 var data = DM.data;
                 var row = data[rowIndx];
                 var pid = row["ID"]
-                $editform.find('#product_id').val(pid);
-                loadingBox = ShowProgress('page_loading', function () { }, "正在加载产品详细信息，请等待...");
-                cateMgr.GetProductFullInfo({ 'product_id': pid }, function (res) {
-                    if (res.Status == 'ok' && res.Item != null) {
-                        loadingBox.hide();
-                        FillProductFields(res.Item);
-                        $("#pop_edit_product").dialog({
-                            open: function (event, ui) {
-                                $editform.find('#resultmessage').html("");
-                                $editform.find('#resultmessage').hide();
-
-                            },
-                            close: function (event, ui) {
-
-                            },
-                            resizable: false,
-                            title: "编辑产品",
-                            buttons: {
-                                "保存": function () {
-                                    SaveProduct(this);
-                                },
-                                "取消": function () {
-                                    $(this).dialog("close");
-                                }
-                            }
-                        });
-
-                        $("#pop_edit_product").dialog("open");
-                    }
-                });
+                
+                RenderEditHtml(pid);
             });
 
 
             //pqSearch.results = $("<span class='pq-search-results'>Nothing found.</span>").appendTo($toolbar);
             //$toolbar.disableSelection();
         });
+
+        function RenderEditHtml(pid) {
+            $editform.find('#product_id').val(pid);
+            loadingBox = ShowProgress('page_loading', function () { }, "正在加载产品详细信息，请等待...");
+            cateMgr.GetProductFullInfo({ 'product_id': pid }, function (res) {
+                if (res.Status == 'ok' && res.Item != null) {
+                    loadingBox.hide();
+                    FillProductFields(res.Item);
+                    $("#pop_edit_product").dialog({
+                        open: function (event, ui) {
+                            $editform.find('#resultmessage').html("");
+                            $editform.find('#resultmessage').hide();
+
+                        },
+                        close: function (event, ui) {
+
+                        },
+                        resizable: false,
+                        title: "编辑产品",
+
+                        buttons: [
+                           {
+                               text: "保存", click: function () {
+                                   SaveProduct(this);
+                               },
+                               icons: { primary: "ui-icon-disk" }
+                           },
+                           {
+                               text: "取消", click: function () {
+                                   $(this).dialog("close");
+                               },
+                               icons: { primary: "ui-icon-close" }
+                           }
+                        ]
+                    });
+
+                    $("#pop_edit_product").dialog("open");
+                }
+            });
+        }
+
+        if (isEdit == "1" && !isNaN(pdtID)) {
+            RenderEditHtml(pdtID);
+        }
 
         var $grid = $("#productTable").pqGrid(obj);
 
@@ -910,7 +941,7 @@
                 return rowIndx;
             }
             else {
-                alert("请选择一行");
+                alert("请选择一个产品进行操作");
                 return null;
             }
         }

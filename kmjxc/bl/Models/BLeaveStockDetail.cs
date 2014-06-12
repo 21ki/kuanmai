@@ -17,5 +17,6 @@ namespace KM.JXC.BL.Models
         public int Quantity { get; set; }
         public double Amount { get; set; }
         public string OrderID { get; set; }
+        public int Status { get; set; }
     }
 }

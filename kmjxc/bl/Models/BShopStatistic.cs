@@ -21,5 +21,8 @@ namespace KM.JXC.BL.Models
         public int Trade { get; set; }
         public int Account { get; set; }
         public int ChildShop { get; set; }
+        public int OnSaleProduct { get; set; }
+        public int OnSaleProductNotConnected { get; set; }
+        public int Product { get; set; }
     }
 }

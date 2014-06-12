@@ -32,5 +32,7 @@ namespace KM.JXC.DBA
         public int Sync_User { get; set; }
         public Nullable<bool> HasRefound { get; set; }
         public Nullable<int> Status1 { get; set; }
+        public double Post_Fee1 { get; set; }
+        public int Express_ID { get; set; }
     }
 }

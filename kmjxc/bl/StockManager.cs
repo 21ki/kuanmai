@@ -146,11 +146,16 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <param name="sale_id"></param>
-        public void CreateBackStock(int backsale_id,string[] order_id,int backSaleStatus)
+        public void CreateBackStock(int backsale_id,List<BOrder> orders,int backSaleStatus)
         {
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
+                if (orders == null || orders.Count == 0)
+                {
+                    throw new KMJXCException("没有退货信息");
+                }
+                
                 Back_Sale dbbackSale = (from bsale in db.Back_Sale where bsale.Back_Sale_ID == backsale_id select bsale).FirstOrDefault<Back_Sale>();
                 if (dbbackSale == null)
                 {
@@ -162,6 +167,8 @@ namespace KM.JXC.BL
                 var bdetails = from bsd in db.Back_Sale_Detail
                                where bsd.Back_Sale_ID == backsale_id
                                select bsd;
+
+                string[] order_id = (from o in orders select o.Order_ID).ToArray<string>();
                 if (order_id != null)
                 {
                     bdetails = bdetails.Where(d => order_id.Contains(d.Order_ID));
@@ -170,10 +177,11 @@ namespace KM.JXC.BL
                 List<Back_Sale_Detail> backSaleDetails = bdetails.ToList<Back_Sale_Detail>();
                 //Check if current sale trade has leave stock records
                 //if the sale doesn't have leave stock, so no need to back stock
-                int totalRecords = 0;
-                List<BLeaveStock> lstocks = this.SearchLeaveStocks(null, new string[] { dbbackSale.Sale_ID }, null, 0, 0, 1, 1, out totalRecords);
-                if (totalRecords >= 1)
+                Leave_Stock leave_Stock=(from ls in db.Leave_Stock where ls.Sale_ID==dbbackSale.Sale_ID select ls).FirstOrDefault<Leave_Stock>();
+                if (leave_Stock!=null)
                 {
+                    List<Leave_Stock_Detail> leaveDetails=(from ld in db.Leave_Stock_Detail where ld.Leave_Stock_ID==leave_Stock.Leave_Stock_ID select ld).ToList<Leave_Stock_Detail>();
+
                     BBackStock backStock = new BBackStock();
                     backStock.BackSaleID = dbbackSale.Back_Sale_ID;
                     backStock.BackSale = new BBackSale() { ID = dbbackSale.Back_Sale_ID };
@@ -200,34 +208,37 @@ namespace KM.JXC.BL
                     backStock.Shop = new BShop() { ID = dbbackSale.Shop_ID };
 
                     //collect back stock details info from leave stock details
-
-                    List<BLeaveStockDetail> leaveStockDetails = lstocks[0].Details;
+                    
                     backStock.Details = new List<BBackStockDetail>();
 
                     foreach (Back_Sale_Detail bsd in backSaleDetails)
                     {
-                        BLeaveStockDetail leaveStockDetail = (from lsd in leaveStockDetails where lsd.OrderID == bsd.Order_ID && lsd.ProductID == bsd.Product_ID select lsd).FirstOrDefault<BLeaveStockDetail>();
+                        BOrder order=(from o in orders where bsd.Order_ID == o.Order_ID select o).FirstOrDefault<BOrder>();
+
+                        Leave_Stock_Detail leaveStockDetail = (from lsd in leaveDetails where lsd.Order_ID == bsd.Order_ID && lsd.Product_ID == bsd.Product_ID select lsd).FirstOrDefault<Leave_Stock_Detail>();
                         if (leaveStockDetail == null)
                         {
                             continue;
                         }
                         BBackStockDetail bsDetail = new BBackStockDetail();
-                        bsDetail.Price = leaveStockDetail.Price;
+                        bsDetail.Price = leaveStockDetail.Price; 
                         bsDetail.Quantity = leaveStockDetail.Quantity;
-                        bsDetail.ProductID = leaveStockDetail.ProductID;
-                        bsDetail.ParentProductID = leaveStockDetail.Parent_ProductID;
-                        bsDetail.StoreHouse = leaveStockDetail.StoreHouse;
+                        if (order != null && order.Quantity > 0 && order.Quantity<=leaveStockDetail.Quantity)
+                        {
+                            bsDetail.Quantity = order.Quantity;
+                        }
+
+                        bsDetail.ProductID = leaveStockDetail.Product_ID;
+                        bsDetail.ParentProductID = leaveStockDetail.Parent_Product_ID;
+                        bsDetail.StoreHouse = new BStoreHouse() { ID = leaveStockDetail.StoreHouse_ID };
                         backStock.Details.Add(bsDetail);
+                        leaveStockDetail.Status = backSaleStatus;
+                        leaveStockDetail.Status = backSaleStatus;
                     }
 
                     if (backStock.Details.Count > 0)
                     {
                         this.CreateBackStock(backStock);
-                    }
-
-                    foreach (Back_Sale_Detail bsd in backSaleDetails)
-                    {
-                        bsd.Status = backSaleStatus;
                     }
                 }
 

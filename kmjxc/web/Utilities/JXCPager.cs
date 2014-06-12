@@ -5,7 +5,7 @@ using System.Web;
 
 namespace KM.JXC.Web.Utilities
 {
-    public class JXCPager
+    public class JXCPageUtil
     {
         public static String Pager(KM.JXC.BL.Models.BPageData data)
         {

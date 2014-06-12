@@ -398,6 +398,7 @@
           <Property Name="Amount" Type="double" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="mediumint" Nullable="false" />
           <Property Name="Message" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Product">
           <Key>
@@ -558,6 +559,7 @@
           <Property Name="City_ID" Type="mediumint" Nullable="false" />
           <Property Name="Sale_Type" Type="smallint" />
           <Property Name="Post_Fee" Type="double" Nullable="false" />
+          <Property Name="Post_Fee1" Type="double" Nullable="false" />
           <Property Name="Created" Type="int" Nullable="false" />
           <Property Name="Modified" Type="int" Nullable="false" />
           <Property Name="Synced" Type="int" Nullable="false" />
@@ -566,6 +568,7 @@
           <Property Name="StockStatus" Type="int" Nullable="false" />
           <Property Name="Sync_User" Type="int" Nullable="false" />
           <Property Name="HasRefound" Type="bool" />
+          <Property Name="Express_ID" Type="mediumint" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
@@ -1213,6 +1216,7 @@
           <Property Type="String" Name="Message" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="Double" Name="Amount" Nullable="false" />
           <Property Type="String" Name="Order_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Stock">
           <Key>
@@ -1284,6 +1288,8 @@
           <Property Type="Int32" Name="Sync_User" Nullable="false" />
           <Property Type="Boolean" Name="HasRefound" />
           <Property Type="Int32" Name="Status1" />
+          <Property Type="Double" Name="Post_Fee1" Nullable="false" />
+          <Property Type="Int32" Name="Express_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Sale_Detail">
           <Key>
@@ -1904,6 +1910,7 @@
           <EntitySetMapping Name="Leave_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock_Detail">
               <MappingFragment StoreEntitySet="Leave_Stock_Detail">
+                <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Order_ID" ColumnName="Order_ID" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
@@ -1969,6 +1976,8 @@
           <EntitySetMapping Name="Sale">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale">
               <MappingFragment StoreEntitySet="Sale">
+                <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
+                <ScalarProperty Name="Post_Fee1" ColumnName="Post_Fee1" />
                 <ScalarProperty Name="Status1" ColumnName="Status1" />
                 <ScalarProperty Name="HasRefound" ColumnName="HasRefound" />
                 <ScalarProperty Name="Sync_User" ColumnName="Sync_User" />

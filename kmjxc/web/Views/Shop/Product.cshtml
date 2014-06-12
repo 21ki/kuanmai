@@ -2,7 +2,7 @@
     ViewBag.Title = "Product";
     KM.JXC.BL.Models.BPageData data = (KM.JXC.BL.Models.BPageData)Model;
     List<KM.JXC.BL.Models.BMallProduct> products = (List<KM.JXC.BL.Models.BMallProduct>)data.Data;
-    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPager.ParseURLParams(Request.RawUrl);
+    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPageUtil.ParseURLParams(Request.RawUrl);
 }
 <script>
     var shopMgr = new KMJXCShopManager();
@@ -126,7 +126,7 @@
             }
         </div>
         @{
-        string pageHtml = KM.JXC.Web.Utilities.JXCPager.Pager(data);
+        string pageHtml = KM.JXC.Web.Utilities.JXCPageUtil.Pager(data);
         if (!string.IsNullOrEmpty(pageHtml))
         {
             <div class="s_title spage pager">

@@ -9,6 +9,7 @@
 <script>
     $(function () {
         $('#tabs').tabs();
+        $("a[id='btnEditProduct']").button({ icons: { primary: "ui-icon-pencil" } });
     });
 </script>
 
@@ -17,7 +18,10 @@
         <li><a href="#productInfo">产品信息</a></li>
         <li><a href="#productImages">产品图片</a></li>
     </ul>
-    <div id="productInfo">       
+    <div id="productInfo"> 
+        <div class="row">
+           <a id="btnEditProduct" href="/Product/List?type=edit&id=@product.ID">编辑</a>
+        </div>      
         <div class="row">
             <label for="productName">编号:</label><span id="productNumber">@Html.Raw(product.ID)</span>
         </div>

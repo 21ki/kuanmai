@@ -1,5 +1,6 @@
 ﻿@{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "店铺统计信息";
+    KM.JXC.BL.Models.BShopStatistic statistic = (KM.JXC.BL.Models.BShopStatistic)Model;        
 }
 
 <script>
@@ -13,6 +14,45 @@
         <li><a href="#shopinfo">店铺信息统计</a></li>
     </ul>
     <div id="shopinfo">
-
+        <div class="sSection" id="buyOrder">
+            <div class="sTitle"><span>采购统计</span></div>
+            <div class="sContent">
+                <ul>
+                    <li><span class="name">采购单:</span><span class="value">@statistic.BuyOrder 个</span><span  class="name">未处理:</span><span  class="value"><a href="/Buy/Orders">@statistic.BuyOrderUnhandled 个</a></span></li>
+                    <li><span  class="name">验货单:</span><span class="value">@statistic.Buy 个</span><span  class="name">未处理:</span><span  class="value"><a href="/Buy/Buy">@statistic.BuyUnhandled 个</a></span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="sSection" id="buy">
+            <div class="sTitle"><span>销售统计</span></div>
+            <div class="sContent">
+                  <ul>
+                    <li><span class="name">订单:</span><span class="value">@statistic.Trade 个</span></li>
+                    <li><span  class="name">退货单:</span><span class="value">@statistic.BackSale 个</span><span  class="name">未处理:</span><span  class="value"><a href="/Sale/Back">@statistic.BackSaleUnhandled 个</a></span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="sSection" id="stock">
+            <div class="sTitle"><span>退库统计</span></div>
+            <div class="sContent">
+                  <ul>                  
+                    <li><span  class="name">退库单:</span><span class="value">@statistic.BackStock 个</span><span  class="name">未处理:</span><span  class="value"><a href="/Stock/Back">@statistic.BackStockUnhandled 个</a></span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="sSection" id="onSaleProduct">
+            <div class="sTitle"><span>宝贝统计</span></div>
+            <div class="sContent">
+                 <ul>
+                    <li><span class="name">在售宝贝:</span><span class="value"><a href="/Shop/Product">@statistic.OnSaleProduct 个</a></span></li>
+                    <li><span class="name">已关联:</span><span class="value"><a href="/Shop/Product?connected=1">@Html.Raw(statistic.OnSaleProduct-statistic.OnSaleProductNotConnected) 个</a></span></li>
+                    <li><span class="name">未关联:</span><span class="value"><a href="/Shop/Product?connected=0">@statistic.OnSaleProductNotConnected 个</a></span></li>
+                 </ul>
+            </div>
+        </div>
+       @* <div class="sSection" id="product">
+            <div class="sTitle"><span>产品统计</span></div>
+            <div class="sContent"></div>
+        </div>*@
     </div>
 </div>

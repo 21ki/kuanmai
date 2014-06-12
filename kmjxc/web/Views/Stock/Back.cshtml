@@ -24,7 +24,7 @@
                         {
                             title: "退库编号", width: 100, dataType: "integer", dataIndx: "BackStock.ID", editable: false
                         }, 
-                        { title: "产品", width: 150, dataType: "string", dataIndx: "Product.Title", editable: false },
+                        { title: "产品", width: 200, dataType: "string", dataIndx: "Product.Title", editable: false },
                         {
                             title: "库存状态", width: 150, dataType: "string", dataIndx: "Status", editable: false,
                             render: function (ui) {
@@ -36,7 +36,7 @@
                             }
                         },
                        
-                        { title: "所属订单", width: 150, dataType: "string", dataIndx: "BackStock.BackSale.Sale.Sale_ID", editable: false },
+                        { title: "商城订单号", width: 150, dataType: "string", dataIndx: "BackStock.BackSale.Sale.Sale_ID", editable: false },
                         
                         { title: "退库数量", width: 150, dataType: "string", dataIndx: "Quantity", editable: false },
                         { title: "仓库", width: 150, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },

@@ -198,7 +198,7 @@
         }
     </div>
     @{
-        string pageHtml = KM.JXC.Web.Utilities.JXCPager.Pager(data);
+        string pageHtml = KM.JXC.Web.Utilities.JXCPageUtil.Pager(data);
         if (!string.IsNullOrEmpty(pageHtml))
         {
             <div class="s_title spage pager">
