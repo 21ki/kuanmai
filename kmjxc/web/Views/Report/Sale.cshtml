@@ -1,42 +1,41 @@
 ﻿@{
-    ViewBag.Title = "Sale";
+    ViewBag.Title = "销售报表";
 }
 
 <script>
     var reportManager = new KMJXCReportManager();
     $(function () {
-        $('#btnR').button().click(function () {
-            reportManager.GetSalesReport({}, function (res) {
-                var row = eval("(" + res + ")");
-                var example4JSONdata = {
-                    dataid: 'An optional sourcetable identifier',
-                    columns: [
-                        { colvalue: 'ProductName', coltext: 'ProductName', header: '产品', sortbycol: 'ProductName', groupbyrank: 1, pivot: true, result: false },
-                        { colvalue: 'ShopName', coltext: 'ShopName', header: '店铺', sortbycol: 'ShopName', groupbyrank: 2, pivot: false, result: false },
-                        { colvalue: 'Month', coltext: 'Month', header: '月份', sortbycol: 'Month', groupbyrank: null, pivot: true, result: false },
-                        { colvalue: 'Quantity', coltext: '数量', header: '数量', sortbycol: 'Quantity', groupbyrank: null, pivot: false, result: true },
-                        { colvalue: 'Amount', coltext: '金额', header: '金额', sortbycol: 'Amount', groupbyrank: null, pivot: false, result: true }
-                    ],
-                    rows: row                   
-                };
+        reportManager.GetSalesReport({}, function (res) {
+            var row = eval("(" + res + ")");
+           
+            var example4JSONdata = {
+                dataid: 'An optional sourcetable identifier',
+                columns: [
+                    { colvalue: 'ProductName', coltext: 'ProductName', header: '产品', sortbycol: 'ProductName', groupbyrank: 1, pivot: true, result: false },
+                    { colvalue: 'ShopName', coltext: 'ShopName', header: '店铺', sortbycol: 'ShopName', groupbyrank: 2, pivot: false, result: false },
+                    { colvalue: 'Month', coltext: 'Month', header: '月份', sortbycol: 'Month', groupbyrank: null, pivot: true, result: false },
+                    { colvalue: 'Quantity', coltext: '数量', header: '数量', sortbycol: 'Quantity', groupbyrank: null, pivot: false, result: true },
+                    { colvalue: 'Amount', coltext: '金额', header: '金额', sortbycol: 'Amount', groupbyrank: null, pivot: false, result: true }
+                ],
+                rows: row
+            };
 
-                $('#res').pivot({
-                    source: example4JSONdata,
-                    formatFunc: function (n) {                       
-                       return jQuery.fn.pivot.formatDK(n, 2);
-                    },
-                    parseNumFunc: function (n) {
-                        return +((typeof n === 'string') ? n.replace('.', '').replace(',', '.') : n);
-                    },
-                    onResultCellClicked: function (data) {
-                        alert(dumpObj(data, 'data'));
-                    }
-                });
+            $('#res').pivot({
+                source: example4JSONdata,
+                formatFunc: function (n) {
+                    return n;
+                    //return jQuery.fn.pivot.formatDK(n, 2);
+                },
+                parseNumFunc: function (n) {
+                    return +((typeof n === 'string') ? n.replace('.', '').replace(',', '.') : n);
+                },
+                onResultCellClicked: function (data) {
+                    alert(dumpObj(data, 'data'));
+                }
             });
         });
     });
 </script>
 
-<span id="btnR">Get Report</span>
 <div id="res"></div>
 <div id="res2"></div>

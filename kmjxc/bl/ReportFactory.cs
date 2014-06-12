@@ -113,11 +113,11 @@ namespace KM.JXC.BL
                 int count = 1;
                 foreach (var item in saleObj)
                 {
-                    if (item.ProductID == 0 && item.ParentProductID == 0)
-                    {
-                        count++;
-                        continue;
-                    }
+                    //if (item.ProductID == 0 && item.ParentProductID == 0)
+                    //{
+                    //    count++;
+                    //    continue;
+                    //}
 
                     string productName = "";
                     if (item.ParentProductID > 0)
@@ -128,6 +128,11 @@ namespace KM.JXC.BL
                     {
                         productName = (from p in products where p.Product_ID == item.ProductID select p.Name).FirstOrDefault<string>();
                     }
+                    if (productName == null)
+                    {
+                        productName = "没有关联到进销存的产品";
+                    }
+
                     string shopName = "";
                     if (item.ShopId == this.Shop.Shop_ID)
                     {
@@ -147,7 +152,7 @@ namespace KM.JXC.BL
 
                     string jobj = "{\"ProductName\":\""+productName+"\",\"ShopName\":\""+shopName+"\",\"Month\":\""+month+"\",\"Quantity\":\""+item.Quantity+"\",\"Amount\":\""+item.Amount+"\"}";
 
-                    if (count == 1 || count==total)
+                    if (count == 1)
                     {
                         json.Append(jobj);
                     }

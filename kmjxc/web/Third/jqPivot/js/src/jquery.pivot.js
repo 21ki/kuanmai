@@ -305,7 +305,7 @@
                     if (_this.opts.bTotals) {
                         sb.append('<th class="total" colspan="');
                         sb.append(_this.adapter.resultCol.length);
-                        sb.append('">Total</th>');
+                        sb.append('">总计</th>');
                     }
                     sb.append('</tr>');
 
@@ -313,7 +313,7 @@
                         sb.append('<tr class="total">');
                         sb.append('<th class="total" colspan="');
                         sb.append(gbCols.length);
-                        sb.append('">Total</th>');
+                        sb.append('">总计</th>');
                         for (col = 0; col < pivotCols.length; col += 1) {
                             results = _this.getResValues(adapter.tree, pivotCols[col].pivotValue);
                             if (_this.opts.bTotals) {
