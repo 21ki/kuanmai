@@ -120,6 +120,7 @@
     <Compile Include="PermissionManagement.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="Open\TaoBao\TaoBaoAccessToken.cs" />
+    <Compile Include="ReportFactory.cs" />
     <Compile Include="SalesManager.cs" />
     <Compile Include="ProductManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

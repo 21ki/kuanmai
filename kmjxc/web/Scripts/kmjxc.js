@@ -487,6 +487,13 @@ function KMJXCPermissionManager() {
     }
 }
 
+KMJXCReportManager.prototype = new KMJXCBase();
+function KMJXCReportManager() {
+    this.GetSalesReport = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Report/GetSalesReport", params, callback);
+    }
+}
+
 KMJXManager.prototype = new KMJXCBase();
 function KMJXManager() {
     this.UserManager = new KMJXCUserManager();
