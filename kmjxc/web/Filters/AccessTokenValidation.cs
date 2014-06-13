@@ -22,7 +22,7 @@ namespace KM.JXC.Web.Filters
             }
             //Verify if the cookie user is a valid user
             UserManager userMgr = new UserManager(int.Parse(user_id),null);
-            BUser user = userMgr.GetUser(int.Parse(user_id));
+            BUser user = userMgr.CurrentUser;
 
             if (user == null)
             {
@@ -31,6 +31,7 @@ namespace KM.JXC.Web.Filters
 
             //Verify if logon user already has access token in db
             KuanMaiEntities db = new KuanMaiEntities();
+            
             Access_Token token = (from t in db.Access_Token where t.User_ID == user.ID && t.Mall_Type_ID == user.Type.ID select t).FirstOrDefault<Access_Token>();
 
             if (token == null) {

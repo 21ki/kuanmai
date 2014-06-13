@@ -19,8 +19,9 @@ namespace KM.JXC.Web.Controllers.api
     public class ReportController : BaseApiController
     {
         [HttpPost]
-        public string GetSalesReport()
+        public PQGridData GetSalesReport()
         {
+            PQGridData data = new PQGridData();
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
             HttpRequestBase request = context.Request;
             string user_id = User.Identity.Name;
@@ -29,8 +30,36 @@ namespace KM.JXC.Web.Controllers.api
             ReportFactory stockManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int stime = 0;
             int etime = 0;
-            string json = stockManager.GetSalesReport(stime, etime, 0);
-            return json;
+            int page = 1;
+            int pageSize = 50;
+            int totalProducts = 0;
+            int[] product_id = null;
+
+            int.TryParse(request["stime"],out stime);
+            int.TryParse(request["stime"], out etime);
+            int.TryParse(request["page"],out page);
+            int.TryParse(request["pageSize"],out pageSize);
+
+            if (!string.IsNullOrEmpty(request["products"]))
+            {
+                product_id = base.ConvertToIntArrar(request["products"]);
+            }
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 50;
+            }
+
+            string json = stockManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, true, false);
+            data.totalRecords = totalProducts;
+            data.data = JArray.Parse(json);
+            data.curPage = page;
+            return data;
         }
     }
 }

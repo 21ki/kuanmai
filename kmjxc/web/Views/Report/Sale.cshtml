@@ -4,15 +4,30 @@
 
 <script>
     var reportManager = new KMJXCReportManager();
+    var paged = false;
+    var pageSize=50;
+    var pageHtml;
     $(function () {
+       
+    });
+
+    function generateReports(page) {
         reportManager.GetSalesReport({}, function (res) {
-            var row = eval("(" + res + ")");
-           
+            var row = res.data;
+            if (row == null || row.length == 0) {
+                return;
+            }
+
+            if (!paged) {
+                pageHtml = reportManager.Pager({ 'page': page, 'total': res.totalRecords, 'pageSize': pageSize, 'fun': generateReports });
+                paged = true;
+            }
+
             var JSONdata = {
                 dataid: 'An optional sourcetable identifier',
                 columns: [
                     { colvalue: 'ProductName', coltext: 'ProductName', header: '产品', sortbycol: 'ProductName', groupbyrank: 1, pivot: true, result: false },
-                    { colvalue: 'ShopName', coltext: 'ShopName', header: '店铺', sortbycol: 'ShopName', groupbyrank: 2, pivot: false, result: false },
+                    { colvalue: 'PropName', coltext: 'PropName', header: '属性', sortbycol: 'ShopName', groupbyrank: 2, pivot: false, result: false },
                     { colvalue: 'Month', coltext: 'Month', header: '月份', sortbycol: 'Month', groupbyrank: null, pivot: true, result: false },
                     { colvalue: 'Quantity', coltext: '数量', header: '数量', sortbycol: 'Quantity', groupbyrank: null, pivot: false, result: true },
                     { colvalue: 'Amount', coltext: '金额', header: '金额', sortbycol: 'Amount', groupbyrank: null, pivot: false, result: true }
@@ -20,7 +35,7 @@
                 rows: row
             };
 
-            $('#res').pivot({
+            $('#rptPivot').pivot({
                 source: JSONdata,
                 formatFunc: function (n) {
                     return n;
@@ -34,8 +49,17 @@
                 }
             });
         });
-    });
+    }
 </script>
 
-<div id="res"></div>
-<div id="res2"></div>
+<div id="tabs">
+    <ul>
+        <li><a href="#reports">销售报表</a></li>
+    </ul>
+    <div id="reports">    
+        <div id="rptPivot"></div>
+        <div id="rptPivotPager"></div>
+        <div id="res2"></div>
+    </div>
+</div>
+

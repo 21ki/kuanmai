@@ -376,6 +376,8 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var usersobj = from user in db.User
+                               join type in db.Mall_Type on user.Mall_Type equals type.Mall_Type_ID into Ltype
+                               from l_type in Ltype.DefaultIfEmpty()                              
                                where user.Shop_ID == this.Shop.Shop_ID
                                select new BUser
                                {
@@ -383,32 +385,15 @@ namespace KM.JXC.BL
                                    Name = user.Name,
                                    Mall_Name = user.Mall_Name,
                                    Mall_ID = user.Mall_ID,
-                                   EmployeeInfo = (from employee in db.Employee where employee.User_ID == user.User_ID 
-                                                   select new BEmployee
-                                                   {
-                                                     ID=employee.Employee_ID,
-                                                      Name=employee.Name,
-                                                     Address=employee.Address,
-                                                     BirthDate = (int)employee.BirthDate,
-                                                     Department=employee.Department,
-                                                     Duty=employee.Duty,
-                                                     Email=employee.Email,
-                                                     Gendar=employee.Gendar,
-                                                     HireDate=(int)employee.HireDate,
-                                                     IdentityCard=employee.IdentityCard,
-                                                     MatureDate = (int)employee.MatureDate,
-                                                     Phone=employee.Phone,
-                                                     User_ID=(int)employee.User_ID
-                                                   }).FirstOrDefault<BEmployee>(),
+                                  
                                    Parent_ID = (int)user.Parent_User_ID,
                                    Password = user.Password,
-                                   Type = (from type in db.Mall_Type where type.Mall_Type_ID == user.Mall_Type 
-                                           select new BMallType 
-                                           {
-                                            ID=type.Mall_Type_ID,
-                                            Name=type.Name,
-                                            Description=type.Description
-                                           }).FirstOrDefault<BMallType>()
+                                   Type = new BMallType
+                                   {
+                                       Name = l_type.Name,
+                                       ID = l_type.Mall_Type_ID,
+                                       Description = l_type.Description
+                                   }
                                };
 
                 total = usersobj.Count();

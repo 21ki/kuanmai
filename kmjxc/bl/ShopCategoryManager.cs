@@ -185,13 +185,13 @@ namespace KM.JXC.BL
                                               Name = u.Name,
                                               Mall_ID = u.Mall_ID,
                                               Mall_Name = u.Mall_Name,
-                                              EmployeeInfo = (from employee in db.Employee
-                                                              where employee.User_ID == u.User_ID
-                                                              select new BEmployee
-                                                              {
-                                                                  ID = employee.Employee_ID,
-                                                                  Name = employee.Name
-                                                              }).FirstOrDefault<BEmployee>(),
+                                              //EmployeeInfo = (from employee in db.Employee
+                                              //                where employee.User_ID == u.User_ID
+                                              //                select new BEmployee
+                                              //                {
+                                              //                    ID = employee.Employee_ID,
+                                              //                    Name = employee.Name
+                                              //                }).FirstOrDefault<BEmployee>(),
                                           }).FirstOrDefault<BUser>();
 
                     category.Shop = (from sp in db.Shop

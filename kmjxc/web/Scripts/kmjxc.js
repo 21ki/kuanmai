@@ -249,6 +249,38 @@ function KMJXCBase() {
             }
         }
     }
+
+    this.Pager = function (json) {
+        if (!json || typeof(json)!=='object' || !json.total || !json.page || !json.pageSize || !json.fun) {
+            return "";
+        }
+
+        var total = json.total;
+        var page = json.page;
+        var pageSize = json.pageSize;
+        var totalPage = 0;
+        var ajaxFun = json.fun;
+        if (total < pageSize) {
+            return "";
+        }
+
+        if (total % pageSize == 0) {
+            totalPage = total / pageSize;
+        } else {
+            totalPage = total / pageSize + 1;
+        }
+        var buffer = [];
+        for (var i = 1; i < totalPage; i++) {
+
+            if (i != page) {
+                buffer.push("<a class=\"\" href=\"javascript:void(0)\" onclick=\""+ajaxFun+"("+i+")\">" + i + "</a>");
+            } else {
+                buffer.push("<span class=\"\">" + i + "</span>");
+            }
+        }
+
+        return buffer;
+    }
 }
 
 KMJXCUserManager.prototype = new KMJXCBase();

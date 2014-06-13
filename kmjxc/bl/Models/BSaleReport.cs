@@ -8,7 +8,6 @@ namespace KM.JXC.BL.Models
 {
     public class BSaleReport
     {
-        public long Product_ID { get; set; }
-        public long Parent_Product_ID { get; set; }
+      
     }
 }

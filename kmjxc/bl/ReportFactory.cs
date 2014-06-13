@@ -28,9 +28,18 @@ namespace KM.JXC.BL
         /// <param name="endDate"></param>
         /// <param name="product_id"></param>
         /// <returns></returns>
-        public string GetSalesReport(int startDate, int endDate, int product_id)
+        public string GetSalesReport(int startDate, int endDate, int[] product_id,int page,int pageSize,out int totalProducts,bool paging=true,bool includeNoSales=false)
         {
+            totalProducts = 0;
             StringBuilder json = new StringBuilder("[");
+            if (page <= 0)
+            {
+                page = 1;
+            }
+            if (pageSize <= 0)
+            {
+                pageSize = 50;
+            }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var tmp = from sale in db.Sale_Detail
@@ -39,9 +48,19 @@ namespace KM.JXC.BL
                 var sales = from s in db.Sale
                             select s;
                 int[] childShops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
-                List<Product> products = (from p in db.Product
-                                          where (p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(p.Shop_ID)) && p.Parent_ID==0
-                                          select p).ToList<Product>();
+                List<Product> products=null;
+                var tmpProducts = from p in db.Product
+                                  where (p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(p.Shop_ID)) && p.Parent_ID == 0
+                                  select p;
+
+                if (product_id != null && product_id.Length > 0)
+                {
+                    tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Product_ID));
+                    
+                }
+
+                products = tmpProducts.Skip((page - 1) * pageSize).Take(pageSize).ToList<Product>();
+
                 int[] product_ids=(from p in products select p.Product_ID).ToArray<int>();
                 int[] child_product_ids = (from p in db.Product where product_ids.Contains(p.Parent_ID) select p.Product_ID).ToArray<int>();
 
@@ -59,8 +78,7 @@ namespace KM.JXC.BL
                                                  }).ToList<BProductProperty>();
 
                 if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
-                {
-                       
+                {                       
                     sales = sales.Where(s=>(s.Shop_ID==this.Shop.Shop_ID || childShops.Contains(s.Shop_ID)));                    
                 }                
                 else
@@ -78,13 +96,8 @@ namespace KM.JXC.BL
                     sales = sales.Where(s => s.Created < endDate);
                 }
 
-                if (product_id > 0)
-                {                   
-                    tmp = tmp.Where(s => (s.Product_ID == product_id || s.Parent_Product_ID==product_id));
-                }
-
                 var saleids=from s in sales select s.Mall_Trade_ID;
-                tmp = tmp.Where(s => saleids.Contains(s.Mall_Trade_ID));
+                tmp = tmp.Where(s => saleids.Contains(s.Mall_Trade_ID)).Where(s => (product_ids.Contains(s.Product_ID) || product_ids.Contains(s.Parent_Product_ID)));
 
                 var saleObj = from saled in tmp
                               join sale in db.Sale on saled.Mall_Trade_ID equals sale.Mall_Trade_ID into lSale
@@ -103,56 +116,87 @@ namespace KM.JXC.BL
 
                 int total = saleObj.Count();
                 int count = 1;
-                foreach (var item in saleObj)
+                bool firstRow = true;
+                foreach (Product pdt in products)
                 {
-                    //if (item.ProductID == 0 && item.ParentProductID == 0)
-                    //{
-                    //    count++;
-                    //    continue;
-                    //}
+                    var items = from sd in saleObj where sd.ProductID == pdt.Product_ID || sd.ParentProductID == pdt.Product_ID select sd;
+                    if (items.Count() == 0)
+                    {
+                        if (includeNoSales)
+                        {
+                            string jobj = "{\"ProductName\":\"" + pdt.Name + "\",\"PropName\":\"\",\"ShopName\":\"\",\"Month\":\"\",\"Quantity\":\"0\",\"Amount\":\"0\"}";
+                            if (firstRow)
+                            {
+                                firstRow = false;
+                                json.Append(jobj);
+                            }
+                            else
+                            {
+                                json.Append(","+jobj);
+                            }
+                        }
+                        continue;
+                    }
+                    foreach (var item in items)
+                    {
+                        string productName = "";
+                        if (item.ParentProductID > 0)
+                        {
+                            productName = (from p in products where p.Product_ID == item.ParentProductID select p.Name).FirstOrDefault<string>();
+                        }
+                        else
+                        {
+                            productName = (from p in products where p.Product_ID == item.ProductID select p.Name).FirstOrDefault<string>();
+                        }
+                        if (productName == null)
+                        {
+                            productName = "未关联产品：其他";
+                        }
 
-                    string productName = "";
-                    if (item.ParentProductID > 0)
-                    {
-                        productName = (from p in products where p.Product_ID == item.ParentProductID select p.Name).FirstOrDefault<string>();
-                    }
-                    else
-                    {
-                        productName = (from p in products where p.Product_ID == item.ProductID select p.Name).FirstOrDefault<string>();
-                    }
-                    if (productName == null)
-                    {
-                        productName = "没有关联到进销存的产品";
-                    }
+                        string shopName = "";
+                        if (item.ShopId == this.Shop.Shop_ID)
+                        {
+                            shopName = this.Shop.Name;
+                        }
+                        else if (item.ShopId == this.Main_Shop.Shop_ID)
+                        {
+                            shopName = this.Main_Shop.Name;
+                        }
+                        else if (childShops.Contains(item.ShopId))
+                        {
+                            shopName = (from s in this.ChildShops where s.Shop_ID == item.ShopId select s.Name).FirstOrDefault<string>();
+                        }
 
-                    string shopName = "";
-                    if (item.ShopId == this.Shop.Shop_ID)
-                    {
-                        shopName = this.Shop.Name;
-                    }
-                    else if (item.ShopId == this.Main_Shop.Shop_ID)
-                    {
-                        shopName = this.Main_Shop.Name;
-                    }
-                    else if(childShops.Contains(item.ShopId))
-                    {
-                        shopName=(from s in this.ChildShops where s.Shop_ID==item.ShopId select s.Name).FirstOrDefault<string>();
-                    }
+                        string propNames = "";
 
-                    DateTime time = DateTimeUtil.ConvertToDateTime(item.Created);
-                    string month =time.Year.ToString()+"-"+ time.Month.ToString();
+                        foreach (var prop in (from p in childs where p.ProductID == item.ProductID select p))
+                        {
+                            if (propNames == "")
+                            {
+                                propNames = prop.PName + ":" + prop.PValue;
+                            }
+                            else
+                            {
+                                propNames +=" "+ prop.PName + ":" + prop.PValue;
+                            }
+                        }
 
-                    string jobj = "{\"ProductName\":\""+productName+"\",\"ShopName\":\""+shopName+"\",\"Month\":\""+month+"\",\"Quantity\":\""+item.Quantity+"\",\"Amount\":\""+item.Amount+"\"}";
+                        DateTime time = DateTimeUtil.ConvertToDateTime(item.Created);
+                        string month = time.Year.ToString() + "-" + time.Month.ToString();
 
-                    if (count == 1)
-                    {
-                        json.Append(jobj);
+                        string jobj = "{\"ProductName\":\"" + productName + "\",\"PropName\":\""+propNames+"\",\"ShopName\":\"" + shopName + "\",\"Month\":\"" + month + "\",\"Quantity\":\"" + item.Quantity + "\",\"Amount\":\"" + item.Amount + "\"}";
+
+                        if (firstRow)
+                        {
+                            json.Append(jobj);
+                        }
+                        else
+                        {
+                            firstRow = false;
+                            json.Append(","+jobj);
+                        }
+                        count++;
                     }
-                    else
-                    {
-                        json.Append(","+jobj);
-                    }
-                    count++;
                 }
 
                 json.Append("]");

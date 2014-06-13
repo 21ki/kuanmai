@@ -89,30 +89,29 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var cu = from us in db.User
+                         join mtype in db.Mall_Type on us.Mall_Type equals mtype.Mall_Type_ID into lMtype
+                         from l_mtype in lMtype.DefaultIfEmpty()
                          where us.User_ID == user_id
                          select new BUser
                          {
-                             EmployeeInfo = (from employee in db.Employee
-                                             where employee.User_ID == us.User_ID
-                                             select new BEmployee 
-                                             {
-                                                ID=employee.Employee_ID,
-                                                Name=employee.Name
-                                             }).FirstOrDefault<BEmployee>(),
+                             //EmployeeInfo = (from employee in db.Employee
+                             //                where employee.User_ID == us.User_ID
+                             //                select new BEmployee
+                             //                {
+                             //                    ID = employee.Employee_ID,
+                             //                    Name = employee.Name
+                             //                }).FirstOrDefault<BEmployee>(),
                              ID = us.User_ID,
                              Mall_ID = us.Mall_ID,
                              Mall_Name = us.Mall_Name,
                              Name = us.Name,
                              Parent_ID = (int)us.Parent_User_ID,
                              Password = us.Password,
-                             Type = (from mtype in db.Mall_Type
-                                     where mtype.Mall_Type_ID == us.Mall_Type
-                                     select new BMallType 
-                                     {
-                                         ID=mtype.Mall_Type_ID,
-                                         Name=mtype.Name,
-                                         Description = mtype.Description
-                                     }).FirstOrDefault<BMallType>()
+                             Type = new BMallType 
+                             {
+                                 ID=l_mtype.Mall_Type_ID,
+                                 Name=l_mtype.Name
+                             }
                          };
                this.CurrentUser = cu.ToList<BUser>()[0];
                 if (this.CurrentUser != null && this.CurrentUser.Parent_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent.Mall_ID))
