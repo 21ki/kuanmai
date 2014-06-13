@@ -168,7 +168,7 @@ namespace KM.JXC.BL
                 CurrentUserPermission = this.permissionManager.GetUserPermission(this.CurrentUser);
             }
 
-            if (this.CurrentUser.ID == this.Main_Shop.User_ID)
+            if (this.CurrentUser.ID == this.Shop.User_ID)
             {
                 //shop owner has full permissions
                 Type permission = typeof(Permission);

@@ -17,10 +17,10 @@ namespace KM.JXC.DBA
         public int Enter_Stock_ID { get; set; }
         public int Product_ID { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         public Nullable<bool> Have_Invoice { get; set; }
         public string Invoice_Num { get; set; }
-        public Nullable<decimal> Invoice_Amount { get; set; }
+        public Nullable<double> Invoice_Amount { get; set; }
         public Nullable<int> Create_Date { get; set; }
     }
 }

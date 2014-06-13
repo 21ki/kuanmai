@@ -21,6 +21,6 @@ namespace KM.JXC.DBA
         public Nullable<long> First_Enter_Time { get; set; }
         public Nullable<long> LastLeave_Time { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
     }
 }

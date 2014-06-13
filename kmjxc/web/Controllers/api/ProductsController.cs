@@ -394,7 +394,7 @@ namespace KM.JXC.Web.Controllers.api
                     {
                         string[] items = detail.Split(',');
                         BBuyOrderDetail oDetail = new BBuyOrderDetail();
-                        oDetail.Price = decimal.Parse(items[2]);
+                        oDetail.Price = double.Parse(items[2]);
                         oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
                         oDetail.Quantity = int.Parse(items[1]);
                         oDetail.Status = 0;
@@ -488,7 +488,7 @@ namespace KM.JXC.Web.Controllers.api
                     {
                         string[] items = detail.Split(',');
                         BBuyOrderDetail oDetail = new BBuyOrderDetail();
-                        oDetail.Price = decimal.Parse(items[2]);
+                        oDetail.Price = double.Parse(items[2]);
                         oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
                         oDetail.Quantity = int.Parse(items[1]);
                         oDetail.Status = 0;
@@ -566,7 +566,7 @@ namespace KM.JXC.Web.Controllers.api
                         string[] items = detail.Split(',');
                         BBuyDetail oDetail = new BBuyDetail();
                         oDetail.Buy_Order_ID = oid;
-                        oDetail.Price = decimal.Parse(items[2]);
+                        oDetail.Price = double.Parse(items[2]);
                         oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
                         oDetail.Quantity = int.Parse(items[1]);                       
                         buy.Details.Add(oDetail);

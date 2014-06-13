@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="022ece02436b46bc88cca0b212632458" Name="KMDiagram" ShowGrid="false" ZoomLevel="82">
+      <Diagram DiagramId="022ece02436b46bc88cca0b212632458" Name="KMDiagram" ShowGrid="false" ZoomLevel="10">
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Access_Token" Width="1.5" PointX="4.2267994062168519" PointY="6.7499215932329752" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Action" Width="1.5" PointX="3.375" PointY="5" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role" Width="1.5" PointX="6.8623478817112495" PointY="19.898584688035111" />
@@ -22,7 +22,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Enter_Stock_Detail" Width="1.5" PointX="0.074256425758011835" PointY="13.842261678465764" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Type" Width="1.5" PointX="3.8782201930313462" PointY="0.33397281185443178" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Open_Key" Width="1.5" PointX="1.1379794111186543" PointY="21.614505688480335" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product" Width="1.5" PointX="6.6139943313850065" PointY="2.2928677211948054" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product" Width="1.5" PointX="8.125" PointY="1" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Supplier" Width="1.5" PointX="6.3852771662107095" PointY="20.520593459029026" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Product_Unit" Width="1.5" PointX="0.67996679650618086" PointY="12.307937791714416" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Shop" Width="1.5" PointX="6.4365527436307408" PointY="6.1905580191829044" />
@@ -48,11 +48,11 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Leave_Stock" Width="1.5" PointX="10.691589474068763" PointY="4.5647026172674741" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Sale_SyncTime" Width="1.5" PointX="4.4491691572820624" PointY="5.5901739921375055" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Stock_Waste" Width="1.5" PointX="3.8809866345864656" PointY="26.720424917862019" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Express_Fee" Width="1.5" PointX="6.0550655862572906" PointY="0.79918485917113014" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Express_Fee" Width="1.5" PointX="5.25" PointY="0.5" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Express_Shop" Width="1.5" PointX="7.61929482017611" PointY="30.005125760103169" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Shop_Child_Request" Width="1.5" PointX="11.91935413327038" PointY="22.495241503461841" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Employee" Width="1.5" PointX="9.32448552051768" PointY="20.949599827150628" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.User" Width="1.5" PointX="6.49758097273185" PointY="0.75897228753146351" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.User" Width="1.5" PointX="1.875" PointY="1.25" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="6.7862811325054064" PointY="8.2361592092719675" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product" Width="1.5" PointX="9.9272171137515528" PointY="22.621063049240533" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" Width="1.5" PointX="9.77094179846856" PointY="30.746801360858047" />

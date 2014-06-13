@@ -15,7 +15,7 @@ namespace KM.JXC.BL.Models
         public int ProductId { get; set; }
         public int Buy_Order_ID { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         public long CreateDate { get; set; }
     }
 }

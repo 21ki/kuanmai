@@ -1287,9 +1287,9 @@ namespace KM.JXC.BL
                 dbDetail.Create_Date = detail.Created;
                 dbDetail.Enter_Stock_ID = dbstock.Enter_Stock_ID;
                 dbDetail.Have_Invoice = detail.Invoiced;
-                dbDetail.Invoice_Amount = decimal.Parse(detail.InvoiceAmount.ToString("0.00"));
+                dbDetail.Invoice_Amount = detail.InvoiceAmount;
                 dbDetail.Invoice_Num = detail.InvoiceNumber;
-                dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
+                dbDetail.Price = detail.Price;
                 dbDetail.Product_ID = detail.Product.ID;
                 dbDetail.Quantity = (int)detail.Quantity;
                 db.Enter_Stock_Detail.Add(dbDetail);
@@ -1451,9 +1451,9 @@ namespace KM.JXC.BL
                 dbDetail.Create_Date = detail.Created;
                 dbDetail.Enter_Stock_ID = detail.EnterStock.ID;
                 dbDetail.Have_Invoice = detail.Invoiced;
-                dbDetail.Invoice_Amount = decimal.Parse(detail.InvoiceAmount.ToString("0.00"));
+                dbDetail.Invoice_Amount = detail.InvoiceAmount;
                 dbDetail.Invoice_Num = detail.InvoiceNumber;
-                dbDetail.Price = decimal.Parse(detail.Price.ToString("0.00"));
+                dbDetail.Price = detail.Price;
                 dbDetail.Product_ID = detail.Product.ID;
                 dbDetail.Quantity = (int)detail.Quantity;
                 db.Enter_Stock_Detail.Add(dbDetail);

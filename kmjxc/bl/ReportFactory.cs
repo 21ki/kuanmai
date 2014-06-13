@@ -28,7 +28,7 @@ namespace KM.JXC.BL
         /// <param name="endDate"></param>
         /// <param name="product_id"></param>
         /// <returns></returns>
-        public string GetSalesReport(DateTime? startDate, DateTime? endDate, int product_id)
+        public string GetSalesReport(int startDate, int endDate, int product_id)
         {
             StringBuilder json = new StringBuilder("[");
             using (KuanMaiEntities db = new KuanMaiEntities())
@@ -68,22 +68,14 @@ namespace KM.JXC.BL
                     sales = sales.Where(s=>s.Shop_ID==this.Shop.Shop_ID);
                 }
 
-                if (startDate != null)
+                if (startDate>0)
                 {
-                    int time = DateTimeUtil.ConvertDateTimeToInt((DateTime)startDate);
-                    if (time > 0)
-                    {
-                        sales = sales.Where(s => s.Created >= time);
-                    }
+                    sales = sales.Where(s => s.Created >= startDate);
                 }
 
-                if (endDate != null)
+                if (endDate>0)
                 {
-                    int time = DateTimeUtil.ConvertDateTimeToInt((DateTime)startDate);
-                    if (time > 0)
-                    {
-                        sales = sales.Where(s => s.Created < time);
-                    }
+                    sales = sales.Where(s => s.Created < endDate);
                 }
 
                 if (product_id > 0)

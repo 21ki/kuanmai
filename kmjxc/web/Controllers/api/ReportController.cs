@@ -27,7 +27,9 @@ namespace KM.JXC.Web.Controllers.api
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
             ReportFactory stockManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            string json = stockManager.GetSalesReport(null, null, 0);
+            int stime = 0;
+            int etime = 0;
+            string json = stockManager.GetSalesReport(stime, etime, 0);
             return json;
         }
     }

@@ -119,10 +119,10 @@
         if (product_id == "" || product_id == "0") {
             loadingBox = ShowProgress('page_loading', function () { }, "正在创建新产品，请等待...");
             cateMgr.CreateProduct({ 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
-                if (res.Status == 'ok') {                  
+                loadingBox.hide();
+                if (res.Status == 'ok') {
                     propGroup = [];
-                    propGroups = [];                    
-                    loadingBox.hide();
+                    propGroups = []; 
                     $(obj).dialog("close");
                 } else {
                     frm.find("#resultmessage3").html(res.Message);
@@ -132,10 +132,10 @@
         } else {
             loadingBox = ShowProgress('page_loading', function () { }, "正在更新产品信息，请等待...");
             cateMgr.UpdateProduct({ 'product_id': product_id, 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
-                if (res.Status == 'ok') {                  
+                loadingBox.hide();
+                if (res.Status == 'ok') {
                     propGroup = [];
-                    propGroups = [];                    
-                    loadingBox.hide();
+                    propGroups = [];  
                     $(obj).dialog("close");
                 } else {
                     frm.find("#resultmessage3").html(res.Message);
@@ -786,7 +786,7 @@
                         CleanFormFields();
                         $editform.find('#resultmessage').html("");
                         $editform.find('#resultmessage').hide();
-
+                        $("#resultmessage3").html("").hide();
                     },
                     close: function (event, ui) {
 
@@ -833,7 +833,8 @@
                         open: function (event, ui) {
                             $editform.find('#resultmessage').html("");
                             $editform.find('#resultmessage').hide();
-
+                            $("#resultmessage3").html("").hide();
+                            
                         },
                         close: function (event, ui) {
 

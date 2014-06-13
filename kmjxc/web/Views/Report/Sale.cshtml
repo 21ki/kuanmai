@@ -8,7 +8,7 @@
         reportManager.GetSalesReport({}, function (res) {
             var row = eval("(" + res + ")");
            
-            var example4JSONdata = {
+            var JSONdata = {
                 dataid: 'An optional sourcetable identifier',
                 columns: [
                     { colvalue: 'ProductName', coltext: 'ProductName', header: '产品', sortbycol: 'ProductName', groupbyrank: 1, pivot: true, result: false },
@@ -21,7 +21,7 @@
             };
 
             $('#res').pivot({
-                source: example4JSONdata,
+                source: JSONdata,
                 formatFunc: function (n) {
                     return n;
                     //return jQuery.fn.pivot.formatDK(n, 2);
