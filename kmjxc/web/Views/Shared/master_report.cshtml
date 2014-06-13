@@ -1,0 +1,557 @@
+﻿@{
+    string controller = ViewContext.RouteData.Values["controller"].ToString();
+    string action = ViewContext.RouteData.Values["action"].ToString();
+    string modelStyle = "";
+    string menuStyle = "class=link";
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
+    KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>    
+    <link href="/Third/jqueryui/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
+    <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
+    <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
+    <link href="/Third/boxy/boxy.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/Third/jqPlot/jquery.jqplot.min.css" />
+    <link href="/Third/jqPivot/demo/stylesheet.css" rel="stylesheet" type="text/css" />
+
+
+    @Styles.Render("~/Content/css")
+
+  @*  <script src="/Third/jqPivot/tools/highlight.js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")   
+    @Scripts.Render("~/bundles/kmjxc")
+    @Scripts.Render("~/Third/pqgrid")
+    @Scripts.Render("~/Third/kindeditor")
+    <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
+    <script src="/Third/pqgrid/pqgrid.dev.js" type="text/javascript"></script>
+    <script src="/Third/pqgrid/pqGridCurd.js" type="text/javascript"></script>
+    <script src="/Third/uploadify/jquery.uploadify.js" type="text/javascript"></script>
+    <script src="/Third/boxy/jquery.boxy.js" type="text/javascript"></script>  
+    
+  
+
+    <script type="text/javascript">
+        $(function () {
+
+            var con = "@controller";
+
+            switch (con) {
+                case "Buy":
+                    $(".jxcLeftMenu").accordion({ active: 0, heightStyle: "content" });
+                    break;
+                case "Sale":
+                    $(".jxcLeftMenu").accordion({ active: 1, heightStyle: "content" });
+                    break;
+                case "Stock":
+                    $(".jxcLeftMenu").accordion({ active: 2, heightStyle: "content" });
+                    break;
+                case "Product":
+                    $(".jxcLeftMenu").accordion({ active: 3, heightStyle: "content" });
+                    break;
+                case "Shop":
+                    $(".jxcLeftMenu").accordion({ active: 4, heightStyle: "content" });
+                    break;
+                case "Permission":
+                    $(".jxcLeftMenu").accordion({ active: 5, heightStyle: "content" });
+                    break;
+                case "Report":
+                    $(".jxcLeftMenu").accordion({ active: 6, heightStyle: "content" });
+                    break;
+                default:
+                    $(".jxcLeftMenu").accordion({ active: 0, heightStyle: "content" });
+                    break;
+            }
+        });
+    </script>
+</head>
+
+<body>  
+   
+   <div class="jxcMain">
+       当前登录用户:@CurrentUser.Mall_Name <br/>
+       当前用户所在主店铺:@MainShop.Name
+   </div>
+   <div class="jxcMain">       
+       <div class="jxcLeftMenu">
+           <h3 class="menu_wd1">采购管理</h3>
+           
+           <div id="buyMenuContainer"
+               @if (controller != "Buy")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+                   <li><a href="/Buy/Orders" 
+                       @if (action == "Orders")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >采购单管理 </a></li>
+                 
+                   <li><a href="/Buy/Buy"
+                       
+                       @if (action == "Buy")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >验货单管理</a></li>
+                   <li><a href="/Buy/Suppliers"
+                       @if (action == "Suppliers")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }  
+                       >供应商管理</a></li>                
+               </ul>
+           </div>
+
+           <h3 class="menu_wd1">销售管理</h3>
+           <div id="saleMenuContainer" 
+                @if (controller != "Sale")
+                {
+                    modelStyle = "style=display:none;";
+                   @modelStyle
+                }    
+               >
+               <ul>
+                    <li>
+                       <a href="/Sale/Sync"
+                       
+                       @if (action == "Sync")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       订单同步</a>
+
+                   </li>   
+                   <li>
+                       <a href="/Sale/Search"
+                       
+                       @if (action == "Search")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       订单查询</a>
+
+                   </li>                   
+                   <li>
+                       <a href="/Sale/Back"
+                       
+                       @if (action == "Back" && controller == "Sale")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       退货处理</a>
+
+                   </li>    
+                 @*  <li>
+                       <a href="/Sale/Change"
+                       
+                       @if (action == "Change")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       换货单查询</a>
+
+                   </li>   *@
+                   <li>
+                       <a href="/Sale/Customer"
+                       
+                       @if (action == "Customer")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >
+                       客户管理</a></li>                            
+               </ul>
+           </div>
+
+           <h3 class="menu_wd1">库存管理</h3>
+           <div id="stockMenuContainer"
+               
+               @if (controller != "Stock")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               } 
+               >
+               <ul>
+                   <li><a href="/Stock/Search"
+                        @if (action == "Search")
+                        {
+                           @Html.Raw("class=links");
+                        }
+                        else
+                        {
+                           @Html.Raw("class=link");
+                        } 
+                       >库存查询</a></li> 
+                   <li><a href="/Stock/Enter"
+                       @if (action == "Enter")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       
+                       >入库查询</a></li>                   
+                   <li><a href="/Stock/Leave"
+                       
+                        @if (action == "Leave")
+                        {
+                           @Html.Raw("class=links");
+                        }
+                        else
+                        {
+                           @Html.Raw("class=link");
+                        } 
+                       >销售出库</a></li>    
+                   <li><a href="/Stock/Back"
+                       @if (action == "Back" && controller == "Stock")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >销售退库</a></li>   
+                   <li><a href="/Stock/Wastage"
+                       @if (action == "Wastage")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                       >产品损耗</a></li>   
+                   <li><a href="/Stock/Stores"
+                        @if (action == "Stores")
+                        {
+                           @Html.Raw("class=links");
+                        }
+                        else
+                        {
+                           @Html.Raw("class=link");
+                        } 
+                       >仓库管理</a></li>                         
+               </ul>
+           </div>
+
+           <h3 class="menu_wd1">产品管理</h3>
+           <div id="productMenuContainer" 
+               @if (controller != "Product")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }     
+               >
+               <ul>
+                   <li><a href="/Product/List"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "List")
+                       {
+                           menuStyle = "class=links";
+                       } 
+                       
+                       @menuStyle   
+                       >产品信息</a></li> 
+                  @* <li><a href="/Product/New"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "New")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle
+                       >添加产品</a></li>*@
+                  @* <li><a href="/Product/NewStock"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "NewStock")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle
+                       >添加库存产品</a></li>    *@                   
+                   <li><a href="/Product/Categories"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "Categories")
+                       {
+                           menuStyle = "class=links";
+                       } 
+                       
+                       @menuStyle
+                       >产品类目</a></li>    
+                  @* <li><a href="/Product/NewCategory"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "NewCategory")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle
+                       >添加类目</a></li>  *@
+                   <li><a href="/Product/Properties"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "Properties")
+                       {
+                           menuStyle = "class=links";
+                       } 
+                       
+                       @menuStyle
+                       >产品属性</a></li> 
+                   @* <li><a href="/Product/NewProperty"
+                       @{menuStyle = "class=link"; }
+                       @if (action == "NewProperty")
+                       {
+                           menuStyle = "class=links";                          
+                       } 
+                       
+                       @menuStyle
+                       >添加属性</a></li>   *@
+               </ul>
+           </div>
+           <h3 class="menu_wd1">店铺管理</h3>
+           <div id="shopMenuContainer"
+                @if (controller != "Shop")
+                {
+                    modelStyle = "style=display:none;";
+                   @modelStyle
+                }   
+               >
+               <ul> 
+                   <li> <a href="/Shop/Dashboard"
+                       @if (action == "Dashboard")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       信息统计
+                        </a></li>  
+                   <li>
+                   <li> <a href="/Shop/Product"
+                       @if (action == "Product")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       在售宝贝
+                        </a></li>  
+                   <li>
+                       <a href="/Shop/Account"
+                       @if (action == "Account")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       账户管理
+                      </a>
+                   </li>     
+                   @if (CurrentShop.Shop_ID == MainShop.Shop_ID)
+                   {              
+                     <li>
+                       <a href="/Shop/Child"
+                       @if (action == "Child")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       子店铺
+                        </a>
+                     </li>
+                   }
+                   <li>
+                       <a href="/Shop/ChildRequests"
+                       @if (action == "ChildRequests")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       子店请求
+                        </a>
+                   </li>
+                   <li> <a href="/Shop/Express"
+                       @if (action == "Express")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       快递管理
+                        </a></li>                   
+               </ul>
+           </div>
+
+           <h3 class="menu_wd1">权限管理</h3>
+           <div id="permissionMenuContainer"
+                 @if (controller != "Permission")
+                 {
+                     modelStyle = "style=display:none;";
+                   @modelStyle
+                 }  >
+               <ul>                   
+                   <li>
+                       <a href="/Permission/Role"
+                       @if (action == "Role")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       权限分组
+                       </a>
+                   </li>
+                    <li>
+                       <a href="/Permission/Account"
+                       @if (action == "Account")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       用户权限
+                       </a>
+
+                   </li>
+                  
+               </ul>
+           </div>
+           
+          <h3 class="menu_wd1">报表中心</h3>
+           <div class="menuContainer" id="reportContainer"
+                @if (controller != "Report")
+                 {
+                     modelStyle = "style=display:none;";
+                   @modelStyle
+                 }  >
+               
+               <ul>
+                   <li>
+                    <a href="/Report/Sale"
+                       @if (action == "Sale")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       销售报表
+                       </a> 
+                    </li>
+                   @* <li>
+                    <a href="/Report/Buy"
+                       @if (action == "Buy")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       采购报表
+                       </a>   
+                    </li>   *@         
+                                    
+               </ul>
+           </div>
+
+       </div>
+       <div class="jxcRight">
+        @RenderBody()
+       </div>
+        
+    </div>
+    <div class="jxcfoot">
+            <a class="item" href="#">关于我们</a>  <a class="item" href="#">联系我们</a>  <a class="item" href="#">使用帮助</a> <a class="item" href="#">缺陷报告</a> <a class="item" href="#">Blog</a>
+    </div>
+</body>
+</html>
