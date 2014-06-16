@@ -28,7 +28,7 @@ namespace KM.JXC.BL
         /// <param name="endDate"></param>
         /// <param name="product_id"></param>
         /// <returns></returns>
-        public string GetSalesReport(int startDate, int endDate, int[] product_id,int page,int pageSize,out int totalProducts,bool paging=true,bool includeNoSales=false)
+        public string GetSalesReport(long startDate, long endDate, int[] product_id, int page, int pageSize, out int totalProducts, bool paging = true, bool includeNoSales = false)
         {
             totalProducts = 0;
             StringBuilder json = new StringBuilder("[");

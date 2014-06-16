@@ -1,0 +1,128 @@
+﻿@{
+    string controller = ViewContext.RouteData.Values["controller"].ToString();
+    string action = ViewContext.RouteData.Values["action"].ToString();
+    string modelStyle = "";
+    string menuStyle = "class=link";
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
+    KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    }
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>    
+    <link href="/Third/jqueryui/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
+    <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
+    <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
+    <link href="/Third/boxy/boxy.css" rel="stylesheet">
+
+    <link href="/Third/jqPivot/demo/stylesheet.css" rel="stylesheet" type="text/css" />
+  
+
+    @Styles.Render("~/Content/css")
+
+    <script src="/Third/jqPivot/tools/highlight.js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    @*<script src="/Third/jqPivot/tools/jquery.min.js"></script>*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")   
+    @Scripts.Render("~/bundles/kmjxc")
+    @Scripts.Render("~/Third/pqgrid")
+    @Scripts.Render("~/Third/kindeditor")
+    <script>
+        $(function () {
+            $(".jxcLeftMenu").accordion();
+        });
+    </script>
+   
+</head>
+<body>
+   <div class="jxcMain">
+       当前登录用户:@CurrentUser.Mall_Name <br/>
+       当前用户所在主店铺:@MainShop.Name
+   </div>
+   <div class="jxcMain">       
+       <div class="jxcLeftMenu">
+
+            <h3 class="menu_wd1">系统相关</h3>
+           
+           <div id="buyMenuContainer"
+               @if (controller != "Corp")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+                   <li><a href="/Corp/About" 
+                       @if (action == "About")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >关于我们 </a></li>
+                 
+                   <li><a href="/Corp/Contact"
+                       
+                       @if (action == "Contact")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                         
+                       
+                       >联系我们</a></li>
+                   <li><a href="/Corp/Help"
+                       @if (action == "Suppliers")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }  
+                       >使用帮助</a></li>   
+                    <li><a href="/Corp/Bug"
+                       @if (action == "Suppliers")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }  
+                       >缺陷报告</a></li>  
+                    <li><a href="/Corp/Blog"
+                       @if (action == "Suppliers")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }  
+                       >Blog</a></li>               
+               </ul>
+           </div>
+
+       </div>
+       <div class="jxcRight">
+        @RenderBody()
+       </div>
+       <div class="jxcfoot">
+            <a class="item" href="/Corp/About">关于我们</a>  <a class="item" href="/Corp/Contact">联系我们</a>  <a class="item" href="/Corp/Help">使用帮助</a> <a class="item" href="/Corp/Bug">缺陷报告</a> <a class="item" href="/Corp/Blog">Blog</a>
+    </div>
+    </div>
+</body>
+</html>

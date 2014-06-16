@@ -6,6 +6,14 @@
         var val = Date.parse(str);
         var newDate = new Date(val);
         return newDate;
+    },
+    GetUnixTime: function (str) {
+        if ($.trim(str) == '') {
+            return 0;
+        }
+        var val = Date.parse(str);
+        var newDate = new Date(val);
+        return newDate.getTime();
     }
 });
 

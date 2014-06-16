@@ -8,14 +8,14 @@
     var paged = false;
     var pageSize=50;
     var pageHtml;
-    var productsPageSize = 2;
+    var productsPageSize = 30;
     var selectedProducts = [];
     $(function () {
         $('#tabs').tabs();
         generateReports(1);
 
         $('#btnRptSubmit').button({ icons: { primary: "ui-icon-search" } }).click(function () {
-
+            generateReports(1);
         });
 
         $('#btnSelectProducts').button({ icons: { primary: "ui-icon-plus" } }).click(function () {
@@ -34,7 +34,7 @@
                 buttons: [
                    {
                        text: "确定", click: function () {
-                           var $ul = $('#btnSelectProducts').next();
+                           var $ul = $('#ulSelectedProducts');
                            $ul.html("");
                            for (var i = 0; i < selectedProducts.length; i++) {
                                //alert(selectedProducts[i].name);
@@ -151,7 +151,24 @@
 
 
     function generateReports(page) {
-        reportManager.GetSalesReport({}, function (res) {
+
+        var sdate = $('#rpt_StartDate').val();
+        var edate = $('#rpt_EndDate').val();
+
+        sdate = $.GetUnixTime(sdate);
+        edate = $.GetUnixTime(edate);
+        var pdtIds = "";
+
+        for (var i = 0; i < selectedProducts.length; i++) {
+            if (pdtIds == "") {
+                pdtIds = selectedProducts[i].id;
+            } else {
+                pdtIds += ","+selectedProducts[i].id;
+            }
+        }
+        
+        reportManager.GetSalesReport({'stime':sdate,'etime':edate,'products':pdtIds}, function (res) {
+            $('#rptPivot').html("");
             var row = res.data;
             if (row == null || row.length == 0) {
                 return;
@@ -200,14 +217,14 @@
     </ul>
     <div id="reports">  
         <div id="rptFilter" style="padding-bottom:10px;">
-            <div class="rowS"><label>时间范围:</label><input id="rpt_StartDate" class="W_input">  至  <input id="rpt_EndDate" class="W_input"></div>
+            <div class="rowS"><label>时间范围:</label><input id="rpt_StartDate" class="W_input" readonly="true"/>  至  <input id="rpt_EndDate" class="W_input" readonly="true"/></div>
             <div class="rowS" style="height:auto;">
                 <label style="display:inline-block;float:left;">产品:</label>
                 <div style="float:left;">
-                    <span style="display:block;" id="btnSelectProducts">选择产品</span>
-                    <ul class="ulchk" style="display:none;"></ul>                    
+                    <span style="display:block;" id="btnSelectProducts">选择产品</span>                                   
                 </div>                
             </div>
+            <div class="rowS nolabel1"><ul class="ulchk" id="ulSelectedProducts" style="display:none;"></ul></div>
             <div class="rowS nolabel1"><span id="btnRptSubmit">查看报表</span></div>
           
         </div>

@@ -28,15 +28,15 @@ namespace KM.JXC.Web.Controllers.api
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
             ReportFactory reportManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             int page = 1;
             int pageSize = 50;
             int totalProducts = 0;
             int[] product_id = null;
 
-            int.TryParse(request["stime"],out stime);
-            int.TryParse(request["stime"], out etime);
+            long.TryParse(request["stime"], out stime);
+            long.TryParse(request["etime"], out etime);
             int.TryParse(request["page"],out page);
             int.TryParse(request["pageSize"],out pageSize);
 
@@ -57,7 +57,10 @@ namespace KM.JXC.Web.Controllers.api
 
             string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, true, false);
             data.totalRecords = totalProducts;
-            data.data = JArray.Parse(json);
+            if (!string.IsNullOrEmpty(json))
+            {
+                data.data = JArray.Parse(json);
+            }
             data.curPage = page;
             return data;
         }
