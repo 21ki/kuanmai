@@ -49,18 +49,17 @@ namespace KM.JXC.BL
                             select s;
                 int[] childShops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
                 List<Product> products=null;
-                var tmpProducts = from p in db.Product
+                var tmpProducts = from p in db.Product orderby p.Product_ID ascending
                                   where (p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(p.Shop_ID)) && p.Parent_ID == 0
                                   select p;
 
                 if (product_id != null && product_id.Length > 0)
                 {
-                    tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Product_ID));
-                    
+                    tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Product_ID));                    
                 }
 
-                products = tmpProducts.Skip((page - 1) * pageSize).Take(pageSize).ToList<Product>();
-
+                tmpProducts = tmpProducts.Skip((page - 1) * pageSize).Take(pageSize);
+                products = tmpProducts.ToList<Product>();
                 int[] product_ids=(from p in products select p.Product_ID).ToArray<int>();
                 int[] child_product_ids = (from p in db.Product where product_ids.Contains(p.Parent_ID) select p.Product_ID).ToArray<int>();
 
@@ -188,11 +187,11 @@ namespace KM.JXC.BL
 
                         if (firstRow)
                         {
+                            firstRow = false;
                             json.Append(jobj);
                         }
                         else
                         {
-                            firstRow = false;
                             json.Append(","+jobj);
                         }
                         count++;

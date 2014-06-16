@@ -20,7 +20,7 @@ namespace KM.JXC.DBA
         public long Expirse_In { get; set; }
         public string Refresh_Token { get; set; }
         public long RExpirse_In { get; set; }
-        public Nullable<int> Request_Time { get; set; }
+        public Nullable<long> Request_Time { get; set; }
         public string Mall_User_ID { get; set; }
         public string Mall_User_Name { get; set; }
     }

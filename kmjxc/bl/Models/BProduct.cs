@@ -9,13 +9,12 @@ namespace KM.JXC.BL.Models
 {
     public class BProduct:BModel
     {
-        public int ID { get; set; }
         public BUser User { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public BCategory Category { get; set; }
         public Product_Unit Unit { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         public long CreateTime { get; set; }
         public Shop Shop { get; set; }
         public BShop BShop { get; set; }

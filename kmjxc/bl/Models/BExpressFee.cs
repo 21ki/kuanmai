@@ -15,8 +15,8 @@ namespace KM.JXC.BL.Models
         public BArea Province { get; set; }
         public BArea City { get; set; }
         public BStoreHouse StoreHouse { get; set; }
-        public int Created { get; set; }
-        public int Modified { get; set; }
+        public long Created { get; set; }
+        public long Modified { get; set; }
         public BUser Created_By { get; set; }
         public BUser Modified_By { get; set; }
         public Double Fee { get; set; }

@@ -16,7 +16,7 @@ namespace KM.JXC.DBA
     {
         public int id { get; set; }
         public string name { get; set; }
-        public byte level { get; set; }
+        public sbyte level { get; set; }
         public int upid { get; set; }
     }
 }

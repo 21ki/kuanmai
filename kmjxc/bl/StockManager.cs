@@ -389,7 +389,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BLeaveStock> SearchLeaveStocks(int[] leave_stock_ids,string[] sale_ids, int[] user_ids, int leaveStartTime, int leaveEndTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BLeaveStock> SearchLeaveStocks(int[] leave_stock_ids, string[] sale_ids, int[] user_ids, long leaveStartTime, long leaveEndTime, int pageIndex, int pageSize, out int totalRecords)
         {
             List<BLeaveStock> stocks = new List<BLeaveStock>();
             totalRecords = 0;
@@ -586,7 +586,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBackStockDetail> SearchBackStockDetails(int[] back_stock_ids, string[] sale_ids, int[] user_ids, int storeHouseId, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBackStockDetail> SearchBackStockDetails(int[] back_stock_ids, string[] sale_ids, int[] user_ids, int storeHouseId, long startTime, long endTime, int pageIndex, int pageSize, out int totalRecords)
         {
             List<BBackStockDetail> bStockDetails = new List<BBackStockDetail>();
             List<BBackStock> stocks = new List<BBackStock>();
@@ -1106,7 +1106,7 @@ namespace KM.JXC.BL
                           select new BEnterStock
                           {
                               ID = stock.Enter_Stock_ID,
-                              Created = (long)stock.Enter_Date,
+                              Created = (Int32)stock.Enter_Date,
                               Created_By = (from user in db.User
                                             where user.User_ID == stock.User_ID
                                             select new BUser

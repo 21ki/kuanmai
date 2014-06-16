@@ -250,7 +250,7 @@ function KMJXCBase() {
         }
     }
 
-    this.Pager = function (json) {
+    this.Pager = function (json,selClass,pageClass) {
         if (!json || typeof(json)!=='object' || !json.total || !json.page || !json.pageSize || !json.fun) {
             return "";
         }
@@ -260,6 +260,7 @@ function KMJXCBase() {
         var pageSize = json.pageSize;
         var totalPage = 0;
         var ajaxFun = json.fun;
+        
         if (total < pageSize) {
             return "";
         }
@@ -273,13 +274,13 @@ function KMJXCBase() {
         for (var i = 1; i < totalPage; i++) {
 
             if (i != page) {
-                buffer.push("<a class=\"\" href=\"javascript:void(0)\" onclick=\""+ajaxFun+"("+i+")\">" + i + "</a>");
+                buffer.push("<a class=\"" + pageClass + "\" href=\"javascript:void(0)\" onclick=\"" + ajaxFun + "(" + i + ")\">" + i + "</a>");
             } else {
-                buffer.push("<span class=\"\">" + i + "</span>");
+                buffer.push("<span class=\"" + selClass + "\">" + i + "</span>");
             }
         }
 
-        return buffer;
+        return buffer.join("");
     }
 }
 

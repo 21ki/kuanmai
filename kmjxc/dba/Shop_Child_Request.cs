@@ -17,9 +17,9 @@ namespace KM.JXC.DBA
         public int ID { get; set; }
         public int Shop_ID { get; set; }
         public int Created_By { get; set; }
-        public int Created { get; set; }
+        public long Created { get; set; }
         public Nullable<int> Status { get; set; }
-        public Nullable<int> Modified { get; set; }
+        public Nullable<long> Modified { get; set; }
         public Nullable<int> Modified_By { get; set; }
         public int Child_Shop_ID { get; set; }
     }

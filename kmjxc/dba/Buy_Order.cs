@@ -23,7 +23,7 @@ namespace KM.JXC.DBA
         public long Create_Date { get; set; }
         public int Shop_ID { get; set; }
         public Nullable<int> Order_User_ID { get; set; }
-        public Nullable<int> Status { get; set; }
+        public int Status { get; set; }
         public string Description { get; set; }
     }
 }

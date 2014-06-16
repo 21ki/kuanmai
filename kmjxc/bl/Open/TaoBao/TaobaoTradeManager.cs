@@ -141,7 +141,7 @@ namespace KM.JXC.BL.Open.TaoBao
         /// <param name="totalTrades"></param>
         /// <param name="hasNextPage"></param>
         /// <returns></returns>
-        public List<BSale> IncrementSyncMallTrades(int lastEndTime, int timeEnd, string status)
+        public List<BSale> IncrementSyncMallTrades(long lastEndTime, long timeEnd, string status)
         {
             List<BSale> trades = new List<BSale>();
             long totalTrades = 0;
@@ -151,8 +151,8 @@ namespace KM.JXC.BL.Open.TaoBao
             long curPage=1;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
-            int timeNow = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
-            int endTime = 0;
+            long timeNow = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
+            long endTime = 0;
             if (lastEndTime == 0)
             {
                 eDate = DateTime.Now;
@@ -227,7 +227,7 @@ namespace KM.JXC.BL.Open.TaoBao
                 
                 foreach (string state in this.status)
                 {
-                    int tmpendTime = endTime;
+                    long tmpendTime = endTime;
                     while (tmpendTime <= timeNow)
                     {
                         DateTime tmpDate = DateTimeUtil.ConvertToDateTime(endTime);
@@ -473,6 +473,16 @@ namespace KM.JXC.BL.Open.TaoBao
                 totalTrades = response.TotalResults;
                 foreach (TB.Trade trade in response.Trades)
                 {
+                    if (trade.Tid <= 0) 
+                    {
+                        continue;
+                    }
+                    var existedSales=from esale in sales where esale.Sale_ID==trade.Tid.ToString() select esale;
+                    if (existedSales.Count() > 0)
+                    {
+                        continue;
+                    }
+
                     bool containRefound = false;
                     BSale sale = new BSale();
                     sale.Status=trade.Status;
@@ -496,6 +506,17 @@ namespace KM.JXC.BL.Open.TaoBao
                     {
                         foreach (TB.Order o in trade.Orders)
                         {
+                            if (o.Oid <= 0)
+                            {
+                                continue;
+                            }
+
+                            var existedOrders = from so in sale.Orders where so.Order_ID == o.Oid.ToString() select so;
+                            if (existedOrders.Count() > 0)
+                            {
+                                continue;
+                            }
+
                             //if (string.IsNullOrEmpty(o.OuterIid))
                             //{
                             //    continue;

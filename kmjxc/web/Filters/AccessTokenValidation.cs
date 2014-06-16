@@ -39,7 +39,7 @@ namespace KM.JXC.Web.Filters
             }
 
             //Verify if the existed access token is expired          
-            int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             if (timeNow >= token.Request_Time + token.Expirse_In)
             {
                 filterContext.HttpContext.Response.Redirect("/Home/Login?message=授权信息已经过期，请重新登录并授权");

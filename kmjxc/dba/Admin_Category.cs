@@ -16,6 +16,6 @@ namespace KM.JXC.DBA
     {
         public int ID { get; set; }
         public string Name { get; set; }
-        public int Created { get; set; }
+        public long Created { get; set; }
     }
 }

@@ -15,11 +15,11 @@ namespace KM.JXC.DBA
     public partial class Product_Spec
     {
         public int Product_Spec_ID { get; set; }
+        public int Product_Class_ID { get; set; }
         public string Name { get; set; }
         public int Shop_ID { get; set; }
-        public Nullable<int> Created { get; set; }
         public int User_ID { get; set; }
+        public long Created { get; set; }
         public string Mall_PID { get; set; }
-        public int Product_Class_ID { get; set; }
     }
 }

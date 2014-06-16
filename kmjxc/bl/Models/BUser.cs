@@ -9,7 +9,6 @@ namespace KM.JXC.BL.Models
 {
     public class BUser:BModel
     {
-        public int ID { get; set; }
         public int Parent_ID { get; set; }
         public BMallType Type { get; set; }
         public string Mall_Name { get; set; }

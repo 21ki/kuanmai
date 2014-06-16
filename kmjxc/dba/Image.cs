@@ -18,7 +18,7 @@ namespace KM.JXC.DBA
         public int ProductID { get; set; }
         public string FileName { get; set; }
         public string Path { get; set; }
-        public Nullable<int> Created { get; set; }
-        public Nullable<int> UserID { get; set; }
+        public long Created { get; set; }
+        public int UserID { get; set; }
     }
 }

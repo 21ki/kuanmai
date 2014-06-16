@@ -15,8 +15,8 @@ namespace KM.JXC.BL.Models
         public int OuterID { get; set; }
         public string PicUrl { get; set; }
         public List<BMallSku> Skus { get; set; }
-        public int Created { get; set; }
-        public int Modified { get; set; }
+        public long Created { get; set; }
+        public long Modified { get; set; }
         public BShop Shop { get; set; }
         public BMallProduct()
         {

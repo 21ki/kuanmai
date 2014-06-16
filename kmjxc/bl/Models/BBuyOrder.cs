@@ -9,7 +9,6 @@ namespace KM.JXC.BL.Models
 {    
     public class BBuyOrder:BModel
     {
-        public int ID { get; set; }
         public Supplier Supplier { get; set; }
         public BUser Created_By { get; set; }
         public long WriteTime { get; set; }

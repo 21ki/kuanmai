@@ -320,7 +320,35 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+
                 Product_Class oldCategory = (from pc in db.Product_Class where pc.Product_Class_ID == category.ID select pc).ToList<Product_Class>()[0];
+
+                if (oldCategory == null)
+                {
+                    throw new KMJXCException("您要修改的类目信息不存在");
+                }
+
+                if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID)
+                {
+                    if (oldCategory.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能修改主店铺类目");
+                    }
+
+                    if (oldCategory.Shop_ID == this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能其他主店铺类目");
+                    }
+                }
+                else
+                {
+                    if (oldCategory.Shop_ID != this.Main_Shop.Shop_ID || !child_shops.Contains(oldCategory.Shop_ID))
+                    {
+                        throw new KMJXCException("您无法修改其他店铺的类目，只能修改主店铺或者子店铺类目");
+                    }
+                }
+                
                 oldCategory.Name = category.Name;
                 oldCategory.Enabled = category.Enabled;
                 if (category.Parent != null)
@@ -403,11 +431,33 @@ namespace KM.JXC.BL
 
             try
             {
+                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
                 Product_Spec ps = (from pc in db.Product_Spec where pc.Product_Spec_ID == propertyId select pc).FirstOrDefault<Product_Spec>();
                 if (ps == null)
                 {
                     throw new KMJXCException("属性丢失,不能添加属性值");
                 }
+
+                if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID)
+                {
+                    if (ps.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能修改主店铺产品库存属性");
+                    }
+
+                    if (ps.Shop_ID == this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能其他主店铺产品库存属性");
+                    }
+                }
+                else
+                {
+                    if (ps.Shop_ID != this.Main_Shop.Shop_ID && !child_shops.Contains(ps.Shop_ID))
+                    {
+                        throw new KMJXCException("您不能修改其他店铺的产品库存属性，只能修改主店铺或者子店铺产品库存属性");
+                    }
+                }
+
                 StringBuilder error = new StringBuilder();
                 if (values != null && values.Count > 0)
                 {
@@ -654,37 +704,51 @@ namespace KM.JXC.BL
                     props=props.Where(a => a.Product_Spec_ID == propId);
                 }
 
-                props = props.OrderBy(a=>a.Shop_ID).OrderBy(b=>b.Created);
-
-                properties = (from p in props orderby p.Product_Class_ID descending
+                var efProps = from p in props
+                              join shop in db.Shop on p.Shop_ID equals shop.Shop_ID into LShop
+                              from l_shop in LShop.DefaultIfEmpty()
+                              join user in db.User on p.User_ID equals user.User_ID into LUser
+                              from l_user in LUser.DefaultIfEmpty()
+                              join category in db.Product_Class on p.Product_Class_ID equals category.Product_Class_ID into LCategory
+                              from l_category in LCategory.DefaultIfEmpty()
                               select new BProperty
                               {
-                                  Shop = (from sp in db.Shop
-                                          where sp.Shop_ID == p.Shop_ID
-                                          select new BShop
-                                          {
-                                              ID = sp.Shop_ID,
-                                              Title = sp.Name,
-                                              Created = (int)sp.Created,
-                                              Description = sp.Description
-                                          }).FirstOrDefault<BShop>(),
-                                  CategoryId = p.Product_Class_ID,
-                                  Created = (int)p.Created,
-                                  Created_By = (from u in db.User
-                                                where u.User_ID == p.User_ID
-                                                select new BUser
-                                                {
-                                                    ID = u.User_ID,
-                                                    Name = u.Name,
-                                                    Mall_Name = u.Mall_Name
-                                                }).FirstOrDefault<BUser>(),
                                   ID = p.Product_Spec_ID,
                                   MID = p.Mall_PID,
                                   Name = p.Name,
-                                  //Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
-                                  Category=(from cate in db.Product_Class where cate.Product_Class_ID==p.Product_Class_ID select cate).FirstOrDefault<Product_Class>(),
-                              }).ToList<BProperty>();
+                                  Shop = l_shop != null ? new BShop
+                                  {
+                                      ID = l_shop.Shop_ID,
+                                      Title = l_shop.Name,
+                                      Created = (int)l_shop.Created,
+                                      Description = l_shop.Description
+                                  } : new BShop
+                                  {
+                                      ID = 0,
+                                      Title = "",
+                                      Created = 0,
+                                      Description = ""
+                                  },
+                                  CategoryId = p.Product_Class_ID,
+                                  Created = (int)p.Created,
+                                  Created_By = l_user != null ? new BUser
+                                  {
+                                      ID = l_user.User_ID,
+                                      Name = l_user.Name,
+                                      Mall_Name = l_user.Mall_Name
+                                  } :
+                                  new BUser
+                                  {
+                                      ID = 0,
+                                      Name = "",
+                                      Mall_Name = ""
+                                  },
 
+                                  //Values = (from ps in db.Product_Spec_Value where ps.Product_Spec_ID == p.Product_Spec_ID select ps).ToList<Product_Spec_Value>()
+                                  Category = l_category
+                              };
+               
+                properties = efProps.ToList<BProperty>();
                 if (properties.Count > 0)
                 {
                     foreach (BProperty p in properties)

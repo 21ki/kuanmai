@@ -8,12 +8,11 @@ namespace KM.JXC.BL.Models
 {
     public class BCustomer:BUser
     {
-        public string Name { get; set; }
         public string Phone { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
         public Common_District City { get; set; }
         public Common_District Province { get; set; }
-        public BShop Shop { get; set; }
+        public long Created { get; set; }
     }
 }

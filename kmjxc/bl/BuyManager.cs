@@ -94,18 +94,28 @@ namespace KM.JXC.BL
                 totalRecords = bo.Count();
                 if (totalRecords > 0)
                 {
-                    bo = bo.OrderBy(a => a.Create_Date).Skip((pageIndex-1)*pageSize).Take(pageSize);
-                    buyOrders = (from border in bo
-                                 select new BBuyOrder
-                                     {
-                                         ID = border.Buy_Order_ID,
-                                         Created = border.Create_Date,
-                                         Description = border.Description,
-                                         EndTime = (long)border.End_Date,
-                                         InsureTime = (long)border.Insure_Date,
-                                         WriteTime = (long)border.Write_Date,
-                                         OrderUser = (from u in db.User
-                                                      where u.User_ID == border.Order_User_ID
+                    var efOrders = from border in bo
+                                select new BBuyOrder
+                                    {
+                                        ID = border.Buy_Order_ID,
+                                        Created = border.Create_Date,
+                                        Description = border.Description,
+                                        EndTime = (int)border.End_Date,
+                                        InsureTime = (int)border.Insure_Date,
+                                        WriteTime = (int)border.Write_Date,
+                                        OrderUser = (from u in db.User
+                                                     where u.User_ID == border.Order_User_ID
+                                                     select new BUser
+                                                     {
+                                                         ID = u.User_ID,
+                                                         Mall_ID = u.Mall_ID,
+                                                         Mall_Name = u.Mall_Name,
+                                                         Name = u.Name
+                                                     }).FirstOrDefault<BUser>(),
+                                        Status = (int)border.Status,
+                                        Supplier = (from sp in db.Supplier where sp.Supplier_ID == border.Supplier_ID select sp).FirstOrDefault<Supplier>(),
+                                        Created_By = (from u in db.User
+                                                      where u.User_ID == border.User_ID
                                                       select new BUser
                                                       {
                                                           ID = u.User_ID,
@@ -113,28 +123,19 @@ namespace KM.JXC.BL
                                                           Mall_Name = u.Mall_Name,
                                                           Name = u.Name
                                                       }).FirstOrDefault<BUser>(),
-                                         Status = (int)border.Status,
-                                         Supplier = (from sp in db.Supplier where sp.Supplier_ID == border.Supplier_ID select sp).FirstOrDefault<Supplier>(),
-                                         Created_By = (from u in db.User
-                                                       where u.User_ID == border.User_ID
-                                                       select new BUser
-                                                       {
-                                                           ID = u.User_ID,
-                                                           Mall_ID = u.Mall_ID,
-                                                           Mall_Name = u.Mall_Name,
-                                                           Name = u.Name
-                                                       }).FirstOrDefault<BUser>(),
-                                         Shop = (from sp in db.Shop
-                                                 where sp.Shop_ID == border.Shop_ID
-                                                 select new BShop
-                                                 {
-                                                     ID = sp.Shop_ID,
-                                                     Mall_ID = sp.Mall_Shop_ID,
-                                                     Title = sp.Name
-                                                 }).FirstOrDefault<BShop>()
+                                        Shop = (from sp in db.Shop
+                                                where sp.Shop_ID == border.Shop_ID
+                                                select new BShop
+                                                {
+                                                    ID = sp.Shop_ID,
+                                                    Mall_ID = sp.Mall_Shop_ID,
+                                                    Title = sp.Name
+                                                }).FirstOrDefault<BShop>()
 
-                                     }).ToList<BBuyOrder>();
+                                    };
 
+                    efOrders = efOrders.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                    buyOrders = efOrders.ToList<BBuyOrder>();
                     foreach (BBuyOrder o in buyOrders)
                     {
                         var ds= from od in db.Buy_Order_Detail
@@ -240,17 +241,18 @@ namespace KM.JXC.BL
 
                 totalRecords = vbo.Count();
                 if (totalRecords > 0)
-                {
-                    vbo = vbo.OrderBy(a=>a.Create_Date).Skip((pageIndex-1)*pageSize).Take(pageSize);
+                {                  
                     var vboo = from vbb in vbo
+                               join border in db.Buy_Order on vbb.Buy_Order_ID equals border.Buy_Order_ID into LBorder
+                               from l_border in LBorder.DefaultIfEmpty()
                                select new BBuy
                                {
-                                   Status = vbb.Status,
-                                   Order = (from o in db.Buy_Order where o.Buy_Order_ID == vbb.Buy_Order_ID select new BBuyOrder { ID = o.Buy_Order_ID }).FirstOrDefault<BBuyOrder>(),
-                                   ComeDate = vbb.Come_Date,
-                                   Description = vbb.Description,
-                                   Created = vbb.Create_Date,
                                    ID = vbb.Buy_ID,
+                                   Status = (int)vbb.Status,
+                                   Order = l_border != null ? new BBuyOrder { ID = l_border.Buy_Order_ID } : new BBuyOrder { ID = 0 },
+                                   ComeDate = (int)vbb.Come_Date,
+                                   Description = vbb.Description,
+                                   Created = (int)vbb.Create_Date,
                                    User = (from u in db.User
                                            where u.User_ID == vbb.User_ID
                                            select new BUser
@@ -272,6 +274,7 @@ namespace KM.JXC.BL
                                                Title = sp.Name
                                            }).FirstOrDefault<BShop>()
                                };
+                    vboo = vboo.OrderBy(b => b.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize);
                     verifications = vboo.ToList<BBuy>();
                     int[] orderIds;
                     orderIds = (from verify in verifications select verify.Order.ID).ToArray<int>();

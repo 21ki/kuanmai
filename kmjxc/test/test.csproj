@@ -54,8 +54,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessToken\AccessTokenTest.cs" />
-    <Compile Include="AccessToken\MockAccessToken.cs" />
     <Compile Include="PermissionTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,16 +66,9 @@
       <Project>{d91ac8c1-2030-4cf8-9b43-9ee6b2cd9edd}</Project>
       <Name>common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\bl\bl.csproj">
-      <Project>{526512ad-f7af-4519-b51e-34ef82a9ebec}</Project>
-      <Name>bl</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\dba\dba.csproj">
-      <Project>{e0b21136-b482-4d3f-acb1-05b04fdc96b7}</Project>
-      <Name>dba</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="AccessToken\" />
     <Folder Include="Orders\" />
     <Folder Include="Users\" />
   </ItemGroup>

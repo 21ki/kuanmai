@@ -9,8 +9,8 @@ namespace KM.JXC.BL.Models
     public class BBackSale
     {
         public int ID { get; set; }
-        public int BackTime { get; set; }
-        public int Created { get; set; }
+        public long BackTime { get; set; }
+        public long Created { get; set; }
         public BSale Sale { get; set; }
         public BUser Created_By { get; set; }        
         public string Description { get; set;}

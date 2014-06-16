@@ -9,10 +9,10 @@ namespace KM.JXC.BL.Models
     public class BSaleSyncLog
     {
         public BShop Shop { get; set; }
-        public int LastSyncTime { get; set; }
+        public long LastSyncTime { get; set; }
         public BUser User { get; set; }
-        public int LastStartEndTime { get; set; }
-        public int LastModifiedEndTime { get; set; }
+        public long LastStartEndTime { get; set; }
+        public long LastModifiedEndTime { get; set; }
         public int Type { get; set; }
     }
 }

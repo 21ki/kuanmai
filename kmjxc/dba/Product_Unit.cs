@@ -18,7 +18,7 @@ namespace KM.JXC.DBA
         public string Name { get; set; }
         public int User_ID { get; set; }
         public string Description { get; set; }
-        public Nullable<int> Shop_ID { get; set; }
+        public int Shop_ID { get; set; }
         public long Create_Time { get; set; }
     }
 }

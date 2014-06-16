@@ -18,6 +18,6 @@ namespace KM.JXC.DBA
         public int Product_ID { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
-        public Nullable<int> Status { get; set; }
+        public int Status { get; set; }
     }
 }

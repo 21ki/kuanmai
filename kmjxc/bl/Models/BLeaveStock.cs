@@ -8,7 +8,6 @@ namespace KM.JXC.BL.Models
 {
     public class BLeaveStock:BModel
     {
-        public int ID { get; set; }
         public List<BLeaveStockDetail> Details { get; set; }
         public BSale Sale { get; set; }        
         public BShop Shop { get; set; }

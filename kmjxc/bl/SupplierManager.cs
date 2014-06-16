@@ -75,9 +75,7 @@ namespace KM.JXC.BL
                 }
 
                 totalRecord = spps.Count();
-                spps = spps.OrderBy(a => a.Shop_ID).OrderBy(a => a.Supplier_ID);
-                spps = spps.Skip((pageIndex - 1) * pageSize).Take(pageSize);
-
+              
                 var ss = from supplier in spps
                          select new BSupplier
                              {
@@ -95,21 +93,21 @@ namespace KM.JXC.BL
                                          where c.id == supplier.City_ID
                                          select new BArea
                                              {
-                                                 ID = c.id,
+                                                 ID = supplier.City_ID,
                                                  Name = c.name
                                              }).FirstOrDefault<BArea>(),
                                  Province = (from c in db.Common_District
                                              where c.id == supplier.Province_ID
                                              select new BArea
                                              {
-                                                 ID = c.id,
+                                                 ID = supplier.Province_ID,
                                                  Name = c.name
                                              }).FirstOrDefault<BArea>(),
                                  Created_By = (from u in db.User
                                                where u.User_ID == supplier.User_ID
                                                select new BUser
                                                    {
-                                                       ID = u.User_ID,
+                                                       ID = supplier.User_ID,
                                                        Name = u.Name,
                                                        Mall_ID = u.Mall_ID,
                                                        Mall_Name = u.Mall_Name
@@ -119,11 +117,14 @@ namespace KM.JXC.BL
                                          select new
                                              BShop
                                              {
-                                                 ID=sp.Shop_ID,
+                                                 ID=supplier.Shop_ID,
                                                  Title=sp.Name,
                                                  Description=sp.Description
                                              }).FirstOrDefault<BShop>()
                              };
+
+                ss = ss.OrderBy(a => a.Shop.ID).OrderBy(a => a.ID);
+                ss = ss.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
                 suppliers = ss.ToList<BSupplier>();
                 List<int> cspids = (from csp in this.ChildShops select csp.Shop_ID).ToList<int>();
@@ -201,15 +202,37 @@ namespace KM.JXC.BL
 
             try
             {
+                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
                 Supplier existed = (from supp in db.Supplier where supp.Supplier_ID == supplier.Supplier_ID select supp).FirstOrDefault<Supplier>();
                 if (existed == null)
                 {
                     throw new KMJXCException("要修改的供应商不存在");
                 }
-                var obj = (from sp in db.Supplier where (sp.Shop_ID == this.Shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID) && supplier.Name.Contains(sp.Name) && sp.Supplier_ID!=existed.Supplier_ID select sp);
+                var obj = (from sp in db.Supplier where (child_shops.Contains(sp.Shop_ID) || sp.Shop_ID == this.Shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID) && supplier.Name.Contains(sp.Name) && sp.Supplier_ID!=existed.Supplier_ID select sp);
+                
                 if (obj.ToList<Supplier>().Count > 0)
                 {
-                    throw new KMJXCException("供应商名称已经存在");
+                    throw new KMJXCException("供应商名称已经存在,请换个名字");
+                }
+
+                if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID)
+                {
+                    if (existed.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能修改主店铺供应商");
+                    }
+
+                    if (existed.Shop_ID == this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能其他主店铺供应商");
+                    }
+                }
+                else
+                {
+                    if (existed.Shop_ID != this.Main_Shop.Shop_ID && !child_shops.Contains(existed.Shop_ID))
+                    {
+                        throw new KMJXCException("您不能修改其他店铺的供应商，只能修改主店铺或者子店铺供应商");
+                    }
                 }
 
                 supplier.Modified = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);

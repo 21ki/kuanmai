@@ -34,8 +34,8 @@ namespace KM.JXC.Web.Controllers.api
             int sale_id = 0;
             int back_id = 0;
             int uid = 0;
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             if (!string.IsNullOrEmpty(request["sdate"]))
             {
                 DateTime sdate = DateTime.MinValue;
@@ -97,8 +97,8 @@ namespace KM.JXC.Web.Controllers.api
             int sale_id = 0;
             int back_id = 0;
             int uid = 0;
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             int? status = null;
             int status1 = 0;
             string state=request["status"];
@@ -166,8 +166,8 @@ namespace KM.JXC.Web.Controllers.api
             SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int page = 1;
             int pageSize = 30;
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             if (!string.IsNullOrEmpty(request["sdate"]))
             {
                 DateTime sdate = DateTime.MinValue;

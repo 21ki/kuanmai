@@ -185,7 +185,7 @@ namespace KM.JXC.BL
                 csp_ids = new int[1];
             }
 
-            List<Product> products = (from pdt in db.Product where (pdt.Shop_ID == this.Shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID)) && pdt.Parent_ID==0 select pdt).ToList<Product>();
+            List<Product> allproducts = (from pdt in db.Product where (pdt.Shop_ID == this.Shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID)) select pdt).ToList<Product>();
             string[] sale_ids=(from sale in trades select sale.Sale_ID).ToArray<string>();
             List<Leave_Stock> cacheLeaveStocks=(from ls in db.Leave_Stock where sale_ids.Contains(ls.Sale_ID) select ls).ToList<Leave_Stock>();
             Store_House house=(from store in db.Store_House where store.Default==true select store).FirstOrDefault<Store_House>();
@@ -227,6 +227,21 @@ namespace KM.JXC.BL
                     {
                         foreach (BOrder order in trade.Orders)
                         {
+                            Product parentPdt = (from pdt in allproducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                            Product childPdt = (from pdt in allproducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
+
+                            if (parentPdt != null)
+                            {
+                                order.Parent_Product_ID = parentPdt.Product_ID;
+                            }
+                            else
+                            {
+                                if (childPdt != null)
+                                {
+                                    order.Parent_Product_ID = childPdt.Parent_ID;
+                                }
+                            }
+
                             Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
                             if (order.Status1 != 0)
                             {
@@ -279,7 +294,7 @@ namespace KM.JXC.BL
                                 stockPile.Quantity = stockPile.Quantity - order.Quantity;
                                 
                                 //Update stock field in Product table
-                                Product product=(from pdt in products where pdt.Product_ID==dbDetail.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                                Product product=(from pdt in allproducts where pdt.Product_ID==dbDetail.Parent_Product_ID select pdt).FirstOrDefault<Product>();
                                 if (product != null)
                                 {
                                     product.Quantity = product.Quantity - order.Quantity;
@@ -323,8 +338,8 @@ namespace KM.JXC.BL
             KuanMaiEntities db = new KuanMaiEntities();
             syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID && sync.SyncType == syncType orderby sync.LastSyncTime descending select sync).FirstOrDefault<Sale_SyncTime>();
             DateTime tNow = DateTime.Now;
-            int timeNow = DateTimeUtil.ConvertDateTimeToInt(tNow);            
-            int lastSyncModifiedTime = 0;
+            long timeNow = DateTimeUtil.ConvertDateTimeToInt(tNow);
+            long lastSyncModifiedTime = 0;
             lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(tNow.AddDays(-1));
             if (syncTime != null)
             {
@@ -385,10 +400,16 @@ namespace KM.JXC.BL
 
             List<BSale> newSales = new List<BSale>();
             List<BSale> backSales = new List<BSale>();
-
+            List<Product> allProducts = null;
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
+                int[] child_shops=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+
+                allProducts = (from p in db.Product
+                               where p.Shop_ID == this.Shop.Shop_ID || child_shops.Contains(p.Shop_ID) || p.Shop_ID == this.Main_Shop.Shop_ID
+                               select p).ToList<Product>();
+
                 var tmpExp = from expsp in db.Express_Shop
                              join exp in db.Express on expsp.Express_ID equals exp.Express_ID into lExp
                              from l_exp in lExp
@@ -403,7 +424,7 @@ namespace KM.JXC.BL
                                select fee).ToList<Express_Fee>();
                 }
 
-                int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 var customers = from customer in db.Customer
                                 where customer.Mall_Type_ID == this.Shop.Mall_Type_ID
                                 select customer;
@@ -539,8 +560,30 @@ namespace KM.JXC.BL
                                 sd.Discount = order.Discount;
                                 sd.Mall_Order_ID = order.Order_ID;
                                 sd.Mall_Trade_ID = sale.Sale_ID;
-                                sd.Parent_Product_ID = order.Parent_Product_ID;
-                                sd.Product_ID = order.Product_ID;
+
+                                sd.Parent_Product_ID = 0;
+                                sd.Product_ID = 0;
+
+                                Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                                Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
+
+                                if (parentPdt != null)
+                                {
+                                    sd.Parent_Product_ID = parentPdt.Product_ID;
+                                }
+                                else
+                                {
+                                    if (childPdt != null)
+                                    {
+                                        sd.Parent_Product_ID = childPdt.Parent_ID;
+                                    }
+                                }
+
+                                if (childPdt != null)
+                                {
+                                    sd.Product_ID = childPdt.Product_ID;
+                                }
+
                                 sd.Price = order.Price;
                                 sd.Quantity = order.Quantity;
                                 sd.Status = order.Status;
@@ -578,8 +621,27 @@ namespace KM.JXC.BL
                             sd.Discount = order.Discount;
                             sd.Mall_Order_ID = order.Order_ID;
                             sd.Mall_Trade_ID = sale.Sale_ID;
-                            sd.Parent_Product_ID = order.Parent_Product_ID;
-                            sd.Product_ID = order.Product_ID;
+
+                            Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                            Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
+
+                            if (parentPdt != null)
+                            {
+                                sd.Parent_Product_ID = parentPdt.Product_ID;
+                            }
+                            else
+                            {
+                                if (childPdt != null)
+                                {
+                                    sd.Parent_Product_ID = childPdt.Parent_ID;
+                                }
+                            }
+
+                            if (childPdt != null)
+                            {
+                                sd.Product_ID = childPdt.Product_ID;
+                            }
+
                             sd.Price = order.Price;
                             sd.Quantity = order.Quantity;
                             sd.Status = order.Status;
@@ -637,7 +699,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BSale> SearchSales(int[] pdtids,string productName, int[] customers, string customer_nick, int sSaleTime, int eSaleTime, int page, int pageSize, out int totalRecords,int shop_id=0)
+        public List<BSale> SearchSales(int[] pdtids, string productName, int[] customers, string customer_nick, long sSaleTime, long eSaleTime, int page, int pageSize, out int totalRecords, int shop_id = 0)
         {
             List<BSale> sales = null;
             totalRecords = 0;
@@ -829,7 +891,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int? status, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int? status, long stime, long etime, int pageIndex, int pageSize, out int totalRecords)
         {
             if (pageIndex <= 0)
             {
@@ -972,7 +1034,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBackSale> SearchBackSales(string[] sale_ids, int[] user_ids, int stime, int etime, int pageIndex, int pageSize, out int totalRecords)
+        public List<BBackSale> SearchBackSales(string[] sale_ids, int[] user_ids, long stime, long etime, int pageIndex, int pageSize, out int totalRecords)
         {
             if (pageIndex <= 0)
             {

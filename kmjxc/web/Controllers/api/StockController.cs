@@ -277,8 +277,8 @@ namespace KM.JXC.Web.Controllers.api
             int sale_id = 0;
             int leave_id=0;
             int uid = 0;
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             if (!string.IsNullOrEmpty(request["sdate"]))
             {
                 DateTime sdate = DateTime.MinValue;
@@ -343,8 +343,8 @@ namespace KM.JXC.Web.Controllers.api
             int sale_id = 0;
             int back_id = 0;
             int uid = 0;
-            int stime = 0;
-            int etime = 0;
+            long stime = 0;
+            long etime = 0;
             int storeHouseId = 0;
             if (!string.IsNullOrEmpty(request["sdate"]))
             {

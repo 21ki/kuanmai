@@ -24,15 +24,15 @@ namespace KM.JXC.DBA
         public int City_ID { get; set; }
         public Nullable<short> Sale_Type { get; set; }
         public double Post_Fee { get; set; }
-        public int Created { get; set; }
-        public int Modified { get; set; }
-        public int Synced { get; set; }
+        public double Post_Fee1 { get; set; }
+        public long Created { get; set; }
+        public long Modified { get; set; }
+        public long Synced { get; set; }
         public string Status { get; set; }
+        public Nullable<int> Status1 { get; set; }
         public int StockStatus { get; set; }
         public int Sync_User { get; set; }
         public Nullable<bool> HasRefound { get; set; }
-        public Nullable<int> Status1 { get; set; }
-        public double Post_Fee1 { get; set; }
         public int Express_ID { get; set; }
     }
 }

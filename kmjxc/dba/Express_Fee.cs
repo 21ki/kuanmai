@@ -21,8 +21,8 @@ namespace KM.JXC.DBA
         public int Province_ID { get; set; }
         public int City_ID { get; set; }
         public double Fee { get; set; }
-        public int Created { get; set; }
-        public int Modified { get; set; }
+        public long Created { get; set; }
+        public long Modified { get; set; }
         public int Created_By { get; set; }
         public int Modified_By { get; set; }
     }

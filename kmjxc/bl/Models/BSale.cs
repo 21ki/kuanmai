@@ -18,10 +18,10 @@ namespace KM.JXC.BL.Models
         public double Post_Fee_Actual { get; set; }
         public int SaleType { get; set; }
         public BShop Shop { get; set; }
-        public int SaleDateTime { get; set; }
-        public int Created { get; set; }
-        public int Modified { get; set; }
-        public int Synced { get; set; }
+        public long SaleDateTime { get; set; }
+        public long Created { get; set; }
+        public long Modified { get; set; }
+        public long Synced { get; set; }
         public int StockStatus { get; set; }
         public string Status { get; set; }
         public string StatusText { get; set; }

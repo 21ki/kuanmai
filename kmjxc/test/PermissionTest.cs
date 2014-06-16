@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using KM.JXC.BL;
-
 namespace test
 {
     public class PermissionTest
@@ -13,7 +11,7 @@ namespace test
 
         public void SyncPermissionsWithActions()
         {
-            PermissionManagement.SyncPermissionWithAction();
+            //PermissionManagement.SyncPermissionWithAction();
         }
     }
 }

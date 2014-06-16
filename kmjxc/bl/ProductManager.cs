@@ -280,7 +280,28 @@ namespace KM.JXC.BL
                 Product dbProduct=(from pdt in db.Product where pdt.Product_ID==product.ID select pdt).FirstOrDefault<Product>();
                 if (dbProduct == null)
                 {
-                    throw new KMJXCException("此产品不存在");
+                    throw new KMJXCException("您要修改的产品信息不存在");
+                }
+
+                if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID)
+                {
+                    if (dbProduct.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能修改主店铺产品");
+                    }
+
+                    if (dbProduct.Shop_ID == this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能其他主店铺产品");
+                    }
+                }
+                else
+                {
+                    int[] child_shops=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                    if (dbProduct.Shop_ID != this.Main_Shop.Shop_ID && !child_shops.Contains(dbProduct.Shop_ID))
+                    {
+                        throw new KMJXCException("您无法修改其他店铺的产品，只能修改主店铺或者子店铺产品");
+                    }
                 }
 
                 dbProduct.Name = product.Title;

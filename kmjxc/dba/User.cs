@@ -24,8 +24,8 @@ namespace KM.JXC.DBA
         public string Password { get; set; }
         public Nullable<int> Parent_User_ID { get; set; }
         public int Shop_ID { get; set; }
-        public Nullable<int> Created { get; set; }
-        public Nullable<int> Modified { get; set; }
+        public Nullable<long> Created { get; set; }
+        public Nullable<long> Modified { get; set; }
         public Nullable<int> Modified_By { get; set; }
     }
 }

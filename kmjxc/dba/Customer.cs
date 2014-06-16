@@ -16,13 +16,14 @@ namespace KM.JXC.DBA
     {
         public int Customer_ID { get; set; }
         public int Mall_Type_ID { get; set; }
+        public string Mall_ID { get; set; }
+        public string Mall_Name { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Address { get; set; }
         public Nullable<int> City_ID { get; set; }
         public Nullable<int> Province_ID { get; set; }
-        public string Mall_ID { get; set; }
-        public string Mall_Name { get; set; }
+        public long Created { get; set; }
     }
 }

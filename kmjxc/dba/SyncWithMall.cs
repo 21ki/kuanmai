@@ -17,7 +17,7 @@ namespace KM.JXC.DBA
         public int ID { get; set; }
         public int User_ID { get; set; }
         public int Shop_ID { get; set; }
-        public int SyncTime { get; set; }
+        public long SyncTime { get; set; }
         public int SyncType { get; set; }
     }
 }

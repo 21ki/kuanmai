@@ -23,17 +23,7 @@
         });
         obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
                         { title: "名称", width: 250, dataType: "string", dataIndx: "Name", editable: false },
-                        { title: "店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false },
-                        {
-                            title: "主店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false,
-                            render:function(ui){
-                                if (ui.rowData["FromMainShop"] == true) {
-                                    return "是";
-                                } else {
-                                    return "否";
-                                }
-                            }
-                        },
+                        { title: "店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false },                        
                         {
                             title: "地址", width: 250, dataType: "string", dataIndx: "Address", editable: false,
                             render: function (ui) {
@@ -143,25 +133,28 @@
             editform.find("#supplier_remark").val(json.Remark);
             var cityObj = editform.find("#supplier_city");
             if (json.Province != null) {
+               
                 editform.find("#supplier_province").val(json.Province.ID);
                 var pid = json.Province.ID;                
                 cityObj.empty();
                 if (pid != 0) {
                    
                     cityObj.append("<option value=\"0\">--选择--</option>");
-                    buyMgr.GetAreas({ 'parent_id': pid }, function (res) {
-                        $(res).each(function (index, item) {
-                            cityObj.append("<option value=\"" + item.id + "\">" + item.name + "</option>");
-                        });
+                    if (json.Province.ID != json.City.ID) {
+                        buyMgr.GetAreas({ 'parent_id': pid }, function (res) {
+                            $(res).each(function (index, item) {
+                                cityObj.append("<option value=\"" + item.id + "\">" + item.name + "</option>");
+                            });
 
-                        if (json.City != null) {
-                            if (json.Province.ID != json.City.ID) {
-                                cityObj.val(json.City.ID).show();
+                            cityObj.show();
+                            if (json.City != null) {
+                              
+                                cityObj.val(json.City.ID);
                             }
-                        }
-
-                        cityObj.show();
-                    });
+                        });
+                    } else {
+                        editform.find$("#supplier_city").hide();
+                    }
                     
                 } else {
                     cityObj.hide();
@@ -271,8 +264,10 @@
                     editform.find('#supplier_province').append("<option value=\"0\">--选择--</option>");
                     $(provJsons).each(function (index, item) {
                         editform.find('#supplier_province').append("<option value=\"" + item.id + "\">" + item.name + "</option>");
+                       
                     });
                     FillSupplierData(row);
+                    
                 },
                 resizable: false,
                 title: title,
@@ -317,7 +312,7 @@
                 return rowIndx;
             }
             else {
-                alert("请选择一行");
+                alert("请选择一条供应商数据进行编辑");
                 return null;
             }
         }

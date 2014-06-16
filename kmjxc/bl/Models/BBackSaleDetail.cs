@@ -17,7 +17,7 @@ namespace KM.JXC.BL.Models
         public double Price { get; set; }
         public int Status { get; set; }
         public string Description { get; set; }
-        public int Created { get; set; }
+        public long Created { get; set; }
         public BBackSale BackSale { get; set; }
         public double Amount { get; set; }
         public string Order_ID { get; set; }

@@ -71,8 +71,8 @@ namespace KM.JXC.Web.Controllers
             SalesManager saleManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
             int total = 0;
-            int sTime = 0;
-            int eTime = 0;
+            long sTime = 0;
+            long eTime = 0;
             if (sDate != DateTime.MinValue)
             {
                 sTime = DateTimeUtil.ConvertDateTimeToInt(sDate);

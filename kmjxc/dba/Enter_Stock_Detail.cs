@@ -21,6 +21,6 @@ namespace KM.JXC.DBA
         public Nullable<bool> Have_Invoice { get; set; }
         public string Invoice_Num { get; set; }
         public Nullable<double> Invoice_Amount { get; set; }
-        public Nullable<int> Create_Date { get; set; }
+        public long Create_Date { get; set; }
     }
 }

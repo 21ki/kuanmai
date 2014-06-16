@@ -16,13 +16,13 @@ namespace KM.JXC.DBA
     {
         public int Leave_Stock_ID { get; set; }
         public int Product_ID { get; set; }
+        public string Order_ID { get; set; }
         public int Parent_Product_ID { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
+        public double Amount { get; set; }
         public int StoreHouse_ID { get; set; }
         public string Message { get; set; }
-        public double Amount { get; set; }
-        public string Order_ID { get; set; }
         public int Status { get; set; }
     }
 }

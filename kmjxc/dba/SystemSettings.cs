@@ -14,8 +14,8 @@ namespace KM.JXC.DBA
     
     public partial class SystemSettings
     {
-        public int MallProductSyncTimes { get; set; }
-        public int MallTradeSyncTimes { get; set; }
+        public long MallProductSyncTimes { get; set; }
+        public long MallTradeSyncTimes { get; set; }
         public int Type { get; set; }
     }
 }

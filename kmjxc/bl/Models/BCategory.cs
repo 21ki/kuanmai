@@ -8,7 +8,6 @@ namespace KM.JXC.BL.Models
 {
     public class BCategory:BModel
     {
-        public int ID { get; set; }
         public string Mall_ID { get; set; }
         public string Mall_PID { get; set; }
         public string Name { get; set; }

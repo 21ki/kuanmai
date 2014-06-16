@@ -10,9 +10,9 @@ namespace KM.JXC.BL.Models
     {
         public BShop Parent { get; set; }
         public BShop Child { get; set; }
-        public int Created { get; set; }
+        public long Created { get; set; }
         public BUser Created_By { get; set; }
-        public int Modified { get; set; }
+        public long Modified { get; set; }
         public BUser Modified_By { get; set; }
         public int Status { get; set; }
     }

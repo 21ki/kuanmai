@@ -5,7 +5,9 @@ pre {border:1px solid grey; background:#EFE4B0; padding:10px;}
 span.em { font-style:italic; text-decoration:underline;}
 
 #res, #res2 {margin-top:20px}
-
+table.pivot {
+    font-size:12px;
+}
 table.pivot ul {list-style-image:none; list-style-type:none; }
 
 table.pivot {border-collapse : collapse;border : solid 1px #aaaaaa;text-align : right;}

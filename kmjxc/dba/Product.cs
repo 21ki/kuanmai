@@ -17,17 +17,17 @@ namespace KM.JXC.DBA
         public int Product_ID { get; set; }
         public int Product_Class_ID { get; set; }
         public string Name { get; set; }
-        public decimal Price { get; set; }
+        public string Description { get; set; }
+        public double Price { get; set; }
         public int User_ID { get; set; }
         public long Create_Time { get; set; }
-        public int Product_Unit_ID { get; set; }
+        public Nullable<int> Product_Unit_ID { get; set; }
         public int Shop_ID { get; set; }
         public int Parent_ID { get; set; }
         public string Code { get; set; }
-        public string Description { get; set; }
-        public Nullable<int> Update_Time { get; set; }
-        public Nullable<int> Update_User_ID { get; set; }
-        public Nullable<int> Quantity { get; set; }
+        public long Update_Time { get; set; }
+        public int Update_User_ID { get; set; }
+        public int Quantity { get; set; }
         public int Wastage { get; set; }
     }
 }

@@ -27,7 +27,7 @@ namespace KM.JXC.Web.Controllers.api
             string user_id = User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
-            ReportFactory stockManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            ReportFactory reportManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int stime = 0;
             int etime = 0;
             int page = 1;
@@ -55,7 +55,7 @@ namespace KM.JXC.Web.Controllers.api
                 pageSize = 50;
             }
 
-            string json = stockManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, true, false);
+            string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, true, false);
             data.totalRecords = totalProducts;
             data.data = JArray.Parse(json);
             data.curPage = page;

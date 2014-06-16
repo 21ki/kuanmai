@@ -9,7 +9,6 @@ namespace KM.JXC.BL.Models
 {
     public class BBuy:BModel
     {
-        public int ID { get; set; }
         public long ComeDate { get; set; }
         public long Created { get; set; }
         public string Description { get; set; }

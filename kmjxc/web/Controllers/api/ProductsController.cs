@@ -379,13 +379,13 @@ namespace KM.JXC.Web.Controllers.api
                 order.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 order.Created_By = new BUser() { ID = buyManager.CurrentUser.ID };
                 order.Description = desc;
-                order.EndTime = enddate;
-                order.InsureTime = issuedate;
+                order.EndTime = (Int32)enddate;
+                order.InsureTime = (Int32)issuedate;
                 order.OrderUser = new BUser() { ID=order_user};
                 order.Shop = new BShop() { ID=buyManager.Shop.Shop_ID};
                 order.Status = 0;
                 order.Supplier = new Supplier() {  Supplier_ID=supplier_id};
-                order.WriteTime = writedate;
+                order.WriteTime = (Int32)writedate;
                 if (!string.IsNullOrEmpty(odetails))
                 {
                     order.Details = new List<BBuyOrderDetail>();

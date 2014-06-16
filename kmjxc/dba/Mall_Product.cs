@@ -20,11 +20,11 @@ namespace KM.JXC.DBA
         public Nullable<double> Price { get; set; }
         public Nullable<int> Quantity { get; set; }
         public string Description { get; set; }
-        public Nullable<int> Created { get; set; }
-        public Nullable<int> Synced { get; set; }
+        public Nullable<long> Created { get; set; }
+        public Nullable<long> Synced { get; set; }
         public int Shop_ID { get; set; }
         public string PicUrl { get; set; }
-        public Nullable<int> Modified { get; set; }
+        public Nullable<long> Modified { get; set; }
         public Nullable<bool> Show { get; set; }
     }
 }

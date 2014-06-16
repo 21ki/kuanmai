@@ -269,7 +269,7 @@ namespace KM.JXC.BL
                     Access_Token local_token = GetLocalToken(requester.ID, this.Mall_Type_ID);
                     if (local_token != null)
                     {
-                        int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
 
                         //last access token is expried
                         if (timeNow >= local_token.Expirse_In + local_token.Request_Time)
@@ -315,7 +315,7 @@ namespace KM.JXC.BL
             token = this.GetLocalToken(loginUser.ID, this.Mall_Type_ID);
             if (token != null)
             {
-                int timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
 
                 //last access token is expried
                 if (timeNow >= token.Expirse_In + token.Request_Time)
