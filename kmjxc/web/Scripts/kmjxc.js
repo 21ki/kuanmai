@@ -13,7 +13,7 @@
         }
         var val = Date.parse(str);
         var newDate = new Date(val);
-        return newDate.getTime();
+        return newDate.getTime()/1000;
     }
 });
 
@@ -279,7 +279,8 @@ function KMJXCBase() {
             totalPage = total / pageSize + 1;
         }
         var buffer = [];
-        for (var i = 1; i < totalPage; i++) {
+        
+        for (var i = 1; i <= totalPage; i++) {
 
             if (i != page) {
                 buffer.push("<a class=\"" + pageClass + "\" href=\"javascript:void(0)\" onclick=\"" + ajaxFun + "(" + i + ")\">" + i + "</a>");
@@ -500,6 +501,9 @@ function KMJXCShopManager() {
     }
     this.SyncMallSoldProducts = function (params, callback) {
         this.AjaxCall("/api/Shop/SyncMallSoldProducts", params, callback);
+    }
+    this.SearchOnSaleProducts = function (params, callback) {
+        this.AjaxCall("/api/Shop/SearchOnSaleProducts", params, callback);
     }
 }
 

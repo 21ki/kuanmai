@@ -5,10 +5,11 @@
 <script>
     var reportManager = new KMJXCReportManager();
     var productMgr = new KMJXCProductManager();
+    var shopMgr = new KMJXCShopManager();
     var paged = false;
-    var pageSize=50;
+    var pageSize=1;
     var pageHtml;
-    var productsPageSize = 30;
+    var productsPageSize = 15;
     var selectedProducts = [];
     $(function () {
         $('#tabs').tabs();
@@ -38,7 +39,20 @@
                            $ul.html("");
                            for (var i = 0; i < selectedProducts.length; i++) {
                                //alert(selectedProducts[i].name);
-                               $("<li>" + selectedProducts[i].name + "</li>").appendTo($ul);
+                               var $li = $("<li></li>").appendTo($ul);
+                               $("<span style=\"display:inline-block\">" + selectedProducts[i].name + "</span>").appendTo($li);
+                               var $removeSpan = $("<span style=\"display:inline-block;float:right;margin-right:2px;\"></span>").appendTo($li);
+                               $("<img value=\"" + selectedProducts[i].id + "\" style=\"\" src=\"/Content/images/remove.gif\"/>").appendTo($removeSpan).click(function () {
+                                   var id = $(this).attr("value");
+                                   var tmp = [];
+                                   for (var i = 0; i < selectedProducts.length; i++) {
+                                       if (selectedProducts[i].id != id) {
+                                           tmp.push(selectedProducts[i]);
+                                       }
+                                   }
+                                   selectedProducts = tmp;
+                                   $(this).parent().parent().remove();
+                               });
                            }
                            $ul.show();
                            $(this).dialog("close");
@@ -72,12 +86,21 @@
             changeYear: true,
             buttonImageOnly: true,
         });
+
+        $('#rpt_EnablePaging').change(function () {
+            var checked = $(this).attr('checked');
+            if (checked == "checked") {
+                $('#rpt_PageSizeDiv').show();
+            } else {
+                $('#rpt_PageSizeDiv').hide();
+            }
+        });
     });
 
     function getProducts(page) {
         new ShowProgress("loadingProductPro", function () { }, "正在加载产品，请耐性等待...");
         Boxy.get($('#loadingProductPro')).show();
-        productMgr.SearchProducts({ 'page': page, 'pageSize': productsPageSize }, function (res) {
+        shopMgr.SearchOnSaleProducts({ 'page': page, 'pageSize': productsPageSize }, function (res) {
             Boxy.get($('#loadingProductPro')).hide();
             var total = res.totalRecords;
             var data = res.data;
@@ -141,7 +164,8 @@
 
                         selectedProducts = tmp;
                     });
-                    $("<span>" + item.Title + "</span>").appendTo($li);
+                    $("<span style=\"display:inline-block;\">" + item.Title + "</span>").appendTo($li);
+                   
                 });
 
                 $ul.show();
@@ -167,19 +191,37 @@
             }
         }
         
-        reportManager.GetSalesReport({'stime':sdate,'etime':edate,'products':pdtIds}, function (res) {
+        var isPaging = 0;
+        var paging = $('#rpt_EnablePaging').attr('checked');
+        if (paging=='checked') {
+            var ps = $('#rpt_PageSize').val();
+            if (isNaN(ps)) {
+                alert("每页显示必须为整数");
+                return;
+            } else {
+                pageSize = ps;
+            }
+
+            if (pageSize == 0) {
+                pageSize = 30;
+                $('#rpt_PageSize').val(30);
+            }
+
+            isPaging = 1;
+        }
+
+        reportManager.GetSalesReport({ 'stime': sdate, 'etime': edate, 'products': pdtIds, 'page': page, 'pageSize': pageSize, 'paging': isPaging }, function (res) {
             $('#rptPivot').html("");
             var row = res.data;
             if (row == null || row.length == 0) {
                 return;
             }
-
-            if (!paged) {
-                pageHtml = reportManager.Pager({ 'page': page, 'total': res.totalRecords, 'pageSize': pageSize, 'fun': generateReports });
-                paged = true;
-                if (pageHtml != '') {
-                    $('#rptPivotPager').html(pageHtml);
-                }
+           
+            pageHtml = reportManager.Pager({ 'page': page, 'total': res.totalRecords, 'pageSize': pageSize, 'fun': 'generateReports' }, "spn", "pn");
+            if (pageHtml != "") {
+                $('#rptPivotPager').html(pageHtml).show();
+            } else {
+                $('#rptPivotPager').html("").hide();
             }
 
             var JSONdata = {
@@ -218,26 +260,29 @@
     <div id="reports">  
         <div id="rptFilter" style="padding-bottom:10px;">
             <div class="rowS"><label>时间范围:</label><input id="rpt_StartDate" class="W_input" readonly="true"/>  至  <input id="rpt_EndDate" class="W_input" readonly="true"/></div>
+            <div class="rowS"><label>是否分页:</label><input style="margin-right:5px;" id="rpt_EnablePaging" type="checkbox" checked/></div>
+            <div class="rowS" id="rpt_PageSizeDiv"><label>每页显示:</label><input id="rpt_PageSize" class="W_input" style="width:30px;" value="30"/></div>
             <div class="rowS" style="height:auto;">
-                <label style="display:inline-block;float:left;">产品:</label>
+                <label style="display:inline-block;float:left;">产品宝贝:</label>
                 <div style="float:left;">
-                    <span style="display:block;" id="btnSelectProducts">选择产品</span>                                   
+                    <span style="display:block;" id="btnSelectProducts">添加</span>                                   
                 </div>                
             </div>
             <div class="rowS nolabel1"><ul class="ulchk" id="ulSelectedProducts" style="display:none;"></ul></div>
-            <div class="rowS nolabel1"><span id="btnRptSubmit">查看报表</span></div>
+            <div class="rowS nolabel1"><span id="btnRptSubmit">搜索</span></div>
           
         </div>
         <div style="overflow-x:scroll;padding-bottom:5px;"> 
             <div id="rptPivot">
             </div>
+            <div style="display:none;" class="s_title spage pager" id="rptPivotPager"></div>
         </div> 
-        <div id="rptPivotPager"></div>
+        
         <div id="res2"></div>
     </div>
 
     <div id="popup_products" style="display:none;">
-        <h3>选择要生成报表的产品，如果不选则默认生成有销售数据的所有产品</h3>
+        <h3>选择要生成报表的产品，以下为在售宝贝，如果宝贝不存在，请到店铺管理同步在售宝贝</h3>
         <ul class="ulchk" id="ulProductList">
         
         </ul>

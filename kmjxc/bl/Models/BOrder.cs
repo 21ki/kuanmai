@@ -12,6 +12,7 @@ namespace KM.JXC.BL.Models
         public string Order_ID { get; set; }
         public int Product_ID { get; set; }
         public string Mall_PID { get; set; }
+        public string Mall_SkuID { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
         public double Discount { get; set; }

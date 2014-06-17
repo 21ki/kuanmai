@@ -853,4 +853,17 @@ td.tdc {
                 width:100px;
             }
 
+.helpFeatureTitle {
+    padding-top:5px;
+    padding-bottom:5px;
+    font-size:14px;
+   
+}
+.featurecontent {
+    padding-left:15px;
+}
+    .featurecontent .section .head {
+        font-size:13px;
+        display:block;
+    }
         

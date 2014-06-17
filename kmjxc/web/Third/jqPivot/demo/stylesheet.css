@@ -16,7 +16,7 @@ table.pivot td.resultcell, table.pivot .foldunfold{text-decoration : none; curso
 
 table.pivot th, table.pivot td{padding :5px;}
 
-table.pivot tr.head{font-size : larger;text-align : center;border-bottom:1px solid #aaa;}
+table.pivot tr.head{text-align : center;border-bottom:1px solid #aaa;}
 
 table.pivot .total{background-color : #eee;  white-space:nowrap;}
 
@@ -30,7 +30,7 @@ table.pivot td.total.total1{border-left : none;}
 
 table.pivot tr.head th.groupby{background-color : #ddd;}
 
-table.pivot tr.head th.pivotcol{background-color : #eee;font-size : smaller;border : solid 1px #aaa;}
+table.pivot tr.head th.pivotcol{background-color : #eee;border : solid 1px #aaa;}
 
 table.pivot th.groupby{text-align:left;font-weight : normal;}
 

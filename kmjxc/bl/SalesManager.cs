@@ -65,7 +65,8 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// The back sales won't be created while the sales don't has corresponding leave stocks
+        /// Example:Customers refounded before expressed
         /// </summary>
         /// <param name="trades"></param>
         private void HandleBackTrades(List<BSale> trades)
@@ -134,13 +135,15 @@ namespace KM.JXC.BL
                             }
 
                             Back_Sale_Detail dbSaleDetail = (from bsd in back_Sale_Details where bsd.Order_ID==order.Order_ID select bsd).FirstOrDefault<Back_Sale_Detail>();
-                            if (dbSaleDetail == null)
+                            Leave_Stock_Detail dbLeaveStockDetail=(from dblsd in leave_stock_Details where dblsd.Order_ID==order.Order_ID select dblsd).FirstOrDefault<Leave_Stock_Detail>();
+                            //no need to create back sale detail while no leave stock detail
+                            if (dbSaleDetail == null && dbLeaveStockDetail!=null)
                             {                                
                                 dbSaleDetail = new Back_Sale_Detail();
                                 dbSaleDetail.Order_ID = order.Order_ID;
                                 dbSaleDetail.Back_Sale_ID = bSale.Back_Sale_ID;
                                 dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                                dbSaleDetail.Description = "同步商城订单时处理有退货的订单";
+                                dbSaleDetail.Description = "同步商城订单时处理有退货的订单(有出库单详细信息)";
                                 dbSaleDetail.Parent_Product_ID = order.Parent_Product_ID;
                                 dbSaleDetail.Price = order.Price;
                                 dbSaleDetail.Product_ID = order.Product_ID;
@@ -167,7 +170,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// The leave stocks won't be created while orders products are not mapped with local products
         /// </summary>
         /// <param name="trades"></param>
         private void CreateLeaveStocks(List<BSale> trades)
@@ -211,20 +214,12 @@ namespace KM.JXC.BL
                     dbStock.Leave_Stock_ID = 0;
                     dbStock.Sale_ID = trade.Sale_ID;
                     dbStock.Shop_ID = this.Shop.Shop_ID;
-                    dbStock.User_ID = this.CurrentUser.ID;
-                    if (isNew)
-                    {
-                        db.Leave_Stock.Add(dbStock);
-                        db.SaveChanges();
-                    }
-
-                    if (dbStock.Leave_Stock_ID <= 0)
-                    {
-                        throw new KMJXCException("出库单创建失败");
-                    }
+                    dbStock.User_ID = this.CurrentUser.ID;  
 
                     if (trade.Orders != null)
                     {
+                        List<Leave_Stock_Detail> dbLDetails = new List<Leave_Stock_Detail>();
+                        #region handle sale orders
                         foreach (BOrder order in trade.Orders)
                         {
                             Product parentPdt = (from pdt in allproducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
@@ -240,6 +235,12 @@ namespace KM.JXC.BL
                                 {
                                     order.Parent_Product_ID = childPdt.Parent_ID;
                                 }
+                            }
+
+                            //no need to create leave stock while the mall product is not mapped with local product
+                            if (order.Product_ID == 0 && order.Parent_Product_ID == 0)
+                            {
+                                continue;
                             }
 
                             Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
@@ -300,8 +301,25 @@ namespace KM.JXC.BL
                                     product.Quantity = product.Quantity - order.Quantity;
                                 }
                                 dbDetail.Order_ID = order.Order_ID;
-                                db.Leave_Stock_Detail.Add(dbDetail);
-                            }  
+                                dbLDetails.Add(dbDetail);
+                                //db.Leave_Stock_Detail.Add(dbDetail);
+                            }
+                        }
+                        #endregion
+
+                        if (isNew && dbLDetails.Count>0)
+                        {
+                            db.Leave_Stock.Add(dbStock);
+                            db.SaveChanges();
+                            foreach (Leave_Stock_Detail d in dbLDetails)
+                            {
+                                if (d.Leave_Stock_ID == 0)
+                                {
+                                    d.Leave_Stock_ID = dbStock.Leave_Stock_ID;
+                                }
+
+                                db.Leave_Stock_Detail.Add(d);
+                            }
                         }
                     }
                 }
@@ -391,6 +409,10 @@ namespace KM.JXC.BL
             return result;
         }
 
+        /// <summary>
+        /// Handle sales synchronized from mall including creating leave stocks and handle refounded trades which already synchronized before.
+        /// </summary>
+        /// <param name="allSales"></param>
         private void HandleMallTrades(List<BSale> allSales)
         {
             if (allSales == null)
@@ -595,6 +617,7 @@ namespace KM.JXC.BL
                                 sd.Status1 = order.Status1;
                                 sd.StockStatus = 0;
                                 sd.Mall_PID = order.Mall_PID;
+                                sd.Mall_SkuID = order.Mall_SkuID;
                                 sd.Supplier_ID = 0;
                                 db.Sale_Detail.Add(sd);
                             }

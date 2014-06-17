@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace KM.JXC.Web.Controllers
 {
+    [AllowAnonymous]
     public class CorpController : Controller
     {
         public ActionResult About()

@@ -641,7 +641,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Gets full local product information
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
@@ -728,7 +728,10 @@ namespace KM.JXC.BL
             return product;
         }
 
-        public void SyncOnSaleMallProduct()
+        /// <summary>
+        /// Synchronize mall products to local system
+        /// </summary>
+        public void SyncOnSaleMallProducts()
         {
             using (KuanMaiEntities db = new KuanMaiEntities())
             {

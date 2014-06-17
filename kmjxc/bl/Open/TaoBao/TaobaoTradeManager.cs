@@ -564,6 +564,7 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                             order.Order_ID = o.Oid.ToString();
                             order.Mall_PID = o.NumIid.ToString();
+                            order.Mall_SkuID = o.SkuId.ToString();
                             order.ImageUrl = "";
                             if (!string.IsNullOrEmpty(o.PicPath))
                             {

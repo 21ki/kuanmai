@@ -2,11 +2,22 @@
     string controller = ViewContext.RouteData.Values["controller"].ToString();
     string action = ViewContext.RouteData.Values["action"].ToString();
     string modelStyle = "";
-    string menuStyle = "class=link";
-    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
-    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
-    KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    KM.JXC.DBA.Shop CurrentShop = null;
+    if (ViewData["CurrentShop"]!=null)
+    {
+        CurrentShop=(KM.JXC.DBA.Shop)ViewData["CurrentShop"];
     }
+    KM.JXC.DBA.Shop MainShop = null;
+    if (ViewData["MainShop"]!=null)
+    {
+        MainShop=(KM.JXC.DBA.Shop)ViewData["MainShop"];
+    }
+    KM.JXC.BL.Models.BUser CurrentUser = null;
+    if (ViewData["CurrentUser"]!=null)
+    {
+        CurrentUser=(KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    }
+}
 
 <!DOCTYPE html>
 
@@ -20,20 +31,14 @@
     <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
     <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
     <link href="/Third/boxy/boxy.css" rel="stylesheet">
-
-    <link href="/Third/jqPivot/demo/stylesheet.css" rel="stylesheet" type="text/css" />
-  
-
-    @Styles.Render("~/Content/css")
-
-    <script src="/Third/jqPivot/tools/highlight.js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-    @*<script src="/Third/jqPivot/tools/jquery.min.js"></script>*@
+    @Styles.Render("~/Content/css")   
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")   
     @Scripts.Render("~/bundles/kmjxc")
     @Scripts.Render("~/Third/pqgrid")
     @Scripts.Render("~/Third/kindeditor")
+
+    <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
     <script>
         $(function () {
             $(".jxcLeftMenu").accordion();
@@ -43,13 +48,20 @@
 </head>
 <body>
    <div class="jxcMain">
-       当前登录用户:@CurrentUser.Mall_Name <br/>
-       当前用户所在主店铺:@MainShop.Name
+       @if(CurrentUser!=null)
+       {
+           @Html.Raw("当前登录用户:"+CurrentUser.Mall_Name+"<br/>")
+       }
+
+       @if(MainShop!=null)
+       {
+           @Html.Raw("当前用户所在主店铺:"+MainShop.Name)
+       }
    </div>
    <div class="jxcMain">       
        <div class="jxcLeftMenu">
 
-            <h3 class="menu_wd1">系统相关</h3>
+            <h3 class="menu_wd1">帮助中心</h3>
            
            <div id="buyMenuContainer"
                @if (controller != "Corp")
@@ -84,7 +96,7 @@
                        
                        >联系我们</a></li>
                    <li><a href="/Corp/Help"
-                       @if (action == "Suppliers")
+                       @if (action == "Help")
                        {
                            @Html.Raw("class=links");
                        }
@@ -94,7 +106,7 @@
                        }  
                        >使用帮助</a></li>   
                     <li><a href="/Corp/Bug"
-                       @if (action == "Suppliers")
+                       @if (action == "Bug")
                        {
                            @Html.Raw("class=links");
                        }
@@ -103,8 +115,8 @@
                            @Html.Raw("class=link");
                        }  
                        >缺陷报告</a></li>  
-                    <li><a href="/Corp/Blog"
-                       @if (action == "Suppliers")
+                   @* <li><a href="/Corp/Blog"
+                       @if (action == "Blog")
                        {
                            @Html.Raw("class=links");
                        }
@@ -112,7 +124,7 @@
                        {
                            @Html.Raw("class=link");
                        }  
-                       >Blog</a></li>               
+                       >Blog</a></li>      *@         
                </ul>
            </div>
 
@@ -121,7 +133,7 @@
         @RenderBody()
        </div>
        <div class="jxcfoot">
-            <a class="item" href="/Corp/About">关于我们</a>  <a class="item" href="/Corp/Contact">联系我们</a>  <a class="item" href="/Corp/Help">使用帮助</a> <a class="item" href="/Corp/Bug">缺陷报告</a> <a class="item" href="/Corp/Blog">Blog</a>
+            <a class="item" href="/Corp/About">关于我们</a>  <a class="item" href="/Corp/Contact">联系我们</a>  <a class="item" href="/Corp/Help">使用帮助</a> <a class="item" href="/Corp/Bug">缺陷报告</a> @*<a class="item" href="/Corp/Blog">Blog</a>*@
     </div>
     </div>
 </body>

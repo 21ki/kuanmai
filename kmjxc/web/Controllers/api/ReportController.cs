@@ -33,8 +33,8 @@ namespace KM.JXC.Web.Controllers.api
             int page = 1;
             int pageSize = 50;
             int totalProducts = 0;
-            int[] product_id = null;
-
+            string[] product_id = null;
+            bool paging = false;
             long.TryParse(request["stime"], out stime);
             long.TryParse(request["etime"], out etime);
             int.TryParse(request["page"],out page);
@@ -42,7 +42,7 @@ namespace KM.JXC.Web.Controllers.api
 
             if (!string.IsNullOrEmpty(request["products"]))
             {
-                product_id = base.ConvertToIntArrar(request["products"]);
+                product_id = request["products"].Split(',');
             }
 
             if (page <= 0)
@@ -54,8 +54,15 @@ namespace KM.JXC.Web.Controllers.api
             {
                 pageSize = 50;
             }
-
-            string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, true, false);
+            if (!string.IsNullOrEmpty(request["paging"]) && request["paging"] == "1")
+            {
+                paging = true;
+            }
+            else
+            {
+                paging = false;
+            }
+            string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, paging, false);
             data.totalRecords = totalProducts;
             if (!string.IsNullOrEmpty(json))
             {

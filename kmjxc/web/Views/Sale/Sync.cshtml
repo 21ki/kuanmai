@@ -49,6 +49,7 @@
             var year = 0;
             var month = 0;
             var day = 0;
+            
             if (res != null) {
                 //alert(tradeMger.GetDateTime(res.LastTradeStartEndTime));
                 stime = new Date(res.LastTradeStartEndTime * 1000);
@@ -62,8 +63,9 @@
             }
 
             year = stime.getFullYear();
-            month = (stime.getMonth() + 1) > 10 ? (stime.getMonth() + 1) : "0" + (stime.getMonth() + 1).toString();
-            day = stime.getDate() > 10 ? stime.getDate() : "0" + stime.getDate().toString();
+            
+            month = (stime.getMonth() + 1) >= 10 ? (stime.getMonth() + 1) : "0" + (stime.getMonth() + 1).toString();           
+            day = stime.getDate() >= 10 ? stime.getDate() : "0" + stime.getDate().toString();
 
             $syncForm.find('#trade_sdate').val(year + "-" + month + "-" + day);
             $syncForm.find('#trade_sdate_hour').val(stime.getHours());

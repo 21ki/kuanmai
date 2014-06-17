@@ -487,13 +487,59 @@ namespace KM.JXC.Web.Controllers.api
                 message.Status = "failed";
                 message.Message = kex.Message;
             }
-            catch
+            catch(Exception ex)
             {
             }
             finally
             {
             }
             return message;
+        }
+
+        [HttpPost]
+        public PQGridData SearchOnSaleProducts()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            int total = 0;
+            int page = 1;
+            int pageSize = 30;
+            bool? connected = null;
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            if (request["connected"] != null)
+            {
+                if (request["connected"] == "1")
+                {
+                    connected = true;
+                }
+                else if (request["connected"] == "0")
+                {
+                    connected = false;
+                }
+            }
+
+            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(page, pageSize, out total, connected);
+            data.data = products;
+            data.curPage = page;
+            data.totalRecords = total;
+            return data;
         }
     }
 }

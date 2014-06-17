@@ -1,6 +1,20 @@
 ﻿@{
-    ViewBag.Title = "Bug";
+    ViewBag.Title = "缺陷报告";
     Layout = "~/Views/Shared/master_corp.cshtml";
 }
 
-<h2>Bug</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#bugList">缺陷报告</a></li>
+    </ul>
+    <div id="bugList">
+        
+    </div>
+</div>
+

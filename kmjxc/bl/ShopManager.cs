@@ -383,7 +383,7 @@ namespace KM.JXC.BL
                                   Type = mtype,
                               }
                           };
-                tmp = tmp.OrderBy(c => c.ID);
+                tmp = tmp.OrderBy(c => c.Shop.ID);
                 totalRecords = tmp.Count();
                 if (totalRecords > 0)
                 {
@@ -1207,6 +1207,15 @@ namespace KM.JXC.BL
             return newProducts;
         }
 
+        /// <summary>
+        /// Search on sale products
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="total"></param>
+        /// <param name="connected"></param>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
         public List<BMallProduct> SearchOnSaleMallProducts(int page, int pageSize, out int total,bool? connected=null, int shop_id = 0)
         {
             List<BMallProduct> products = new List<BMallProduct>();

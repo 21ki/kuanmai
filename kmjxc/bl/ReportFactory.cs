@@ -21,6 +21,7 @@ namespace KM.JXC.BL
         {
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -28,7 +29,7 @@ namespace KM.JXC.BL
         /// <param name="endDate"></param>
         /// <param name="product_id"></param>
         /// <returns></returns>
-        public string GetSalesReport(long startDate, long endDate, int[] product_id, int page, int pageSize, out int totalProducts, bool paging = true, bool includeNoSales = false)
+        public string GetSalesReport(long startDate, long endDate, string[] product_id, int page, int pageSize, out int totalProducts, bool paging = true, bool includeNoSales = false)
         {
             totalProducts = 0;
             StringBuilder json = new StringBuilder("[");
@@ -48,25 +49,27 @@ namespace KM.JXC.BL
                 var sales = from s in db.Sale
                             select s;
                 int[] childShops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
-                List<Product> products=null;
-                var tmpProducts = from p in db.Product orderby p.Product_ID ascending
-                                  where (p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(p.Shop_ID)) && p.Parent_ID == 0
+                List<Mall_Product> products=null;
+                List<Product> localProducts = (from lp in db.Product
+                                               where (lp.Shop_ID == this.Shop.Shop_ID || lp.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(lp.Shop_ID))
+                                               select lp).ToList<Product>();
+                var tmpProducts = from p in db.Mall_Product orderby p.Mall_ID ascending
+                                  where (p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(p.Shop_ID))
                                   select p;
 
                 if (product_id != null && product_id.Length > 0)
                 {
-                    tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Product_ID));                    
+                    tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Mall_ID));                    
                 }
 
-                tmpProducts = tmpProducts.Skip((page - 1) * pageSize).Take(pageSize);
-                products = tmpProducts.ToList<Product>();
-                int[] product_ids=(from p in products select p.Product_ID).ToArray<int>();
-                int[] child_product_ids = (from p in db.Product where product_ids.Contains(p.Parent_ID) select p.Product_ID).ToArray<int>();
-
+                
+               
+                int[] local_product_ids = (from p in localProducts select p.Product_ID).ToArray<int>();               
+                int [] local_child_product_ids=(from p in db.Product where local_product_ids.Contains(p.Parent_ID) select p.Product_ID).ToArray<int>();
                 List<BProductProperty> childs = (from prop in db.Product_Specifications
                                                  join ps in db.Product_Spec on prop.Product_Spec_ID equals ps.Product_Spec_ID
                                                  join psv in db.Product_Spec_Value on prop.Product_Spec_Value_ID equals psv.Product_Spec_Value_ID
-                                                 where child_product_ids.Contains(prop.Product_ID)
+                                                 where local_child_product_ids.Contains(prop.Product_ID)
                                                  select new BProductProperty
                                                  {
                                                      ProductID = prop.Product_ID,
@@ -75,6 +78,8 @@ namespace KM.JXC.BL
                                                      PVID = prop.Product_Spec_Value_ID,
                                                      PValue = psv.Name
                                                  }).ToList<BProductProperty>();
+
+                
 
                 if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                 {                       
@@ -95,8 +100,25 @@ namespace KM.JXC.BL
                     sales = sales.Where(s => s.Created < endDate);
                 }
 
-                var saleids=from s in sales select s.Mall_Trade_ID;
-                tmp = tmp.Where(s => saleids.Contains(s.Mall_Trade_ID)).Where(s => (product_ids.Contains(s.Product_ID) || product_ids.Contains(s.Parent_Product_ID)));
+                string[] saleids=(from s in sales select s.Mall_Trade_ID).ToArray<string>();
+                string[] mallSoldProducts= (from msp in db.Sale_Detail where saleids.Contains(msp.Mall_Trade_ID) select msp.Mall_PID).Distinct().ToArray<string>();
+                if (mallSoldProducts != null && mallSoldProducts.Length>0)
+                {
+                    tmpProducts = tmpProducts.Where(mp => mallSoldProducts.Contains(mp.Mall_ID));
+                }
+                
+                totalProducts = tmpProducts.Count();
+                if (paging)
+                {
+                    tmpProducts = tmpProducts.Skip((page - 1) * pageSize).Take(pageSize);
+                }
+                products = tmpProducts.ToList<Mall_Product>();
+                string[] product_ids = (from p in products select p.Mall_ID).ToArray<string>();
+                string[] child_product_ids = (from p in db.Mall_Product_Sku where product_ids.Contains(p.Mall_ID) select p.SKU_ID).ToArray<string>();
+                List<Mall_Product_Sku> skus = (from sku in db.Mall_Product_Sku where child_product_ids.Contains(sku.SKU_ID) select sku).ToList<Mall_Product_Sku>();
+
+                
+                tmp = tmp.Where(s => saleids.Contains(s.Mall_Trade_ID)).Where(s => (product_ids.Contains(s.Mall_PID)));
 
                 var saleObj = from saled in tmp
                               join sale in db.Sale on saled.Mall_Trade_ID equals sale.Mall_Trade_ID into lSale
@@ -108,7 +130,9 @@ namespace KM.JXC.BL
                                   Amount=saled.Amount,
                                   ProductID=saled.Product_ID,
                                   ParentProductID=saled.Parent_Product_ID,
-                                  ShopId=l_sale.Shop_ID
+                                  ShopId=l_sale.Shop_ID,
+                                  MallSkuID=saled.Mall_SkuID,
+                                  MallPID=saled.Mall_PID
                               };
 
                 saleObj = saleObj.OrderBy(s => s.Created);
@@ -116,14 +140,14 @@ namespace KM.JXC.BL
                 int total = saleObj.Count();
                 int count = 1;
                 bool firstRow = true;
-                foreach (Product pdt in products)
+                foreach (Mall_Product pdt in products)
                 {
-                    var items = from sd in saleObj where sd.ProductID == pdt.Product_ID || sd.ParentProductID == pdt.Product_ID select sd;
+                    var items = from sd in saleObj where sd.MallPID == pdt.Mall_ID select sd;
                     if (items.Count() == 0)
                     {
                         if (includeNoSales)
                         {
-                            string jobj = "{\"ProductName\":\"" + pdt.Name + "\",\"PropName\":\"\",\"ShopName\":\"\",\"Month\":\"\",\"Quantity\":\"0\",\"Amount\":\"0\"}";
+                            string jobj = "{\"ProductName\":\"" + pdt.Title + "\",\"PropName\":\"\",\"ShopName\":\"\",\"Month\":\"\",\"Quantity\":\"0\",\"Amount\":\"0\"}";
                             if (firstRow)
                             {
                                 firstRow = false;
@@ -139,17 +163,20 @@ namespace KM.JXC.BL
                     foreach (var item in items)
                     {
                         string productName = "";
-                        if (item.ParentProductID > 0)
+                        Mall_Product mpdt=(from p in products where p.Mall_ID==item.MallPID select p).FirstOrDefault<Mall_Product>();
+                        Product locpdt=(from p in localProducts where p.Product_ID==item.ParentProductID select p).FirstOrDefault<Product>();
+                        if (locpdt != null)
                         {
-                            productName = (from p in products where p.Product_ID == item.ParentProductID select p.Name).FirstOrDefault<string>();
+                            productName = locpdt.Name;
                         }
-                        else
+                        else 
                         {
-                            productName = (from p in products where p.Product_ID == item.ProductID select p.Name).FirstOrDefault<string>();
+                            productName = "未关联";
                         }
-                        if (productName == null)
+
+                        if (mpdt != null)
                         {
-                            productName = "未关联产品：其他";
+                            productName += "("+mpdt.Title+")";
                         }
 
                         string shopName = "";
@@ -168,15 +195,34 @@ namespace KM.JXC.BL
 
                         string propNames = "";
 
-                        foreach (var prop in (from p in childs where p.ProductID == item.ProductID select p))
+                        if (item.ProductID > 0)
                         {
-                            if (propNames == "")
+                            foreach (var prop in (from p in childs where p.ProductID == item.ProductID select p))
                             {
-                                propNames = prop.PName + ":" + prop.PValue;
+                                if (propNames == "")
+                                {
+                                    propNames = prop.PName + ":" + prop.PValue;
+                                }
+                                else
+                                {
+                                    propNames += ";" + prop.PName + ":" + prop.PValue;
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            Mall_Product_Sku sku=(from s in skus where s.Mall_ID==item.MallPID && s.SKU_ID==item.MallSkuID select s).FirstOrDefault<Mall_Product_Sku>();
+                            propNames = sku.Properties_name;
+                            if (sku != null)
                             {
-                                propNames +=" "+ prop.PName + ":" + prop.PValue;
+                                if (!string.IsNullOrEmpty(propNames))
+                                {
+                                     string[] pops = sku.Properties.Split(';');
+                                     foreach (string p in pops)
+                                     {
+                                         propNames = propNames.Replace(p+":","");
+                                     }
+                                }
                             }
                         }
 

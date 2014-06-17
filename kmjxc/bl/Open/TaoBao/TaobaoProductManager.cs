@@ -186,9 +186,17 @@ namespace KM.JXC.BL.Open.TaoBao
                 }
 
                 BMallProduct product = new BMallProduct();
-                product.Created = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Created));
+                if (!string.IsNullOrEmpty(item.Created))
+                {
+                    product.Created = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Created));
+                }
                 product.ID = item.NumIid.ToString();
-                product.Modified = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Modified));
+
+                if (!string.IsNullOrEmpty(item.Modified))
+                {
+                    product.Modified = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(item.Modified));
+                }
+
                 if (!string.IsNullOrEmpty(item.OuterId))
                 {
                     int tmpId = 0;
@@ -201,7 +209,12 @@ namespace KM.JXC.BL.Open.TaoBao
                     product.Price = double.Parse(item.Price);
                 }
                 product.Quantity = item.Num;
-                product.Description = item.Desc;
+
+                if (!string.IsNullOrEmpty(item.Desc))
+                {
+                    product.Description = item.Desc;
+                }
+
                 product.Shop = new BShop { ID=shop.Shop_ID };
                 product.Title = item.Title;
                 if (product.Skus == null)
