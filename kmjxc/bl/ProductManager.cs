@@ -727,33 +727,5 @@ namespace KM.JXC.BL
             }
             return product;
         }
-
-        /// <summary>
-        /// Synchronize mall products to local system
-        /// </summary>
-        public void SyncOnSaleMallProducts()
-        {
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                IOProductManager pdtMgr = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
-                long total = 0;
-                List<BMallProduct> products = pdtMgr.GetOnSaleProducts(this.CurrentUser, this.Shop, 1, 50, out total);
-                foreach (BMallProduct product in products)
-                {
-                    bool isNew = false;
-                    Mall_Product pdt = (from p in db.Mall_Product where p.Mall_ID == product.ID select p).FirstOrDefault<Mall_Product>();
-                    if (pdt == null)
-                    {
-                        pdt = new Mall_Product();
-                        isNew = true;
-                    }
-
-                    if (isNew)
-                    {
-                        db.Mall_Product.Add(pdt);
-                    }
-                }
-            }
-        }
     }
 }

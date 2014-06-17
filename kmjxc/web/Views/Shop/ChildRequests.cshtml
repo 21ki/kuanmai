@@ -182,6 +182,10 @@
             var data = DM.data;
             var row = data[rows[0]];
             var reqId = row["ID"];
+            if (row["Status"] != 0) {
+                alert("已经处理过，不能再次处理");
+                return;
+            }
            
             shopMgr.HandleAddChildRequest({ 'reqId': reqId, 'status': status }, function (res) {
                 if (res.Status == "ok") {

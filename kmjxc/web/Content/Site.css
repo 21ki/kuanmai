@@ -764,7 +764,7 @@ td.tdc {
         font-weight:bold;
     }
 .spanw1 {
-    width:350px;
+    width:300px;
     word-break:break-all;
 }
 .spanw2 {
@@ -772,6 +772,10 @@ td.tdc {
 }
 .spanw3 {
     width:50px;
+}
+
+.spanw4 {
+    width:200px;
 }
 
 .connected {

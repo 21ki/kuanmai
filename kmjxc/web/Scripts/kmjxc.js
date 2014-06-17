@@ -584,7 +584,7 @@ function ShowProgress(keyId, callback, text) {
     if (!text || $.trim(text) == '') {
         text = "正在加载,请耐心等待..........";
     }
-    var loading = "<div style=\"padding-left:50px;padding-right:50px;\" id=\"" + keyId + "\"><span style=\"height:20px;line-height:20px;vertical-align: middle;\"><img style=\"vertical-align: middle;\" src=\"\\Content\\images\\loading.gif\"/> " + text + "</span> </div>";
+    var loading = "<div style=\"padding-left:50px;padding-right:50px;\" id=\"" + keyId + "\"><span style=\"height:20px;line-height:20px;vertical-align: middle;\"><img style=\"vertical-align: middle;\" src=\"/Content/images/loading.gif\"/> " + text + "</span> </div>";
     var call = function (res) { };
     if (callback) {
         call = callback;

@@ -1123,6 +1123,8 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                List<Product> locProducts=(from locPdt in db.Product where locPdt.Shop_ID==this.Shop.Shop_ID select locPdt).ToList<Product>();
+
                 List<Mall_Product> dbMallProducts=(from pdt in db.Mall_Product
                                                    where pdt.Shop_ID==this.Shop.Shop_ID
                                                    select pdt).ToList<Mall_Product>();
@@ -1139,6 +1141,12 @@ namespace KM.JXC.BL
                     {
                         isNew = true;
                         dbProduct = new Mall_Product();                       
+                    }
+
+                    Product mappedLocProduct=(from p in locProducts where p.Product_ID==product.OuterID select p).FirstOrDefault<Product>();
+                    if (mappedLocProduct == null)
+                    {
+                        product.OuterID = 0;
                     }
 
                     dbProduct.Created = product.Created;
@@ -1177,6 +1185,12 @@ namespace KM.JXC.BL
                             {
                                 skuNew = true;
                                 dbSku = new Mall_Product_Sku();
+                            }
+
+                            Product childLocProduct=(from p in locProducts where p.Product_ID==mSku.OuterID select p).FirstOrDefault<Product>();
+                            if (childLocProduct == null)
+                            {
+                                mSku.OuterID = 0;
                             }
 
                             dbSku.Outer_ID = mSku.OuterID;
@@ -1301,7 +1315,7 @@ namespace KM.JXC.BL
                 total = tmpPdts.Count();
                 if (total > 0)
                 {
-                    products = tmpPdts.OrderByDescending(p => p.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BMallProduct>();
+                    products = tmpPdts.OrderByDescending(p => p.ID).OrderBy(p => p.Shop.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BMallProduct>();
                     foreach (BMallProduct product in products)
                     {
                         product.Skus = (from sku in skus

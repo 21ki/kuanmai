@@ -42,6 +42,7 @@
         <div id="mallProducts">
                 <div class="row s_title shead jxcheader1">
                     <span style="margin-left:0;" class="spanw3">缩略图</span><span class="spanw1">宝贝名称</span>
+                    <span class="spanw4">店铺</span>
                     <span class="spanw2">宝贝价格</span>
                     <span class="spanw2">关联进销存</span>
                 </div>
@@ -80,6 +81,7 @@
                     <div class="row jxclist1">
                         <div>
                             <span style="margin-left:0;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
+                            <span class="spanw4">@product.Shop.Title</span>
                             <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
                             <span class="spanw2">
                                 @if(product.OuterID>0){
@@ -107,6 +109,7 @@
                                           }
                                          @Html.Raw(sku.PropertiesName)
                                      </span>
+                                     <span class="spanw4"></span>
                                      <span class="spanw2">@Html.Raw(sku.Price.ToString("0.00"))</span>
                                      <span class="spanw2">
                                         @if(sku.OuterID>0){

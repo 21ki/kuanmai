@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "验货单查询列表";
+    ViewBag.Title = "验货单管理";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 <script>
@@ -20,13 +20,15 @@
         obj.colModel = [{
                             title: "验货单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
                             render: function (ui) {
-                                return "<a target=\"_blank\" href=\"/Buy/BuyDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                                return ui.rowData["ID"];
+                                //return "<a target=\"_blank\" href=\"/Buy/BuyDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
                         },
                        {
                            title: "采购单编号", width: 150, dataType: "string", dataIndx: "Order.ID", editable: false,
                            render: function (ui) {
-                               return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["Order"]["ID"] + "\">" + ui.rowData["Order"]["ID"] + "</a>";
+                               return ui.rowData["Order"]["ID"];
+                               //return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["Order"]["ID"] + "\">" + ui.rowData["Order"]["ID"] + "</a>";
                            }
                        },
                        {

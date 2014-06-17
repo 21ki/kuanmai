@@ -405,6 +405,12 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                             order.Order_ID = o.Oid.ToString();
                             order.Mall_PID = o.NumIid.ToString();
+                            order.Mall_SkuID = "";
+                            if (o.SkuId != null)
+                            {
+                                order.Mall_SkuID = o.SkuId;
+                            }
+
                             order.ImageUrl = "";
                             if (!string.IsNullOrEmpty(o.PicPath))
                             {
@@ -564,7 +570,11 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                             order.Order_ID = o.Oid.ToString();
                             order.Mall_PID = o.NumIid.ToString();
-                            order.Mall_SkuID = o.SkuId.ToString();
+                            order.Mall_SkuID = "";
+                            if (o.SkuId != null)
+                            {
+                                order.Mall_SkuID = o.SkuId;
+                            }
                             order.ImageUrl = "";
                             if (!string.IsNullOrEmpty(o.PicPath))
                             {
