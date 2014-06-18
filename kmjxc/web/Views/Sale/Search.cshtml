@@ -18,8 +18,18 @@
     var $grid = null; 
     var $form = null;
     var $searchform = null;
+    var tradeStatus = saleMgr.GetTradeStatusForSyncTrade();
     $(function () {
         $form = $('#searchform');
+        $form.find('#trade_status').append("<option value=\"\">--所有--</option>");
+        $(tradeStatus).each(function (index, item) {
+
+            if (item.selected && item.selected == true) {
+                $form.find('#trade_status').append("<option selected value=\"" + item.value + "\">" + item.name + "</option>");
+            } else {
+                $form.find('#trade_status').append("<option value=\"" + item.value + "\">" + item.name + "</option>");
+            }
+        });
 
         $form.find('#trade_sdate').datepicker({
             currentText: "Now",
@@ -68,10 +78,10 @@
                     <td colspan="3">
                         <select id="trade_shop" class="W_inputsel" name="trade_shop">
                             <option value="0">--所有--</option>
-                            <option value="@Html.Raw(currentShop.Shop_ID.ToString())">@Html.Raw(currentShop.Name+"  主店铺")</option>
+                            <option value="@Html.Raw(currentShop.Shop_ID.ToString())">@Html.Raw(currentShop.Name)</option>
                             @if (childShops != null && childShops.Count > 0) {
                                 foreach (KM.JXC.BL.Models.BShop shop in childShops) { 
-                                    <option value="@Html.Raw(shop.ID.ToString())">@Html.Raw(shop.Title+"  子店铺")</option>
+                                    <option value="@Html.Raw(shop.ID.ToString())">@Html.Raw(shop.Title)</option>
                                 }
                             }
                         </select>
@@ -81,20 +91,26 @@
                    
                     <td class="td1">成交时间:</td>
                     <td colspan="3">
-                        <input class="W_input" name="trade_sdate" id="trade_sdate" /> <select class="W_inputsel" name="trade_sdate_hour" id="trade_sdate_hour"></select> <select class="W_inputsel" name="trade_sdate_minute" id="trade_sdate_minute"></select> 
+                        <input class="W_input iptW100" name="trade_sdate" id="trade_sdate" /> <select class="W_inputsel" name="trade_sdate_hour" id="trade_sdate_hour"></select> <select class="W_inputsel" name="trade_sdate_minute" id="trade_sdate_minute"></select> 
                         到 
-                        <input class="W_input" name="trade_edate" id="trade_edate" /> <select class="W_inputsel" name="trade_edate_hour" id="trade_edate_hour"></select> <select class="W_inputsel" name="trade_edate_minute" id="trade_edate_minute"></select>    
+                        <input class="W_input iptW100" name="trade_edate" id="trade_edate" /> <select class="W_inputsel" name="trade_edate_hour" id="trade_edate_hour"></select> <select class="W_inputsel" name="trade_edate_minute" id="trade_edate_minute"></select>    
                     </td>
                 </tr>
-                 <tr>
+                <tr>
                     <td class="td1">产品名称:</td>
-                    <td><input type="text" name="pdt_name" class="W_input" id="pdt_name"/></td>
+                    <td><input type="text" name="pdt_name" class="W_input" id="pdt_name" /></td>
                     <td class="td1">卖家昵称:</td>
-                    <td><input type="text" name="buyer_nick" class="W_input" id="buyer_nick"/></td>
-                  
+                    <td><input type="text" name="buyer_nick" class="W_input" id="buyer_nick"/></td>                  
                 </tr>
                 <tr>
-                    <td colspan="4">
+                    <td class="td1">交易编号:</td>
+                    <td><input type="text" name="trade_num" class="W_input" id="trade_num" /></td>
+                    <td class="td1">交易状态:</td>
+                    <td><select class="W_inputsel" id="trade_status" name="trade_status"></select></td>                  
+                </tr>
+                <tr>
+                    <td class="td1"></td>
+                    <td colspan="3">
                         <span id="btn_Search">搜索</span>                       
                     </td>
                 </tr>

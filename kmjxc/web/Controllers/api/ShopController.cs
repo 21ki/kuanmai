@@ -541,5 +541,87 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
+
+        [HttpPost]
+        public ApiMessage MapMallProduct()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                string mall_id = request["mall_id"];
+                int product_id;
+                int.TryParse(request["product_id"], out product_id);
+
+                bool result = shopManager.MapMallProduct(mall_id, product_id);
+                if (!result)
+                {
+                    message.Status = "failed";
+                    message.Message = "未知错误，请联系客服";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Message = kex.Message;
+                message.Status = "failed";
+            }
+            catch (Exception ex)
+            {
+                message.Message = ex.Message;
+                message.Status = "failed";
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage MapMallProductSku()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                string skuId = request["sku_id"];
+                int product_id;
+                int.TryParse(request["product_id"], out product_id);
+
+                bool result = shopManager.MapSku(skuId, product_id);
+                if (!result)
+                {
+                    message.Status = "failed";
+                    message.Message = "未知错误，请联系客服";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Message = kex.Message;
+                message.Status = "failed";
+            }
+            catch (Exception ex)
+            {
+                message.Message = ex.Message;
+                message.Status = "failed";
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
     }
 }

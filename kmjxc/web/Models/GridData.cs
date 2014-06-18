@@ -10,5 +10,6 @@ namespace KM.JXC.Web.Models
         public long totalRecords { get; set; }
         public long curPage { get; set; }
         public object data { get; set; }
+        public long pageSize { get; set; }
     }
 }

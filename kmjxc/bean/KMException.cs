@@ -16,32 +16,66 @@ namespace KM.JXC.Common.KMException
 
     public class KMJXCException:Exception
     {
-        private string message;
-
         public ExceptionLevel Level = ExceptionLevel.USER;
 
         public KMJXCException(string message)
             : base(message)
         {
-            this.message=message;
         }
 
         public KMJXCException(string message,Exception ex)
             : base(message,ex)
         {
-            this.message = message;
         }
 
         public KMJXCException(string message, ExceptionLevel level)
             : base(message)
         {
-            this.message = message;
             this.Level = level;
         }
 
         public override string ToString()
         {
-            return this.message;
+            return this.Message;
+        }
+    }
+
+    public class KMJXCMallException : KMJXCException
+    {
+        private string errorCode = null;
+
+        public string ErrorCode
+        {
+            get { return errorCode; }
+            protected set { errorCode = value; }
+        }
+        public KMJXCMallException(string code,string message)
+            : base(message)
+        {
+        }
+    }
+
+    public class KMJXCTaobaoException : KMJXCMallException
+    {
+        public KMJXCTaobaoException(string code, string message)
+            : base(code,message)
+        {
+        }
+
+        private void ParseCode()
+        {
+            if (this.ErrorCode == null)
+            {
+                return;
+            }
+
+            switch (this.ErrorCode)
+            {
+                case "1":
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

@@ -66,7 +66,7 @@ namespace KM.JXC.Web.Controllers
                     connected = false;
                 }
             }
-
+            BMallSync lastSync = shopManager.GetMallSync(0, 0);
             List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(page, pageSize, out total, connected);
             BPageData data = new BPageData();
             data.Data = products;
@@ -74,6 +74,7 @@ namespace KM.JXC.Web.Controllers
             data.Page = page;
             data.PageSize = pageSize;
             data.URL = Request.RawUrl;
+            ViewData["LastSync"] = lastSync;
             return View(data);
         }
 

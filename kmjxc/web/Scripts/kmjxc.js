@@ -305,6 +305,10 @@ function KMJXCProductManager() {
         _this.AjaxCall("/api/Categories/Add", postData, callback);
     }
 
+    /*
+    Parameters:
+    parent_id
+    */
     this.GetCategories = function (postData, callback) {
         var _this = this;
         _this.AjaxCall("/api/Categories/GetCategories/", postData, callback);
@@ -369,9 +373,22 @@ function KMJXCProductManager() {
     this.UpdateProduct = function (params, callback) {
         this.AjaxCall("/api/Products/UpdateProduct", params, callback);
     }
+
+    /*
+    Parameters:
+    cid -- category
+    keyword -- product keyword
+    suppliers -- suppliers, multiple values contact with ","
+    */
     this.SearchProducts = function (params, callback) {
         this.AjaxCall("/api/Products/SearchProducts", params, callback);
     }
+
+    /*
+    Parameters:
+    mall_id:On sale product number
+    product_id:local product id
+    */
     this.GetProductFullInfo = function (params, callback) {
         this.AjaxCall("/api/Products/GetFullInfo", params, callback);
     }
@@ -504,6 +521,24 @@ function KMJXCShopManager() {
     }
     this.SearchOnSaleProducts = function (params, callback) {
         this.AjaxCall("/api/Shop/SearchOnSaleProducts", params, callback);
+    }
+
+    /*
+    Parameters:
+    mall_id:on sale product id
+    product_id:local product id
+    */
+    this.MapMallProduct = function (params, callback) {
+        this.AjaxCall("/api/Shop/MapMallProduct", params, callback);
+    }
+
+    /*
+    Parameters:
+    sku_id:on sale product sku id
+    product_id:local sub product id
+    */
+    this.MapMallProductSku = function (params, callback) {
+        this.AjaxCall("/api/Shop/MapMallProductSku", params, callback);
     }
 }
 

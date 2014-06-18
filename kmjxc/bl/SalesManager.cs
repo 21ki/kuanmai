@@ -222,9 +222,17 @@ namespace KM.JXC.BL
                         #region handle sale orders
                         foreach (BOrder order in trade.Orders)
                         {
+                            Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
+
+                            if (order.Status1 != 0)
+                            {
+                                continue;
+                            }
+                            
                             Product parentPdt = (from pdt in allproducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
                             Product childPdt = (from pdt in allproducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
-
+                            order.Product_ID = 0;
+                            order.Parent_Product_ID = 0;
                             if (parentPdt != null)
                             {
                                 order.Parent_Product_ID = parentPdt.Product_ID;
@@ -240,12 +248,7 @@ namespace KM.JXC.BL
                             //no need to create leave stock while the mall product is not mapped with local product
                             if (order.Product_ID == 0 && order.Parent_Product_ID == 0)
                             {
-                                continue;
-                            }
-
-                            Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
-                            if (order.Status1 != 0)
-                            {
+                                order_detail.SyncResultMessage = "商城宝贝没有关联到本地产品，不能出库";
                                 continue;
                             }
 
@@ -393,17 +396,27 @@ namespace KM.JXC.BL
                     eDate = DateTimeUtil.ConvertToDateTime(endTime); 
                 }
 
-                allSales = tradeManager.SyncMallTrades(sDate, eDate, status);
-                this.HandleMallTrades(allSales);              
+                allSales = tradeManager.SyncMallTrades(sDate, eDate, status);                     
             }
             else if (syncType == 1)
             {
                 syncTime.LastTradeStartEndTime = 0;
                 syncTime.LastTradeModifiedEndTime = timeNow + 1;
                 allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime,timeNow, status);
-                this.HandleMallTrades(allSales);
             }
 
+            List<BSale> sales = new List<BSale>();
+
+            foreach (BSale s in allSales)
+            {
+                List<BSale> existed=(from ss in sales where ss.Sale_ID== s.Sale_ID select ss).ToList<BSale>();
+                if (existed==null || existed.Count == 0)
+                {
+                    sales.Add(s);
+                }
+            }
+
+            this.HandleMallTrades(sales);        
             db.SaveChanges();
             
             return result;
@@ -456,7 +469,7 @@ namespace KM.JXC.BL
                
                 //var dbSales = dbSaleObjs;
                 List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>(); ;
-               
+                
                 foreach (BSale sale in allSales)
                 {
                     Sale dbSale = new Sale();
@@ -555,14 +568,14 @@ namespace KM.JXC.BL
                     dbSale.StockStatus = 0;
                     dbSale.Synced = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     Sale existed = null;
-                    if (dbSales != null)
+                    if (dbSales != null && dbSales.Count>0)
                     {
                         existed = (from s in dbSales where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
                     }
-                    else
-                    {
-                        existed = (from s in db.Sale where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
-                    }
+                    //else
+                    //{
+                    //    existed = (from s in db.Sale where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
+                    //}
 
                     if (sale.HasRefound)
                     {
@@ -722,7 +735,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BSale> SearchSales(int[] pdtids, string productName, int[] customers, string customer_nick, long sSaleTime, long eSaleTime, int page, int pageSize, out int totalRecords, int shop_id = 0)
+        public List<BSale> SearchSales(int[] pdtids, string productName,string[] trade_num,string[] trade_status, int[] customers, string customer_nick, long sSaleTime, long eSaleTime, int page, int pageSize, out int totalRecords, int shop_id = 0)
         {
             List<BSale> sales = null;
             totalRecords = 0;
@@ -769,6 +782,16 @@ namespace KM.JXC.BL
                     {
                         trades = trades.Where(t => sale_ids.Contains(t.Mall_Trade_ID));
                     }
+                }
+
+                if (trade_num != null && trade_num.Length > 0)
+                {
+                    trades = trades.Where(t =>trade_num.Contains(t.Mall_Trade_ID));
+                }
+
+                if (trade_status != null && trade_status.Length > 0)
+                {
+                    trades = trades.Where(t => trade_status.Contains(t.Status));
                 }
 
                 if (customers != null && customers.Length > 0)

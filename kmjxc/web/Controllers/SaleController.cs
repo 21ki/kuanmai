@@ -18,22 +18,24 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Search()
         {
-            string sCreated = Request["trade_sdate"];          
+            string sCreated = Request["trade_sdate"];
             string sHours = Request["trade_sdate_hour"];
             string sMinutes = Request["trade_sdate_minute"];
             string eCreated = Request["trade_edate"];
             string eHours = Request["trade_edate_hour"];
             string eMinutes = Request["trade_edate_minute"];
-            string productName=Request["pdt_name"];
+            string productName = Request["pdt_name"];
             string buyer_nick = Request["buyer_nick"];
+            string trade_num = Request["trade_num"];
+            string trade_status = Request["trade_status"];
             int shop = 0;
             int page = 1;
             int pageSize = 30;
 
-            int.TryParse(Request["page"],out page);
+            int.TryParse(Request["page"], out page);
             int.TryParse(Request["pagesize"], out pageSize);
-            int.TryParse(Request["trade_shop"],out shop);
-            if(page<=0)
+            int.TryParse(Request["trade_shop"], out shop);
+            if (page <= 0)
             {
                 page = 1;
             }
@@ -52,17 +54,17 @@ namespace KM.JXC.Web.Controllers
                 int m = 0;
                 int.TryParse(sHours, out h);
                 int.TryParse(sMinutes, out m);
-                sDate = new DateTime(sDate.Year, sDate.Month, sDate.Day, h, m,0);
+                sDate = new DateTime(sDate.Year, sDate.Month, sDate.Day, h, m, 0);
             }
 
             if (!string.IsNullOrEmpty(eCreated) && !string.IsNullOrEmpty(eHours) && !string.IsNullOrEmpty(eMinutes))
             {
-                sDate = Convert.ToDateTime(eCreated);
+                eDate = Convert.ToDateTime(eCreated);
                 int h = 0;
                 int m = 0;
                 int.TryParse(eHours, out h);
                 int.TryParse(eMinutes, out m);
-                sDate = new DateTime(sDate.Year, sDate.Month, sDate.Day, h, m, 0);
+                eDate = new DateTime(eDate.Year, eDate.Month, eDate.Day, h, m, 0);
             }
             string user_id = HttpContext.User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
@@ -81,7 +83,19 @@ namespace KM.JXC.Web.Controllers
             {
                 eTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
             }
-            List<BSale> sales = saleManager.SearchSales(null, productName, null, buyer_nick, sTime, eTime, page, pageSize, out total,shop);
+
+            string[] nums = null;
+            if (!string.IsNullOrEmpty(trade_num))
+            {
+                nums = trade_num.Split(',');
+            }
+            string[] status = null;
+            if (!string.IsNullOrEmpty(trade_status))
+            {
+                status = trade_status.Split(',');
+            }
+
+            List<BSale> sales = saleManager.SearchSales(null, productName, nums, status, null, buyer_nick, sTime, eTime, page, pageSize, out total, shop);
             BPageData data = new BPageData();
             data.Data = sales;
             data.TotalRecords = total;

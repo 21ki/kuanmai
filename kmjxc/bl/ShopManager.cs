@@ -909,7 +909,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Search child shops
         /// </summary>
         /// <param name="mainShop"></param>
         /// <returns></returns>
@@ -954,7 +954,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Gets shop sub accounts
         /// </summary>
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
@@ -1077,6 +1077,60 @@ namespace KM.JXC.BL
 
         /// <summary>
         /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <param name="syncType">0-sync products</param>
+        /// <returns></returns>
+        public BMallSync GetMallSync(int shop_id = 0,int syncType=0)
+        {
+            BMallSync sync = null;
+            int shopID = this.Shop.Shop_ID;
+            if (shop_id > 0)
+            {
+                shopID = shop_id;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                sync = (from s in db.SyncWithMall
+                        join shop in db.Shop on s.Shop_ID equals shop.Shop_ID into LShop
+                        from l_shop in LShop.DefaultIfEmpty()
+                        join user in db.User on s.User_ID equals user.User_ID into LUser
+                        from l_user in LUser.DefaultIfEmpty()
+                        where s.SyncType == syncType && s.Shop_ID == shopID
+                        orderby s.SyncTime descending
+                        select new BMallSync
+                        {
+                            ID = s.ID,
+                            SyncTime = s.SyncTime,
+                            Shop = l_shop != null ?
+                            new BShop
+                            {
+                                ID = l_shop.Shop_ID,
+                                Title = l_shop.Name
+                            } :
+                            new BShop
+                            {
+                                ID = 0,
+                                Title = ""
+                            }
+                            ,
+                            User = l_user != null ? new BUser
+                            {
+                                ID=l_user.User_ID,
+                                Mall_ID=l_user.Mall_ID,
+                                Mall_Name=l_user.Mall_Name
+                            } : new BUser {
+                                ID = 0,
+                                Mall_ID = "",
+                                Mall_Name = ""
+                            }
+                        }).FirstOrDefault<BMallSync>();
+            }
+            return sync;
+        }
+
+        /// <summary>
+        /// Sync onsale products to local database
         /// </summary>
         /// <returns></returns>
         public List<BMallProduct> SyncMallOnSaleProducts()
@@ -1342,7 +1396,7 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Gets shop statistic data
         /// </summary>
         /// <param name="shop_id"></param>
         /// <returns></returns>
@@ -1447,6 +1501,103 @@ namespace KM.JXC.BL
                 }
             }
             return statistic;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mall_id"></param>
+        /// <param name="locProductId"></param>
+        /// <returns></returns>
+        public bool MapMallProduct(string mall_id, int locProductId)
+        {
+            bool result = false;
+            if (string.IsNullOrEmpty(mall_id))
+            {
+                return result;
+            }
+
+            if (locProductId <= 0)
+            {
+                return result;
+            }
+
+            Product locProduct = null;
+            IOProductManager productManager = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                locProduct=(from p in db.Product where p.Product_ID==locProductId && p.Parent_ID==0 select p).FirstOrDefault<Product>();
+                if (locProduct == null)
+                {
+                    throw new KMJXCException("本地产品不存在，无法关联到商城宝贝");
+                }
+
+                Mall_Product locMallProduct=(from mp in db.Mall_Product where mp.Mall_ID==mall_id select mp).FirstOrDefault<Mall_Product>();
+                if (locMallProduct == null)
+                {
+                    throw new KMJXCException("宝贝信息不存在，请先同步出售中的宝贝");
+                }
+                result = productManager.MappingProduct(locProductId.ToString(), mall_id);
+                if (result)
+                {
+                    locMallProduct.Outer_ID = locProductId;
+                }
+
+                db.SaveChanges();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="skuId"></param>
+        /// <param name="locProductId"></param>
+        /// <returns></returns>
+        public bool MapSku(string skuId,int locProductId)
+        {
+            bool result = false;
+            if (string.IsNullOrEmpty(skuId))
+            {
+                return result;
+            }
+
+            if (locProductId <= 0)
+            {
+                return result;
+            }
+            Product locProduct = null;
+            IOProductManager productManager = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                locProduct = (from p in db.Product where p.Product_ID == locProductId && p.Parent_ID > 0 select p).FirstOrDefault<Product>();
+                if (locProduct == null)
+                {
+                    throw new KMJXCException("本地库存属性不存在，无法关联到商城宝贝的SKU");
+                }
+
+                Mall_Product_Sku msku = null;
+                msku = (from sk in db.Mall_Product_Sku where sk.SKU_ID == skuId select sk).FirstOrDefault<Mall_Product_Sku>();
+                if (msku == null)
+                {
+                    throw new KMJXCException("未找到SKU ID 对应的商城宝贝ID");
+                }
+
+                Mall_Product_Sku existed=(from esku in db.Mall_Product_Sku where esku.Mall_ID==msku.Mall_ID && esku.Outer_ID==locProductId select esku).FirstOrDefault<Mall_Product_Sku>();
+                if (existed != null)
+                {
+                    throw new KMJXCException("所选库存属性已经被关联到此宝贝下其他的SKU，请选择其他的库存属性进行关联");
+                }
+                result = productManager.MappingSku(locProductId.ToString(), skuId, msku.Mall_ID, msku.Properties);
+                if (result)
+                {
+                    msku.Outer_ID = locProductId;
+                }
+
+                db.SaveChanges();
+            }
+            return result;
         }
     }
 }

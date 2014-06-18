@@ -645,13 +645,29 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        public BProduct GetProductFullInfo(int productId)
+        public BProduct GetProductFullInfo(int productId,string mall_id=null)
         {
+            
+            if (productId == 0 && string.IsNullOrEmpty(mall_id))
+            {
+                throw new KMJXCException("获取产品详细信息时候，必须输入产品编号或者已关联的商城宝贝编号");
+            }
+
             BProduct product = null;
             KuanMaiEntities db = new KuanMaiEntities();
 
             try
             {
+                if (productId == 0 && !string.IsNullOrEmpty(mall_id))
+                {
+                    productId=(from mp in db.Mall_Product where mp.Mall_ID==mall_id select mp.Outer_ID).FirstOrDefault<int>();
+                }
+
+                if (productId == 0)
+                {
+                    throw new KMJXCException("获取产品详细信息时候，必须输入产品编号或者已关联的商城宝贝编号");
+                }
+
                 product = (from pudt in db.Product
                            where pudt.Product_ID == productId
                            select new BProduct
@@ -719,7 +735,7 @@ namespace KM.JXC.BL
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
             finally
             {

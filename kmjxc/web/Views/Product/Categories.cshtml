@@ -30,7 +30,7 @@
 
     $(document).ready(function () {       
 
-        var obj = { width: 859, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true } };
+        var obj = { width: 859, height: 600, title: "类目列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },freezeCols: 4 };
         obj.colModel = [{ title: "编号", width: 50, dataType: "integer", dataIndx: "ID", editable: false },
                         {
                              title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false
@@ -50,7 +50,7 @@
                          },
                         { title: "类目名称", width: 150, dataType: "string", dataIndx: "Name", editable: false },
                         {
-                            title: "子类目数", width: 150, dataType: "object", dataIndx: "Children", editable: false,
+                            title: "子类目", width: 70, dataType: "object", dataIndx: "Children", editable: false,
                             render: function (ui) {
                                 var children = ui.rowData[ui.dataIndx];
                                 var id=ui.rowData["ID"];
@@ -69,9 +69,9 @@
                             render: function (ui) {
                                 var cid = ui.rowData["ID"];
                                 if (ui.rowData[ui.dataIndx]) {
-                                    return "已启用";
+                                    return "启用";
                                 } else {
-                                    return "已停用";
+                                    return "停用";
                                 }
                                 
                             }

@@ -70,6 +70,7 @@
     <Compile Include="Models\BExpressFee.cs" />
     <Compile Include="Models\BLeaveStock.cs" />
     <Compile Include="Models\BLeaveStockDetail.cs" />
+    <Compile Include="Models\BMallSync.cs" />
     <Compile Include="Models\BMallType.cs" />
     <Compile Include="Models\BProductStoreProperty.cs" />
     <Compile Include="ImageManager.cs" />

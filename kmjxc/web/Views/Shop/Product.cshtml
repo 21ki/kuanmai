@@ -1,11 +1,22 @@
 ﻿@{
-    ViewBag.Title = "Product";
-    KM.JXC.BL.Models.BPageData data = (KM.JXC.BL.Models.BPageData)Model;
+    ViewBag.Title = "在售宝贝";
+    KM.JXC.BL.Models.BPageData data = null;
+    if(Model!=null){
+        data = (KM.JXC.BL.Models.BPageData)Model;
+    }
+    
     List<KM.JXC.BL.Models.BMallProduct> products = (List<KM.JXC.BL.Models.BMallProduct>)data.Data;
     System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPageUtil.ParseURLParams(Request.RawUrl);
+    
+    KM.JXC.BL.Models.BMallSync lastSync = null;
+    if (ViewData["LastSync"]!=null){
+        lastSync = (KM.JXC.BL.Models.BMallSync)ViewData["LastSync"];
+    }
 }
 <script>
     var shopMgr = new KMJXCShopManager();
+    var pdtMgr = new KMJXCProductManager();
+    var productListPageSize = 20;
     $(function () {
         $('#tabs').tabs();
         
@@ -20,11 +31,173 @@
                 }
             });
         });
+
+        $('#btn_search_map_product').button({ icons: { primary: "ui-icon-search" } }).click(function () {
+            SearchProducts(1);
+        });
+
+        pdtMgr.GetCategories({}, function (res) {
+            if (res != null) {
+                $('#opt_pcategory').append("<option value=\"0\">--选择--</option>");
+                $(res.data).each(function (index, item) {
+                    $('#opt_pcategory').append("<option value=\"" + item.ID+ "\">" + item.Name + "</option>");
+                });
+            }
+        });
+
+        $('#opt_pcategory').change(function () {
+            var pid = $(this).val();
+            if (pid == 0) {
+                $('#opt_ccategory').empty().hide();
+                return;
+            }
+            pdtMgr.GetCategories({'parent_id':pid}, function (res) {
+                if (res != null) {
+                    $('#opt_ccategory').empty();
+                    $('#opt_ccategory').append("<option value=\"0\">--选择--</option>");
+                    $(res.data).each(function (index, item) {
+                        $('#opt_ccategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                    });
+                    $('#opt_ccategory').show();
+                }
+            });
+
+        });
     });
 
-    function Guanlian(mall_id, parent_id) {
-        alert("请到淘宝编辑宝贝，为销售属性集合输入对应的商家编码（进销存产品的库存编码）以及宝贝的商家编码（进销存产品的编码）");
-        return;        
+    function Guanlian(mall_id, pOuterId,type,obj) {
+        if (pOuterId <= 0 && type==1) {
+            alert("请先关联宝贝，然后再关联SKU");
+            return;
+        }
+
+        if (type == 1) {
+            $('#opt_mapp_search').hide();
+        } else {
+            $('#opt_mapp_search').show();
+        }
+
+        $('#popup_guanlian').dialog({
+            position: { my: "top", at: "top", of: $("#mallProducts") },
+            width: 'auto',
+            //height:550,
+            resizable: false,
+            title: "关联商城宝贝",
+            modal: true,
+            open: function () {
+                if (type == 1) {
+                    var $ul = $('#opt_products_list');
+                    $ul.html("");
+                    pdtMgr.GetProductFullInfo({ 'product_id': pOuterId }, function (res) {
+                        if (res.Status == "ok" && res.Item != null) {
+                            if (res.Item.Children == null) {
+                                alert("产品:" + res.Item.Title + " 还没有任何销售属性（库存属性），请先编辑产品添加库存属性");
+                                $(this).dialog("close");
+                                return;
+                            }
+
+                            $(res.Item.Children).each(function (index, item) {
+                                var $li = $("<li></li>").appendTo($ul);
+                                var $radio = $("<input value=\"" + item.ID + "\" type=\"radio\" name=\"opt_productsel\"/>").appendTo($li);
+                                $(item.Properties).each(function (index1, item1) {
+                                    $("<span>"+item1.PName+":"+item1.PValue+"</span>").appendTo($li);
+                                });
+                            });
+
+                        } else {
+                            alert(res.Message);
+                            $(this).dialog("close");
+                        }
+                    });
+                }
+            },
+            close: function () {
+                $('#opt_pcategory').val("0");
+                $('#opt_ccategory').empty().hide();
+                $('#opt_products_list').html("");
+                
+            },
+            buttons: [
+                   {
+                       text: "确定", click: function () {
+                           var that = this;                           
+                           var product_id = $('input:radio[name="opt_productsel"]:checked').val();
+
+                           if (product_id == null || product_id == "undefined") {
+                               alert("请选择一个产品进行关联操作");
+                               return;
+                           }
+
+                           if (type == 0) {
+                               shopMgr.MapMallProduct({ 'mall_id': mall_id, 'product_id': product_id }, function (res) {
+                                   if (res.Status == 'ok') {
+                                       location.reload();
+                                   } else {
+                                       alert(res.Message);
+                                   }
+                               });
+
+                           } else if (type == 1) {
+                               shopMgr.MapMallProductSku({ 'sku_id': mall_id, 'product_id': product_id }, function (res) {
+                                   if (res.Status == 'ok') {
+                                       location.reload();
+                                   } else {
+                                       alert(res.Message);
+                                   }
+                               });
+                           }
+
+                           
+                           //$(obj).html("已关联").removeClass("disconnected").addClass("connected");
+                           //$(obj).removeAttr("onclick");
+                           //$(obj).attr("href", "/Product/Detail/" + product_id);
+                           //$(obj).attr("target","_blank");
+                           //$(that).dialog("close");                           
+                       },
+                       icons: { primary: "ui-icon-disk" }
+                   },
+                   {
+                       text: "取消", click: function () {
+                           $(this).dialog("close");
+                       },
+                       icons: { primary: "ui-icon-close" }
+                   }
+            ]
+        });
+
+        $('#popup_guanlian').dialog("open");
+    }
+
+    function SearchProducts(page) {
+        var pid = $('#opt_pcategory').val();
+        var cid = $('#opt_ccategory').val();
+        var pkey = $('#opt_keyword').val();
+        var category = 0;
+
+        category = pid;
+
+        if (cid > 0) {
+            category = cid;
+        }
+
+        pdtMgr.SearchProducts({ 'cid': category, 'keyword': pkey, 'pageSize': productListPageSize,'page':page}, function (res) {
+            if (res != null) {
+                var $ul = $('#opt_products_list');
+                $ul.html("");
+                $(res.data).each(function (index, item) {
+                    var $li = $("<li></li>").appendTo($ul);
+                    var $radio = $("<input value=\""+item.ID+"\" type=\"radio\" name=\"opt_productsel\"/>").appendTo($li);
+                    $("<span>" + item.Title + "</span>").appendTo($li);
+                });
+
+                var htmlPage = pdtMgr.Pager({ 'total': res.totalRecords, 'page': res.curPage, 'pageSize': res.pageSize, 'fun': 'SearchProducts' }, "spn", "pn");
+                if (htmlPage != '') {
+                    $('#opt_products_list_Pager').html(htmlPage).show();
+                } else {
+                    $('#opt_products_list_Pager').html("").hide();
+                }
+            }
+        });
     }
 </script>
 
@@ -34,8 +207,11 @@
     </ul>
     <div id="mallpdtlist">
         <div id="syncMallPdt">
-            <div id="rowS">
-                <span id="btnSync">同步</span> <span>上次同步:2014-05-29 18:30</span>
+            @if (lastSync != null) { 
+            <div class="rowS"><span>@Html.Raw("上次同步:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m")+" "+lastSync.User.Mall_Name)</span></div>
+            }
+            <div class="rowS">
+                <span id="btnSync">同步</span>
             </div>            
         </div>
 
@@ -61,7 +237,7 @@
                              @Html.Raw("class=\"taba1\"")
                         }
                          href="/Shop/Product">所有宝贝</a>
-                    <a 
+                    <a  
                         @if(connected=="1"){
                             @Html.Raw("class=\"tabasel1\"")
                         }else{
@@ -85,11 +261,11 @@
                             <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
                             <span class="spanw2">
                                 @if(product.OuterID>0){
-                                    @Html.Raw("<a class=\"connected\" style=\"color:green\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
+                                    @Html.Raw("<a class=\"connected\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
                                 }
                                 else
                                 {
-                                    @Html.Raw("<a class=\"disconnected\" style=\"color:red\" href=\"javascript:void(0)\" onclick=\"Guanlian('"+product.ID+"')\">未关联</a>")
+                                    @Html.Raw("<a class=\"disconnected\" href=\"javascript:void(0)\" onclick=\"Guanlian("+product.ID+",0,0,this)\">未关联</a>")
                                 }
                             </span>
                         </div>
@@ -113,11 +289,11 @@
                                      <span class="spanw2">@Html.Raw(sku.Price.ToString("0.00"))</span>
                                      <span class="spanw2">
                                         @if(sku.OuterID>0){
-                                            @Html.Raw("<a class=\"connected\" style=\"color:green\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
+                                            @Html.Raw("<a class=\"connected\" target=\"_blank\" href=\"/Product/Detail/"+product.OuterID+"\">已关联</a>")
                                         }
                                         else
                                         {
-                                            @Html.Raw("<a class=\"disconnected\" style=\"color:red\" href=\"javascript:void(0)\" onclick=\"Guanlian('"+product.ID+"')\">未关联</a>")
+                                            @Html.Raw("<a class=\"disconnected\" href=\"javascript:void(0)\" onclick=\"Guanlian("+sku.SkuID+","+product.OuterID+",1,this)\">未关联</a>")
                                         }
                                     </span>
                                 </div>
@@ -139,6 +315,18 @@
         }  
      }
     </div>
+
+    <div id="popup_guanlian" style="display:none;">
+        <div id="opt_mapp_search">
+            <div class="rowS"><label>产品类目:</label><select class="W_inputsel" id="opt_pcategory"></select> <select class="W_inputsel" id="opt_ccategory" style="display:none;"></select></div>
+            <div class="rowS"><label>产品名称:</label><input type="text" id="opt_keyword" class="W_input"/></div>
+            <div class="rowS nolabel1"><span id="btn_search_map_product">搜索</span></div>
+        </div>
+        <ul class="ulchk" id="opt_products_list">
+
+        </ul>
+        <div class="s_title spage pager" id="opt_products_list_Pager" style="display:none;"></div>
+    </div>
 </div>
 
-<div id="popup_guanlian" style="display:none;"></div>
+

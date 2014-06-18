@@ -182,14 +182,23 @@ namespace KM.JXC.Web.Controllers.api
                     string[] groups = props.Split(';');
                     foreach (string group in groups)
                     {
+                        if (group.IndexOf("|") <= 0) {
+                            continue;
+                        }
+
+                        if (group.Split('|').Length < 2) {
+                            continue;
+                        }
+                        string groupp = group.Split('|')[1];
                         BProduct child = new BProduct();
                         child.Title = product.Title;
                         child.Description = product.Description;
                         child.Category = product.Category;                        
                         List<BProductProperty> properties = new List<BProductProperty>();
-                        string[] pops = group.Split(',');
+                        string[] pops = groupp.Split(',');
+                        
                         foreach (string pop in pops)
-                        {
+                        {                          
                             BProductProperty prop = new BProductProperty();
                             prop.PID = int.Parse(pop.Split(':')[0]);
                             prop.PVID = int.Parse(pop.Split(':')[1]);
@@ -206,9 +215,13 @@ namespace KM.JXC.Web.Controllers.api
             }
             catch (KM.JXC.Common.KMException.KMJXCException kex)
             {
+                message.Status = "failed";
+                message.Item = kex.Message;
             }
             catch (Exception ex)
             {
+                message.Status = "failed";
+                message.Item = "未知错误，请联系客服";
             }
 
             return message;
@@ -254,6 +267,7 @@ namespace KM.JXC.Web.Controllers.api
             data.data = pdtManager.SearchProducts(sids, keyword, "", 0, 0, category_id, page, pageSize, out total);
             data.totalRecords = total;
             data.curPage = page;
+            data.pageSize = pageSize;
             return data;
         }
 
@@ -270,14 +284,29 @@ namespace KM.JXC.Web.Controllers.api
             BUser user = userMgr.CurrentUser;
             ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int product_id = 0;
+            string mall_id = request["mall_id"];
             int.TryParse(request["product_id"],out product_id);
             try
             {
-                product = pdtManager.GetProductFullInfo(product_id);
-                message.Item = product;
+                product = pdtManager.GetProductFullInfo(product_id, mall_id);
+                if (product != null)
+                {
+                    message.Item = product;
+                }
+                else
+                {
+                    message.Status = "ok";
+                }
             }
             catch (KM.JXC.Common.KMException.KMJXCException kex)
             {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
             }
 
             return message;

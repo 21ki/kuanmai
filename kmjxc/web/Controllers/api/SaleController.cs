@@ -190,7 +190,7 @@ namespace KM.JXC.Web.Controllers.api
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"], out pageSize);
             int total = 0;
-            data.data = saleManager.SearchSales(null,null, null,null, stime, etime, page, pageSize, out total);
+            data.data = saleManager.SearchSales(null,null,null,null, null,null, stime, etime, page, pageSize, out total);
             data.totalRecords = total;
             return data;
         }

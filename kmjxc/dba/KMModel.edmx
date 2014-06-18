@@ -405,9 +405,10 @@
         <EntityType Name="Mall_Product">
           <Key>
             <PropertyRef Name="Mall_ID" />
-            <PropertyRef Name="Outer_ID" />
+            <PropertyRef Name="Shop_ID" />
           </Key>
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="30" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
           <Property Name="Outer_ID" Type="int" Nullable="false" />
           <Property Name="Title" Type="varchar" Nullable="false" MaxLength="500" />
           <Property Name="Price" Type="double" />
@@ -415,7 +416,6 @@
           <Property Name="Description" Type="text" />
           <Property Name="Created" Type="uint" />
           <Property Name="Synced" Type="uint" />
-          <Property Name="Shop_ID" Type="int" Nullable="false" />
           <Property Name="PicUrl" Type="varchar" MaxLength="200" />
           <Property Name="Modified" Type="uint" />
           <Property Name="Show" Type="bool" />
@@ -424,7 +424,6 @@
           <Key>
             <PropertyRef Name="SKU_ID" />
             <PropertyRef Name="Mall_ID" />
-            <PropertyRef Name="Outer_ID" />
           </Key>
           <Property Name="SKU_ID" Type="varchar" Nullable="false" MaxLength="30" />
           <Property Name="Mall_ID" Type="varchar" Nullable="false" MaxLength="30" />
@@ -480,7 +479,7 @@
           <Key>
             <PropertyRef Name="Product_Class_ID" />
           </Key>
-          <Property Name="Product_Class_ID" Type="int" Nullable="false" />
+          <Property Name="Product_Class_ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Parent_ID" Type="int" />
           <Property Name="Order" Type="int" />
@@ -1088,7 +1087,7 @@
         <EntityType Name="Mall_Product">
           <Key>
             <PropertyRef Name="Mall_ID" />
-            <PropertyRef Name="Outer_ID" />
+            <PropertyRef Name="Shop_ID" />
           </Key>
           <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Outer_ID" Nullable="false" />
@@ -1107,7 +1106,6 @@
           <Key>
             <PropertyRef Name="SKU_ID" />
             <PropertyRef Name="Mall_ID" />
-            <PropertyRef Name="Outer_ID" />
           </Key>
           <Property Type="String" Name="SKU_ID" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Mall_ID" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />

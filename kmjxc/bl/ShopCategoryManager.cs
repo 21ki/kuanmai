@@ -279,7 +279,14 @@ namespace KM.JXC.BL
                 pc.Mall_PCID = category.Mall_PID;
                 pc.Name = category.Name;
                 pc.Order = category.Order;
-                pc.Shop_ID = this.Main_Shop.Shop_ID;
+                if (category.Shop == null || category.Shop.ID == 0)
+                {
+                    pc.Shop_ID = this.Shop.Shop_ID;
+                }
+                else
+                {
+                    pc.Shop_ID = category.Shop.ID;
+                }
                 if (category.Parent == null || category.Parent.ID <= 0)
                 {
                     pc.Parent_ID = 0;
@@ -513,7 +520,7 @@ namespace KM.JXC.BL
         /// <param name="propName"></param>
         /// <param name="propValues"></param>
         /// <returns></returns>
-        public BProperty CreateProperty(int categoryId,string propName,List<string> propValues)
+        public BProperty CreateProperty(int categoryId,string propName,List<string> propValues,int shop_id=0)
         {
             BProperty bproperty = null;
             if (string.IsNullOrEmpty(propName))
@@ -550,6 +557,10 @@ namespace KM.JXC.BL
                 property.Name = propName;
                 property.User_ID = this.CurrentUser.ID;
                 property.Shop_ID = this.Shop.Shop_ID;
+                if (shop_id > 0)
+                {
+                    property.Shop_ID = shop_id;
+                }
                 property.Mall_PID = "";
                 property.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.Product_Spec.Add(property);

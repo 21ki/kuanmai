@@ -84,7 +84,7 @@ namespace KM.JXC.BL.Open.TaoBao
                 while (hasNextPage)
                 {
                     curPage++;
-                    tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                    tmpTrades = this.SyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
                     if (tmpTrades != null && tmpTrades.Count>0)
                     {
                         trades = trades.Concat(tmpTrades).ToList<BSale>();
@@ -95,6 +95,7 @@ namespace KM.JXC.BL.Open.TaoBao
             {
                 foreach (string state in this.status)
                 {
+                    curPage = 1;
                     List<BSale> tmpTrades = this.SyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
                     if (tmpTrades != null && tmpTrades.Count > 0)
                     {
@@ -122,7 +123,7 @@ namespace KM.JXC.BL.Open.TaoBao
                     while (hasNextPage)
                     {
                         curPage++;
-                        tmpTrades = this.SyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                        tmpTrades = this.SyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
                         if (tmpTrades != null && tmpTrades.Count > 0)
                         {
                             trades = trades.Concat(tmpTrades).ToList<BSale>();
@@ -160,8 +161,7 @@ namespace KM.JXC.BL.Open.TaoBao
             }
             else
             {
-                sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);
-                
+                sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);                
                 eDate = sDate.AddDays(1);
                 endTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
             }
@@ -198,7 +198,7 @@ namespace KM.JXC.BL.Open.TaoBao
                     while (hasNextPage)
                     {
                         curPage++;
-                        tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, totalPage, out totalTrades, out hasNextPage);
+                        tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
 
                         if (tmpTrades != null)
                         {
@@ -227,6 +227,7 @@ namespace KM.JXC.BL.Open.TaoBao
                 
                 foreach (string state in this.status)
                 {
+                    curPage = 1;
                     long tmpendTime = endTime;
                     while (tmpendTime <= timeNow)
                     {
@@ -258,7 +259,7 @@ namespace KM.JXC.BL.Open.TaoBao
                         while (hasNextPage)
                         {
                             curPage++;
-                            tmpTrades = this.IncrementSyncTrades(sDate, eDate, state, totalPage, out totalTrades, out hasNextPage);
+                            tmpTrades = this.IncrementSyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
 
                             if (tmpTrades != null)
                             {

@@ -89,7 +89,7 @@ namespace KM.JXC.BL.Open.TaoBao
             ItemSkuUpdateResponse response= this.client.Execute(req,this.Access_Token.Access_Token1);
             if (response.IsError)
             {
-                throw new KMJXCException("关联本地产品与商城宝贝出错");
+                throw new KMJXCTaobaoException(response.ErrCode,response.ErrMsg);
             }
             ret = true;
             return ret;
@@ -131,20 +131,10 @@ namespace KM.JXC.BL.Open.TaoBao
             ItemUpdateResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             if (response.IsError)
             {
-                throw new KMJXCException("进销存产品与商城宝贝绑定失败");
+                throw new KMJXCException(response.ErrMsg);
             }
 
-            if (response.Item == null)
-            {
-                throw new KMJXCException("进销存产品与商城宝贝绑定失败");
-            }
-
-            if (response.Item.OuterId == outer_id)
-            {
-                return true;
-            }
-
-            return false;            
+            return true;            
         }
 
         /// <summary>

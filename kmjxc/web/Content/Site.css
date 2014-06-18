@@ -71,7 +71,9 @@ height:24px;
 .iptW80 {
     width:80px;
 }
-
+.iptW100 {
+    width:100px;
+}
 header, footer, nav, section {
     display: block;
 }
@@ -254,12 +256,14 @@ box-shadow: 0px 3px 3px -3px rgba(0, 0, 0, .30);
         }
         .jxcLeftMenu ul li .links {            
             color:#31a2e0;
+            /*color:#3b5998;*/
         }
         .jxcLeftMenu ul li:hover {
             
         }
             .jxcLeftMenu ul li .link:hover {                
                 color:#31a2e0;
+               /*color:#3b5998;*/
             }
 .newCategory {
 }
@@ -587,6 +591,9 @@ td.tdc {
     .searchTable .td1 {
         width:65px;
     }
+    .searchTable .td2 {
+        width:200px;
+    }
 .s_item {   
     border:1px solid #D4E7FF;
     margin-bottom:10px;
@@ -778,17 +785,17 @@ td.tdc {
     width:200px;
 }
 
-.connected {
+a.connected {
     color:green;
     font-weight:bold;
 }
 
-.disconnected {
+a.disconnected {
     color:red;
     font-weight:bold;
 }
 
-.taba1,.tabasel1 {
+a.taba1,a.tabasel1 {
     display:inline-block;
     text-decoration:none;
     cursor:pointer;
@@ -796,12 +803,18 @@ td.tdc {
     padding-right:5px;
     border-radius:3px;
 }
+a.taba1 {
+    color:#555;
+}
 
-    .taba1:hover,.tabasel1 {
+    a.taba1:hover,a.tabasel1 {
         text-decoration:none;
-        background-color:#e8f2ff;
-        
+        background-color:#3b5998;
+        color:#FFF;
     }
+        a.tabasel1:hover {
+            text-decoration:none;
+        }
 .btna {
     border: 1px solid #E0E0E0;
     display:inline-block;

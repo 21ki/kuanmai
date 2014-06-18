@@ -61,8 +61,6 @@ namespace KM.JXC.BL
                 {
                     tmpProducts=tmpProducts.Where(p => product_id.Contains(p.Mall_ID));                    
                 }
-
-                
                
                 int[] local_product_ids = (from p in localProducts select p.Product_ID).ToArray<int>();               
                 int [] local_child_product_ids=(from p in db.Product where local_product_ids.Contains(p.Parent_ID) select p.Product_ID).ToArray<int>();
@@ -92,12 +90,12 @@ namespace KM.JXC.BL
 
                 if (startDate>0)
                 {
-                    sales = sales.Where(s => s.Created >= startDate);
+                    sales = sales.Where(s => s.Sale_Time >= startDate);
                 }
 
                 if (endDate>0)
                 {
-                    sales = sales.Where(s => s.Created < endDate);
+                    sales = sales.Where(s => s.Sale_Time < endDate);
                 }
 
                 string[] saleids=(from s in sales select s.Mall_Trade_ID).ToArray<string>();
@@ -125,6 +123,7 @@ namespace KM.JXC.BL
                               from l_sale in lSale.DefaultIfEmpty()
                               select new
                               {
+                                  SaleTime=l_sale.Sale_Time,
                                   Created=l_sale.Created,
                                   Quantity=saled.Quantity,
                                   Amount=saled.Amount,
@@ -138,7 +137,6 @@ namespace KM.JXC.BL
                 saleObj = saleObj.OrderBy(s => s.Created);
 
                 int total = saleObj.Count();
-                int count = 1;
                 bool firstRow = true;
                 foreach (Mall_Product pdt in products)
                 {
@@ -193,12 +191,18 @@ namespace KM.JXC.BL
                             shopName = (from s in this.ChildShops where s.Shop_ID == item.ShopId select s.Name).FirstOrDefault<string>();
                         }
 
-                        string propNames = "";
+                        if (shopName == null)
+                        {
+                            shopName = "";
+                        }
+
+                        string propNames = "其他";
 
                         if (item.ProductID > 0)
                         {
                             foreach (var prop in (from p in childs where p.ProductID == item.ProductID select p))
                             {
+                                if(!string.IsNullOrEmpty(prop.PName) && !string.IsNullOrEmpty(prop.PValue))
                                 if (propNames == "")
                                 {
                                     propNames = prop.PName + ":" + prop.PValue;
@@ -212,21 +216,27 @@ namespace KM.JXC.BL
                         else
                         {
                             Mall_Product_Sku sku=(from s in skus where s.Mall_ID==item.MallPID && s.SKU_ID==item.MallSkuID select s).FirstOrDefault<Mall_Product_Sku>();
-                            propNames = sku.Properties_name;
+                           
                             if (sku != null)
                             {
+                                propNames = sku.Properties_name;
                                 if (!string.IsNullOrEmpty(propNames))
                                 {
                                      string[] pops = sku.Properties.Split(';');
                                      foreach (string p in pops)
                                      {
-                                         propNames = propNames.Replace(p+":","");
+                                         propNames = propNames.Replace(p + ":", "");
                                      }
                                 }
                             }
                         }
+                        
+                        if (item.SaleTime <= 0)
+                        {
+                            continue;
+                        }
 
-                        DateTime time = DateTimeUtil.ConvertToDateTime(item.Created);
+                        DateTime time = DateTimeUtil.ConvertToDateTime(item.SaleTime);
                         string month = time.Year.ToString() + "-" + time.Month.ToString();
 
                         string jobj = "{\"ProductName\":\"" + productName + "\",\"PropName\":\""+propNames+"\",\"ShopName\":\"" + shopName + "\",\"Month\":\"" + month + "\",\"Quantity\":\"" + item.Quantity + "\",\"Amount\":\"" + item.Amount + "\"}";
@@ -240,7 +250,6 @@ namespace KM.JXC.BL
                         {
                             json.Append(","+jobj);
                         }
-                        count++;
                     }
                 }
 

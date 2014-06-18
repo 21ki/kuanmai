@@ -62,13 +62,23 @@ namespace KM.JXC.Web.Controllers.api
             {
                 paging = false;
             }
-            string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, paging, false);
-            data.totalRecords = totalProducts;
-            if (!string.IsNullOrEmpty(json))
+            try
             {
-                data.data = JArray.Parse(json);
+                string json = reportManager.GetSalesReport(stime, etime, product_id, page, pageSize, out totalProducts, paging, false);
+                data.totalRecords = totalProducts;
+                if (!string.IsNullOrEmpty(json))
+                {
+                    data.data = JArray.Parse(json);
+                }
+                data.curPage = page;
             }
-            data.curPage = page;
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                
+            }
             return data;
         }
     }
