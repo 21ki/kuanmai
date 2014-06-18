@@ -19,15 +19,6 @@
             }            
         });
 
-        $syncForm.find('#trade_sdate').datepicker({
-            currentText: "Now",
-            dateFormat: "yy-mm-dd",
-            showMonthAfterYear: true,
-            changeMonth: true,
-            changeYear: true,
-            buttonImageOnly: true,
-        });
-
         $syncForm.find('#trade_edate').datepicker({
             currentText: "Now",
             dateFormat: "yy-mm-dd",
@@ -51,12 +42,26 @@
             var day = 0;
             
             if (res != null) {
+                //$syncForm.find('#trade_sdate').datepicker("hide");
                 //alert(tradeMger.GetDateTime(res.LastTradeStartEndTime));
                 stime = new Date(res.LastTradeStartEndTime * 1000);
-                //$syncForm.find('#trade_sdate_hour').attr("disabled", true);
-                //$syncForm.find('#trade_sdate_minute').attr("disabled", true)
+                $syncForm.find('#trade_sdate').attr("readonly", true)
+                $syncForm.find('#trade_sdate_hour').attr("disabled", true);
+                $syncForm.find('#trade_sdate_minute').attr("disabled", true)
                
             } else {
+                //$syncForm.find('#trade_sdate').datepicker("show");
+                $syncForm.find('#trade_sdate').datepicker({
+                    currentText: "Now",
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                });
+                $syncForm.find('#trade_sdate').removeAttr("readonly")
+                $syncForm.find('#trade_sdate_hour').removeAttr("disabled");
+                $syncForm.find('#trade_sdate_minute').removeAttr("disabled")
                 stime = new Date();
                 stime.setHours(0);
                 stime.setMinutes(0);                       

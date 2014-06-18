@@ -1449,7 +1449,7 @@ namespace KM.JXC.BL
                     statistic.OnSaleProduct = (from pdt in db.Mall_Product where pdt.Shop_ID == this.Shop.Shop_ID || child.Contains(pdt.Shop_ID) select pdt.Mall_ID).Count();
 
                     statistic.OnSaleProductNotConnected = (from pdt in db.Mall_Product where (pdt.Shop_ID == this.Shop.Shop_ID || child.Contains(pdt.Shop_ID)) && pdt.Outer_ID == 0 select pdt.Mall_ID).Count();
-
+                    statistic.Trade = (from t in db.Sale where t.Shop_ID==this.Shop.Shop_ID || child.Contains(t.Shop_ID) select t).Count();
                 }
                 else
                 {
@@ -1498,6 +1498,8 @@ namespace KM.JXC.BL
                     statistic.OnSaleProduct = (from pdt in db.Mall_Product where pdt.Shop_ID == shop select pdt.Mall_ID).Count();
 
                     statistic.OnSaleProductNotConnected = (from pdt in db.Mall_Product where (pdt.Shop_ID == shop) && pdt.Outer_ID == 0 select pdt.Mall_ID).Count();
+
+                    statistic.Trade=(from t in db.Sale where t.Shop_ID==shop select t).Count();
                 }
             }
             return statistic;
