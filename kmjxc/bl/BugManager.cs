@@ -173,6 +173,7 @@ namespace KM.JXC.BL
                           from resolved in LResolved.DefaultIfEmpty()
                           join status in db.Bug_Status on b.Status equals status.ID into LStatus
                           from l_status in LStatus.DefaultIfEmpty()
+                          where b.ID==bug_id
                           select new BBug
                           {
                               Created = b.Created,
@@ -215,6 +216,7 @@ namespace KM.JXC.BL
                     var tmpRes = from bs in db.Bug_Response
                                  join user in db.User on bs.Create_By equals user.User_ID into LUser
                                  from l_user in LUser.DefaultIfEmpty()
+                                 where bs.BugID==bug_id
                                  select new BBugResponse
                                  {
                                      Created = bs.Created,
