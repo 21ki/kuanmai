@@ -58,6 +58,10 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Category" Width="1.5" PointX="8.7149380877217926" PointY="0.54664181198302741" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role" Width="1.5" PointX="9.6071838241103968" PointY="6.2502822160023648" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Express_Fee" Width="1.5" PointX="4.1711611152492285" PointY="10.655040298893601" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug" Width="1.5" PointX="2.462253079964897" PointY="28.008562816310935" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Feature" Width="1.5" PointX="10.99137889174343" PointY="29.724517925514149" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Status" Width="1.5" PointX="0.15905526287809724" PointY="26.635314864402318" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Response" Width="1.5" PointX="7.8541184588587463" PointY="6.1587787895271457" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

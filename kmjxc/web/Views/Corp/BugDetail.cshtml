@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "问题详细信息";
+    Layout = "~/Views/Shared/master_corp.cshtml";
+    KM.JXC.BL.Models.Admin.BBug bug = null;
+    if(Model!=null)
+    {
+        bug = (KM.JXC.BL.Models.Admin.BBug)Model;
+    }
+}
+
+<script>
+    var bugManager = new KMJXCBugManager();
+    $(function () {
+        $('#tabs').tabs();
+        $('#btn_submit_bug_comment').button().click(function () {
+            var bug_id=$('#bug_id').val();
+            var comment = $('#bug_comment').val();
+            if ($.trim(comment) == '') {
+                alert("请输入回复内容");
+                return;
+            }
+
+            bugManager.CreateBugResponse({ 'bug_id': bug_id, 'description': comment }, function (res) {
+                if (res.Status == "ok") {
+                    $('#bug_comment').val("");
+                    location.reload();
+                } else {
+                    alert(res.Message);
+                }
+            });
+        });
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li>
+            <a href="#bugInfo">问题详细信息</a>
+        </li>
+    </ul>
+
+    <div id="bugInfo">
+        <input type="hidden" id="bug_id" value="@bug.ID" />
+        <div class="row nolabel1" style="color:#777;">
+            @Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(bug.Created).ToString("yyyy-M-dd H:mm")+" 由 "+bug.Created_By.Name+" 创建")
+        </div>
+        <div class="row">
+            <label>标题:</label><span>@bug.Title</span>
+        </div>
+        <div class="row">
+            <label>功能:</label><span>@bug.Feature.Name</span>
+        </div>
+        <div class="row" style="height:auto;overflow:hidden;">
+            <label style="float:left;display:inline-block;">描述:</label><div style="float:left;width:600px;word-break:break-all;">@Html.Raw(bug.Description)</div>
+        </div>
+
+        <div class="row" style="height:auto;overflow:hidden;margin-top:10px;">
+            <label style="float:left;display:inline-block;">回复:</label>
+            <div style="float:left;width:600px;">
+                @{
+                    if(bug.Responses!=null && bug.Responses.Count>0)
+                    {
+                        <div style="">
+                        @foreach(KM.JXC.BL.Models.Admin.BBugResponse response in bug.Responses)
+                        {
+                            <div style="padding:10px 10px;border:1px solid #ccc;border-radius:3px;width:500px;margin-bottom:5px;">
+                                <div style="color:#777;">@Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(response.Created).ToString("yyyy-M-dd H:mm")+" 由 "+response.Created_By.Name+" 回复")</div>
+                                <div style="padding-top:3px;">
+                                    @Html.Raw(response.Description)
+                                </div>
+                            </div>
+                        }
+                        </div>
+                    }
+                    
+                    <div class="row" style="height:auto;">
+                        <div><textarea style="width:500px; border:1px solid #ccc; padding:10px 10px;border-radius:3px;" id="bug_comment"></textarea></div>
+                        <div><span id="btn_submit_bug_comment">回复</span></div>
+                    </div>   
+                 }
+            </div>
+            
+        </div>
+    </div>
+</div>

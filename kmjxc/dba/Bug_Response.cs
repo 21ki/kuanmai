@@ -12,11 +12,12 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Admin_Category
+    public partial class Bug_Response
     {
         public int ID { get; set; }
-        public string Name { get; set; }
+        public int BugID { get; set; }
+        public string Description { get; set; }
         public long Created { get; set; }
-        public Nullable<bool> System_category { get; set; }
+        public int Create_By { get; set; }
     }
 }

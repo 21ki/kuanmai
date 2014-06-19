@@ -12,21 +12,19 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class User
+    public partial class Bug
     {
-        public int User_ID { get; set; }
-        public string Mall_ID { get; set; }
-        public string Parent_Mall_ID { get; set; }
-        public string Mall_Name { get; set; }
-        public string Parent_Mall_Name { get; set; }
-        public int Mall_Type { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
-        public Nullable<int> Parent_User_ID { get; set; }
-        public int Shop_ID { get; set; }
-        public Nullable<long> Created { get; set; }
+        public int ID { get; set; }
+        public string Title { get; set; }
+        public Nullable<int> Feature { get; set; }
+        public Nullable<int> Function { get; set; }
+        public string Description { get; set; }
+        public long Created { get; set; }
+        public int Created_By { get; set; }
+        public int Status { get; set; }
         public Nullable<long> Modified { get; set; }
         public Nullable<int> Modified_By { get; set; }
-        public bool IsSystemUser { get; set; }
+        public Nullable<int> Resolved_By { get; set; }
+        public Nullable<long> Resolved { get; set; }
     }
 }

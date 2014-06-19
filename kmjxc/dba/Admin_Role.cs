@@ -21,5 +21,6 @@ namespace KM.JXC.DBA
         public int shop_id { get; set; }
         public string description { get; set; }
         public Nullable<bool> enabled { get; set; }
+        public Nullable<bool> system_role { get; set; }
     }
 }

@@ -56,6 +56,7 @@ namespace KM.JXC.BL
                 admin_role.description = desc;
                 admin_role.create_uid = this.CurrentUser.ID;
                 admin_role.create_date = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                admin_role.system_role = false;
                 db.Admin_Role.Add(admin_role);
                 db.SaveChanges();
                 if (actions != null)
@@ -408,6 +409,7 @@ namespace KM.JXC.BL
                         dbCate = new Admin_Category();
                         dbCate.ID = pcate.ID;
                         dbCate.Name = pcate.CategoryName;
+                        dbCate.System_category = pcate.IsSystem;
                         dbCate.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         db.Admin_Category.Add(dbCate);                        
                     }

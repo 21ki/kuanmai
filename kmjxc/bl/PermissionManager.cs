@@ -18,6 +18,7 @@ namespace KM.JXC.BL
         public int ID { get; set; }
         public string CategoryName { get; set; }
         public string ActionDescription { get; set; }
+        public bool IsSystem { get; set; }
     }
 
     public class Permission
@@ -320,136 +321,6 @@ namespace KM.JXC.BL
                 }
 
                 db.SaveChanges();
-            }
-        }
-
-        /// <summary>
-        /// Verify user is super admin or site admin
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public Admin_Super GetSuperAdmin(User user)
-        {
-            Admin_Super super_admin=new Admin_Super();
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                var super = from s in db.Admin_Super where s.user_id == user.User_ID select s;
-                if (super != null && super.ToList<Admin_Super>().Count>0)
-                {
-                    super_admin = super.ToList<Admin_Super>()[0];
-                }
-            }
-            
-             return super_admin;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="roleName"></param>
-        public void CreateAdminRole(Admin_Role adminRole)
-        {
-            if (adminRole == null || string.IsNullOrEmpty(adminRole.role_name))
-            {
-                throw new KMJXCException("输入信息有错误");
-            }
-            if (adminRole.shop_id <= 0)
-            {
-                throw new KMJXCException("创建权限角色时必须制定店铺");
-            }
-
-            Admin_Role role = null;
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                role = (from adminrole in db.Admin_Role
-                        where adminrole.role_name == adminRole.role_name && adminrole.shop_id == adminRole.shop_id 
-                                   select adminrole).FirstOrDefault<Admin_Role>();
-
-                if (role != null && role.id > 0)
-                {
-                    throw new KMJXCException("名称为" + adminRole.role_name + "的管理角色已经存在");
-                }
-                
-                db.Admin_Role.Add(adminRole);
-                db.SaveChanges();
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void GrantRoleActions(int roleId,int[] actions)
-        {
-            if (roleId <= 0)
-            {
-                throw new KMJXCException("请选择角色");
-            }
-            List<Admin_Action> adminActions = new List<Admin_Action>();
-            if (actions!=null && actions.Length > 0)
-            {
-                for (int i = 0; i < actions.Length; i++)
-                {                   
-                    adminActions.Add(new Admin_Action() { id=actions[i] });
-                }
-            }
-
-            this.GrantRoleActions(new Admin_Role() { id=roleId},adminActions);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="role"></param>
-        /// <param name="actions"></param>
-        public void GrantRoleActions(Admin_Role role, List<Admin_Action> actions)
-        {
-            if (role == null)
-            {
-                throw new KMJXCException("请选择角色");
-            }
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                Admin_Role existing = (from roles in db.Admin_Role where roles.id == role.id select roles).FirstOrDefault<Admin_Role>();
-                if (existing == null)
-                {
-                    throw new KMJXCException(role.role_name+" 不存在");
-                }
-
-                List<Admin_Action> allActions=(from a in db.Admin_Action select a).ToList<Admin_Action>();
-
-                List<Admin_Role_Action> roleActions = (from ara in db.Admin_Role_Action where ara.role_id == existing.id select ara).ToList<Admin_Role_Action>();
-
-                //remove existed role actions
-                if (roleActions != null && roleActions.Count > 0)
-                {
-                    foreach (Admin_Role_Action ara in roleActions)
-                    {
-                        db.Admin_Role_Action.Remove(ara);
-                    }
-
-                    db.SaveChanges();
-                }
-
-                //add role actions
-                if (actions != null)
-                {
-                    foreach (Admin_Action action in actions)
-                    {
-                        //verify if the action is existed
-                        Admin_Action existed = (from al in allActions where al.id == action.id select al).FirstOrDefault<Admin_Action>();
-                        if (existed != null)
-                        {
-                            Admin_Role_Action ara = new Admin_Role_Action();
-                            ara.role_id = existing.id;
-                            ara.action_id = action.id;
-                            db.Admin_Role_Action.Add(ara);
-                        }
-                    }
-
-                    db.SaveChanges();
-                }
             }
         }
     }

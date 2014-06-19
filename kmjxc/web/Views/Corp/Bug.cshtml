@@ -1,20 +1,198 @@
 ﻿@{
-    ViewBag.Title = "缺陷报告";
+    ViewBag.Title = "问题报告";
     Layout = "~/Views/Shared/master_corp.cshtml";
+    KM.JXC.BL.Models.BPageData data = null;
+    if(Model!=null)
+    {
+        data = (KM.JXC.BL.Models.BPageData)Model;
+    }
+    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPageUtil.ParseURLParams(Request.RawUrl);
+    List<KM.JXC.BL.Models.Admin.BBug> bugs = (List<KM.JXC.BL.Models.Admin.BBug>)data.Data;
+    KM.JXC.BL.Models.BUser currentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
 }
 
 <script>
+    var bugManager = new KMJXCBugManager();
+    var editor = null;
     $(function () {
+
+        $('#popup_newbug').dialog({
+            width: 650, modal: true,          
+            autoOpen: false
+        });
+
+        $("#txt_new_bug_feature").empty();
+        bugManager.GetBugFeatures({}, function (res) {
+            if (res != null && res.length > 0) {
+                $(res).each(function (index, item) {
+                    $("#txt_new_bug_feature").append("<option value=\""+item.ID+"\">"+item.Name+"</option>");
+                });
+            }
+        });
+
+        KindEditor.ready(function (K) {
+            editor = K.create("#txt_new_bug_desc", {
+                resizeType: 0,
+                width: '500px',
+                minWidth: 500,
+                height: '250px',
+                allowPreviewEmoticons: false,
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist', '|', 'emoticons', 'link']
+            });           
+            editor.html("");
+        });
+
         $('#tabs').tabs();
+        $('#btn_new_bug').button({ icons: { primary: "ui-icon-plus" } }).click(function () {
+            $('#popup_newbug').dialog({
+                position: { my: "top", at: "top", of: $("#bugList") },
+                width: 650,               
+                resizable: false,
+                title: "新建问题",
+                modal: true,
+                open: function () { },
+                close: function () {
+                    $('#txt_new_bug_title').val("");
+                    $('#txt_new_bug_feature').val(1);
+                    editor.html("");
+                },
+                buttons: [
+                  {
+                      text: "确定", click: function () {
+                          var that = this;
+                          var title = $('#txt_new_bug_title').val();
+                          var feature = $('#txt_new_bug_feature').val();
+                          var desc = editor.html();
+                          if (title == "") {
+                              alert("请输入标题");
+                              return;
+                          }
+
+                          if (desc == "") {
+                              alert("请输入问题描述");
+                              return;
+                          }
+                          
+                          bugManager.CreateBug({'title':title,"description":desc,'feature':feature}, function (res) {
+                              if (res.Status == 'ok') {
+                                  $(that).dialog("close");
+                                  location.reload();
+                              } else {
+                                  alert(res.Message);
+                              }
+                          });
+                      },
+                      icons: { primary: "ui-icon-disk" }
+                  },
+                  {
+                      text: "取消", click: function () {
+                          $(this).dialog("close");
+                      },
+                      icons: { primary: "ui-icon-close" }
+                  }
+                ]
+            });
+
+            $('#popup_newbug').dialog("open");
+        });
     });
 </script>
 
 <div id="tabs">
     <ul>
-        <li><a href="#bugList">缺陷报告</a></li>
+        <li><a href="#bugList">问题报告</a></li>
     </ul>
     <div id="bugList">
-        
+
+        <div class="rowS">
+             <span id="btn_new_bug">创建问题</span>
+        </div>
+
+        <div class="row s_title shead jxcheader1">
+                    <span style="margin-left:0;" class="spanw3">编号</span><span class="spanw6">标题</span>
+                    <span class="spanw2">状态</span>
+                    <span class="spanw5">创建者</span>
+                    <span class="spanw5">创建日期</span> 
+                              
+        </div>
+        @{
+            string status = "";
+            string user_id = "";
+            if (paras.ContainsKey("status")){
+                status = paras["status"];
+            }
+
+            if (paras.ContainsKey("user"))
+            {
+                user_id = paras["user"];
+            } 
+         }
+
+        <div class="row">
+               <a 
+                  @{
+                     if(string.IsNullOrEmpty(user_id) && (string.IsNullOrEmpty(status) || status=="0"))
+                     {
+                         @Html.Raw("class=\"tabasel1\"");
+                     }else{
+                         @Html.Raw("class=\"taba1\"");
+                     }  
+                   } 
+                    href="/Corp/Bug">全部</a>
+               <a 
+                   
+                   @{
+                     if(!string.IsNullOrEmpty(status) && status=="6")
+                     {
+                         @Html.Raw("class=\"tabasel1\"");
+                     }else{
+                         @Html.Raw("class=\"taba1\"");
+                     }  
+                   } 
+                    href="/Corp/Bug?status=6">已解决</a>
+               <a 
+                    @{
+                     if(!string.IsNullOrEmpty(user_id) && user_id==currentUser.ID.ToString())
+                     {
+                         @Html.Raw("class=\"tabasel1\"");
+                     }else{
+                         @Html.Raw("class=\"taba1\"");
+                     }  
+                   } 
+                    href="/Corp/Bug?user=@currentUser.ID">我的问题</a>
+        </div>
+        @if (bugs.Count > 0)
+        {
+              <div>
+                  @foreach(KM.JXC.BL.Models.Admin.BBug bug in bugs)
+                  {
+                       <div class="row jxclist1">
+                            <span style="margin-left:0;" class="spanw3"><a href="/Corp/BugDetail/@bug.ID">@bug.ID</a></span><span class="spanw6"><a href="/Corp/BugDetail/@bug.ID">@bug.Title</a></span>
+                            <span class="spanw2">@bug.Status.Name</span>
+                            <span class="spanw5">@bug.Created_By.Name</span>
+                            <span class="spanw5">@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(bug.Created).ToString("yyyy-MM-dd H:mm")</span> 
+                     
+                       </div>
+                  }
+              </div>
+              
+                  string pageHtml = KM.JXC.Web.Utilities.JXCPageUtil.Pager(data);
+                  if (!string.IsNullOrEmpty(pageHtml))
+                  {
+                    <div class="s_title spage pager">
+                         @Html.Raw(pageHtml)
+                    </div>
+                  }  
+        }
+    </div>
+
+    <div id="popup_newbug">
+        <div class="row"><label>标题:</label><input type="text" class="W_input iptW300" id="txt_new_bug_title" /></div>
+        <div class="row"><label>功能:</label><select class="W_inputsel" id="txt_new_bug_feature"></select></div>
+        <div class="row" style="height:auto;"><label style="display:inline-block;float:left;">描述:</label><textarea style="width:500px;" name="txt_new_bug_desc" id="txt_new_bug_desc"></textarea></div>
     </div>
 </div>
 

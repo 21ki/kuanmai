@@ -74,6 +74,9 @@ height:24px;
 .iptW100 {
     width:100px;
 }
+.iptW300 {
+    width:300px;
+}
 header, footer, nav, section {
     display: block;
 }
@@ -783,6 +786,13 @@ td.tdc {
 
 .spanw4 {
     width:200px;
+}
+
+.spanw5 {
+    width:150px;
+}
+.spanw6 {
+    width:250px;
 }
 
 a.connected {

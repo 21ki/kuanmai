@@ -574,6 +574,51 @@ function KMJXCReportManager() {
     }
 }
 
+KMJXCBugManager.prototype = new KMJXCBase();
+
+function KMJXCBugManager() {
+    /*
+    feature
+    title
+    description
+    */
+    this.CreateBug = function (params, callback) {
+        this.AjaxCall("/api/Bug/CreateBug", params, callback);
+    }
+
+    /*
+   bug_id   
+   description
+   */
+    this.CreateBugResponse = function (params, callback) {
+        this.AjaxCall("/api/Bug/CreateBugResponse", params, callback);
+    }
+
+    /*
+      page   
+      pageSize
+      status
+      user
+      feature
+    */
+    this.SearchBugs = function (params, callback) {
+        this.AjaxCall("/api/Bug/SearchBugs", params, callback);
+    }
+
+    /*
+     bug_id
+    */
+    this.GetBugFullInfo = function (params, callback) {
+        this.AjaxCall("/api/Bug/GetBugFullInfo", params, callback);
+    }
+    this.GetBugStatuses = function (params, callback) {
+        this.AjaxCall("/api/Bug/GetBugStatuses", params, callback);
+    }
+    this.GetBugFeatures = function (params, callback) {
+        this.AjaxCall("/api/Bug/GetBugFeatures", params, callback);
+    }
+}
+
 KMJXManager.prototype = new KMJXCBase();
 function KMJXManager() {
     this.UserManager = new KMJXCUserManager();

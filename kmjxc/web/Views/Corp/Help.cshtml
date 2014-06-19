@@ -1,30 +1,125 @@
 ﻿@{
-    ViewBag.Title = "Help";
-    Layout = "~/Views/Shared/master_corp.cshtml";
-}
-
+    ViewBag.Title = "使用帮助";
+    Layout = "~/Views/Shared/master_corp.cshtml";  
+ }
 <script>
     $(function () {
         $('#tabs').tabs();
     });
+
 </script>
 
 <div id="tabs">
     <ul>
-        <li><a href="#help">使用帮助</a></li>
+        <li>
+            <a href="#features">使用帮助</a>
+        </li>
     </ul>
-    <div id="help">
-        <div id="helpIndex">
-           
+    <div id="features">        
+        <div class="helpFeatureTitle">1.采购</div>
+        <div class="featurecontent">
+            采购主要有采购单和验货单组成，先创建采购单，等到货之后通过采购单生成验货单，生成验货单时如果产品数量和采购单不一样，可以修改。<br/>
+            验货单生成完毕，则可以到验货单管理里面入库，在入库界面，需要填写产品对应属性集合的数量，然后保存入库（如果勾选更新库存，则更新产品的库存字段）。<br/>
+            供应商管理里面可以添加和修改供应商，主店铺用户可以修改子店铺供应商，但是子店铺用户无法修改主店铺供应商。
         </div>
-        <div id="buy">
-
-        </div>       
-        <div id="product">
-
+        <div class="helpFeatureTitle">2.销售</div>
+        <div class="featurecontent">  
+            <div class="section">        
+                <span class="head">订单同步:</span>
+                <p>         
+                    一般同步:根据商城交易的创建时间同步，交易创建的时间范围可选，系统会默认给出上次同步时间<br/>
+                    增量同步:根据商城交易的修改时间同步，交易修改的时间范围不可选，时间范围为上次同步时间到系统当前时间，在一般同步里同步回来的交易如果发现任何变化，在这里会同步回来，如果有退货交易，则退货单会在此同步过程自动生成。<br/>
+                </p> 
+                <p>
+                    同步过程中，系统会默认自动生成出库单
+                </p>
+            </div> 
+            <div class="section">            
+                <span class="head">退货单处理：</span>
+                <p>
+                退库并更新库存（无损耗）<br/>
+                部分退库并更新库存（部分损耗）<br/>
+                损耗不更新库存（全部损耗）
+                </p>
+            </div>
         </div>
-        <div id="trade">
 
+        <div class="helpFeatureTitle">3.库存</div>
+        <div class="featurecontent">  
+            <div class="section">
+                 <span class="head">库存查询,出库</span>
+                 <p>
+                     查询产品库存，修改库存。销售出库只能查询没有其他相关功能
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">销售退库</span>
+                 <p>
+                     在同步订单时如果有退货，可以在销售-退货单里处理，如有退库产品，则在销售退库里会显示待入库的退库产品
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">仓库</span>
+                 <p>
+                     添加，编辑仓库，以及设置默认仓库，同步订单时会出库，出库时候会选择默认仓库出库，如果默认仓库没有某种产品的库存或者库存不足，系统会自动查询其他有库存的仓库出库
+                 </p>
+            </div>
+        </div>
+
+        <div class="helpFeatureTitle">4.产品</div>
+         <div class="featurecontent">  
+            <div class="section">
+                 <span class="head">添加/编辑产品</span>
+                 <p>
+                     添加/编辑产品，可以修改产品的库存属性以及产品的供应商，采购订单所能选择的产品会根据所选的供应商来决定
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">添加/编辑类目</span>
+                 <p>
+                     添加/编辑类目，最多支持两级类目，子类目个数会显示子类目表格
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">添加/删除库存属性</span>
+                 <p>
+                    添加/编辑库存属性，修改属性值时，只能添加新的值，不能修改已有的值
+                 </p>
+            </div>
+        </div>
+
+        <div class="helpFeatureTitle">5.店铺</div>
+        <div class="featurecontent">  
+            <div class="section">
+                 <span class="head">在售宝贝</span>
+                 <p>
+                     主要是同步商城在售宝贝到本地系统，并且支持关联到本地产品操作，关联SKU时，如果对于某个产品的库存属性已经关联到宝贝的某个SKU，则不能重复关联，选择其他属性进行关联
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">子店铺</span>
+                 <p>
+                     添加子店铺，主要由主店铺来添加新的子店铺，子店铺必须已经使用了本系统，并且子店铺掌柜已经登录过本系统<br/>
+                     通过子店铺请求，主要有子店铺掌柜登录本系统来批准请求，批准的目的是防止胡乱添加
+                 </p>
+            </div>
+            <div class="section">
+                 <span class="head">快递管理</span>
+                 <p>
+                    添加快递公司之后，可以设置仓库，快递，目标区域的快递费用，同步订单时会根据默认的快递公司寻找对应仓库以及目标区域的快递费用，以统计精确地快递费用
+                 </p>
+            </div>
+        </div>
+
+        <div class="helpFeatureTitle">6.权限</div>
+        <div class="featurecontent">  
+            <div class="section">
+                 <span class="head">权限角色/分组</span>
+                 <p>
+                     系统是通过权限角色或者叫分组来约束子账户的权限，不能为账户设置单一权限，只能给账户赋予权限分组，每个权限分组可以被赋予各种权限
+                 </p>
+            </div>
         </div>
     </div>
 </div>
+

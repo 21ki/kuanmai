@@ -78,5 +78,9 @@ namespace KM.JXC.DBA
         public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Admin_Role> Admin_Role { get; set; }
         public DbSet<Express_Fee> Express_Fee { get; set; }
+        public DbSet<Bug> Bug { get; set; }
+        public DbSet<Bug_Feature> Bug_Feature { get; set; }
+        public DbSet<Bug_Status> Bug_Status { get; set; }
+        public DbSet<Bug_Response> Bug_Response { get; set; }
     }
 }

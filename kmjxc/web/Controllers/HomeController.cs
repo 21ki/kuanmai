@@ -16,8 +16,7 @@ namespace KM.JXC.Web.Controllers
         public ActionResult Index()
         {
             string user = HttpContext.User.Identity.Name;
-            
-            return View();
+            return Redirect("/Shop/Dashboard");            
         }        
 
         [AllowAnonymous]

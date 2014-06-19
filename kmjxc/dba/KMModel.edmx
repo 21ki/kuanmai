@@ -18,6 +18,10 @@
           <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Sale_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Store.Back_Stock" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Bug" EntityType="KM.JXC.DBA.Model.Store.Bug" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Bug_Feature" EntityType="KM.JXC.DBA.Model.Store.Bug_Feature" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Store.Bug_Response" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Store.Bug_Status" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy" EntityType="KM.JXC.DBA.Model.Store.Buy" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
@@ -97,6 +101,7 @@
           <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="System_category" Type="bool" />
         </EntityType>
         <EntityType Name="Admin_Role">
           <Key>
@@ -109,6 +114,7 @@
           <Property Name="shop_id" Type="int" Nullable="false" />
           <Property Name="description" Type="varchar" MaxLength="200" />
           <Property Name="enabled" Type="bool" />
+          <Property Name="system_role" Type="bool" />
         </EntityType>
         <EntityType Name="Admin_Role_Action">
           <Key>
@@ -140,6 +146,7 @@
           </Key>
           <Property Name="user_id" Type="int" Nullable="false" />
           <Property Name="role_id" Type="int" Nullable="false" />
+          <Property Name="system_user" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
@@ -196,6 +203,47 @@
           <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="int" />
           <Property Name="Status" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Bug">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="varchar" Nullable="false" MaxLength="100" />
+          <Property Name="Feature" Type="int" />
+          <Property Name="Function" Type="int" />
+          <Property Name="Description" Type="text" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Created_By" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="Modified" Type="uint" />
+          <Property Name="Modified_By" Type="int" />
+          <Property Name="Resolved_By" Type="int" />
+          <Property Name="Resolved" Type="uint" />
+        </EntityType>
+        <EntityType Name="Bug_Feature">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Description" Type="varchar" MaxLength="45" />
+        </EntityType>
+        <EntityType Name="Bug_Response">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="BugID" Type="int" Nullable="false" />
+          <Property Name="Description" Type="text" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Create_By" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Bug_Status">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Status" Type="varchar" Nullable="false" MaxLength="45" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
@@ -750,6 +798,7 @@
           <Property Name="Created" Type="uint" />
           <Property Name="Modified" Type="uint" />
           <Property Name="Modified_By" Type="int" />
+          <Property Name="IsSystemUser" Type="bool" Nullable="false" />
         </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -809,6 +858,10 @@
           <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
           <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Admin_Role" />
           <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Express_Fee" />
+          <EntitySet Name="Bug" EntityType="KM.JXC.DBA.Model.Bug" />
+          <EntitySet Name="Bug_Feature" EntityType="KM.JXC.DBA.Model.Bug_Feature" />
+          <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Bug_Status" />
+          <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Bug_Response" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -864,6 +917,7 @@
           </Key>
           <Property Type="Int32" Name="user_id" Nullable="false" />
           <Property Type="Int32" Name="role_id" Nullable="false" />
+          <Property Type="Boolean" Name="system_user" Nullable="false" />
         </EntityType>
         <EntityType Name="Back_Sale">
           <Key>
@@ -1401,6 +1455,7 @@
           <Property Type="Int64" Name="Created" />
           <Property Type="Int64" Name="Modified" />
           <Property Type="Int32" Name="Modified_By" />
+          <Property Type="Boolean" Name="IsSystemUser" Nullable="false" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
@@ -1463,6 +1518,7 @@
           <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Boolean" Name="System_category" />
         </EntityType>
         <EntityType Name="Admin_Role">
           <Key>
@@ -1475,6 +1531,7 @@
           <Property Type="Int32" Name="shop_id" Nullable="false" />
           <Property Type="String" Name="description" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Type="Boolean" Name="enabled" />
+          <Property Type="Boolean" Name="system_role" />
         </EntityType>
         <EntityType Name="Express_Fee">
           <Key>
@@ -1491,6 +1548,47 @@
           <Property Type="Int64" Name="Modified" Nullable="false" />
           <Property Type="Int32" Name="Created_By" Nullable="false" />
           <Property Type="Int32" Name="Modified_By" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Bug">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Title" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Feature" />
+          <Property Type="Int32" Name="Function" />
+          <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Created_By" Nullable="false" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
+          <Property Type="Int64" Name="Modified" />
+          <Property Type="Int32" Name="Modified_By" />
+          <Property Type="Int32" Name="Resolved_By" />
+          <Property Type="Int64" Name="Resolved" />
+        </EntityType>
+        <EntityType Name="Bug_Feature">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Description" MaxLength="45" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Bug_Status">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Status" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Bug_Response">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="BugID" Nullable="false" />
+          <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Create_By" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1551,6 +1649,7 @@
           <EntitySetMapping Name="Admin_User_Role">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_User_Role">
               <MappingFragment StoreEntitySet="Admin_User_Role">
+                <ScalarProperty Name="system_user" ColumnName="system_user" />
                 <ScalarProperty Name="role_id" ColumnName="role_id" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
               </MappingFragment>
@@ -2096,6 +2195,7 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="IsSystemUser" ColumnName="IsSystemUser" />
                 <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
                 <ScalarProperty Name="Modified" ColumnName="Modified" />
                 <ScalarProperty Name="Created" ColumnName="Created" />
@@ -2173,6 +2273,7 @@
           <EntitySetMapping Name="Admin_Category">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Category">
               <MappingFragment StoreEntitySet="Admin_Category">
+                <ScalarProperty Name="System_category" ColumnName="System_category" />
                 <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
@@ -2182,6 +2283,7 @@
           <EntitySetMapping Name="Admin_Role">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Role">
               <MappingFragment StoreEntitySet="Admin_Role">
+                <ScalarProperty Name="system_role" ColumnName="system_role" />
                 <ScalarProperty Name="enabled" ColumnName="enabled" />
                 <ScalarProperty Name="description" ColumnName="description" />
                 <ScalarProperty Name="shop_id" ColumnName="shop_id" />
@@ -2206,6 +2308,51 @@
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Express_ID" ColumnName="Express_ID" />
                 <ScalarProperty Name="Express_Fee_ID" ColumnName="Express_Fee_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bug">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Bug">
+              <MappingFragment StoreEntitySet="Bug">
+                <ScalarProperty Name="Resolved" ColumnName="Resolved" />
+                <ScalarProperty Name="Resolved_By" ColumnName="Resolved_By" />
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Function" ColumnName="Function" />
+                <ScalarProperty Name="Feature" ColumnName="Feature" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bug_Feature">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Bug_Feature">
+              <MappingFragment StoreEntitySet="Bug_Feature">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bug_Status">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Bug_Status">
+              <MappingFragment StoreEntitySet="Bug_Status">
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bug_Response">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Bug_Response">
+              <MappingFragment StoreEntitySet="Bug_Response">
+                <ScalarProperty Name="Create_By" ColumnName="Create_By" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="BugID" ColumnName="BugID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -16,5 +16,6 @@ namespace KM.JXC.DBA
     {
         public int user_id { get; set; }
         public int role_id { get; set; }
+        public bool system_user { get; set; }
     }
 }
