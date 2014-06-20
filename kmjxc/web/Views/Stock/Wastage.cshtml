@@ -23,7 +23,9 @@
         obj.colModel = [
                         {
                             title: "产品编号", width: 100, dataType: "integer", dataIndx: "Product.ID", editable: false
-                           
+                            , render: function (ui) {
+                                return "<a target=\"_blank\" href=\"/Product/Detail/" + ui.rowData["Product"]["ID"] + "\">" + ui.rowData["Product"]["ID"] + "</a>";
+                            }
                         },                      
 
                         {

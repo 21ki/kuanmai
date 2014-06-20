@@ -44,7 +44,9 @@ namespace KM.JXC.Web.Controllers
             bool? connected = null;
             int.TryParse(Request["page"],out page);
             int.TryParse(Request["pageSize"], out pageSize);
-
+            string keyword = Request["txt_product_name"];
+            int shop = 0;
+            int.TryParse(Request["txt_product_shop"],out shop);
             if (page <= 0)
             {
                 page = 1;
@@ -67,7 +69,7 @@ namespace KM.JXC.Web.Controllers
                 }
             }
             BMallSync lastSync = shopManager.GetMallSync(0, 0);
-            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(page, pageSize, out total, connected);
+            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(keyword, page, pageSize, out total, connected, shop);
             BPageData data = new BPageData();
             data.Data = products;
             data.TotalRecords = total;
@@ -75,6 +77,9 @@ namespace KM.JXC.Web.Controllers
             data.PageSize = pageSize;
             data.URL = Request.RawUrl;
             ViewData["LastSync"] = lastSync;
+
+            ViewData["ChildShop"] = shopManager.ChildShops;
+
             return View(data);
         }
 

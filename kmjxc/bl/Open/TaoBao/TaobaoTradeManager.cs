@@ -332,7 +332,7 @@ namespace KM.JXC.BL.Open.TaoBao
             List<BSale> sales = new List<BSale>();
             if (response.IsError)
             {
-                return sales;
+                throw new KMJXCTaobaoException(response.ErrCode, response.SubErrMsg);
             }
             if (response.Trades != null)
             {
@@ -471,7 +471,7 @@ namespace KM.JXC.BL.Open.TaoBao
             List<BSale> sales = new List<BSale>();
             if (response.IsError) 
             {
-                return sales;
+                throw new KMJXCTaobaoException(response.ErrCode, response.SubErrMsg);
             }
 
             if (response.Trades != null)

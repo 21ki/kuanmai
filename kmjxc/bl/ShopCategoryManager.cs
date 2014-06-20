@@ -114,7 +114,7 @@ namespace KM.JXC.BL
                               
                               select pc);
 
-                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] childs=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                 {
                     allpcs = allpcs.Where(c => (c.Shop_ID == this.Shop.Shop_ID || childs.Contains(c.Shop_ID)));
@@ -327,7 +327,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
 
                 Product_Class oldCategory = (from pc in db.Product_Class where pc.Product_Class_ID == category.ID select pc).ToList<Product_Class>()[0];
 
@@ -438,7 +438,7 @@ namespace KM.JXC.BL
 
             try
             {
-                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 Product_Spec ps = (from pc in db.Product_Spec where pc.Product_Spec_ID == propertyId select pc).FirstOrDefault<Product_Spec>();
                 if (ps == null)
                 {
@@ -691,7 +691,7 @@ namespace KM.JXC.BL
 
             try
             {
-                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] childs=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var props = from prop in db.Product_Spec 
                             //where (prop.Shop_ID == this.Shop.Shop_ID || prop.Shop_ID == this.Main_Shop.Shop_ID) 
                             select prop;

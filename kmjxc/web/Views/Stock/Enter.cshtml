@@ -39,21 +39,22 @@
                                 }
                             }
                         },
-                        { title: "仓库", width: 100, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },
-                        { title: "仓库地址", width: 100, dataType: "string", dataIndx: "StoreHouse.Address", editable: false },
-                        { title: "仓库电话", width: 100, dataType: "string", dataIndx: "StoreHouse.Phone", editable: false },
                         {
-                            title: "店铺", width: 120, dataType: "string", dataIndx: "Shop.Title", editable: false,
-                            render: function (ui) {                               
-                                if (ui.rowData["FromMainShop"] == "true") {
+                            title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Title", editable: false,
+                            render: function (ui) {
+                                if (ui.rowData["FromMainShop"] == true) {
                                     return ui.rowData["Shop"].Title + " 主店铺";
-                                } else if (ui.rowData["FromChildShop"] == "true") {
+                                } else if (ui.rowData["FromChildShop"] == true) {
                                     return ui.rowData["Shop"].Title + " 子店铺";
-                                } else {                                   
+                                } else {
                                     return ui.rowData["Shop"].Title;
                                 }
                             }
                         },
+                        { title: "仓库", width: 100, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },
+                        { title: "仓库地址", width: 100, dataType: "string", dataIndx: "StoreHouse.Address", editable: false },
+                        { title: "仓库电话", width: 100, dataType: "string", dataIndx: "StoreHouse.Phone", editable: false },
+                        
                         { title: "入库员", width: 150, dataType: "string", dataIndx: "Created_By.Name", editable: false },
                         { title: "入库日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
         ];

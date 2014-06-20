@@ -175,23 +175,27 @@
         }
     };
 
-    function RemoveValueRow(row) {
-        $('#popup-dialog-addedprops').find("#ap" + row).remove();
+    //remove added property from popup adding property dialog
+    function RemoveValueRow(row,obj) {
+        
         var json = propGroup[row];
         var $sel1 = $('#pdtproplist1').find("select[id='p1']");
         if (json != null) {
             $sel1.append("<option value=\"" + json.pid + "\">" + json.pvalue + "</option>");
         }
-        var tmp = [];
-
+        var tmp = [];      
         for (var i = 0; i < propGroup.length; i++) {
-            if (row != i && propGroup[i]!=null) {
+            if (row != i && propGroup[i] != null) {
                 tmp.push(propGroup[i]);
-            }
+            } 
         }
         propGroup = tmp;
+        
+        $(obj).parent().parent().remove();
+        //$('#popup-dialog-addedprops').find("#ap" + row).remove();
     }
 
+    //add property from popup adding property dialog
     function AddValueRow(fromSubmit) {
         $('#resultmessage').html("");
         $('#resultmessage').hide();
@@ -213,9 +217,9 @@
         propGroup.push(json);
         var rowIndex = propGroup.length - 1;
 
-        buffer.push("<li id=\"ap" + propRow + "\">");
+        buffer.push("<li id=\"ap" + rowIndex + "\">");
         buffer.push("<input type=\"hidden\" value=\"" + pId + "\"/>");
-        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + rowIndex + ")\" src=\"/Content/images/remove.gif\"/></span>");
+        buffer.push("<label>" + pText + ":</label><label>" + vText + "</label><span><img onclick=\"RemoveValueRow(" + rowIndex + ",this)\" src=\"/Content/images/remove.gif\"/></span>");
         buffer.push("</li>"); 
        
         $('#pdtproplist1').find("select[id='p1']").val(0);
@@ -253,6 +257,7 @@
     }
 
     function RemoveGroup(index, obj) {
+        
         var tmp = [];
         for (var i = 0; i < propGroups.length; i++) {
             if (index != i && propGroups[i] != null) {
@@ -677,7 +682,7 @@
                              title: "店铺", width: 200, dataType: "string", dataIndx: "Shop.Name", editable: false
                         },
                         {
-                            title: "主店铺产品", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
+                            title: "主店铺", width: 100, dataType: "json", dataIndx: "Shop", editable: false,
                             render: function (ui) {
                                 if (ui.rowData["FromMainShop"] == true) {
                                     return "是";

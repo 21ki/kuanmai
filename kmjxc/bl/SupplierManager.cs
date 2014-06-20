@@ -64,9 +64,9 @@ namespace KM.JXC.BL
                 }
 
                 int[] cshops =null;
-                if (this.ChildShops != null && this.ChildShops.Count > 0)
+                if (this.DBChildShops != null && this.DBChildShops.Count > 0)
                 {
-                    cshops = (from shop in this.ChildShops select shop.Shop_ID).ToArray<int>();
+                    cshops = (from shop in this.DBChildShops select shop.Shop_ID).ToArray<int>();
                     spps = spps.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || cshops.Contains(a.Shop_ID));
                 }
                 else
@@ -127,7 +127,7 @@ namespace KM.JXC.BL
                 ss = ss.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
                 suppliers = ss.ToList<BSupplier>();
-                List<int> cspids = (from csp in this.ChildShops select csp.Shop_ID).ToList<int>();
+                List<int> cspids = (from csp in this.DBChildShops select csp.Shop_ID).ToList<int>();
                 foreach (BSupplier sp in suppliers) 
                 {
                     if (sp.Shop.ID == this.Main_Shop.Shop_ID)
@@ -202,7 +202,7 @@ namespace KM.JXC.BL
 
             try
             {
-                int[] child_shops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 Supplier existed = (from supp in db.Supplier where supp.Supplier_ID == supplier.Supplier_ID select supp).FirstOrDefault<Supplier>();
                 if (existed == null)
                 {

@@ -182,7 +182,7 @@ namespace KM.JXC.BL
 
             KuanMaiEntities db = new KuanMaiEntities();
 
-            int[] csp_ids = (from child in this.ChildShops select child.Shop_ID).ToArray<int>();
+            int[] csp_ids = (from child in this.DBChildShops select child.Shop_ID).ToArray<int>();
             if (csp_ids == null)
             {
                 csp_ids = new int[1];
@@ -222,6 +222,8 @@ namespace KM.JXC.BL
                         #region handle sale orders
                         foreach (BOrder order in trade.Orders)
                         {
+                            int stockPileProductId = 0;
+
                             Sale_Detail order_detail = (from orderDetail in tradeDetails where orderDetail.Mall_Trade_ID == trade.Sale_ID && orderDetail.Mall_Order_ID == order.Order_ID select orderDetail).FirstOrDefault<Sale_Detail>();
 
                             if (order.Status1 != 0)
@@ -252,6 +254,12 @@ namespace KM.JXC.BL
                                 continue;
                             }
 
+                            stockPileProductId = order.Product_ID;
+                            if (stockPileProductId == 0 && string.IsNullOrEmpty(order.Mall_SkuID) && order.Parent_Product_ID>0)
+                            {
+                                stockPileProductId = order.Parent_Product_ID;
+                            }
+
                             Leave_Stock_Detail dbDetail = new Leave_Stock_Detail();
                             dbDetail.Leave_Stock_ID = dbStock.Leave_Stock_ID;
                             dbDetail.Price = order.Price;
@@ -262,7 +270,7 @@ namespace KM.JXC.BL
                             {
                                 //order_detail.SyncResultMessage = "默认仓库：" + house.Title;
                                 //create leave stock from default store house
-                                stockPile = (from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();                                                               
+                                stockPile = (from sp in stockPiles where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();                                                               
                             }
 
                             if (stockPile == null)
@@ -272,7 +280,7 @@ namespace KM.JXC.BL
                                     //order_detail.SyncResultMessage = "默认仓库：" + house.Title + "没有库存或者库存数量不够<br/>";
                                 }
                                 //get store house when it has the specific product
-                                var tmpstockPile = from sp in stockPiles where sp.Product_ID == order.Product_ID && sp.Quantity >= order.Quantity select sp;
+                                var tmpstockPile = from sp in stockPiles where sp.Product_ID == stockPileProductId && sp.Quantity >= order.Quantity select sp;
                                 if (tmpstockPile.Count() > 0)
                                 {
                                     stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
@@ -352,72 +360,91 @@ namespace KM.JXC.BL
         public bool SyncMallTrades(int startTime, int endTime, string status,int syncType)
         {
             bool result = false;
-            IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
-            List<BSale> allSales = new List<BSale>();          
-                      
-            Sale_SyncTime syncTime = null; 
-            KuanMaiEntities db = new KuanMaiEntities();
-            syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID && sync.SyncType == syncType orderby sync.LastSyncTime descending select sync).FirstOrDefault<Sale_SyncTime>();
-            DateTime tNow = DateTime.Now;
-            long timeNow = DateTimeUtil.ConvertDateTimeToInt(tNow);
-            long lastSyncModifiedTime = 0;
-            lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(tNow.AddDays(-1));
-            if (syncTime != null)
+            try
             {
-                lastSyncModifiedTime = syncTime.LastTradeModifiedEndTime;               
-            }
+                IOTradeManager tradeManager = new TaobaoTradeManager(this.AccessToken, this.Shop.Mall_Type_ID);
+                List<BSale> allSales = new List<BSale>();
 
-            syncTime = new Sale_SyncTime();
-            syncTime.ShopID = this.Shop.Shop_ID;            
-            syncTime.SyncUser = this.CurrentUser.ID;
-            syncTime.LastSyncTime = timeNow;
-            
-            
-            
-            syncTime.SyncType = syncType;
-            db.Sale_SyncTime.Add(syncTime);
-
-            
-            //0 is normal sync trade by created time, 1 is increment sync trade by modified time
-            if (syncType == 0)
-            {
-                syncTime.LastTradeStartEndTime = endTime + 1;
-                syncTime.LastTradeModifiedEndTime = 0;
-                DateTime? sDate = null;
-                DateTime? eDate = null;
-
-                if (startTime > 0)
+                Sale_SyncTime syncTime = null;
+                KuanMaiEntities db = new KuanMaiEntities();
+                syncTime = (from sync in db.Sale_SyncTime where sync.ShopID == this.Shop.Shop_ID && sync.SyncType == syncType orderby sync.LastSyncTime descending select sync).FirstOrDefault<Sale_SyncTime>();
+                DateTime tNow = DateTime.Now;
+                long timeNow = DateTimeUtil.ConvertDateTimeToInt(tNow);
+                long lastSyncModifiedTime = 0;
+                lastSyncModifiedTime = DateTimeUtil.ConvertDateTimeToInt(tNow.AddDays(-1));
+                if (syncTime != null)
                 {
-                    sDate = DateTimeUtil.ConvertToDateTime(startTime);
+                    lastSyncModifiedTime = syncTime.LastTradeModifiedEndTime;
                 }
 
-                if (endTime > 0)
+                syncTime = new Sale_SyncTime();
+                syncTime.ShopID = this.Shop.Shop_ID;
+                syncTime.SyncUser = this.CurrentUser.ID;
+                syncTime.LastSyncTime = timeNow;
+
+
+
+                syncTime.SyncType = syncType;
+                db.Sale_SyncTime.Add(syncTime);
+
+
+                //0 is normal sync trade by created time, 1 is increment sync trade by modified time
+                if (syncType == 0)
                 {
-                    eDate = DateTimeUtil.ConvertToDateTime(endTime); 
+                    syncTime.LastTradeStartEndTime = endTime + 1;
+                    syncTime.LastTradeModifiedEndTime = 0;
+                    DateTime? sDate = null;
+                    DateTime? eDate = null;
+
+                    if (startTime > 0)
+                    {
+                        sDate = DateTimeUtil.ConvertToDateTime(startTime);
+                    }
+
+                    if (endTime > 0)
+                    {
+                        eDate = DateTimeUtil.ConvertToDateTime(endTime);
+                    }
+
+                    allSales = tradeManager.SyncMallTrades(sDate, eDate, status);
+                }
+                else if (syncType == 1)
+                {
+                    syncTime.LastTradeStartEndTime = 0;
+                    syncTime.LastTradeModifiedEndTime = timeNow + 1;
+                    allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime, timeNow, status);
                 }
 
-                allSales = tradeManager.SyncMallTrades(sDate, eDate, status);                     
-            }
-            else if (syncType == 1)
-            {
-                syncTime.LastTradeStartEndTime = 0;
-                syncTime.LastTradeModifiedEndTime = timeNow + 1;
-                allSales = tradeManager.IncrementSyncMallTrades(lastSyncModifiedTime,timeNow, status);
-            }
+                List<BSale> sales = new List<BSale>();
 
-            List<BSale> sales = new List<BSale>();
-
-            foreach (BSale s in allSales)
-            {
-                List<BSale> existed=(from ss in sales where ss.Sale_ID== s.Sale_ID select ss).ToList<BSale>();
-                if (existed==null || existed.Count == 0)
+                foreach (BSale s in allSales)
                 {
-                    sales.Add(s);
+                    List<BSale> existed = (from ss in sales where ss.Sale_ID == s.Sale_ID select ss).ToList<BSale>();
+                    if (existed == null || existed.Count == 0)
+                    {
+                        sales.Add(s);
+                    }
                 }
-            }
 
-            this.HandleMallTrades(sales);        
-            db.SaveChanges();
+                this.HandleMallTrades(sales);
+                db.SaveChanges();
+            }
+            catch (KMJXCTaobaoException mex)
+            {
+                throw mex;
+            }
+            catch (KMJXCMallException mex)
+            {
+                throw mex;
+            }
+            catch (KMJXCException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             
             return result;
         }
@@ -439,7 +466,7 @@ namespace KM.JXC.BL
             KuanMaiEntities db = new KuanMaiEntities();
             try
             {
-                int[] child_shops=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shops=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
 
                 allProducts = (from p in db.Product
                                where p.Shop_ID == this.Shop.Shop_ID || child_shops.Contains(p.Shop_ID) || p.Shop_ID == this.Main_Shop.Shop_ID
@@ -741,7 +768,7 @@ namespace KM.JXC.BL
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var trades = from sale in db.Sale                             
                              select sale;
 
@@ -954,7 +981,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                
                 var dbBackSales = from sale in db.Back_Sale
                                   //where sale.Shop_ID == this.Shop.Shop_ID || sale.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(sale.Shop_ID)
@@ -1095,7 +1122,7 @@ namespace KM.JXC.BL
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (cspids == null)
                 {
                     cspids = new int[] { 0 };
@@ -1221,7 +1248,7 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 totalRecords = 0;
-                int[] child_shop = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shop = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var tmp = from sync in db.Sale_SyncTime
                           //where sync.ShopID == this.Shop.Shop_ID || sync.ShopID == this.Main_Shop.Shop_ID || child_shop.Contains(sync.ShopID)
                           select sync;
@@ -1315,7 +1342,7 @@ namespace KM.JXC.BL
             }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 List<Product> products = (from p in db.Product where p.Shop_ID == this.Shop.Shop_ID || p.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(p.Shop_ID) select p).ToList<Product>();
                 Back_Sale dbbackSale = new Back_Sale();
                 dbbackSale.Back_Date = backSale.BackTime;
@@ -1453,7 +1480,7 @@ namespace KM.JXC.BL
 
                 List<Back_Sale_Detail> details=(from bsd in db.Back_Sale_Detail where bsd.Back_Sale_ID==backSaleId && order_id.Contains(bsd.Order_ID) select bsd).ToList<Back_Sale_Detail>();
 
-                int[] child_shop=(from child in this.ChildShops select child.Shop_ID).ToArray<int>();
+                int[] child_shop=(from child in this.DBChildShops select child.Shop_ID).ToArray<int>();
 
                 List<Stock_Waste> wastage=(from waste in db.Stock_Waste 
                                            where waste.Shop_ID==this.Shop.Shop_ID || waste.Shop_ID==this.Main_Shop.Shop_ID || child_shop.Contains(waste.Shop_ID) 

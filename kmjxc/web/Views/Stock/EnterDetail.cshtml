@@ -98,8 +98,34 @@
             
             foreach (KM.JXC.BL.Models.BBuyDetail bDetail in stock.Buy.Details)
             {
-
+                if (stock == null || stock.Details == null || stock.Details.Count == 0)
+                {
+                    continue;
+                }
                 //find child products by EnterStock Detail
+
+                if (bDetail.Product.Children == null)
+                {
+                    
+                        @Html.Raw("<tr>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(bDetail.Product.ID)
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(bDetail.Product.Title)
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>无")
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(bDetail.Price.ToString("0.00"))
+                        @Html.Raw("</td>")
+                        @Html.Raw("<td>")
+                        @Html.Raw(bDetail.Quantity)
+                        @Html.Raw("</td>")
+                        @Html.Raw("</tr>")
+                    
+                    continue;
+                }
 
                 var ds = from estockDetail in stock.Details
                          join ebuydetail in bDetail.Product.Children on estockDetail.StockProductId equals ebuydetail.ID

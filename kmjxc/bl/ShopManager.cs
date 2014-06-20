@@ -357,7 +357,7 @@ namespace KM.JXC.BL
             List<BCustomer> customers = new List<BCustomer>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] csp_ids=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] csp_ids=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
 
                 var tmp = from cus in db.Customer
                           join mtype in db.Mall_Type on cus.Mall_Type_ID equals mtype.Mall_Type_ID
@@ -607,7 +607,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child_shop=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shop=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var tmpHouse = from house in db.Store_House
                                select house;
 
@@ -685,7 +685,7 @@ namespace KM.JXC.BL
                               IsDefault = shop_express.IsDefault == 0 ? false : true
                           };
 
-                int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] childs=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                 {
                     tmp = tmp.Where(e => (e.Shop.ID == this.Shop.Shop_ID || childs.Contains(e.Shop.ID)));
@@ -714,7 +714,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child_shop = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shop = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var tmpNew = from express in db.Express_Shop
                              where (express.IsDefault == 0 && express.Express_ID==express_id)
                              select express;
@@ -814,7 +814,7 @@ namespace KM.JXC.BL
             }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child_shop=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_shop=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var tmpFee = from express_fee in db.Express_Fee
                           where express_fee.Shop_ID==this.Shop.Shop_ID || express_fee.Shop_ID==this.Main_Shop.Shop_ID || child_shop.Contains(express_fee.Shop_ID)
                           select express_fee;
@@ -984,7 +984,7 @@ namespace KM.JXC.BL
                 {
                     if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                     {
-                        int[] childs = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                        int[] childs = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                         tmp = tmp.Where(u => (u.Shop_ID == this.Shop.Shop_ID || childs.Contains(u.Shop_ID)));
                     }
                     else
@@ -1284,7 +1284,7 @@ namespace KM.JXC.BL
         /// <param name="connected"></param>
         /// <param name="shop_id"></param>
         /// <returns></returns>
-        public List<BMallProduct> SearchOnSaleMallProducts(int page, int pageSize, out int total,bool? connected=null, int shop_id = 0)
+        public List<BMallProduct> SearchOnSaleMallProducts(string productName,int page, int pageSize, out int total,bool? connected=null, int shop_id = 0)
         {
             List<BMallProduct> products = new List<BMallProduct>();
             total = 0;
@@ -1313,7 +1313,7 @@ namespace KM.JXC.BL
                 }
                 else
                 {
-                    int[] childs=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                    int[] childs=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                     if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                     {
                         tmp = tmp.Where(i => (i.Shop_ID == this.Shop.Shop_ID || childs.Contains(i.Shop_ID)));
@@ -1338,6 +1338,10 @@ namespace KM.JXC.BL
                     }
                 }
 
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    tmp = tmp.Where(p=>p.Title.Contains(productName));
+                }
                 List<Mall_Product_Sku> skus = tmp1.OrderBy(i=>i.Mall_ID).ToList<Mall_Product_Sku>();
 
                 var tmpPdts = from item in tmp
@@ -1405,10 +1409,10 @@ namespace KM.JXC.BL
             BShopStatistic statistic = new BShopStatistic();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (containChildShop && this.Shop.Shop_ID==this.Main_Shop.Shop_ID)
                 {
-                    statistic.ChildShop = this.ChildShops.Count;
+                    statistic.ChildShop = this.DBChildShops.Count;
 
                     statistic.Account = (from user in db.User where user.Shop_ID == this.Shop.Shop_ID || child.Contains(user.Shop_ID) select user.User_ID).Count();
                     statistic.BackSale = (from bs in db.Back_Sale where bs.Shop_ID == this.Shop.Shop_ID || child.Contains(bs.Shop_ID) select bs.Back_Sale_ID).Count();

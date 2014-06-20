@@ -23,7 +23,12 @@
             freezeCols:4
         };
 
-        obj.colModel = [{ title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+        obj.colModel = [{
+                            title: "产品编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false
+                            , render: function (ui) {
+                                return "<a target=\"_blank\" href=\"/Product/Detail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                            }
+                        },
                        
                         {
                             title: "店铺", width: 150, dataType: "string", dataIndx: "Shop.Name", editable: false

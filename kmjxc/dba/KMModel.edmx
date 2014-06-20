@@ -4,71 +4,71 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="KM.JXC.DBA.Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityContainer Name="KMJXCDBAModelStoreContainer">
-          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Store.Access_Token" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Action" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Store.Admin_Category" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_Role" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_Role_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Role_Action" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Store.Admin_Super" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Action" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Role" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Store.Back_Sale" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Sale_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Store.Back_Stock" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Bug" EntityType="KM.JXC.DBA.Model.Store.Bug" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Bug_Feature" EntityType="KM.JXC.DBA.Model.Store.Bug_Feature" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Store.Bug_Response" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Store.Bug_Status" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Buy" EntityType="KM.JXC.DBA.Model.Store.Buy" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Store.Customer_Shop" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Express" EntityType="KM.JXC.DBA.Model.Store.Express" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Store.Express_Fee" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Store.Express_Shop" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Store.Image" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Store.Mall_Product" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Store.Mall_Product_Sku" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Store.Mall_Type" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Store.Open_Key" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Store.Product" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Store.Product_Class" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Spec" EntityType="KM.JXC.DBA.Model.Store.Product_Spec" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Spec_Value" EntityType="KM.JXC.DBA.Model.Store.Product_Spec_Value" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Store.Product_Specifications" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Store.Product_Supplier" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Store.Product_Unit" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Sale_Detail" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Store.Sale_SyncTime" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Store.Shop_Child_Request" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Store.Stock_Pile" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Store.Stock_Waste" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Store.Supplier" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Store.Supplier_Shop" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="SyncWithMall" EntityType="KM.JXC.DBA.Model.Store.SyncWithMall" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="SystemSettings" EntityType="KM.JXC.DBA.Model.Store.SystemSettings" store:Type="Tables" store:Schema="kuanmai" store:Name="SystemSettings">
+          <EntitySet Name="Access_Token" EntityType="KM.JXC.DBA.Model.Store.Access_Token" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Action" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Store.Admin_Category" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_Role" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_Role_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_Role_Action" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_Super" EntityType="KM.JXC.DBA.Model.Store.Admin_Super" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_User_Action" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Action" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Admin_User_Role" EntityType="KM.JXC.DBA.Model.Store.Admin_User_Role" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Back_Sale" EntityType="KM.JXC.DBA.Model.Store.Back_Sale" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Back_Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Sale_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Store.Back_Stock" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Back_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Back_Stock_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Bug" EntityType="KM.JXC.DBA.Model.Store.Bug" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Bug_Feature" EntityType="KM.JXC.DBA.Model.Store.Bug_Feature" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Store.Bug_Response" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Store.Bug_Status" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Buy" EntityType="KM.JXC.DBA.Model.Store.Buy" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Store.Customer_Shop" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Enter_Stock" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Enter_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Enter_Stock_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Express" EntityType="KM.JXC.DBA.Model.Store.Express" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Store.Express_Fee" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Store.Express_Shop" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Store.Image" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Store.Leave_Stock_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Store.Mall_Product" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Store.Mall_Product_Sku" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Store.Mall_Type" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Open_Key" EntityType="KM.JXC.DBA.Model.Store.Open_Key" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product" EntityType="KM.JXC.DBA.Model.Store.Product" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Store.Product_Class" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Spec" EntityType="KM.JXC.DBA.Model.Store.Product_Spec" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Spec_Value" EntityType="KM.JXC.DBA.Model.Store.Product_Spec_Value" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Specifications" EntityType="KM.JXC.DBA.Model.Store.Product_Specifications" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Supplier" EntityType="KM.JXC.DBA.Model.Store.Product_Supplier" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Product_Unit" EntityType="KM.JXC.DBA.Model.Store.Product_Unit" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Sale" EntityType="KM.JXC.DBA.Model.Store.Sale" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Sale_Detail" EntityType="KM.JXC.DBA.Model.Store.Sale_Detail" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Sale_SyncTime" EntityType="KM.JXC.DBA.Model.Store.Sale_SyncTime" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Store.Shop_Child_Request" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Store.Stock_Pile" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Store.Stock_Waste" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Supplier" EntityType="KM.JXC.DBA.Model.Store.Supplier" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="Supplier_Shop" EntityType="KM.JXC.DBA.Model.Store.Supplier_Shop" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="SyncWithMall" EntityType="KM.JXC.DBA.Model.Store.SyncWithMall" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="SystemSettings" EntityType="KM.JXC.DBA.Model.Store.SystemSettings" store:Type="Tables" store:Schema="kuanmai" store:Name="SystemSettings" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator">
             <DefiningQuery>SELECT
       `SystemSettings`.`MallProductSyncTimes`, 
       `SystemSettings`.`MallTradeSyncTimes`, 
       `SystemSettings`.`Type`
       FROM `SystemSettings` AS `SystemSettings`</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.Store.User" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.Store.User" store:Type="Tables" Schema="kuanmai" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>

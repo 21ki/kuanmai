@@ -48,7 +48,7 @@ namespace KM.JXC.BL
 
                 var sales = from s in db.Sale
                             select s;
-                int[] childShops = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] childShops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 List<Mall_Product> products=null;
                 List<Product> localProducts = (from lp in db.Product
                                                where (lp.Shop_ID == this.Shop.Shop_ID || lp.Shop_ID == this.Main_Shop.Shop_ID || childShops.Contains(lp.Shop_ID))
@@ -188,7 +188,7 @@ namespace KM.JXC.BL
                         }
                         else if (childShops.Contains(item.ShopId))
                         {
-                            shopName = (from s in this.ChildShops where s.Shop_ID == item.ShopId select s.Name).FirstOrDefault<string>();
+                            shopName = (from s in this.DBChildShops where s.Shop_ID == item.ShopId select s.Name).FirstOrDefault<string>();
                         }
 
                         if (shopName == null)

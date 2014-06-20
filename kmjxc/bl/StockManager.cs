@@ -272,7 +272,7 @@ namespace KM.JXC.BL
             total = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 var wastage = from waste_product in db.Stock_Waste
                               where waste_product.Shop_ID == this.Shop.Shop_ID || waste_product.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(waste_product.Shop_ID)
                               group waste_product by waste_product.Parent_ProductID into wp
@@ -405,7 +405,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
 
                 var dbStocks = from stock in db.Leave_Stock
                                //where stock.Shop_ID == this.Shop.Shop_ID || stock.Shop_ID == this.Main_Shop.Shop_ID || cspids.Contains(stock.Shop_ID)
@@ -593,7 +593,7 @@ namespace KM.JXC.BL
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (cspids == null)
                 {
                     cspids = new int[] { 0 };
@@ -741,7 +741,7 @@ namespace KM.JXC.BL
             totalRecords = 0;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] cspids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cspids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (cspids == null)
                 {
                     cspids = new int[] { 0 };
@@ -958,15 +958,15 @@ namespace KM.JXC.BL
                 var os = from o in db.Enter_Stock
                          select o;  
 
-                int[] cshop_ids=(from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] cshop_ids=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
 
                 if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
                 {
-                    os = os.Where(o1 => o1.Shop_ID == this.Shop_Id || o1.Shop_ID == this.Main_Shop.Shop_ID || cshop_ids.Contains(o1.Shop_ID));
+                    os = os.Where(o1 => o1.Shop_ID == this.Shop.Shop_ID || cshop_ids.Contains(o1.Shop_ID));
                 }
                 else
                 {
-                    os = os.Where(o1 => o1.Shop_ID == this.Shop_Id);
+                    os = os.Where(o1 => o1.Shop_ID == this.Shop.Shop_ID);
                 }
 
                 if (enter_stock_id > 0)
@@ -1283,6 +1283,12 @@ namespace KM.JXC.BL
             int totalQuantity = 0;
             foreach (BEnterStockDetail detail in details)
             {
+                Product tmp = (from p in db.Product where p.Product_ID == detail.Product.ID select p).FirstOrDefault<Product>();
+                if (tmp == null)
+                {
+                    continue;
+                }
+
                 Enter_Stock_Detail dbDetail = new Enter_Stock_Detail();
                 dbDetail.Create_Date = detail.Created;
                 dbDetail.Enter_Stock_ID = dbstock.Enter_Stock_ID;
@@ -1314,11 +1320,20 @@ namespace KM.JXC.BL
                         stockPile.Quantity = stockPile.Quantity + dbDetail.Quantity;
                         stockPile.Price = dbDetail.Price;                        
                     }
+                    Product product = null;
 
-                    Product product=(from p in db.Product 
-                                     join p1 in db.Product on p.Product_ID equals p1.Parent_ID 
-                                     where p1.Product_ID==dbDetail.Product_ID
-                                     select p).FirstOrDefault<Product>();
+                    if (tmp.Parent_ID > 0)
+                    {
+                        product = (from p in db.Product
+                                   join p1 in db.Product on p.Product_ID equals p1.Parent_ID
+                                   where p1.Product_ID == dbDetail.Product_ID
+                                   select p).FirstOrDefault<Product>();
+                    }
+                    else if (tmp.Parent_ID == 0)
+                    {
+                        product = tmp;
+                    }
+
                     if (product != null)
                     {
                         product.Quantity += dbDetail.Quantity;
@@ -1367,6 +1382,12 @@ namespace KM.JXC.BL
                 List<Enter_Stock_Detail> details=(from d in db.Enter_Stock_Detail where d.Enter_Stock_ID==id select d).ToList<Enter_Stock_Detail>();
                 foreach (Enter_Stock_Detail eDetail in details)
                 {
+                    Product tmp=(from p in db.Product where p.Product_ID==eDetail.Product_ID select p).FirstOrDefault<Product>();
+                    if (tmp == null)
+                    {
+                        continue;
+                    }
+
                     Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == eDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
                     if (stockPile == null)
                     {
@@ -1384,11 +1405,19 @@ namespace KM.JXC.BL
                         stockPile.Quantity = stockPile.Quantity + eDetail.Quantity;
                         stockPile.Price = eDetail.Price;
                     }
+                    Product product = null;
+                    if (tmp.Parent_ID > 0)
+                    {
+                        product = (from p in db.Product
+                                   join p1 in db.Product on p.Product_ID equals p1.Parent_ID
+                                   where p1.Product_ID == eDetail.Product_ID
+                                   select p).FirstOrDefault<Product>();
+                    }
+                    else
+                    {
+                        product = tmp;
+                    }
 
-                    Product product = (from p in db.Product
-                                       join p1 in db.Product on p.Product_ID equals p1.Parent_ID
-                                       where p1.Product_ID == eDetail.Product_ID
-                                       select p).FirstOrDefault<Product>();
                     if (product != null)
                     {
                         product.Quantity += eDetail.Quantity;
@@ -1514,7 +1543,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] csp_ids=(from child in this.ChildShops select child.Shop_ID).ToArray<int>();
+                int[] csp_ids=(from child in this.DBChildShops select child.Shop_ID).ToArray<int>();
                 if (csp_ids == null)
                 {
                     csp_ids = new int[1];
@@ -1712,7 +1741,7 @@ namespace KM.JXC.BL
             List<BStoreHouse> houses = new List<BStoreHouse>();
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] spids = (from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                int[] spids = (from sp in this.DBChildShops select sp.Shop_ID).ToArray<int>();
                 var hs = from house in db.Store_House select house;
                 if (this.Shop.Shop_ID==this.Main_Shop.Shop_ID)
                 {
@@ -1867,7 +1896,7 @@ namespace KM.JXC.BL
             }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] child_ids = (from c in this.ChildShops select c.Shop_ID).ToArray<int>();
+                int[] child_ids = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 if (child_ids == null)
                 {
                     child_ids = new int[] { 0 };

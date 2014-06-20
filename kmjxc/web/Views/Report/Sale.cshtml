@@ -209,8 +209,9 @@
 
             isPaging = 1;
         }
-
+        ShowProgress('report_loading', function () { }, "正在加载报表数据，请耐性等待...");
         reportManager.GetSalesReport({ 'stime': sdate, 'etime': edate, 'products': pdtIds, 'page': page, 'pageSize': pageSize, 'paging': isPaging }, function (res) {
+            Boxy.get($('#report_loading')).hide();
             $('#rptPivot').html("");
             var row = res.data;
             if (row == null || row.length == 0) {

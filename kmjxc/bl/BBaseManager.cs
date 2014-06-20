@@ -18,7 +18,7 @@ namespace KM.JXC.BL
     {
         public Shop Shop { get; private set; }
         public Shop Main_Shop { get; private set; }
-        public List<Shop> ChildShops { get; set; }
+        protected List<Shop> DBChildShops { get; set; }
         public BUser CurrentUser { get; private set; }
         public BUser MainUser { get; private set; }
         public int Shop_Id { get; private set; }
@@ -26,7 +26,21 @@ namespace KM.JXC.BL
         public Permission CurrentUserPermission {get;private set;}
         private PermissionManager permissionManager;
         public Access_Token AccessToken { get; private set; }
+        public List<BShop> ChildShops
+        {
+            get{
+                List<BShop> ss = new List<BShop>();
 
+                ss = (from shop in this.DBChildShops
+                      select new BShop
+                      {
+                          ID = shop.Shop_ID,
+                          Title = shop.Name
+                      }).ToList<BShop>();
+
+                return ss;
+            }
+        }
         public BBaseManager(BUser user,int shop_id,Permission permission)
         {
             this.CurrentUser = user;
@@ -214,12 +228,12 @@ namespace KM.JXC.BL
                 if (this.Shop.Parent_Shop_ID > 0)
                 {
                     this.Main_Shop = (from s in db.Shop where s.Shop_ID == this.Shop.Parent_Shop_ID select s).FirstOrDefault<Shop>();
-                    this.ChildShops = new List<Shop>();
+                    this.DBChildShops = new List<Shop>();
                 }
                 else
                 {
                     this.Main_Shop = this.Shop;
-                    this.ChildShops = (from s in db.Shop where s.Parent_Shop_ID == this.Main_Shop.Shop_ID select s).ToList();
+                    this.DBChildShops = (from s in db.Shop where s.Parent_Shop_ID == this.Main_Shop.Shop_ID select s).ToList();
                 }
             }
         }

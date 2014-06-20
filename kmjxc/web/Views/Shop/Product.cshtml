@@ -12,6 +12,12 @@
     if (ViewData["LastSync"]!=null){
         lastSync = (KM.JXC.BL.Models.BMallSync)ViewData["LastSync"];
     }
+
+    List<KM.JXC.BL.Models.BShop> childshops = new List<KM.JXC.BL.Models.BShop>();
+    if (ViewData["ChildShop"]!=null)
+    {
+        childshops = (List<KM.JXC.BL.Models.BShop>)ViewData["ChildShop"];
+    }
 }
 <script>
     var shopMgr = new KMJXCShopManager();
@@ -62,6 +68,10 @@
                 }
             });
 
+        });
+
+        $('#btn_mallpdtsearch').button({ icons: { primary: "ui-icon-search" } }).click(function () {
+            $('#mallpdtsearchform').submit();
         });
     });
 
@@ -207,14 +217,39 @@
     </ul>
     <div id="mallpdtlist">
         <div id="syncMallPdt">
-            @if (lastSync != null) { 
-            <div class="rowS"><span>@Html.Raw("上次同步:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m")+" "+lastSync.User.Mall_Name)</span></div>
-            }
+           
+            <div class="rowS"> <span id="btnSync">同步</span>  @if (lastSync != null) { <span>@Html.Raw(" 上次同步:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m")+" "+lastSync.User.Mall_Name)</span>}</div>
+            
             <div class="rowS">
-                <span id="btnSync">同步</span>
+               
             </div>            
         </div>
-
+        <div class="rowS" style="height:auto;" id="mallpdtsearch">
+            <form id="mallpdtsearchform" action="/Shop/Product?page=1" method="get">
+                <table class="searchTable">
+                    <tr>
+                        <td class="td1">宝贝名称:</td>
+                        <td class="td1"><input class="W_input" type="text" id="txt_product_name" name="txt_product_name" /></td>
+                    </tr>
+                    @if(childshops!=null && childshops.Count>0){
+                     <tr>
+                        <td class="td1">宝贝店铺:</td>
+                        <td class="td1"><select id="txt_product_shop" name="txt_product_shop" class="W_inputsel">
+                                        <option value="0">--所有--</option>
+                                        @foreach (KM.JXC.BL.Models.BShop shop in childshops)
+                                        {
+                                            @Html.Raw("<option value=\""+shop.ID+"\">"+shop.Title+"</option>")
+                                        }
+                                        </select></td>
+                    </tr>
+                    }
+                    <tr>
+                        <td class="td1"></td>
+                        <td class="td1"><span id="btn_mallpdtsearch">搜索</span></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
         <div id="mallProducts">
                 <div class="row s_title shead jxcheader1">
                     <span style="margin-left:0;" class="spanw3">缩略图</span><span class="spanw1">宝贝名称</span>

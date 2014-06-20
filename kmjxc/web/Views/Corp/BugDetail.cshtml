@@ -54,8 +54,8 @@
             <label style="float:left;display:inline-block;">描述:</label><div style="float:left;width:600px;word-break:break-all;">@Html.Raw(bug.Description)</div>
         </div>
 
-        <div class="row" style="height:auto;overflow:hidden;margin-top:10px;">
-            <label style="float:left;display:inline-block;">回复:</label>
+        <div class="row nolabel1" style="height:auto;overflow:hidden;margin-top:10px;">
+           
             <div style="float:left;width:600px;">
                 @{
                     if(bug.Responses!=null && bug.Responses.Count>0)

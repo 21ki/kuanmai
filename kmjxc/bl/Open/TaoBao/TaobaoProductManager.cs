@@ -89,7 +89,7 @@ namespace KM.JXC.BL.Open.TaoBao
             ItemSkuUpdateResponse response= this.client.Execute(req,this.Access_Token.Access_Token1);
             if (response.IsError)
             {
-                throw new KMJXCTaobaoException(response.ErrCode,response.ErrMsg);
+                throw new KMJXCTaobaoException(response.ErrCode, response.SubErrMsg);
             }
             ret = true;
             return ret;
@@ -131,7 +131,7 @@ namespace KM.JXC.BL.Open.TaoBao
             ItemUpdateResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             if (response.IsError)
             {
-                throw new KMJXCException(response.ErrMsg);
+                throw new KMJXCException(response.SubErrMsg);
             }
 
             return true;            

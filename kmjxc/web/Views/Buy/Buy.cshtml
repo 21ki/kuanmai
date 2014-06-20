@@ -189,48 +189,69 @@
                             }
                             $($(that).find("div[id^='bd_']")).each(function (index, detail) {
                                 var totalQuantity = $(detail).find("dl[id^='m']").find("input").val();
+                                var parent_pid = $(detail).find("dl[id^='m']").attr("id").split('_')[0];
+                                parent_pid = parent_pid.replace("m", "");
                                 var price = $(detail).find("dl[id^='m']").attr("id").split('_')[1];
-                                var props = $(detail).find("dl[id^='c']");                               
+                                var props = $(detail).find("dl[id^='c']");
                                 var inputTotal = 0;
                                 var stock = "";
-                                $(props).each(function (index1, prop) {
-                                    if (isNaN($(prop).find("input").val())) {
-                                        alert("数量必须是整数");
-                                        verified = false;
+
+                                if ($(props).size() == 0) {
+                                    if (stock == "") {
+                                        stock = parent_pid + ":" + totalQuantity+":"+price;
+                                    } else {
+                                        stock += "," + parent_pid + ":" + totalQuantity+":"+price;
+                                    }
+                                    
+                                    if (stocks == "") {
+                                        stocks = stock;
+                                    } else {
+                                        stocks += ";" + stock;
+                                    }
+                                } else {
+
+                                    $(props).each(function (index1, prop) {
+                                        if (isNaN($(prop).find("input").val())) {
+                                            alert("数量必须是整数");
+                                            verified = false;
+                                            return;
+                                        }
+                                        inputTotal += parseInt($(prop).find("input").val());
+                                        if (stock != "") {
+                                            stock += "," + $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                        } else {
+                                            stock = $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                        }
+                                    });
+
+                                    if (!verified) {
                                         return;
                                     }
-                                    inputTotal += parseInt($(prop).find("input").val());
-                                    if (stock != "") {
-                                        stock += "," + $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                    if (stocks == "") {
+                                        stocks = stock;
                                     } else {
-                                        stock = $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
+                                        stocks += ";" + stock;
                                     }
-                                });
-                                
-                                if (!verified) {
-                                    return;
-                                }
-                                if (stocks == "") {
-                                    stocks = stock;
-                                } else {
-                                    stocks +=";"+ stock;
-                                }
-                                if (inputTotal != totalQuantity) {
-                                    alert("所有库存数量之和必须和验货单商品数量一致");
-                                    verified= false;
-                                }
-                               
-                                if ($(that).find("input[type='checkbox'").attr('checked') == 'checked') {
-                                    updateStock = 1;
-                                } else {
-                                    updateStock = 0;
+                                    if (inputTotal != totalQuantity) {
+                                        alert("所有库存数量之和必须和验货单商品数量一致");
+                                        verified = false;
+                                    }
                                 }
                             });
 
-                            if (verified) {                               
+                            if ($(that).find("input[type='checkbox'").attr('checked') == 'checked') {
+                                updateStock = 1;
+                            } else {
+                                updateStock = 0;
+                            }
+
+                            //alert(stocks);
+                            //return;
+
+                            if (verified) {
                                 loadingBox = ShowProgress('page_loading', function () { }, "正在入库，请等待...");
                                 var params = { buy_id: oid, update_stock: updateStock, stocks: stocks, house_id: storeHouseId };
-                              
+
                                 stockMgr.EnterStockFromBuy(params, function (res) {
                                     if (res.Status == 'ok') {
                                         loadingBox.hide();

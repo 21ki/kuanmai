@@ -512,7 +512,7 @@ namespace KM.JXC.Web.Controllers.api
             bool? connected = null;
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"], out pageSize);
-
+            string keyword=request["keyword"];
             if (page <= 0)
             {
                 page = 1;
@@ -535,7 +535,7 @@ namespace KM.JXC.Web.Controllers.api
                 }
             }
 
-            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(page, pageSize, out total, connected);
+            List<BMallProduct> products = shopManager.SearchOnSaleMallProducts(keyword, page, pageSize, out total, connected);
             data.data = products;
             data.curPage = page;
             data.totalRecords = total;

@@ -158,8 +158,8 @@ namespace KM.JXC.Web.Controllers.api
             string user_id = User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
-            Shop MainShop = userMgr.Main_Shop;
-            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+            Shop currentShop = userMgr.Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, currentShop, userMgr.CurrentUserPermission);
             HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
             HttpRequestBase request = context.Request;
             string categoryId = request["category_id"];

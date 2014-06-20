@@ -50,7 +50,7 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var bo = from buyOrder in db.Buy_Order select buyOrder ;
-                int[] spids=(from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                int[] spids=(from sp in this.DBChildShops select sp.Shop_ID).ToArray<int>();
                 if (spids != null && spids.Length > 0)
                 {
                     bo = bo.Where(a => a.Shop_ID == this.Shop.Shop_ID || a.Shop_ID == this.Main_Shop.Shop_ID || spids.Contains(a.Shop_ID));
@@ -200,7 +200,7 @@ namespace KM.JXC.BL
                           //where vb.Shop_ID == this.Shop.Shop_ID || vb.Shop_ID==this.Main_Shop.Shop_ID 
                           select vb;
 
-                int[] spids = (from sp in this.ChildShops select sp.Shop_ID).ToArray<int>();
+                int[] spids = (from sp in this.DBChildShops select sp.Shop_ID).ToArray<int>();
                 if (spids != null && spids.Length > 0)
                 {
                     vbo = vbo.Where(o => (o.Shop_ID == this.Shop.Shop_ID || spids.Contains(o.Shop_ID)));
