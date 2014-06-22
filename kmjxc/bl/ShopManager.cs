@@ -1129,21 +1129,32 @@ namespace KM.JXC.BL
             return sync;
         }
 
+
+        private void CreateProductsByMallProducts(List<BMallProduct> products)
+        {
+
+        }
+
         /// <summary>
         /// Sync onsale products to local database
         /// </summary>
         /// <returns></returns>
-        public List<BMallProduct> SyncMallOnSaleProducts()
+        public List<BMallProduct> SyncMallOnSaleProducts(int shop_id=0,bool create_product=false)
         {
             List<BMallProduct> newProducts = new List<BMallProduct>();
             List<BMallProduct> products = new List<BMallProduct>();
             IOProductManager productManager = new TaobaoProductManager(this.AccessToken,this.Shop.Mall_Type_ID);
-
+            List<BMallProduct> newUnMappedProducts = new List<BMallProduct>();
             long total = 0;
             long page = 1;
             long pageSize = 40;
             List<BMallProduct> tmp = new List<BMallProduct>();
-            tmp = productManager.GetOnSaleProducts(this.CurrentUser, this.Shop, page, pageSize, out total);
+            Shop shop = this.Shop;
+            if (shop_id > 0)
+            {
+                shop = new Shop() { Shop_ID=shop_id };
+            }
+            tmp = productManager.GetOnSaleProducts(this.CurrentUser, shop, page, pageSize, out total);
 
             if (tmp != null)
             {
@@ -1227,6 +1238,10 @@ namespace KM.JXC.BL
                     {
                         db.Mall_Product.Add(dbProduct);
                         newProducts.Add(product);
+                        if (mappedLocProduct == null)
+                        {
+                            newUnMappedProducts.Add(product);
+                        }
                     }
 
                     if (product.Skus!=null)
@@ -1270,6 +1285,11 @@ namespace KM.JXC.BL
                 sync.SyncTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.SyncWithMall.Add(sync);
                 db.SaveChanges();
+
+                if (create_product)
+                {
+                    this.CreateProductsByMallProducts(newUnMappedProducts);
+                }
             }
 
             return newProducts;

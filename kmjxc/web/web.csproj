@@ -251,9 +251,6 @@
     <Content Include="Third\boxy\jquery.boxy.js" />
     <Content Include="Third\boxy\Summer_B_2.jpg" />
     <Content Include="Third\boxy\test.htm" />
-    <Content Include="Third\jqPivot\build\jquery.pivot.d.ts" />
-    <Content Include="Third\jqPivot\build\jquery.pivot.js" />
-    <Content Include="Third\jqPivot\build\jquery.pivot.min.js" />
     <Content Include="Third\jqPivot\demo\demo.htm" />
     <Content Include="Third\jqPivot\demo\stylesheet.css" />
     <Content Include="Third\jqPivot\Gruntfile.js" />
@@ -802,7 +799,6 @@
     <Content Include="Views\Shop\Product.cshtml" />
     <Content Include="Views\Shop\Dashboard.cshtml" />
     <Content Include="Views\Home\Error.cshtml" />
-    <Content Include="Third\jqPivot\build\jquery.pivot.js.map" />
     <Content Include="Third\jqPivot\js\src\adapter.js.map" />
     <Content Include="Third\jqPivot\js\src\demo.js.map" />
     <Content Include="Third\jqPivot\js\src\jquery.pivot.js.map" />

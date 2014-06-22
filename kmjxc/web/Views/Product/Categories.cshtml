@@ -197,6 +197,11 @@
             }
             $("#popup-dialog-crud").dialog({
                 open: function (event, ui) {
+                    $frm.find("#cateParent").empty().append("<option value=\"0\">--选择--</option>");
+                    $(data).each(function (index, item) {
+                        $frm.find("#cateParent").append("<option value=\""+item.ID+"\">"+item.Name+"</option>");
+                    });
+
                     $frm.find("#cateParent").val(0);
                     $frm.find('#categoryName').val("");
                     //$frm.find("#cateParent").attr("disabled", false);
