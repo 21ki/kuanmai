@@ -645,7 +645,7 @@
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
             if (arr && arr.length > 0) {
                 for (var i = 0; i < arr.length; i++) {
-                    rows.push(arr[i].rowIndx);
+                    rows.push(arr[i].rowIndxPage);
                 }
                 return rows;
             }

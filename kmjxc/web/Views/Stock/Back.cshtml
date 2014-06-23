@@ -122,7 +122,7 @@
         function getRowIndx() {
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
             if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndx;
+                var rowIndx = arr[0].rowIndxPage;
 
                 //if (rowIndx != null && colIndx == null) {
                 return rowIndx;
