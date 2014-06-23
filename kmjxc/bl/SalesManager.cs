@@ -250,7 +250,7 @@ namespace KM.JXC.BL
                             //no need to create leave stock while the mall product is not mapped with local product
                             if (order.Product_ID == 0 && order.Parent_Product_ID == 0)
                             {
-                                order_detail.SyncResultMessage = "商城宝贝没有关联到本地产品，不能出库";
+                                order_detail.SyncResultMessage = "宝贝未关联，不能出库";
                                 continue;
                             }
 
@@ -891,8 +891,10 @@ namespace KM.JXC.BL
                 string[] bsale_ids = (from sale in sales select sale.Sale_ID).ToArray<string>();
                 List<Sale_Detail> sale_details = (from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Mall_Trade_ID) select sdetail).ToList<Sale_Detail>();
                 int[] product_ids = (from sd in sale_details select sd.Parent_Product_ID).ToArray<int>();
+                string[] mallProduct_ids = (from sd in sale_details select sd.Mall_PID).ToArray<string>();
                 int[] cproduct_ids = (from sd in sale_details select sd.Product_ID).Distinct<int>().ToArray<int>();
                 List<Product> dbProducts = (from product in db.Product where product_ids.Contains(product.Product_ID) select product).ToList<Product>();
+                List<Mall_Product> dbMallProducts=(from p in db.Mall_Product where mallProduct_ids.Contains(p.Mall_ID) select p).ToList<Mall_Product>();
                 List<BProductProperty> childs = (from prop in db.Product_Specifications
                              join ps in db.Product_Spec on prop.Product_Spec_ID equals ps.Product_Spec_ID
                              join psv in db.Product_Spec_Value on prop.Product_Spec_Value_ID equals psv.Product_Spec_Value_ID
@@ -918,6 +920,7 @@ namespace KM.JXC.BL
                                  Parent_Product_ID = order.Parent_Product_ID,
                                  Product_ID = order.Product_ID,
                                  ImageUrl=order.ImageUrl,
+                                 Mall_PID=order.Mall_PID,
                                  //Product = new BProduct
                                  //{
                                  //    ID = ll_product.Product_ID,
@@ -934,9 +937,17 @@ namespace KM.JXC.BL
                                          where product.Product_ID == order.Parent_Product_ID
                                          select new BProduct
                                          {
-                                             ID = product.Product_ID,                                             
+                                             ID = product.Product_ID,
                                              Title = product.Name
                                          }).FirstOrDefault<BProduct>();
+
+                        order.MallProduct = (from p in dbMallProducts
+                                             where p.Mall_ID == order.Mall_PID
+                                             select new BMallProduct
+                                             {
+                                                 ID = p.Mall_ID,
+                                                 Title = p.Title
+                                             }).FirstOrDefault<BMallProduct>();
 
                         if (order.Product != null)
                         {

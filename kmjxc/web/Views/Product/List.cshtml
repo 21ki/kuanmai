@@ -475,8 +475,9 @@
             $pcate = $editform.find("#pCategory");
             $ccate = $editform.find("#cCategory");
             $pcate.empty();
-            $ccate.empty();
+            $ccate.empty().hide();
             if (pcate != null) {
+                $("<option value=\"0\">--请选择--</option>").appendTo($pcate);
                 $(pcate).each(function (index, item) {
                     $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
                 });
@@ -711,7 +712,7 @@
             rPP: 30,
             sortIndx: 2,
             sortDir: "up",
-            rPPOptions: [40,50,60,100],
+            rPPOptions: [30,60,100],
             getUrl: function (prgrid) {
                 var sortDir = (this.sortDir == "up") ? "asc" : "desc";
                 var sort = ['ID', 'Name', "Category.Name", "Created_By.Name", "Created"];

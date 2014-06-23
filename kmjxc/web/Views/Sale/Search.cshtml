@@ -168,7 +168,12 @@
                     }
                     else
                     {
-                                    @Html.Raw("<div>进销存系统内无此商品</div>")
+                        if (order.MallProduct != null) { 
+                            @Html.Raw("<div>"+order.MallProduct.Title+"</div>")
+                        }else{
+                            @Html.Raw("<div>无法确定商品名称，请同步在售宝贝，或者关联进销存产品到在售宝贝</div>")
+                        }
+                                    
                     }
                     //@Html.Raw("<div>产品编码："+order.Product.ID+"</div>")
                     if (order.Product != null && order.Product.Properties != null)

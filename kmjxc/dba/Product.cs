@@ -29,5 +29,6 @@ namespace KM.JXC.DBA
         public int Update_User_ID { get; set; }
         public int Quantity { get; set; }
         public int Wastage { get; set; }
+        public string MallProduct { get; set; }
     }
 }

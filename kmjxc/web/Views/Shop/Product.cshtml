@@ -25,17 +25,21 @@
     var productListPageSize = 20;
     $(function () {
         $('#tabs').tabs();
-        
+        $(document).tooltip();
+
         $('#btnSync').button({ icons: { primary: "ui-icon-transferthick-e-w" } }).click(function (e) {
             var $progress = new ShowProgress("sync_trade_progress_bar", function () { }, "正在同步，同步过程中，不要关闭浏览器，请耐心等待...");
             var createdProduct = 0;
             if ($('#sync_chk_create_product').attr('checked') == 'checked') {
                 createdProduct = 1;
+            } else {
+                createdProduct = 0;
             }
             shopMgr.SyncMallSoldProducts({'create_product':createdProduct}, function (res) {
                 Boxy.get($('#sync_trade_progress_bar')).hide();
                 if (res.Status == 'ok') {
-                    new MessageBox("同步完成，新生成 " + res.Item + " 个出售中的宝贝到进销存",1500);                   
+                    new MessageBox("同步完成，新生成 " + res.Item + " 个出售中的宝贝到进销存", 1500);
+                    location.reload();
                 } else {
                     alert("同步失败,"+res.Message);
                 }
@@ -77,6 +81,53 @@
         $('#btn_mallpdtsearch').button({ icons: { primary: "ui-icon-search" } }).click(function () {
             $('#mallpdtsearchform').submit();
         });
+
+        $('#pdt_chk_select_all').change(function () {
+            var checked = $(this).attr('checked');
+            $('#mallProducts').find("input[id^='pdt_chk_select_']").each(function (index, item) {
+                var that = this;
+                var id = $(that).attr("id");
+                if (id != "pdt_chk_select_all") {
+                    if (checked == 'checked') {
+                        $(that).attr('checked', true);
+                    } else {
+                        $(that).removeAttr('checked');
+                    }
+                }
+            });
+        });
+
+        $('#btn_import_product').button({ icons: { primary: "ui-icon-extlink" } }).click(function () {
+            var product_ids = "";
+            $('#mallProducts').find("input[id^='pdt_chk_select_']").each(function (index, item) {
+                var that = this;
+                var id = $(that).attr("id");
+                if (id != "pdt_chk_select_all") {
+                    if ($(that).attr('checked') == 'checked') {
+                        if (product_ids == "") {
+                            product_ids = $(that).val();
+                        } else {
+                            product_ids +=","+ $(that).val();
+                        }
+                    }
+                }
+            });
+
+            if (product_ids == "") {
+                alert("请选择需要导入的宝贝");
+                return;
+            }
+            var $progress = new ShowProgress("sync_trade_progress_bar", function () { }, "正在通过所选择的的宝贝创建进销存产品，请不要关闭浏览器，请耐心等待...");
+            shopMgr.CreateProductsByMallProducts({'mall_products':product_ids,'map_product':0}, function (res) {
+                Boxy.get($('#sync_trade_progress_bar')).hide();
+                if (res.Status == 'ok') {
+                    new MessageBox("同步完成，请到产品管理-产品信息查看新导入的产品", 1500);
+                    location.reload();
+                } else {
+                    alert(res.Message);
+                }
+            });
+        });
     });
 
     function Guanlian(mall_id, pOuterId,type,obj) {
@@ -92,8 +143,8 @@
         }
 
         $('#popup_guanlian').dialog({
-            position: { my: "top", at: "top", of: $("#mallProducts") },
-            width: 'auto',
+            position: { my: "top", at: "top", of: $("#tabs") },
+            width: 450,
             //height:550,
             resizable: false,
             title: "关联商城宝贝",
@@ -220,9 +271,9 @@
         <li><a href="#mallpdtlist">出售中的宝贝</a></li>
     </ul>
     <div id="mallpdtlist">
-        <h3>如果勾选为新宝贝创建本地产品，则商城的新宝贝会在本地进销存创建对应的新产品，SKU属性会自动创建</h3>
+        @*<h3>如果勾选为新宝贝创建本地产品，则商城的新宝贝会在本地进销存创建对应的新产品，SKU属性会自动创建</h3>*@
         <div id="syncMallPdt">
-            <div class="rowS"><input type="checkbox" id="sync_chk_create_product" /><label style="width:auto;padding-left:3px;"> 为新宝贝创建本地产品</label></div>
+            <div class="rowS"><input type="checkbox" id="sync_chk_create_product" /><label style="width:auto;padding-left:3px;"> 新宝贝是否导入进销存产品库</label></div>
             <div class="rowS"> <span id="btnSync">同步</span>  @if (lastSync != null) { <span>@Html.Raw(" 上次同步:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m")+" "+lastSync.User.Mall_Name)</span>}</div>
             
             <div class="rowS">
@@ -256,8 +307,11 @@
             </form>
         </div>
         <div id="mallProducts">
-                <div class="row s_title shead jxcheader1">
-                    <span style="margin-left:0;" class="spanw3">缩略图</span><span class="spanw1">宝贝名称</span>
+                <div class="row" style="height:auto;margin-top:15px;">
+                     <span id="btn_import_product" title="根据需要选择在售宝贝导入到进销存产品库，慎用">导入</span>
+                </div>
+                <div class="row s_title shead jxcheader1" style="margin-top:0px;">
+                    <span style="display:inline-block;margin:0;width:15px;margin-right:10px;"><input type="checkbox" id="pdt_chk_select_all" title="全选"/></span><span style="margin-left:0;" class="spanw3">缩略图</span><span class="spanw1">宝贝名称</span>
                     <span class="spanw4">店铺</span>
                     <span class="spanw2">宝贝价格</span>
                     <span class="spanw2">关联进销存</span>
@@ -296,7 +350,7 @@
                 foreach (KM.JXC.BL.Models.BMallProduct product in products) { 
                     <div class="row jxclist1">
                         <div>
-                            <span style="margin-left:0;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
+                            <span style="display:inline-block;margin:0;width:15px;margin-right:10px;">@if(!product.HasProductCreated){<input value="@product.ID" type="checkbox" id="pdt_chk_select_@product.ID" />}</span><span style="margin-left:0;vertical-align:top;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
                             <span class="spanw4">@product.Shop.Title</span>
                             <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
                             <span class="spanw2">
@@ -310,7 +364,7 @@
                             </span>
                         </div>
                         @if(product.Skus!=null){
-                         <div style="padding-left:50px;">
+                         <div style="padding-left:75px;">
                              @foreach (KM.JXC.BL.Models.BMallSku sku in product.Skus){
                                 <div>
                                      <span class="spanw1">

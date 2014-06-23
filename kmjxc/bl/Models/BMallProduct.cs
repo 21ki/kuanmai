@@ -24,6 +24,10 @@ namespace KM.JXC.BL.Models
         }
         public string Description { get; set; }
         public BProduct Product { get; set; }
+        public long Synced { get; set; }
+        public long FirstSync { get; set; }
+        public bool HasProductCreated { get; set; }
+        public string Code { get; set; }
     }
 
     public class BMallSku
@@ -36,5 +40,6 @@ namespace KM.JXC.BL.Models
         public string Properities { get; set; }
         public double Price { get; set; }
         public BProduct Product { get; set; }
+        public string Code { get; set; }
     }
 }

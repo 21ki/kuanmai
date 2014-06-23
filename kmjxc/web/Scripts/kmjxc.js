@@ -540,6 +540,14 @@ function KMJXCShopManager() {
     this.MapMallProductSku = function (params, callback) {
         this.AjaxCall("/api/Shop/MapMallProductSku", params, callback);
     }
+
+    /*
+    mall_products:the mall product ids join with ","
+    map_product:1 or 0, 1 means map, 0 means not map
+    */
+    this.CreateProductsByMallProducts = function (params, callback) {
+        this.AjaxCall("/api/Shop/CreateProductsByMallProducts", params, callback);
+    }
 }
 
 KMJXCPermissionManager.prototype = new KMJXCBase();

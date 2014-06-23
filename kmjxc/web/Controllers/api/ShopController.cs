@@ -477,9 +477,21 @@ namespace KM.JXC.Web.Controllers.api
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
             ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            bool createdProduct = false;
+            bool mapProduct = false;
+            int shop_id = 0;
             try
             {
-                List<BMallProduct> newProducts= shopManager.SyncMallOnSaleProducts();
+                if (!string.IsNullOrEmpty(request["create_product"]) && request["create_product"] == "1")
+                {
+                    createdProduct = true;
+                }
+
+                if (!string.IsNullOrEmpty(request["map_product"]) && request["map_product"] == "1")
+                {
+                    mapProduct = true;
+                }
+                List<BMallProduct> newProducts = shopManager.SyncMallOnSaleProducts(shop_id, createdProduct, mapProduct);
                 message.Item = newProducts.Count;
             }
             catch (KMJXCException kex)
@@ -489,9 +501,64 @@ namespace KM.JXC.Web.Controllers.api
             }
             catch(Exception ex)
             {
+                message.Status = "failed";
+                message.Message = "未知错误";
             }
             finally
             {
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage CreateProductsByMallProducts()
+        {
+            ApiMessage message = new ApiMessage() {Status="ok" };
+            try
+            {
+                HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+                HttpRequestBase request = context.Request;
+                string user_id = User.Identity.Name;
+                UserManager userMgr = new UserManager(int.Parse(user_id), null);
+                BUser user = userMgr.CurrentUser;
+                ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+                string mIds=request["mall_products"];
+                string[] products = null;
+                bool mapProduct = false;
+
+                if (!string.IsNullOrEmpty(request["map_product"]) && request["map_product"] == "1")
+                {
+                    mapProduct = true;
+                }
+                else
+                {
+                    mapProduct = false;
+                }
+
+                if (!string.IsNullOrEmpty(mIds))
+                {
+                    products = mIds.Split(',');
+                }
+
+                if (products != null && products.Length > 0)
+                {
+                    shopManager.CreateProductsByMallProducts(products, mapProduct);
+                }
+                else
+                { 
+                     message.Status = "failed";
+                     message.Message = "请选择宝贝";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
             }
             return message;
         }

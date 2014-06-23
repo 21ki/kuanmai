@@ -26,5 +26,7 @@ namespace KM.JXC.DBA
         public string PicUrl { get; set; }
         public Nullable<long> Modified { get; set; }
         public Nullable<bool> Show { get; set; }
+        public Nullable<long> FirstSync { get; set; }
+        public Nullable<bool> CreatedProduct { get; set; }
     }
 }

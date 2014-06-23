@@ -767,14 +767,14 @@ td.tdc {
 }
 
     .jxclist1 span,.jxcheader1 span {
-        margin-left:20px;
+        margin-left:10px;
         display:inline-block;
     }
     .jxcheader1 span {
         font-weight:bold;
     }
 .spanw1 {
-    width:300px;
+    width:200px;
     word-break:break-all;
 }
 .spanw2 {

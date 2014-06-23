@@ -27,5 +27,6 @@ namespace KM.JXC.BL.Models
         public BProduct Product { get; set; }
         public string ImageUrl { get; set; }
         public string Message { get; set; }
+        public BMallProduct MallProduct { get; set; }
     }
 }

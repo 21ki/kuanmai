@@ -542,7 +542,7 @@ namespace KM.JXC.BL
                     var pexisted = existed.Where(a=>a.Shop_ID==this.Main_Shop.Shop_ID);
                     if (pexisted.FirstOrDefault<Product_Spec>() != null)
                     {
-                        throw new KMJXCException("主店铺已经拥有此属性，你直接使用主店铺属性");
+                        throw new KMJXCException("主店铺已经有此属性，不能重复创建，请使用现有主店铺的属性");
                     }
                 }
 
