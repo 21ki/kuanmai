@@ -105,7 +105,7 @@ namespace KM.JXC.BL
                             {
                                 dbDetail.StoreHouse_ID = detail.StoreHouse.ID;
                             }
-                            db.Back_Stock_Detail.Add(dbDetail);
+                            
 
                             //Update stock pile
                             if (backStock.UpdateStock)
@@ -125,8 +125,11 @@ namespace KM.JXC.BL
                                     product.Quantity += dbDetail.Quantity;
                                 }
 
-                                dbBackStock.Status = 1;
+                                dbDetail.Status = 1;
                             }
+
+                            db.Back_Stock_Detail.Add(dbDetail);
+
                         }
 
                         db.SaveChanges();
@@ -185,7 +188,7 @@ namespace KM.JXC.BL
                     BBackStock backStock = new BBackStock();
                     backStock.BackSaleID = dbbackSale.Back_Sale_ID;
                     backStock.BackSale = new BBackSale() { ID = dbbackSale.Back_Sale_ID };
-                    if (backSaleStatus == 1)
+                    if (backSaleStatus == 1 || backSaleStatus==2)
                     {
                         backStock.UpdateStock = true;
                     }
@@ -232,14 +235,14 @@ namespace KM.JXC.BL
                         bsDetail.ParentProductID = leaveStockDetail.Parent_Product_ID;
                         bsDetail.StoreHouse = new BStoreHouse() { ID = leaveStockDetail.StoreHouse_ID };
                         backStock.Details.Add(bsDetail);
-                        leaveStockDetail.Status = backSaleStatus;
-                        leaveStockDetail.Status = backSaleStatus;
+                       
+                        bsd.Status = backSaleStatus;
                     }
 
                     if (backStock.Details.Count > 0)
                     {
                         this.CreateBackStock(backStock);
-                    }
+                    }                    
                 }
 
                 db.SaveChanges();

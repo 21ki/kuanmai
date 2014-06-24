@@ -152,7 +152,8 @@ namespace KM.JXC.BL.Open.TaoBao
             long curPage=1;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
-            long timeNow = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);           
+            long timeToEnd = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);  
+            long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);  
             long endTime = 0;
             if (lastEndTime == 0)
             {
@@ -161,14 +162,21 @@ namespace KM.JXC.BL.Open.TaoBao
             }
             else
             {
-                sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);                
-                eDate = sDate.AddDays(1);
+                sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);
+                if (DateTimeUtil.ConvertDateTimeToInt(sDate.AddDays(1)) > timeNow)
+                {
+                    eDate = DateTimeUtil.ConvertToDateTime(timeNow);
+                }
+                else
+                {
+                    eDate = sDate.AddDays(1);
+                }
                 endTime = DateTimeUtil.ConvertDateTimeToInt(eDate);
             }
 
             if (!string.IsNullOrEmpty(status))
             {
-                while (endTime <= timeNow)
+                while (endTime <= timeToEnd)
                 {
                     DateTime tmpDate = DateTimeUtil.ConvertToDateTime(endTime);
                     List<BSale> tmpTrades = this.IncrementSyncTrades(sDate, eDate, status, curPage, out totalTrades, out hasNextPage);
@@ -207,13 +215,13 @@ namespace KM.JXC.BL.Open.TaoBao
                     }
 
                     sDate = DateTimeUtil.ConvertToDateTime(endTime);
-                    if (endTime == timeNow)
+                    if (endTime == timeToEnd)
                     {
                         break;
                     }
-                    else if ((endTime + 24 * 3600 * 1000) > timeNow)
+                    else if ((endTime + 24 * 3600 * 1000) > timeToEnd)
                     {
-                        endTime = timeNow;
+                        endTime = timeToEnd;
                     }
                     else
                     {
@@ -223,16 +231,17 @@ namespace KM.JXC.BL.Open.TaoBao
                 }
             }
             else
-            {
-                
+            {                
                 foreach (string state in this.status)
                 {
+                    DateTime tmpsDate = sDate;
+                    DateTime tmpeDate = eDate;
                     curPage = 1;
                     long tmpendTime = endTime;
-                    while (tmpendTime <= timeNow)
+                    while (tmpendTime <= timeToEnd)
                     {
                         DateTime tmpDate = DateTimeUtil.ConvertToDateTime(endTime);
-                        List<BSale> tmpTrades = this.IncrementSyncTrades(sDate, eDate, state, curPage, out totalTrades, out hasNextPage);
+                        List<BSale> tmpTrades = this.IncrementSyncTrades(tmpsDate, tmpeDate, state, curPage, out totalTrades, out hasNextPage);
                         //if (totalTrades % pageSize == 0)
                         //{
                         //    totalPage = totalTrades / pageSize;
@@ -267,20 +276,20 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                         }
 
-                        //sDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
-                        if (tmpendTime == timeNow)
+                        tmpsDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                        if (tmpendTime == timeToEnd)
                         {
                             break;
                         }
-                        else if ((tmpendTime + 24 * 3600 * 1000) > timeNow)
+                        else if ((tmpendTime + 24 * 3600 * 1000) > timeToEnd)
                         {
-                            tmpendTime = timeNow;
+                            tmpendTime = timeToEnd;
                         }
                         else 
                         {
                             tmpendTime += 24 * 3600 * 1000;
                         }
-                        //eDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                        tmpeDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
                     }
                 }
             }
