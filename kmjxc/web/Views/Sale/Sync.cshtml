@@ -1,5 +1,13 @@
 ﻿@{
     ViewBag.Title = "订单同步";
+    List<KM.JXC.BL.Models.BShop> childshops = new List<KM.JXC.BL.Models.BShop>();
+    if (ViewData["ChildShop"] != null)
+    {
+        childshops = (List<KM.JXC.BL.Models.BShop>)ViewData["ChildShop"];
+    }
+
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
 }
 <script>
     var tradeMger = new KMJXCSaleManager();
@@ -132,12 +140,18 @@
             var $progress = new ShowProgress("sync_trade_progress_bar", function () { },"正在同步，同步过程中，不要关闭浏览器，请耐心等待...");
 
             tradeMger.SyncMallTrades({
+                'shop':$('#trade_shop').val(),
                 'start': stime,
                 'end': etime,
                 'status': $syncForm.find('#trade_status').val(),
                 'syncType': syncType
             }, function (res) {
                 Boxy.get($('#sync_trade_progress_bar')).hide();
+                if (res.Status == 'ok') {
+                    alert("同步完成");
+                } else if (res.Status == 'failed') {
+                    alert(res.Message);
+                }
                 getSyncLog();
             });
         });
@@ -193,6 +207,20 @@
                  1. 按照交易的创建时间（同步时必须输入开始和结束时间），下次同步的开始时间是上次同步的结束时间<br/>
                  2. 按照交易的修改时间，选择增量同步，无需输入时间范围，此方式可以同步方式1中修改过的交易，比如退货，或者部分退货
              </p>
+             <div class="rowS">
+                 <label>商城店铺:</label><select class="W_inputsel" id="trade_shop">
+                                        @if (childshops != null && childshops.Count>0){
+                                        <option value="0">--所有--</option>
+                                        <option value="@CurrentShop.Shop_ID">@Html.Raw(CurrentShop.Name)</option>
+                                            foreach (KM.JXC.BL.Models.BShop shop in childshops)
+                                            {
+                                                @Html.Raw("<option value=\""+shop.ID+"\">"+shop.Title+" -子店铺</option>")
+                                            }
+                                        }else{
+                                             <option value="@CurrentShop.Shop_ID">@Html.Raw(CurrentShop.Name)</option>
+                                        }
+                                     </select>
+             </div>
              <div class="rowS">
                  <label>订单状态:</label><select class="W_inputsel" id="trade_status"></select>
              </div>

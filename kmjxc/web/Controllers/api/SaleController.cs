@@ -209,11 +209,32 @@ namespace KM.JXC.Web.Controllers.api
             int start = 0;
             int end = 0;
             int syncType = 0;
+            int shop = 0;
             string status = request["status"];
             int.TryParse(request["start"],out start);
             int.TryParse(request["end"], out end);
             int.TryParse(request["syncType"],out syncType);
-            saleManager.SyncMallTrades(start, end, status, syncType);
+            int.TryParse(request["shop"], out shop);
+            try
+            {
+                saleManager.SyncMallTrades(start, end, status, syncType, shop);
+                message.Status = "ok";
+            }
+            catch (KMJXCMallException mex)
+            {
+                message.Status = "failed";
+                message.Message = mex.Message;
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
             return message;
         }
 

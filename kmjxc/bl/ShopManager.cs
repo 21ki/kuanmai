@@ -1595,7 +1595,7 @@ namespace KM.JXC.BL
 
                 if (!string.IsNullOrEmpty(productName))
                 {
-                    tmp = tmp.Where(p=>p.Title.Contains(productName));
+                    tmp = tmp.Where(p=>p.Title.Contains(productName.Trim()));
                 }
                 List<Mall_Product_Sku> skus = tmp1.OrderBy(i=>i.Mall_ID).ToList<Mall_Product_Sku>();
 
@@ -1787,20 +1787,81 @@ namespace KM.JXC.BL
             }
 
             Product locProduct = null;
-            IOProductManager productManager = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
+            IOProductManager productManager = null;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                locProduct=(from p in db.Product where p.Product_ID==locProductId && p.Parent_ID==0 select p).FirstOrDefault<Product>();
+                locProduct = (from p in db.Product where p.Product_ID == locProductId && p.Parent_ID == 0 select p).FirstOrDefault<Product>();
                 if (locProduct == null)
                 {
                     throw new KMJXCException("本地产品不存在，无法关联到商城宝贝");
                 }
 
-                Mall_Product locMallProduct=(from mp in db.Mall_Product where mp.Mall_ID==mall_id select mp).FirstOrDefault<Mall_Product>();
+                Mall_Product locMallProduct = (from mp in db.Mall_Product where mp.Mall_ID == mall_id select mp).FirstOrDefault<Mall_Product>();
                 if (locMallProduct == null)
                 {
                     throw new KMJXCException("宝贝信息不存在，请先同步出售中的宝贝");
                 }
+
+                Access_Token token = this.AccessToken;
+                Shop desshop = this.Shop;
+                //current user is main shop user
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    int[] child_shop_ids = (from c in this.ChildShops select c.ID).ToArray<int>();
+                    if (!child_shop_ids.Contains(locMallProduct.Shop_ID))
+                    {
+                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                    }
+                    else
+                    {
+                        desshop = (from s in this.ChildShops
+                                   where s.ID == locMallProduct.Shop_ID
+                                   select new Shop
+                                   {
+                                       Shop_ID = s.ID,
+                                       Name = s.Title,
+                                       Mall_Type_ID = s.Type!=null?s.Type.Mall_Type_ID:0
+                                   }).FirstOrDefault<Shop>();
+                        User shopUser = (from user in db.User
+                                         from shop in db.Shop
+                                         where shop.Shop_ID == locMallProduct.Shop_ID && user.User_ID == shop.User_ID
+                                         select user).FirstOrDefault<User>();
+
+                        if (desshop == null || shopUser == null)
+                        {
+                            throw new KMJXCException("请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+                        if (desshop.Mall_Type_ID == 0)
+                        {
+                            throw new KMJXCException("请退出系统，重新登录");
+                        }
+                        token = (from t in db.Access_Token where t.User_ID==shopUser.User_ID select t).FirstOrDefault<Access_Token>();
+                        if (token == null)
+                        {
+                            throw new KMJXCException("子账户授权已经过期，请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+
+                        if (IsTokenExpired(token))
+                        {
+                            throw new KMJXCException("子账户授权已经过期，请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+                    }
+                }
+                else 
+                {
+                    if (locMallProduct.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能关联主店铺宝贝");
+                    }
+
+                    if (locMallProduct.Shop_ID != this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                    }
+                }
+
+                productManager = new TaobaoProductManager(token, desshop.Mall_Type_ID);
+
                 result = productManager.MappingProduct(locProductId.ToString(), mall_id);
                 if (result)
                 {
@@ -1832,6 +1893,8 @@ namespace KM.JXC.BL
                 return result;
             }
             Product locProduct = null;
+            Access_Token token = this.AccessToken;
+            Shop desshop = this.Shop;
             IOProductManager productManager = new TaobaoProductManager(this.AccessToken, this.Shop.Mall_Type_ID);
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
@@ -1853,6 +1916,67 @@ namespace KM.JXC.BL
                 {
                     throw new KMJXCException("所选库存属性已经被关联到此宝贝下其他的SKU，请选择其他的库存属性进行关联");
                 }
+
+                Mall_Product locMallProduct=(from p in db.Mall_Product where p.Mall_ID==msku.Mall_ID select p).FirstOrDefault<Mall_Product>();
+                if (locMallProduct == null)
+                {
+                    throw new KMJXCException("此SKU所对应的宝贝快照不存在，请先同步在售宝贝");
+                }
+                //current user is main shop user
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    int[] child_shop_ids = (from c in this.ChildShops select c.ID).ToArray<int>();
+                    if (!child_shop_ids.Contains(locMallProduct.Shop_ID))
+                    {
+                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                    }
+                    else
+                    {
+                        desshop = (from s in this.ChildShops
+                                   where s.ID == locMallProduct.Shop_ID
+                                   select new Shop
+                                   {
+                                       Shop_ID = s.ID,
+                                       Name = s.Title,
+                                       Mall_Type_ID=s.Type.Mall_Type_ID
+                                   }).FirstOrDefault<Shop>();
+                        User shopUser = (from user in db.User
+                                         from shop in db.Shop
+                                         where shop.Shop_ID == locMallProduct.Shop_ID && user.User_ID == shop.User_ID
+                                         select user).FirstOrDefault<User>();
+
+                        if (desshop == null || shopUser == null)
+                        {
+                            throw new KMJXCException("请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+
+                        token = (from t in db.Access_Token where t.User_ID == shopUser.User_ID select t).FirstOrDefault<Access_Token>();
+                        if (token == null)
+                        {
+                            throw new KMJXCException("子账户授权已经过期，请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+
+                        if (IsTokenExpired(token))
+                        {
+                            throw new KMJXCException("子账户授权已经过期，请退出系统，用子店铺账户从商城授权登录进销存");
+                        }
+                    }
+                }
+                else
+                {
+                    if (locMallProduct.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能关联主店铺宝贝");
+                    }
+
+                    if (locMallProduct.Shop_ID != this.Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                    }
+                }
+
+                productManager = new TaobaoProductManager(token, desshop.Mall_Type_ID);
+
                 result = productManager.MappingSku(locProductId.ToString(), skuId, msku.Mall_ID, msku.Properties);
                 if (result)
                 {

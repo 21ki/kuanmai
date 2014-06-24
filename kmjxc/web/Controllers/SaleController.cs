@@ -105,6 +105,7 @@ namespace KM.JXC.Web.Controllers
             List<BShop> childShops = shopManager.SearchChildShops();
             ViewData["ChildShop"] = childShops;
             ViewData["CurrentShop"] = userMgr.Shop;
+            ViewData["MainShop"] = userMgr.Main_Shop;
             return View(data);
         }
 
@@ -123,6 +124,12 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Sync()
         {
+            string user_id = HttpContext.User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            SalesManager shopManager = new SalesManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            ViewData["ChildShop"] = shopManager.ChildShops;
+            ViewData["CurrentShop"] = shopManager.Shop;
             return View();
         }
     }

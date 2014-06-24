@@ -12,6 +12,7 @@ using KM.JXC.DBA;
 using Newtonsoft.Json.Linq;
 using KM.JXC.Web.Models;
 using KM.JXC.Common.Util;
+using KM.JXC.Common.KMException;
 namespace KM.JXC.Web.Controllers.api
 {
     public class ProductsController : BaseApiController
@@ -118,6 +119,48 @@ namespace KM.JXC.Web.Controllers.api
             {
                 message.Status = "failed";
                 message.Message = ex.Message;
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage BatchEditCategory()
+        {
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            ApiMessage message = new ApiMessage();
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            string products=request["products"];
+            if (string.IsNullOrEmpty(products))
+            {
+                message.Status = "failed";
+                message.Message = "没有选择产品，不能批量编辑类目";
+                return message;
+            }
+
+            int[] product_ids = base.ConvertToIntArrar(products);
+            int category = 0;
+            int.TryParse(request["category"],out category);
+            try
+            {
+                bool ret = pdtManager.BatchUpdateCategory(category, product_ids);
+                if (ret)
+                {
+                    message.Status = "ok";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
             }
             return message;
         }

@@ -219,13 +219,16 @@ namespace KM.JXC.BL
                 {
                     if (existed.Shop_ID == this.Main_Shop.Shop_ID)
                     {
-                        throw new KMJXCException("您不能修改主店铺供应商");
+                        if (this.CurrentUser.Shop.ID != existed.Shop_ID)
+                        {
+                            throw new KMJXCException("您不能修改主店铺供应商");
+                        }
                     }
-
-                    if (existed.Shop_ID == this.Shop.Shop_ID)
+                    else if (existed.Shop_ID!=this.Shop.Shop_ID)
                     {
                         throw new KMJXCException("您不能其他主店铺供应商");
                     }
+                   
                 }
                 else
                 {

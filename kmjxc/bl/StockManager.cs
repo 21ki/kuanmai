@@ -292,7 +292,7 @@ namespace KM.JXC.BL
 
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    dbProducts = dbProducts.Where(p => p.pdt.Name.Contains(keyword));
+                    dbProducts = dbProducts.Where(p => p.pdt.Name.Contains(keyword.Trim()));
                 }
 
                 if (suppliers != null && suppliers.Length > 0)
@@ -1934,7 +1934,7 @@ namespace KM.JXC.BL
 
                 if (!string.IsNullOrEmpty(keywords))
                 {
-                    products = products.Where(a=>keywords.Contains(a.Name));
+                    products = products.Where(a=>a.Name.Contains(keywords.Trim()));
                 }
 
                 if (product_ids != null)

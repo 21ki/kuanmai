@@ -258,7 +258,73 @@ namespace KM.JXC.BL
                     }
                 }
             }
-        }        
+        }
+
+        /// <summary>
+        /// Bath modify products category
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="products"></param>
+        /// <param name="shop_id"></param>
+        /// <returns></returns>
+        public bool BatchUpdateCategory(int category,int[] products,int shop_id=0)
+        {
+            bool result=false;
+            if (this.CurrentUserPermission.UPDATE_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限执行编辑产品操作");
+            }
+            if (category <= 0)
+            {
+                throw new KMJXCException("请选择类目进行批量修改");
+            }
+
+            if (products == null || products.Length <= 0)
+            {
+                throw new KMJXCException("请选择产品，再批量编辑类目");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                List<Product> dbProducts = null;
+                var tmpProducts = from p in db.Product
+                                  where products.Contains(p.Product_ID)
+                                  select p;
+
+                if (shop_id > 0)
+                {
+                    tmpProducts = tmpProducts.Where(p => p.Shop_ID == shop_id);
+                }
+                else
+                {
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        int[] child_shop_ids = (from c in this.ChildShops select c.ID).ToArray<int>();
+                        tmpProducts = tmpProducts.Where(p => (p.Shop_ID == this.Shop.Shop_ID || child_shop_ids.Contains(p.Shop_ID)));
+                    }
+                    else
+                    {                        
+                        tmpProducts = tmpProducts.Where(p => (p.Shop_ID==this.Shop.Shop_ID || p.Shop_ID==this.Main_Shop.Shop_ID));
+                    }
+                }
+
+                dbProducts = tmpProducts.ToList<Product>();
+                foreach (Product pdt in dbProducts)
+                {
+                    //cannot edit main shop products
+                    if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID && pdt.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("您不能修改主店铺产品信息");
+                    }
+
+                    pdt.Product_Class_ID = category;                   
+                }
+
+                db.SaveChanges();
+                result = true;
+            }
+            return result;
+        }
 
         /// <summary>
         /// Update product information
@@ -546,7 +612,7 @@ namespace KM.JXC.BL
                 }
                 if (!string.IsNullOrEmpty(title))
                 {
-                    dbps = dbps.Where(a=>a.Pdt.Name.Contains(title));
+                    dbps = dbps.Where(a=>a.Pdt.Name.Contains(title.Trim()));
                 }
 
                 if (!string.IsNullOrEmpty(description))

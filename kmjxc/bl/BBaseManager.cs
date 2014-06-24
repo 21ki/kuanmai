@@ -11,6 +11,7 @@ using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 using System.Data.Entity;
 using KM.JXC.BL.Models;
+using KM.JXC.Common.Util;
 
 namespace KM.JXC.BL
 {
@@ -35,7 +36,8 @@ namespace KM.JXC.BL
                       select new BShop
                       {
                           ID = shop.Shop_ID,
-                          Title = shop.Name
+                          Title = shop.Name,
+                          Type = new Mall_Type() { Mall_Type_ID=shop.Mall_Type_ID}
                       }).ToList<BShop>();
 
                 return ss;
@@ -105,6 +107,8 @@ namespace KM.JXC.BL
                 var cu = from us in db.User
                          join mtype in db.Mall_Type on us.Mall_Type equals mtype.Mall_Type_ID into lMtype
                          from l_mtype in lMtype.DefaultIfEmpty()
+                         join shop in db.Shop on us.Shop_ID equals shop.Shop_ID into LShop
+                         from l_shop in LShop.DefaultIfEmpty()
                          where us.User_ID == user_id
                          select new BUser
                          {
@@ -121,10 +125,19 @@ namespace KM.JXC.BL
                              Name = us.Name,
                              Parent_ID = (int)us.Parent_User_ID,
                              Password = us.Password,
-                             Type = new BMallType 
+                             Type = new BMallType
                              {
-                                 ID=l_mtype.Mall_Type_ID,
-                                 Name=l_mtype.Name
+                                 ID = l_mtype.Mall_Type_ID,
+                                 Name = l_mtype.Name
+                             },
+                             Shop = l_shop != null ?
+                             new BShop { 
+                                ID=l_shop.Shop_ID,
+                                Title=l_shop.Name
+                             }
+                             : new BShop {
+                                 ID = 0,
+                                 Title = ""
                              }
                          };
                this.CurrentUser = cu.ToList<BUser>()[0];
@@ -285,6 +298,22 @@ namespace KM.JXC.BL
             }
 
             return mallTradeStatus;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public bool IsTokenExpired(Access_Token token)
+        {
+            bool result = false;
+            long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            if (timeNow >= token.Request_Time + token.Expirse_In)
+            {
+                result = true;
+            }
+            return result;
         }
     }
 }

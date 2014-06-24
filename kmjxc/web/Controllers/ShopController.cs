@@ -79,7 +79,7 @@ namespace KM.JXC.Web.Controllers
             ViewData["LastSync"] = lastSync;
 
             ViewData["ChildShop"] = shopManager.ChildShops;
-
+            ViewData["CurrentShop"] = shopManager.Shop;
             return View(data);
         }
 

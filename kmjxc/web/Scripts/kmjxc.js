@@ -392,6 +392,15 @@ function KMJXCProductManager() {
     this.GetProductFullInfo = function (params, callback) {
         this.AjaxCall("/api/Products/GetFullInfo", params, callback);
     }
+
+    /*
+    category - category id:must
+    products - product id join with "," : must
+    */
+    this.BatchEditCategory = function (params, callback) {
+        this.AjaxCall("/api/Products/BatchEditCategory", params, callback);
+    }
+
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();

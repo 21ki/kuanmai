@@ -267,7 +267,7 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                         }
 
-                        sDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                        //sDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
                         if (tmpendTime == timeNow)
                         {
                             break;
@@ -280,7 +280,7 @@ namespace KM.JXC.BL.Open.TaoBao
                         {
                             tmpendTime += 24 * 3600 * 1000;
                         }
-                        eDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
+                        //eDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
                     }
                 }
             }
@@ -326,7 +326,7 @@ namespace KM.JXC.BL.Open.TaoBao
             //req.RateStatus = "RATE_UNBUYER";
             //req.Tag = "time_card";
             req.PageNo = page;
-            req.PageSize = 50L;
+            req.PageSize = 50;
             req.UseHasNext = true;
             TradesSoldIncrementGetResponse response = client.Execute(req, this.Access_Token.Access_Token1);
             List<BSale> sales = new List<BSale>();
@@ -550,31 +550,27 @@ namespace KM.JXC.BL.Open.TaoBao
                             }
                             order.StockStatus = 0;
                             order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;
-                           
+                            order.Order_ID = o.Oid.ToString();
+                            order.Mall_PID = o.NumIid.ToString();
 
                             if (!string.IsNullOrEmpty(o.OuterIid))
                             {
                                 int pid = 0;
                                 int.TryParse(o.OuterIid,out pid);
                                 order.Parent_Product_ID = pid;
-
-                                if (!string.IsNullOrEmpty(o.OuterSkuId))
+                               
+                                if (!string.IsNullOrEmpty(o.SkuId))
                                 {
                                     int pcid = 0;
                                     int.TryParse(o.OuterSkuId,out pcid);
                                     order.Product_ID = pcid;
+                                    order.Mall_SkuID = o.SkuId;
                                 }
                                 else 
                                 {
+                                    order.Mall_SkuID = "";
                                     order.Product_ID = order.Parent_Product_ID;
                                 }
-                            }
-                            order.Order_ID = o.Oid.ToString();
-                            order.Mall_PID = o.NumIid.ToString();
-                            order.Mall_SkuID = "";
-                            if (o.SkuId != null)
-                            {
-                                order.Mall_SkuID = o.SkuId;
                             }
                             order.ImageUrl = "";
                             if (!string.IsNullOrEmpty(o.PicPath))

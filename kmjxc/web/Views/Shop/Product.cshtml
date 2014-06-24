@@ -18,6 +18,8 @@
     {
         childshops = (List<KM.JXC.BL.Models.BShop>)ViewData["ChildShop"];
     }
+
+    KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];    
 }
 <script>
     var shopMgr = new KMJXCShopManager();
@@ -274,7 +276,7 @@
         @*<h3>如果勾选为新宝贝创建本地产品，则商城的新宝贝会在本地进销存创建对应的新产品，SKU属性会自动创建</h3>*@
         <div id="syncMallPdt">
             <div class="rowS"><input type="checkbox" id="sync_chk_create_product" /><label style="width:auto;padding-left:3px;"> 新宝贝是否导入进销存产品库</label></div>
-            <div class="rowS"> <span id="btnSync">同步</span>  @if (lastSync != null) { <span>@Html.Raw(" 上次同步:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m")+" "+lastSync.User.Mall_Name)</span>}</div>
+            <div class="rowS"> <span id="btnSync">同步</span>  @if (lastSync != null) { <span>@Html.Raw(" 上一次由 "+lastSync.User.Mall_Name+" 同步于:"+KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(lastSync.SyncTime).ToString("yyyy-MM-dd H:m"))</span>}</div>
             
             <div class="rowS">
                
@@ -292,9 +294,10 @@
                         <td class="td1">宝贝店铺:</td>
                         <td class="td1"><select id="txt_product_shop" name="txt_product_shop" class="W_inputsel">
                                         <option value="0">--所有--</option>
+                                        <option value="@CurrentShop.Shop_ID">@Html.Raw(CurrentShop.Name +" -主店铺")</option>
                                         @foreach (KM.JXC.BL.Models.BShop shop in childshops)
                                         {
-                                            @Html.Raw("<option value=\""+shop.ID+"\">"+shop.Title+"</option>")
+                                            @Html.Raw("<option value=\""+shop.ID+"\">"+shop.Title+" -子店铺</option>")
                                         }
                                         </select></td>
                     </tr>
@@ -350,7 +353,7 @@
                 foreach (KM.JXC.BL.Models.BMallProduct product in products) { 
                     <div class="row jxclist1">
                         <div>
-                            <span style="display:inline-block;margin:0;width:15px;margin-right:10px;">@if(!product.HasProductCreated){<input value="@product.ID" type="checkbox" id="pdt_chk_select_@product.ID" />}</span><span style="margin-left:0;vertical-align:top;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
+                            <span style="display:inline-block;margin:0;width:15px;margin-right:10px;">@if(!product.HasProductCreated || product.OuterID==0){<input value="@product.ID" type="checkbox" id="pdt_chk_select_@product.ID" />}</span><span style="margin-left:0;vertical-align:top;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
                             <span class="spanw4">@product.Shop.Title</span>
                             <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
                             <span class="spanw2">

@@ -182,62 +182,68 @@
                     return;
                 }
 
-                $('#popup_stock_detail').dialog({
-                    position: { my: "top", at: "top", of: $("#stockTable") },
-                    width: 550,
-                    //height:550,
-                    resizable: false,
-                    title: "库存详情 - " + data[selectedRows[0]]["Title"],
-                    modal: true,
-                    buttons: {
-                        "关闭": function (e) {
-                            $(this).dialog("close");
+
+                stockMgr.GetProductStockDetails({ 'product_id': product_id }, function (res) {
+                    if (res != null) {
+                        if ($(res).size() <= 0) {
+                            alert("此产品没有SKU销售属性");
+                            return;
                         }
-                    },
-                    open: function (e) {
-                        var that = this;
-                        stockMgr.GetProductStockDetails({ 'product_id': product_id }, function (res) {
-                            if (res != null) {
 
-                                var table = $("<div class=\"lstable\"></div>").appendTo(that);
-                                if ($(res).size() > 0) {
-                                    var header = $("<div class=\"row\"></div>").appendTo(table);
-                                    $("<div class=\"cell\" style=\"width:100px;font-weight:bold\">库存编码</div>").appendTo(header);
-                                    $("<div class=\"cell\" style=\"width:200px;font-weight:bold\">属性</div>").appendTo(header);
-                                    $("<div class=\"cell\" style=\"width:50px;font-weight:bold\">库存</div>").appendTo(header);
+                        var that = $('#popup_stock_detail');
+                        that.html("");
+                        var table = $("<div class=\"lstable\"></div>").appendTo(that);
+                        var header = $("<div class=\"row\"></div>").appendTo(table);
+                        $("<div class=\"cell\" style=\"width:100px;font-weight:bold\">库存编码</div>").appendTo(header);
+                        $("<div class=\"cell\" style=\"width:200px;font-weight:bold\">属性</div>").appendTo(header);
+                        $("<div class=\"cell\" style=\"width:50px;font-weight:bold\">库存</div>").appendTo(header);
+                        $('#popup_stock_detail').dialog({
+                            position: { my: "top", at: "top", of: $("#stockTable") },
+                            width: 550,
+                            //height:550,
+                            resizable: false,
+                            title: "库存详情 - " + data[selectedRows[0]]["Title"],
+                            modal: true,
+                            buttons: {
+                                "关闭": function (e) {
+                                    $(this).dialog("close");
                                 }
+                            },
+                            open: function (e) {
+                                var that = this;
 
-                                $(res).each(function (index, item) {
-                                    var pdt = null;
-                                    if (index < ($(res).size() - 1)) {
-                                        pdt = $("<div class=\"row\"></div>").appendTo(table);
-                                    } else {
-                                        pdt = $("<div class=\"rowl\"></div>").appendTo(table);
-                                    }
-
-                                    $("<div class=\"cell\" style=\"width:100px;\">" + item.ID + "</div>").appendTo(pdt);
-                                    if (item.Properties != null) {
-                                        var props = "";
-                                        $(item.Properties).each(function (index1, item1) {
-                                            if (props == "") {
-                                                props = item1.PName + ":" + item1.PValue;
-                                            } else {
-                                                props += " " + item1.PName + ":" + item1.PValue;
-                                            }
-                                        });
-                                        $("<div class=\"cell\" style=\"width:200px;\">" + props + "</div>").appendTo(pdt);
-                                    }
-                                    $("<div class=\"cell\" style=\"width:50px;\">" + item.Quantity + "</div>").appendTo(pdt);
-                                });
+                            },
+                            close: function (e) {
+                                $(this).html("");
                             }
                         });
-                    },
-                    close: function (e) {
-                        $(this).html("");
+
+                        $('#popup_stock_detail').dialog("open");
+
+                        $(res).each(function (index, item) {
+                            var pdt = null;
+                            if (index < ($(res).size() - 1)) {
+                                pdt = $("<div class=\"row\"></div>").appendTo(table);
+                            } else {
+                                pdt = $("<div class=\"rowl\"></div>").appendTo(table);
+                            }
+
+                            $("<div class=\"cell\" style=\"width:100px;\">" + item.ID + "</div>").appendTo(pdt);
+                            if (item.Properties != null) {
+                                var props = "";
+                                $(item.Properties).each(function (index1, item1) {
+                                    if (props == "") {
+                                        props = item1.PName + ":" + item1.PValue;
+                                    } else {
+                                        props += " " + item1.PName + ":" + item1.PValue;
+                                    }
+                                });
+                                $("<div class=\"cell\" style=\"width:200px;\">" + props + "</div>").appendTo(pdt);
+                            }
+                            $("<div class=\"cell\" style=\"width:50px;\">" + item.Quantity + "</div>").appendTo(pdt);
+                        });                        
                     }
                 });
-
-                $('#popup_stock_detail').dialog("open");
             });
             $("<span id=\"get_ccate\">修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
 
