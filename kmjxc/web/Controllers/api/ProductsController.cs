@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using Newtonsoft.Json;
 
 using KM.JXC.BL;
 using KM.JXC.BL.Models;
@@ -307,7 +308,16 @@ namespace KM.JXC.Web.Controllers.api
                     sids[i] = int.Parse(ss[i]);
                 }
             }
-            data.data = pdtManager.SearchProducts(sids, keyword, "", 0, 0, category_id, page, pageSize, out total);
+            bool includeProps = false;
+            if (!string.IsNullOrEmpty(request["include_prop"]) && request["include_prop"] == "1")
+            {
+                includeProps = true;
+            }
+            else
+            {
+                includeProps = false;
+            }
+            data.data = pdtManager.SearchProducts(sids, keyword, "", 0, 0, category_id, page, pageSize, out total,includeProps);
             data.totalRecords = total;
             data.curPage = page;
             data.pageSize = pageSize;
@@ -329,6 +339,7 @@ namespace KM.JXC.Web.Controllers.api
             int product_id = 0;
             string mall_id = request["mall_id"];
             int.TryParse(request["product_id"],out product_id);
+           
             try
             {
                 product = pdtManager.GetProductFullInfo(product_id, mall_id);
@@ -429,7 +440,10 @@ namespace KM.JXC.Web.Controllers.api
                 int order_user = 0;
                 string odetails = request["order_products"];
                 string desc=request["description"];
-                
+                if (!string.IsNullOrEmpty(odetails))
+                {
+                    odetails = HttpUtility.UrlDecode(odetails);
+                }
                 if (!string.IsNullOrEmpty(request["writedate"]))
                 {
                     writedate = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(request["writedate"]));
@@ -460,17 +474,37 @@ namespace KM.JXC.Web.Controllers.api
                 order.WriteTime = (Int32)writedate;
                 if (!string.IsNullOrEmpty(odetails))
                 {
+                    JArray jOrders = JArray.Parse(odetails);
                     order.Details = new List<BBuyOrderDetail>();
-                    string[] details = odetails.Split(';');
-                    foreach (string detail in details)
+                    if (jOrders != null && jOrders.Count > 0)
                     {
-                        string[] items = detail.Split(',');
-                        BBuyOrderDetail oDetail = new BBuyOrderDetail();
-                        oDetail.Price = double.Parse(items[2]);
-                        oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
-                        oDetail.Quantity = int.Parse(items[1]);
-                        oDetail.Status = 0;
-                        order.Details.Add(oDetail);
+                        for (int i = 0; i < jOrders.Count; i++)
+                        {
+                            JObject jOrder = (JObject)jOrders[i];
+                            int parent_product_id = (int)jOrder["product_id"];
+                            JArray cjorders = (JArray)jOrder["orders"];
+                            if (cjorders != null && cjorders.Count > 0)
+                            {
+                                for (int j = 0; j < cjorders.Count; j++)
+                                {
+                                    BBuyOrderDetail oDetail = new BBuyOrderDetail();
+                                    oDetail.Parent_Product_ID = parent_product_id;
+                                    oDetail.Product = new BProduct() { ID=(int)cjorders[j]["child_id"]};
+                                    double price = 0;
+                                    int quantity = 0;
+                                    double.TryParse(cjorders["price"].ToString(), out price);
+                                    int.TryParse(cjorders["quantity"].ToString(), out quantity);
+                                    oDetail.Quantity = quantity;
+                                    oDetail.Status = 0;
+                                    oDetail.Price = price;
+                                    if (quantity <= 0)
+                                    {
+                                        continue;
+                                    }
+                                    order.Details.Add(oDetail);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -523,6 +557,12 @@ namespace KM.JXC.Web.Controllers.api
                 string odetails = request["order_products"];
                 string desc = request["description"];
                 int.TryParse(request["oid"],out oid);
+
+                if (!string.IsNullOrEmpty(odetails))
+                {
+                    odetails = HttpUtility.UrlDecode(odetails);
+                }
+
                 if (!string.IsNullOrEmpty(request["writedate"]))
                 {
                     writedate = DateTimeUtil.ConvertDateTimeToInt(Convert.ToDateTime(request["writedate"]));
@@ -554,17 +594,38 @@ namespace KM.JXC.Web.Controllers.api
                 order.WriteTime = writedate;
                 if (!string.IsNullOrEmpty(odetails))
                 {
+                    JArray jOrders = JArray.Parse(odetails);
                     order.Details = new List<BBuyOrderDetail>();
-                    string[] details = odetails.Split(';');
-                    foreach (string detail in details)
+                    if (jOrders != null && jOrders.Count > 0)
                     {
-                        string[] items = detail.Split(',');
-                        BBuyOrderDetail oDetail = new BBuyOrderDetail();
-                        oDetail.Price = double.Parse(items[2]);
-                        oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
-                        oDetail.Quantity = int.Parse(items[1]);
-                        oDetail.Status = 0;
-                        order.Details.Add(oDetail);
+                        for (int i = 0; i < jOrders.Count; i++)
+                        {
+                            JObject jOrder = (JObject)jOrders[i];
+                            int parent_product_id = (int)jOrder["product_id"];
+                            JArray cjorders = (JArray)jOrder["orders"];
+                            if (cjorders != null && cjorders.Count > 0)
+                            {
+                                for (int j = 0; j < cjorders.Count; j++)
+                                {
+                                    BBuyOrderDetail oDetail = new BBuyOrderDetail();
+                                    oDetail.Parent_Product_ID = parent_product_id;
+                                    double price = 0;
+                                    int quantity = 0;
+                                    double.TryParse(cjorders["price"].ToString(), out price);
+                                    int.TryParse(cjorders["quantity"].ToString(), out quantity);
+
+                                    oDetail.Product = new BProduct() { ID = (int)cjorders[j]["child_id"] };
+                                    oDetail.Quantity = quantity;
+                                    oDetail.Status = 0;
+                                    oDetail.Price = price;
+                                    if (quantity <= 0)
+                                    {
+                                        continue;
+                                    }
+                                    order.Details.Add(oDetail);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -631,17 +692,43 @@ namespace KM.JXC.Web.Controllers.api
                
                 if (!string.IsNullOrEmpty(odetails))
                 {
+                    odetails = HttpUtility.UrlDecode(odetails);
                     buy.Details = new List<BBuyDetail>();
-                    string[] details = odetails.Split(';');
-                    foreach (string detail in details)
+
+                    JArray jsons = JArray.Parse(odetails);
+                    if (jsons != null && jsons.Count > 0)
                     {
-                        string[] items = detail.Split(',');
-                        BBuyDetail oDetail = new BBuyDetail();
-                        oDetail.Buy_Order_ID = oid;
-                        oDetail.Price = double.Parse(items[2]);
-                        oDetail.Product = new BProduct() { ID = int.Parse(items[0]) };
-                        oDetail.Quantity = int.Parse(items[1]);                       
-                        buy.Details.Add(oDetail);
+
+                        for (int i = 0; i < jsons.Count; i++)
+                        {
+                            JObject jOrder = (JObject)jsons[i];
+                            int parent_product_id = (int)jOrder["product_id"];
+                            JArray cjorders = (JArray)jOrder["orders"];
+
+                            if (cjorders != null && cjorders.Count > 0)
+                            {
+                                for (int j = 0; j < cjorders.Count; j++)
+                                {
+                                    JObject json = (JObject)cjorders[j];
+                                    BBuyDetail oDetail = new BBuyDetail();
+                                    oDetail.Buy_Order_ID = oid;
+                                    double price = 0;
+                                    int quantity = 0;
+                                    double.TryParse(json["price"].ToString(), out price);
+                                    int.TryParse(json["quantity"].ToString(), out quantity);
+                                    oDetail.Price = price;
+                                    oDetail.Product = new BProduct() { ID = (int)json["child_id"] };
+                                    oDetail.Quantity = quantity;
+                                    
+                                    if (quantity <= 0)
+                                    {
+                                        continue;
+                                    }
+                                    oDetail.Parent_Product_ID = parent_product_id;
+                                    buy.Details.Add(oDetail);
+                                }
+                            }
+                        }
                     }
                 }
 

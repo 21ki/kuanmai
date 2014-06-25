@@ -13,5 +13,6 @@ namespace KM.JXC.BL.Models
         public int Quantity { get; set; }
         public double Price { get; set; }
         public int Status { get; set; }
+        public int Parent_Product_ID { get; set; }        
     }
 }

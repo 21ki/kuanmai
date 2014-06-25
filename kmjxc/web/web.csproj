@@ -817,6 +817,7 @@
     <Content Include="Views\Corp\Bug.cshtml" />
     <Content Include="Views\Corp\Blog.cshtml" />
     <Content Include="Views\Corp\BugDetail.cshtml" />
+    <Content Include="Views\Buy\AddOrder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

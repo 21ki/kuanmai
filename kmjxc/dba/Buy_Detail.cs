@@ -20,5 +20,6 @@ namespace KM.JXC.DBA
         public double Price { get; set; }
         public long Create_Date { get; set; }
         public int Buy_Order_ID { get; set; }
+        public int Parent_Product_ID { get; set; }
     }
 }

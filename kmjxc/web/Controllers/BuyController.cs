@@ -21,6 +21,11 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult AddOrder()
+        {
+            return View();
+        }
+
         public ActionResult Suppliers()
         {
             return View();

@@ -34,7 +34,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuyOrder> SearchBuyOrders(int[] order_ids, int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords) 
+        public List<BBuyOrder> SearchBuyOrders(int[] order_ids, int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords,bool onlyGetNonVerifiedDetails=true) 
         {
             List<BBuyOrder> buyOrders = new List<BBuyOrder>();
             totalRecords = 0;
@@ -134,11 +134,31 @@ namespace KM.JXC.BL
 
                                     };
 
-                    efOrders = efOrders.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                    efOrders = efOrders.OrderBy(a=>a.Status).Skip((pageIndex - 1) * pageSize).Take(pageSize);
                     buyOrders = efOrders.ToList<BBuyOrder>();
+                    int[] eorder_ids=(from o in buyOrders select o.ID).ToArray<int>();
+                    int[] eproduct_ids = (from detail in db.Buy_Order_Detail where eorder_ids.Contains(detail.Buy_Order_ID) select detail.Product_ID).ToArray<int>();
+
+                    List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                         join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                         from l_prop in LProp.DefaultIfEmpty()
+                                                         join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                         from l_propv in LPropv.DefaultIfEmpty()
+                                                         where eproduct_ids.Contains(pv.Product_ID)
+                                                         select new BProductProperty
+                                                         {
+                                                             PID = pv.Product_Spec_ID,
+                                                             PName = l_prop.Name,
+                                                             ProductID = pv.Product_ID,
+                                                             PValue = l_propv.Name,
+                                                             PVID = pv.Product_Spec_Value_ID
+                                                         }).ToList<BProductProperty>();
+
                     foreach (BBuyOrder o in buyOrders)
                     {
-                        var ds= from od in db.Buy_Order_Detail
+                        if (o.Status == 0 && onlyGetNonVerifiedDetails)
+                        {
+                            var ds = from od in db.Buy_Order_Detail
                                      where od.Buy_Order_ID == o.ID
                                      select new BBuyOrderDetail
                                      {
@@ -152,11 +172,20 @@ namespace KM.JXC.BL
                                                         {
                                                             ID = pdt.Product_ID,
                                                             Title = pdt.Name,
-                                                        }).FirstOrDefault<BProduct>()
+                                                        }).FirstOrDefault<BProduct>(),
+                                         Parent_Product_ID = od.Parent_Product_ID
                                      };
 
-                        List<BBuyOrderDetail> dss = ds.ToList<BBuyOrderDetail>();
-                        o.Details = dss;
+                            List<BBuyOrderDetail> dss = ds.ToList<BBuyOrderDetail>();
+                            foreach (BBuyOrderDetail d in dss)
+                            {
+                                if (d.Parent_Product_ID != d.Product.ID && d.Parent_Product_ID > 0)
+                                {
+                                    d.Product.Properties=(from prop in properties where prop.ProductID==d.Product.ID select prop).ToList<BProductProperty>();
+                                }
+                            }
+                            o.Details = dss;
+                        }
 
                         if (o.Shop.ID == this.Main_Shop.Shop_ID)
                         {
@@ -281,10 +310,10 @@ namespace KM.JXC.BL
                     if (orderIds != null && orderIds.Length > 0)
                     {
                         int total = 0;
-                        List<BBuyOrder> orders = this.SearchBuyOrders(orderIds, null, null, null, 0, 0, 1, orderIds.Length, out total);
+                        //List<BBuyOrder> orders = this.SearchBuyOrders(orderIds, null, null, null, 0, 0, 1, orderIds.Length, out total,false);
                         foreach (BBuy b in verifications)
                         {
-                            b.Order = (from ods in orders where ods.ID == b.Order.ID select ods).FirstOrDefault<BBuyOrder>();
+                            //b.Order = (from ods in orders where ods.ID == b.Order.ID select ods).FirstOrDefault<BBuyOrder>();
                             b.Details = (from bd in db.Buy_Detail
                                          where bd.Buy_ID == b.ID
                                          select new BBuyDetail
@@ -303,13 +332,13 @@ namespace KM.JXC.BL
                                                         }).FirstOrDefault<BProduct>()
                                          }).ToList<BBuyDetail>();
 
-                            if (getFullProductInfo)
-                            {
-                                foreach (BBuyDetail d in b.Details)
-                                {
-                                    d.Product = pdtManager.GetProductFullInfo(d.ProductId);
-                                }
-                            }
+                            //if (getFullProductInfo)
+                            //{
+                            //    foreach (BBuyDetail d in b.Details)
+                            //    {
+                            //        d.Product = pdtManager.GetProductFullInfo(d.ProductId);
+                            //    }
+                            //}
 
                             if (b.Shop.ID == this.Main_Shop.Shop_ID)
                             {
@@ -579,6 +608,7 @@ namespace KM.JXC.BL
                     dbDetail.Price = detail.Price;
                     dbDetail.Product_ID = detail.Product.ID;
                     dbDetail.Quantity = detail.Quantity;
+                    dbDetail.Parent_Product_ID = detail.Parent_Product_ID;
                     db.Buy_Detail.Add(dbDetail);
 
                     Buy_Order_Detail boDetail = null;
@@ -722,6 +752,7 @@ namespace KM.JXC.BL
                 order.Description = buy_Order.Description;
                 order.End_Date = buy_Order.EndTime;
                 order.Insure_Date = buy_Order.InsureTime;
+                
                 if (buy_Order.OrderUser != null)
                 {
                     order.Order_User_ID = buy_Order.OrderUser.ID;
@@ -878,12 +909,18 @@ namespace KM.JXC.BL
 
                     foreach (BBuyOrderDetail detail in details)
                     {
+                        if (detail.Quantity <= 0)
+                        {
+                            continue;
+                        }
+
                         Buy_Order_Detail dbOrderDetail = new Buy_Order_Detail();
                         dbOrderDetail.Buy_Order_ID = buyOrderId;
                         dbOrderDetail.Price = detail.Price;
                         dbOrderDetail.Product_ID = detail.Product.ID;
                         dbOrderDetail.Quantity = detail.Quantity;
                         dbOrderDetail.Status = detail.Status;
+                        dbOrderDetail.Parent_Product_ID = detail.Parent_Product_ID;
                         db.Buy_Order_Detail.Add(dbOrderDetail);
                     }
 

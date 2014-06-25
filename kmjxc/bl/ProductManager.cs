@@ -574,7 +574,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> SearchProducts(int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total)
+        public List<BProduct> SearchProducts(int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total,bool includeProps=false)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -688,7 +688,34 @@ namespace KM.JXC.BL
                                           }).FirstOrDefault<BUser>()
                               };
 
-                    products = bps.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();
+                    products = bps.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();                   
+                }
+
+                List<Product> childProducts = null;
+                List<BProductProperty> properties = null;
+                if (includeProps)
+                {
+                    int[] parent_ids = (from p in products select p.ID).ToArray<int>();
+                    var tmpchildProducts = from p in db.Product
+                                           where parent_ids.Contains(p.Parent_ID)
+                                           select p;
+
+                    childProducts = tmpchildProducts.ToList<Product>();
+                    int[] child_product_ids = (from c in childProducts select c.Product_ID).ToArray<int>();
+                    properties = (from pv in db.Product_Specifications
+                                                         join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                         from l_prop in LProp.DefaultIfEmpty()
+                                                         join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                         from l_propv in LPropv.DefaultIfEmpty()
+                                                         where child_product_ids.Contains(pv.Product_ID)
+                                                         select new BProductProperty
+                                                         {
+                                                             PID = pv.Product_Spec_ID,
+                                                             PName = l_prop.Name,
+                                                             ProductID = pv.Product_ID,
+                                                             PValue = l_propv.Name,
+                                                             PVID = pv.Product_Spec_Value_ID
+                                                         }).ToList<BProductProperty>();
                 }
 
                 foreach (BProduct product in products)
@@ -699,6 +726,21 @@ namespace KM.JXC.BL
                     }else if (childshop_ids != null && childshop_ids.Length > 0 && childshop_ids.Contains(product.Shop.Shop_ID))
                     {
                         product.FromChildShop = true;
+                    }
+
+                    if (includeProps)
+                    {
+                        List<Product> children = (from c in childProducts where c.Parent_ID == product.ID select c).ToList<Product>();
+                        if (children.Count > 0)
+                        {
+                            product.Children = new List<BProduct>();
+                            foreach (Product child in children)
+                            {
+                                BProduct bChild = new BProduct() { ID=child.Product_ID,Title=product.Title };
+                                bChild.Properties=(from prop in properties where prop.ProductID==bChild.ID select prop).ToList<BProductProperty>();
+                                product.Children.Add(bChild);
+                            }
+                        }
                     }
                 }
             }

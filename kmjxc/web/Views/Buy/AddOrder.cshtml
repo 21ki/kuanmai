@@ -1,0 +1,634 @@
+﻿@{
+    ViewBag.Title = "AddOrder";
+    Layout = "~/Views/Shared/master_default.cshtml";
+}
+
+<script>
+    var buyMgr = new KMJXCBuyManager();
+    var pdtMgr = new KMJXCProductManager();
+    var $grid = null;
+    var suppliers;
+    var shopUsers;
+    var form;
+    var selectedProducts = [];
+    var productIndex = 1;
+    var tmpProducts = null;
+    $(function () {
+        $('#tabs').tabs();
+        form = $('#neweditform');
+        buyMgr.GetSuppliers({}, function (res) {
+            suppliers = res.data;
+            var sel_supplier = form.find('#order_supplier');
+            $("<option value=\"0\">--选择--</option>").appendTo(sel_supplier);
+            $(suppliers).each(function (index, item) {
+                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo(sel_supplier);
+            });
+            sel_supplier.removeAttr("disabled");
+        })
+
+        buyMgr.GetUsers({ page: 1, pageSize: 10000 }, function (res) {
+            shopUsers = res.data;
+            var sel_user = form.find('#order_user');
+            sel_user.empty();
+            $("<option value=\"0\">--选择--</option>").appendTo(sel_user);
+            if (shopUsers != null) {
+                $(shopUsers).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Mall_Name + "</option>").appendTo(sel_user);
+                });
+
+                sel_user.removeAttr("disabled");
+            }
+        });
+
+        form.find("#order_supplier").change(function () {
+            if ($(this).val() > 0) {
+                form.find('#resultmessage').html("");
+                form.find('#resultmessage').hide();
+            } else {
+                form.find('#resultmessage').html("请选择供应商");
+                form.find('#resultmessage').show();
+            }
+        });
+
+        form.find("#order_user").change(function () {
+            if ($(this).val() > 0) {
+                form.find('#resultmessage').html("");
+                form.find('#resultmessage').hide();
+            } else {
+                form.find('#resultmessage').html("请选择采购");
+                form.find('#resultmessage').show();
+            }
+        });
+        function InitializeNewForm() {
+            form.find("#info").html("在产品输入框内输入产品名称关键字模糊搜索产品");
+            form.find('#floatproductslist').hide();
+
+            form.find('#order_writedate').datepicker({
+                currentText: "Now",
+                dateFormat: "yy-mm-dd",
+                showMonthAfterYear: true,
+                changeMonth: true,
+                changeYear: true,
+                buttonImageOnly: true,
+                onSelect: function (dateText, inst) {
+                    // _this.CheckFilterRows();
+                }
+            }).val("");
+            form.find('#order_issuedate').datepicker({
+                currentText: "Now",
+                dateFormat: "yy-mm-dd",
+                showMonthAfterYear: true,
+                changeMonth: true,
+                changeYear: true,
+                buttonImageOnly: true,
+                onSelect: function (dateText, inst) {
+                    // _this.CheckFilterRows();
+                }
+            }).val("");
+            form.find('#order_enddate').datepicker({
+                currentText: "Now",
+                dateFormat: "yy-mm-dd",
+                showMonthAfterYear: true,
+                changeMonth: true,
+                changeYear: true,
+                buttonImageOnly: true,
+                onSelect: function (dateText, inst) {
+                    // _this.CheckFilterRows();
+                }
+            }).val("");
+
+            form.find("#order_details").html("");
+            form.find("#order_desc").val("");
+            form.find('#resultmessage').html("");
+            form.find('#resultmessage').hide();
+            form.find('#order_desc').removeAttr("readonly");
+            form.find('#order_comedatediv').hide();
+            productIndex = 1;
+        }
+
+        $('#floatproductslist').find('#floatlistclose').click(function (e) {
+            $('#floatproductslist').hide();
+        });
+
+        function BindInputEvent(obj, i) {
+            var that = obj;
+            var supplier = form.find("#order_supplier").val();
+            if (supplier == "" || supplier == 0) {
+                form.find('#resultmessage').html("请选择供应商");
+                form.find('#resultmessage').show();
+                return;
+            }
+
+            
+            form.find('#resultmessage').html("");
+            form.find('#resultmessage').hide();
+
+            var pdtName = $(that).val();
+            
+            if ($.trim(pdtName) == '') {
+                $(that).parent().find("input[id^='order_detail_pdt_id']").val("");
+            }
+           
+           
+            var _left = $(that).offset().left;
+           
+            var _lineHeight = $(that).css("height");
+           
+            var _top = $(that).offset().top;
+           
+            _top = _top + parseFloat((_lineHeight.split('px')[0]));
+           
+            _top = parseFloat(_top) + 5;
+           
+            $('#floatproductslist').css({
+                "top": _top,
+                "left": _left,
+                "z-index": 999,
+                "position": "absolute",
+            }).show();
+
+            pdtMgr.SearchProducts({ suppliers: supplier, keyword: $(that).val(), page: 1, pageSize: 30, include_prop: 1 }, function (res) {
+                var $ui = $('#floatproductslist').find("ul");
+                $ui.html("");
+                tmpProducts = res.data;
+                $(res.data).each(function (index, item) {
+                    $("<li style=\"margin-right:20px;\" id=\"" + item.ID + "\" title=\"" + item.Title + "\"><span class=\"num\">编号:" + item.ID + "</span><span>名称:" + item.Title + "</span></li>").appendTo($ui).click(function (e) {
+                        var pdtId = $(this).attr("id");
+                        $('#floatproductslist').hide();
+                        var invoked = that;
+                        $(invoked).parent().find("input[id='order_detail_pdt_id" + i + "']").val(pdtId);
+                        $(invoked).val($(this).attr("title"));
+                        var $pdtDiv = $(invoked).parent();
+                        $pdtDiv.find("ul").remove();
+                        for (var j = 0; j < tmpProducts.length; j++) {
+                            var product = tmpProducts[j];
+                            if (product.ID == pdtId && product.Children != null) {
+                                var $ul = $("<ul style=\"margin-left:90px;\"></ul>").appendTo($pdtDiv);
+                                var pprice=$pdtDiv.find("input[id^='order_detail_pdt_p']").attr("readonly", true);
+                                var pquantity=$pdtDiv.find("input[id^='order_detail_pdt_q']").attr("readonly", true);
+                                $(product.Children).each(function (index1, item1) {
+                                    var childId = item1.ID;
+                                    var $li = $("<li value=\"" + childId + "\"></li>").appendTo($ul);
+                                    var propNames = "";
+                                    $(item1.Properties).each(function (index2, prop) {
+                                        if (propNames == "") {
+                                            propNames = prop.PName + ":" + prop.PValue;
+                                        } else {
+                                            propNames = "," + prop.PName + ":" + prop.PValue;
+                                        }
+                                    });
+
+                                    $("<span style=\"width:226px;display:inline-block;text-align:center;\">" + propNames + "</span>").appendTo($li);
+                                    $("<label>数量:</label>").appendTo($li);
+                                    $("<input id=\"order_detail_cpdt_q" + childId + "\" type=\"text\" class=\"W_input iptW50\"/>").blur(function () {
+                                        var q = $(this).val();
+                                        if ($.trim(q) == "") {
+                                            return;
+                                        }
+                                        if (isNaN(q)) {
+                                            alert("数量必须是数字");
+                                            $(this).val("");
+                                            return;
+                                        }
+                                        var totalQ = 0;
+                                        $pdtDiv.find("ul").find("li").each(function (e) {
+                                            var q = $(this).find("input[id^='order_detail_cpdt_q']").val();
+                                            if ($.trim(q) != "") {
+                                                totalQ += parseInt(q);
+                                            }
+                                        });
+                                        $(pquantity).val(totalQ);
+                                    }).appendTo($li);
+                                    $("<label>单价:</label>").appendTo($li);
+                                    $("<input id=\"order_detail_cpdt_p" + childId + "\" type=\"text\" class=\"W_input iptW50\"/>").appendTo($li);
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        form.find("#btn_save_order").button({ icons: {primary:"ui-icon-disk"}}).click(function () {
+            SaveOrder(false);
+        });
+
+        function RenderProductList(oDetailJson, generateBuy) {
+            var $pdtList = form.find("#order_details");
+            var i = productIndex - 1;
+
+            var pdtDiv = $("<div class=\"row\" id=\"order_detail_" + i + "\"></div>")
+            var pdtIDHidden = $("<input type=\"hidden\" value=\"\" id=\"order_detail_pdt_id" + i + "\"/>").appendTo(pdtDiv);
+            if (oDetailJson && oDetailJson != null) {
+                pdtIDHidden.val(oDetailJson.Product.ID);
+            }
+            var label1 = $("<label class=\"label1\">产品:</label>").appendTo(pdtDiv);
+            var pdtNameInput = $("<input type=\"text\" id=\"order_detail_pdt_n" + i + "\" class=\"W_input\" style=\"width:220px;\" />");
+            if (!generateBuy) {
+                $(pdtNameInput).focus(function () {
+                    BindInputEvent(this, i);
+                });
+                $(pdtNameInput).bind("input", function (e) {
+                    BindInputEvent(this, i);
+                });
+
+            } else {
+                pdtNameInput.attr("readonly", "readonly");
+            }
+
+            if (oDetailJson && oDetailJson != null) {
+                pdtNameInput.val(oDetailJson.Product.Title);
+            }
+
+            pdtNameInput.appendTo(pdtDiv);
+            $("<label>数量:</label>").appendTo(pdtDiv);
+            var pdtQuantity = $("<input type=\"text\" id=\"order_detail_pdt_q" + i + "\" class=\"W_input iptW50\" />").appendTo(pdtDiv);
+            if (oDetailJson && oDetailJson != null) {
+                pdtQuantity.val(oDetailJson.Quantity);
+            }
+            $("<label>单价:</label>").appendTo(pdtDiv);
+            var pdtPrice = $("<input type=\"text\" id=\"order_detail_pdt_p" + i + "\" class=\"W_input iptW50\" />").appendTo(pdtDiv);
+            if (oDetailJson && oDetailJson != null) {
+                pdtPrice.val(oDetailJson.Price);
+            }
+            if (!generateBuy) {
+                if (i == 0) {
+                    $("<img style=\"margin-left:30px;\" src=\"/Content/images/add.png\"/>").click(function (e) {
+                        var that = this;
+                        var pv = $(this).parent();
+                        var productName = pv.find("input[id^='order_detail_pdt_n']").val();
+                        var productQuantity = pv.find("input[id^='order_detail_pdt_q']").val();
+                        var productPrice = pv.find("input[id^='order_detail_pdt_p']").val();
+                        if (productName == "") {
+                            form.find('#resultmessage').html("请选择产品，可以输入关键字搜索对应产品");
+                            form.find('#resultmessage').show();
+                            return;
+                        }
+
+                        if ($(pv).find("ul") == null || $(pv).find("ul").html() == null) {
+                            if (productQuantity == "" || productPrice == "") {
+                                form.find('#resultmessage').html("请输入数量以及价格");
+                                form.find('#resultmessage').show();
+                                return;
+                            }
+
+                            if (isNaN(productQuantity)) {
+                                form.find('#resultmessage').html("产品数量必须是数字");
+                                form.find('#resultmessage').show();
+                                return;
+                            }
+
+                            var prices = productPrice.split(".");
+                            if (prices.length > 0) {
+                                for (var i = 0; i < prices.length; i++) {
+                                    if (isNaN(prices[i])) {
+                                        form.find('#resultmessage').html("产品单价必须是数字，可带小数");
+                                        form.find('#resultmessage').show();
+                                        return;
+                                        break;
+                                    }
+                                }
+                            }
+                        }                        
+
+                        form.find('#resultmessage').html("");
+                        form.find('#resultmessage').hide();
+                        //productIndex++;
+                        RenderProductList();
+                    }).appendTo(pdtDiv);
+                } else {
+                    $("<img style=\"margin-left:30px;\" src=\"/Content/images/remove.gif\"/>").click(function (e) {
+                        var index = i;
+                        form.find("#order_details").find("#order_detail_" + i).remove();
+                        //productIndex--;
+                    }).appendTo(pdtDiv);
+                }
+            }
+
+            productIndex++;
+            pdtDiv.appendTo($pdtList);
+        }
+
+        function GetFillOrderForm(orderJson, generateBuy) {
+
+            form.find("#order_id").val(orderJson.ID);
+            var sel_supplier = form.find('#order_supplier');
+            sel_supplier.empty();
+
+            var sel_user = form.find('#order_user');
+            sel_user.empty();
+            $("<option value=\"0\">--选择--</option>").appendTo(sel_supplier);
+            $("<option value=\"0\">--选择--</option>").appendTo(sel_user);
+            sel_supplier.attr("disabled", "disabled");
+
+            $(suppliers).each(function (index, item) {
+                $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo(sel_supplier);
+            });
+
+            sel_supplier.val(orderJson.Supplier.Supplier_ID);
+
+            form.find('#order_writedate').val(buyMgr.GetDateTime(orderJson.WriteTime, true));
+            form.find('#order_issuedate').val(buyMgr.GetDateTime(orderJson.InsureTime, true));
+            form.find('#order_enddate').val(buyMgr.GetDateTime(orderJson.EndTime, true));
+
+            if (!generateBuy && generateBuy == false) {
+                form.find('#order_writedate').datepicker({
+                    currentText: "Now",
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                    onSelect: function (dateText, inst) {
+                        // _this.CheckFilterRows();
+                    }
+                });
+                form.find('#order_issuedate').datepicker({
+                    currentText: buyMgr.GetDateTime(orderJson.InsureTime),
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                    onSelect: function (dateText, inst) {
+                        // _this.CheckFilterRows();
+                    }
+                });
+                form.find('#order_enddate').datepicker({
+                    currentText: buyMgr.GetDateTime(orderJson.EndTime),
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                    onSelect: function (dateText, inst) {
+                        // _this.CheckFilterRows();
+                    }
+                });
+            } else {
+
+                form.find('#order_writedate').datepicker("destroy");
+                form.find('#order_enddate').datepicker("destroy");
+                form.find('#order_issuedate').datepicker("destroy");
+            }
+
+            if (shopUsers != null) {
+                $(shopUsers).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Mall_Name + "</option>").appendTo(sel_user);
+                });
+                sel_user.val(orderJson.OrderUser.ID);
+                sel_user.attr("disabled", "disabled");
+            }
+
+            form.find('#order_desc').val(orderJson.Description);
+
+            if (orderJson.Details != null && $(orderJson.Details).size() > 0) {
+                $(orderJson.Details).each(function (index, item) {
+                    RenderProductList(item, generateBuy);
+                });
+            } else {
+                RenderProductList(null, generateBuy);
+            }
+
+            if (generateBuy && generateBuy == true) {
+                form.find('#order_desc').attr("readonly", "readonly");
+                form.find('#order_comedatediv').show();
+                form.find('#order_comedate').datepicker({
+                    currentText: "Now",
+                    dateFormat: "yy-mm-dd",
+                    showMonthAfterYear: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    buttonImageOnly: true,
+                    onSelect: function (dateText, inst) {
+                        // _this.CheckFilterRows();
+                    }
+                });
+            }
+        }
+
+        function SaveOrder(generateBuy) {
+            var error = "";
+            var supplier = form.find("#order_supplier").val();
+            var user = form.find("#order_user").val();
+            var desc = form.find('#order_desc').val();
+            var oid = form.find("#order_id").val();
+            if ($.trim(supplier) == 0) {
+                error = "请选择供应商";
+            }
+
+            if ($.trim(user) == 0) {
+                if (error == "") {
+                    error = "请选择采购";
+                } else {
+                    error += "<br/>请选择采购";
+                }
+            }
+
+            if (error != "") {
+                form.find('#resultmessage').html(error);
+                form.find('#resultmessage').show();
+                return;
+            }
+
+            var writedate = form.find("#order_writedate").val();
+            var issuedate = form.find("#order_issuedate").val();
+            var enddate = form.find("#order_enddate").val();
+
+            form.find('#resultmessage').html("");
+            form.find('#resultmessage').hide();
+
+            var products = "[";
+            var details = form.find("#order_details").find("div[id^='order_detail_']");
+            var verified = true;
+            if ($(details).size() > 0) {
+                for (var i = 0; i < $(details).size() ; i++) {
+                    var detail = details[i];                   
+                    var pid = $(detail).find("input[id^='order_detail_pdt_id']").val();
+                    var pQuantity = $(detail).find("input[id^='order_detail_pdt_q']").val();
+                    var pPrice = $(detail).find("input[id^='order_detail_pdt_p']").val();
+                    var pJson = "{";
+                    if (pid != "" && pid != 0) {
+                        if ($(detail).find("ul") == null || $(detail).find("ul") == 'undefined' || $(detail).find("ul").html() == null) {                            
+
+                            if (pPrice == "" || pQuantity == "") {
+                                verified = verified & false;
+                                form.find('#resultmessage').html("请输入价格和数量");
+                                form.find('#resultmessage').show();                               
+                                return;
+                            }
+                            pJson += "\"product_id\":" + pid;
+                            pJson += ",\"orders\":[";
+                            pJson += "{\"child_id\":" + pid + ",\"price\":"+pPrice+",\"quantity\":"+pQuantity+"}";
+                            pJson += "]";                           
+                        } else {
+                            var pJson = "{";
+                            pJson += "\"product_id\":" + pid;
+                            pJson += ",\"orders\":[";
+                            var len = $(detail).find("ul").find("li").size();
+                            
+                            $(detail).find("ul").find("li").each(function (index1, prop) {                                
+                                var cpid = $(prop).val();                               
+                                var price = $(prop).find("input[id^='order_detail_cpdt_p']").val();                               
+                                var quantity = $(prop).find("input[id^='order_detail_cpdt_q']").val();
+
+                                if (price == "" || quantity == "") {
+                                    verified = verified & false;
+                                    form.find('#resultmessage').html("请输入价格和数量");
+                                    form.find('#resultmessage').show();
+                                    return false;
+                                }
+
+                                var cpJson = "{\"child_id\":" + cpid + ",\"price\":" + price + ",\"quantity\":" + quantity + "}";
+                                pJson += cpJson;
+                                if (index1 < (len - 1)) {
+                                    pJson += ",";
+                                }
+                            });
+                            pJson += "]";
+                        }
+                    }
+
+                    pJson += "}";
+
+                    products += pJson;
+                    if (i < ($(details).size() - 1)) {
+                        products+=","
+                    }
+                }
+            }
+
+            if (!verified) {
+                return;
+            }
+
+            products += "]";
+            //alert(products);
+            //return;
+            if (!generateBuy) {
+                if (oid == "" || oid == 0) {
+                    buyMgr.CreateBuyOrder(
+                        {
+                            'description': desc,
+                            'writedate': writedate,
+                            'issuedate': issuedate,
+                            'enddate': enddate,
+                            'supplier': supplier,
+                            'order_user': user,
+                            'order_products': encodeURIComponent(products)
+                        }, function (res) {
+                            if (res.Status == 'ok') {
+                                $('#popup-newedit-order').dialog("close");
+                                $grid.pqGrid("refreshDataAndView");
+                            } else {
+                                form.find('#resultmessage').html(res.Message);
+                                form.find('#resultmessage').show();
+                            }
+                        });
+                } else {
+                    buyMgr.UpdateBuyOrder(
+                        {
+                            'oid': oid,
+                            'description': desc,
+                            'writedate': writedate,
+                            'issuedate': issuedate,
+                            'enddate': enddate,
+                            'supplier': supplier,
+                            'order_user': user,
+                            'order_products': products
+                        }, function (res) {
+                            if (res.Status == 'ok') {
+                                $('#popup-newedit-order').dialog("close");
+                                $grid.pqGrid("refreshDataAndView");
+                            } else {
+                                form.find('#resultmessage').html(res.Message);
+                                form.find('#resultmessage').show();
+                            }
+                        });
+                }
+            } else {
+                //generate buy
+                var verifydesc = form.find("#order_verify_desc").val();
+                var comedate = form.find("#order_comedate").val();
+
+                buyMgr.VerifyOrder(
+                        {
+                            'oid': oid,
+                            'description': verifydesc,
+                            'comedate': comedate,
+                            'order_products': products
+                        }, function (res) {
+                            if (res.Status == 'ok') {
+                                $('#popup-newedit-order').dialog("close");
+                                $grid.pqGrid("refreshDataAndView");
+                            } else {
+                                form.find('#resultmessage').html(res.Message);
+                                form.find('#resultmessage').show();
+                            }
+                        });
+            }
+        }
+
+        InitializeNewForm();
+        RenderProductList();
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#new_buy_order">新建采购单</a></li>
+    </ul>
+    <div id="new_buy_order" >
+        <div id="popup-newedit-order">
+        <form id="neweditform">
+            <input  type="hidden" id="order_id" value=""/>
+            <h4 id="info">在产品输入框内输入产品名称关键字模糊搜索产品</h4>
+            <div class="row">
+                <label class="label1">供应商:</label><select id="order_supplier" class="W_input W_inputsel"></select>
+            </div>
+            <div class="row">
+                <label class="label1">采购员:</label><select id="order_user" class="W_input W_inputsel"></select>
+            </div>
+            <div class="row">
+                <label class="label1">合同签订日期:</label><input readonly class="W_input" id="order_writedate" />
+            </div>
+            <div class="row">
+                <label class="label1">合同生效日期:</label><input readonly class="W_input" id="order_issuedate" />
+            </div>
+             <div class="row">
+                <label class="label1">合同结束日期:</label><input readonly class="W_input" id="order_enddate" />
+            </div>
+            <div class="row">
+                <label class="label1">采购备注:</label><textarea class="W_input" id="order_desc"></textarea>
+            </div>
+         
+            <div class="row" style="height:auto;" id="order_details">               
+            </div> 
+            <div class="row" id="order_comedatediv" style="height:auto;display:none;">
+                <div class="row">
+                    <label class="label1">到货日期:</label><input type="text"  id="order_comedate" class="W_input"/>
+                </div>
+                <div class="row">
+                    <label class="label1">验货备注:</label><textarea class="W_input" id="order_verify_desc"></textarea>
+                </div>
+            </div>  
+            
+            
+                   
+            <div id="resultmessage" class="message1 nolabel90" style="height:auto;display:none;"></div>
+            <div class="row">
+                <span id="btn_save_order">保存</span>
+            </div>
+        </form>
+       
+    </div>
+    
+    </div>
+</div>
+
+<div id="floatproductslist" style="display:none;">
+        <ul class="floatlist" style="border:1px solid #ccc;background-color:#FFF; width:600px;height:auto;">
+            
+        </ul>
+        <span id="floatlistclose" class="floatlistclose"></span>
+</div>

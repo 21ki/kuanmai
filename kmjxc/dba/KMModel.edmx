@@ -265,6 +265,7 @@
           </Key>
           <Property Name="Buy_ID" Type="int" Nullable="false" />
           <Property Name="Product_ID" Type="int" Nullable="false" />
+          <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
@@ -293,6 +294,7 @@
           </Key>
           <Property Name="Buy_Order_ID" Type="int" Nullable="false" />
           <Property Name="Product_ID" Type="int" Nullable="false" />
+          <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
@@ -368,6 +370,7 @@
           </Key>
           <Property Name="Enter_Stock_ID" Type="int" Nullable="false" />
           <Property Name="Product_ID" Type="int" Nullable="false" />
+          <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Have_Invoice" Type="bool" />
@@ -976,6 +979,7 @@
           <Property Type="Double" Name="Price" Nullable="false" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
           <Property Type="Int32" Name="Buy_Order_ID" Nullable="false" />
+          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Buy_Order">
           <Key>
@@ -1003,6 +1007,7 @@
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Double" Name="Price" Nullable="false" />
           <Property Type="Int32" Name="Status" Nullable="false" />
+          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Common_District">
           <Key>
@@ -1081,6 +1086,7 @@
           <Property Type="String" Name="Invoice_Num" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Type="Double" Name="Invoice_Amount" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
+          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Express">
           <Key>
@@ -1708,6 +1714,7 @@
           <EntitySetMapping Name="Buy_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Detail">
               <MappingFragment StoreEntitySet="Buy_Detail">
+                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Buy_Order_ID" ColumnName="Buy_Order_ID" />
                 <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
@@ -1737,6 +1744,7 @@
           <EntitySetMapping Name="Buy_Order_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Order_Detail">
               <MappingFragment StoreEntitySet="Buy_Order_Detail">
+                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
@@ -1816,6 +1824,7 @@
           <EntitySetMapping Name="Enter_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock_Detail">
               <MappingFragment StoreEntitySet="Enter_Stock_Detail">
+                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
                 <ScalarProperty Name="Invoice_Amount" ColumnName="Invoice_Amount" />
                 <ScalarProperty Name="Invoice_Num" ColumnName="Invoice_Num" />
