@@ -1147,11 +1147,8 @@ namespace KM.JXC.BL
 
                 if (bstock != null)
                 {
-                    BuyManager buyManager = new BuyManager(this.CurrentUser,this.Shop,this.CurrentUserPermission);
-                    int totalRecords = 0;
-                    int[] buyIds = new int[1];
-                    buyIds[0] = bstock.BuyID;
-                    bstock.Buy = buyManager.SearchBuys(buyIds, null, null, null, null, 0, 0, 1, 1, out totalRecords, true)[0];
+                    BuyManager buyManager = new BuyManager(this.CurrentUser,this.Shop,this.CurrentUserPermission); 
+                    bstock.Buy = buyManager.GetBuyFullInfo(bstock.BuyID);
                     bstock.Details = (from detail in db.Enter_Stock_Detail
                                       where detail.Enter_Stock_ID == id
                                       select new BEnterStockDetail
@@ -1235,21 +1232,31 @@ namespace KM.JXC.BL
                     throw new KMJXCException("入库单创建失败");
                 }
                 result = true;
-                if (stock.Details != null)
-                {
-                    result = result&this.CreateEnterStockDetails(dbStock, stock.Details,stock.UpdateStock);
-                    if (result)
-                    {
-                        if (stock.UpdateStock)
-                        {
-                            dbStock.Status = 1;
-                        }
 
-                        if (dbBuy != null)
-                        {
-                            dbBuy.Status = 1;
-                            db.SaveChanges();
-                        }
+                if (stock.Details == null || stock.Details.Count == 0)
+                {
+                    stock.Details = (from d in db.Buy_Detail
+                                     where d.Buy_ID == stock.BuyID
+                                     select new BEnterStockDetail
+                                     {
+                                         Price = d.Price,
+                                         Product = new BProduct() { ID=d.Product_ID },
+                                         Quantity=d.Quantity
+                                     }).ToList<BEnterStockDetail>();
+                }
+
+                result = result & this.CreateEnterStockDetails(dbStock, stock.Details, stock.UpdateStock);
+                if (result)
+                {
+                    if (stock.UpdateStock)
+                    {
+                        dbStock.Status = 1;
+                    }
+
+                    if (dbBuy != null)
+                    {
+                        dbBuy.Status = 1;
+                        db.SaveChanges();
                     }
                 }               
             }
@@ -1293,7 +1300,7 @@ namespace KM.JXC.BL
                 }
 
                 Enter_Stock_Detail dbDetail = new Enter_Stock_Detail();
-                dbDetail.Create_Date = detail.Created;
+                dbDetail.Create_Date = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 dbDetail.Enter_Stock_ID = dbstock.Enter_Stock_ID;
                 dbDetail.Have_Invoice = detail.Invoiced;
                 dbDetail.Invoice_Amount = detail.InvoiceAmount;

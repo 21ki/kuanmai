@@ -205,6 +205,75 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="buy_id"></param>
+        /// <returns></returns>
+        public BBuy GetBuyFullInfo(int buy_id)
+        {
+            BBuy buy = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                buy = (from b in db.Buy
+                       join b_u in db.User on b.User_ID equals b_u.User_ID into LBU
+                       from l_b_u in LBU.DefaultIfEmpty()
+                       select new BBuy
+                       {
+                           ComeDate = (long)b.Come_Date,
+                           Created = b.Create_Date,
+                           ID = b.Buy_ID,
+                           Description = b.Description,
+                           Status = b.Status,
+                           User = new BUser 
+                           {
+                               ID = l_b_u.User_ID,
+                               Name = l_b_u.Name,
+                               Mall_Name = l_b_u.Mall_Name,
+                               Mall_ID = l_b_u.Mall_ID
+                           }
+                       }).FirstOrDefault<BBuy>();
+
+                BBuyOrder order = (from o in db.Buy_Order
+                                   join c_u in db.User on o.User_ID equals c_u.User_ID into LBU
+                                   from l_c_u in LBU.DefaultIfEmpty()
+                                   join o_u in db.User on o.Order_User_ID equals o_u.User_ID into LOU
+                                   from l_o_u in LOU.DefaultIfEmpty()
+                                   join suppiler in db.Supplier on o.Supplier_ID equals suppiler.Supplier_ID into LSupplier
+                                   from l_supplier in LSupplier.DefaultIfEmpty()
+                                   select new BBuyOrder
+                                   {
+                                       Created = o.Create_Date,
+                                       Created_By = new BUser 
+                                       {
+                                           ID = l_c_u.User_ID,
+                                           Name = l_c_u.Name,
+                                           Mall_Name = l_c_u.Mall_Name,
+                                           Mall_ID = l_c_u.Mall_ID
+                                       },
+                                       Description = o.Description,
+                                       EndTime = (long)o.End_Date,
+                                       ID = o.Buy_Order_ID,
+                                       InsureTime = (long)o.Insure_Date,
+                                       OrderUser = new BUser 
+                                       {
+                                           ID = l_o_u.User_ID,
+                                           Name = l_o_u.Name,
+                                           Mall_Name = l_o_u.Mall_Name,
+                                           Mall_ID = l_o_u.Mall_ID
+                                       },
+                                       Status = o.Status,
+                                       Supplier = l_supplier,
+                                       WriteTime = (long)o.Write_Date
+
+
+                                   }).FirstOrDefault<BBuyOrder>();
+
+                buy.Order = order;
+            }
+            return new BBuy();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="shop_id"></param>
         /// <param name="user_id"></param>
         /// <param name="startTime"></param>
@@ -309,11 +378,8 @@ namespace KM.JXC.BL
                     orderIds = (from verify in verifications select verify.Order.ID).ToArray<int>();
                     if (orderIds != null && orderIds.Length > 0)
                     {
-                        int total = 0;
-                        //List<BBuyOrder> orders = this.SearchBuyOrders(orderIds, null, null, null, 0, 0, 1, orderIds.Length, out total,false);
                         foreach (BBuy b in verifications)
                         {
-                            //b.Order = (from ods in orders where ods.ID == b.Order.ID select ods).FirstOrDefault<BBuyOrder>();
                             b.Details = (from bd in db.Buy_Detail
                                          where bd.Buy_ID == b.ID
                                          select new BBuyDetail
@@ -331,14 +397,6 @@ namespace KM.JXC.BL
                                                             Title = pdt.Name,
                                                         }).FirstOrDefault<BProduct>()
                                          }).ToList<BBuyDetail>();
-
-                            //if (getFullProductInfo)
-                            //{
-                            //    foreach (BBuyDetail d in b.Details)
-                            //    {
-                            //        d.Product = pdtManager.GetProductFullInfo(d.ProductId);
-                            //    }
-                            //}
 
                             if (b.Shop.ID == this.Main_Shop.Shop_ID)
                             {
@@ -374,23 +432,80 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int total = 0;
-                List<BBuy> buys = this.SearchBuys(new int[] { buy_id }, null, null, null, null, 0, 0, 1, 1, out total);
-                if (buys == null || buys.Count <= 0)
-                {
-                    throw new KMJXCException("没有找到编号为:"+buy_id+"的验货单");
-                }
-                buy = buys[0];
+                buy = (from b in db.Buy
+                       join border in db.Buy_Order on b.Buy_Order_ID equals border.Buy_Order_ID into LBOrder
+                       from l_border in LBOrder.DefaultIfEmpty()
+                       join shop in db.Shop on b.Shop_ID equals shop.Shop_ID into LShop
+                       from l_shop in LShop.DefaultIfEmpty()
+                       join user in db.User on b.User_ID equals user.User_ID into LUser
+                       from l_user in LUser.DefaultIfEmpty()
+                       where b.Buy_ID == buy_id
+                       select new BBuy
+                       {
+                           ComeDate = (long)b.Come_Date,
+                           Created = b.Create_Date,
+                           Description = b.Description,
+                           ID = b.Buy_ID,
+                           Order = new BBuyOrder() { ID = b.Buy_Order_ID },
+                           Shop = new BShop
+                           {
+                               ID = l_shop.Shop_ID,
+                               Title = l_shop.Name
+                           },
+                           User = new BUser()
+                           {
+                               ID = l_user.User_ID,
+                               Name = l_user.Name,
+                               Mall_ID = l_user.Mall_ID,
+                               Mall_Name = l_user.Mall_Name
+                           },
+                           Status = b.Status
+                       }).FirstOrDefault<BBuy>();
 
-                ProductManager pdtManager = new ProductManager(this.CurrentUser, this.Shop, this.CurrentUserPermission);
+                var tmpDetails = from d in db.Buy_Detail
+                                 join product in db.Product on d.Product_ID equals product.Product_ID into LProduct
+                                 from l_product in LProduct.DefaultIfEmpty()
+                                 where d.Buy_ID == buy_id
+                                 select new BBuyDetail
+                                 {
+                                     Buy_Order_ID = d.Buy_Order_ID,
+                                     CreateDate = d.Create_Date,
+                                     Parent_Product_ID = d.Parent_Product_ID,
+                                     Price = d.Price,
+                                     Quantity = d.Quantity,
+                                     Product = new BProduct
+                                     {
+                                         ID = l_product.Product_ID,
+                                         Title = l_product.Name
+                                     },
+                                     ProductId = d.Product_ID
+                                 };
 
-                foreach (BBuyDetail detail in buy.Details)
+                details = tmpDetails.ToList<BBuyDetail>();
+
+                int[] product_ids = (from d in details select d.ProductId).ToArray<int>();
+
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                              join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                              from l_prop in LProp.DefaultIfEmpty()
+                              join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                              from l_propv in LPropv.DefaultIfEmpty()
+                              where product_ids.Contains(pv.Product_ID)
+                              select new BProductProperty
+                              {
+                                  PID = pv.Product_Spec_ID,
+                                  PName = l_prop.Name,
+                                  ProductID = pv.Product_ID,
+                                  PValue = l_propv.Name,
+                                  PVID = pv.Product_Spec_Value_ID
+                              }).ToList<BProductProperty>();
+
+                foreach (BBuyDetail d in details)
                 {
-                    if (detail.Product != null)
+                    if (d.Product != null)
                     {
-                        detail.Product = pdtManager.GetProductFullInfo(detail.Product.ID);                       
+                        d.Product.Properties=(from prop in properties where prop.ProductID==d.Product.ID select prop).ToList<BProductProperty>();
                     }
-                    details.Add(detail);
                 }
             }
 

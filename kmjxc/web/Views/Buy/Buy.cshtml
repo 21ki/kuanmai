@@ -121,147 +121,55 @@
                         var that = this;
                         
                         $(that).html('');
-                        loadingBox = ShowProgress('page_loading', function () { }, "正在加载验货单信息，请等待...");
-                        buyMgr.GetBuyDetails({ buy_id: oid }, function (res) {
-                            loadingBox.hide();
-                            $(that).append("<h4>可以到产品管理-产品信息-编辑 <a href=\"/Product/List\">添加库存属性</a></h4>");
-                            var $shouse = $("<div class=\"row\"></div>").appendTo(that);
-                            $("<label>仓库:</label>").appendTo($shouse);
-                            var housesel=$("<select id=\"store_house\" class=\"W_inputsel\"></select>").appendTo($shouse);
+                       
+                        $(that).append("<h4>可以到产品管理-产品信息-编辑 <a href=\"/Product/List\">添加库存属性</a></h4>");
+                        var $shouse = $("<div class=\"row\"></div>").appendTo(that);
+                        $("<label>入库仓库:</label>").appendTo($shouse);
+                        var housesel = $("<select id=\"store_house\" class=\"W_inputsel\"></select>").appendTo($shouse);
 
-                            stockMgr.GetStoreHouses({}, function (res) {
-                                if (res != null && res != '' && typeof (res) == 'object') {
-                                    $('<option value="0">--选择--</option>').appendTo(housesel);
-                                    $(res.data).each(function (index,item) {
-                                        $("<option value=\""+item.ID+"\">"+item.Name+"</option>").appendTo(housesel);
-                                    });
-                                }
-                            });
+                        stockMgr.GetStoreHouses({}, function (res) {
+                            if (res != null && res != '' && typeof (res) == 'object') {
+                                $('<option value="0">--选择--</option>').appendTo(housesel);
+                                $(res.data).each(function (index, item) {
+                                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo(housesel);
+                                });
+                            }
+                        });                     
 
-                            $(that).append("<div class=\"row\"><dl class=\"dltitle\"><dt>产品/库存属性</dt><dd>数量</dd></dl></div>");
-
-                            $(res).each(function (index1, item) {
-                                var $divDetail = $("<div id=\"bd_" + oid + "_" + item .Product.ID+ "\" class=\"row\" style=\"height:auto;\"></div>").appendTo(that);
-                                var $product = $("<dl id=\"m" + item.Product.ID + "_" + item.Price + "\" class=\"row\"></dl>").appendTo($divDetail);
-                                $("<dt>"+item.Product.Title+"</dt>").appendTo($product);
-                                $("<dd><input id=\"pdt_m_" + item.Product.ID +"\" class=\"W_input\" style=\"width:50px;\" value=\"" + item.Quantity + "\" readonly/><dd>").appendTo($product);
-                                if (item.Product.Children != null) {                                   
-                                    $(item.Product.Children).each(function (index2, child) {
-                                        $p = $("<dl id=\"c" +child.ID + "\" class=\"row\"></dl>").appendTo($divDetail);
-                                        if (child.Properties != null) {
-                                            var propStrs = "";
-                                            $(child.Properties).each(function (index3, prop) {                                                
-                                                if (propStrs == "") {
-                                                    propStrs =prop.PName+":"+ prop.PValue;
-                                                } else {
-                                                    propStrs += " " + prop.PName + ":" + prop.PValue;
-                                                }
-                                            });
-                                        }
-                                        $("<dt class=\"c\">" + propStrs + "</dt>").appendTo($p);
-                                        var pQuantity = 0;
-                                       
-                                        if ($(item.Product.Children).size() == 1) {
-                                            pQuantity = item.Quantity;
-                                        }
-
-                                        $("<dd><input id=\"pdt_m_" + child.ID + "\" class=\"W_input\" style=\"width:50px;\" value=\"" + pQuantity + "\"/><dd>").appendTo($p);
-                                    });
-                                }
-                            });
-
-                            $("<div id=\"update_stock\" class=\"row\"><span>更新库存<span>: <input class=\"W_input\" type=\"checkbox\" title=\"入库信息无误,并且以后不需要修改,可以直接更新库存\"> </div>").appendTo(that);
-                        });
+                        $("<div id=\"update_stock\" class=\"row\"><label>更新库存:</label><input class=\"W_input\" type=\"checkbox\" title=\"直接更新库存表，不需要到库存管理-采购入库里更新库存\"> </div>").appendTo(that);
                     },
                     close: function (evt) {
                         
                     },
                     buttons: {
                         "保存": function () {
-                            var that = this;
-                            var stocks = "";
-                            var verified = true;
-                            var updateStock = 0;
-                            var storeHouseId = $(that).find('#store_house').val();
-                            if (storeHouseId == 0) {
+                            var house_id = $(this).find("#store_house").val();
+                            if (house_id <= 0) {
                                 alert("请选择仓库");
-                                return;
                             }
-                            $($(that).find("div[id^='bd_']")).each(function (index, detail) {
-                                var totalQuantity = $(detail).find("dl[id^='m']").find("input").val();
-                                var parent_pid = $(detail).find("dl[id^='m']").attr("id").split('_')[0];
-                                parent_pid = parent_pid.replace("m", "");
-                                var price = $(detail).find("dl[id^='m']").attr("id").split('_')[1];
-                                var props = $(detail).find("dl[id^='c']");
-                                var inputTotal = 0;
-                                var stock = "";
 
-                                if ($(props).size() == 0) {
-                                    if (stock == "") {
-                                        stock = parent_pid + ":" + totalQuantity+":"+price;
-                                    } else {
-                                        stock += "," + parent_pid + ":" + totalQuantity+":"+price;
-                                    }
-                                    
-                                    if (stocks == "") {
-                                        stocks = stock;
-                                    } else {
-                                        stocks += ";" + stock;
-                                    }
-                                } else {
-
-                                    $(props).each(function (index1, prop) {
-                                        if (isNaN($(prop).find("input").val())) {
-                                            alert("数量必须是整数");
-                                            verified = false;
-                                            return;
-                                        }
-                                        inputTotal += parseInt($(prop).find("input").val());
-                                        if (stock != "") {
-                                            stock += "," + $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
-                                        } else {
-                                            stock = $(prop).attr("id").substring(1) + ":" + parseInt($(prop).find("input").val()) + ":" + price;
-                                        }
-                                    });
-
-                                    if (!verified) {
-                                        return;
-                                    }
-                                    if (stocks == "") {
-                                        stocks = stock;
-                                    } else {
-                                        stocks += ";" + stock;
-                                    }
-                                    if (inputTotal != totalQuantity) {
-                                        alert("所有库存数量之和必须和验货单商品数量一致");
-                                        verified = false;
-                                    }
-                                }
-                            });
-
-                            if ($(that).find("input[type='checkbox'").attr('checked') == 'checked') {
+                            var updateStock = 0;
+                            if ($(this).find('#update_stock').attr("checked") == "checked") {
                                 updateStock = 1;
                             } else {
                                 updateStock = 0;
                             }
-
-                            //alert(stocks);
-                            //return;
-
-                            if (verified) {
+                            if (updateStock == 1) {
+                                loadingBox = ShowProgress('page_loading', function () { }, "正在入库并更新库存，请等待...");
+                            } else {
                                 loadingBox = ShowProgress('page_loading', function () { }, "正在入库，请等待...");
-                                var params = { buy_id: oid, update_stock: updateStock, stocks: stocks, house_id: storeHouseId };
-
-                                stockMgr.EnterStockFromBuy(params, function (res) {
-                                    if (res.Status == 'ok') {
-                                        loadingBox.hide();
-                                        $(that).dialog("close");
-                                        $grid.pqGrid("refreshDataAndView");
-                                    } else {
-                                        alert(res.Message);
-                                    }
-                                });
                             }
+                            var params = { buy_id: oid, update_stock: updateStock, house_id: house_id };
+
+                            stockMgr.EnterStockFromBuy(params, function (res) {
+                                if (res.Status == 'ok') {
+                                    loadingBox.hide();
+                                    $(that).dialog("close");
+                                    $grid.pqGrid("refreshDataAndView");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            });
                         },
                         "取消": function () {
                             $(this).dialog("close");

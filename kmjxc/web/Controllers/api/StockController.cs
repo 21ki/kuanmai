@@ -31,7 +31,6 @@ namespace KM.JXC.Web.Controllers.api
             ApiMessage message = new ApiMessage();
 
             int buy_id = 0;
-            string stockInfo = request["stocks"];
             int updateStock = 0;
             int shouseId = 0;
 
@@ -43,38 +42,25 @@ namespace KM.JXC.Web.Controllers.api
                 BEnterStock stock = new BEnterStock();
                 stock.BuyID = buy_id;
                 stock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                stock.StoreHouse = new BStoreHouse() { ID = shouseId, Shop = new BShop() { ID = stockManager.Shop.Shop_ID} };
+                stock.StoreHouse = new BStoreHouse() { ID = shouseId, Shop = new BShop() { ID = stockManager.Shop.Shop_ID } };
                 if (updateStock == 1)
                 {
                     stock.UpdateStock = true;
                 }
-                if (!string.IsNullOrEmpty(stockInfo))
-                {
-                    stock.Details = new List<BEnterStockDetail>();
-                    string[] ss = stockInfo.Split(';');
-                    foreach (string s in ss)
-                    {
-                        string[] sss = s.Split(',');
-                        foreach (string ssss in sss)
-                        {
-                            BEnterStockDetail detail = new BEnterStockDetail();
-                            detail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            detail.Quantity = int.Parse(ssss.Split(':')[1]);
-                            detail.Price = double.Parse(ssss.Split(':')[2]);
-                            detail.Product = new BProduct() { ID = int.Parse(ssss.Split(':')[0]) };
-                            stock.Details.Add(detail);
-                        }
-                    }
-                }
 
                 stockManager.CreateEnterStock(stock);
                 message.Status = "ok";
-                message.Message ="";
+                message.Message = "";
             }
             catch (JXC.Common.KMException.KMJXCException kex)
             {
                 message.Status = "failed";
                 message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
             }
             finally
             {
