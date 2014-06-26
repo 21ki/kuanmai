@@ -44,6 +44,6 @@ namespace KM.JXC.Web.Controllers.api
         {
             CommonManager commonMgr = new CommonManager();
             return commonMgr.GetExpresses();
-        }
+        }       
     }
 }

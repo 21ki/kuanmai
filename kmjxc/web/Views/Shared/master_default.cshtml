@@ -6,6 +6,10 @@
     KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
     KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
     KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    string theme = "smoothness";
+        if(Session["theme"]!=null){
+            theme = (string)Session["theme"];
+        }
     }
 <!DOCTYPE html>
 <html>
@@ -13,9 +17,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>    
-    <link href="/Third/jqueryui/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/jqueryui/css/@theme/jquery-ui-1.10.4.custom.css" rel="stylesheet">
     <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
-    <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
+   @* <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">*@
     <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
     <link href="/Third/boxy/boxy.css" rel="stylesheet">
 
@@ -46,6 +50,7 @@
     <script src="/Third/jqPivot/js/src/adapter.js"></script>
     <script src="/Third/jqPivot/js/src/jquery.pivot.js"></script>
     <script type="text/javascript">
+        var manager = new KMJXCBase();
         $(function () {
            
             var con = "@controller";
@@ -76,6 +81,15 @@
                     $(".jxcLeftMenu").accordion({ active: 4, heightStyle: "content" });
                     break;
             }
+
+            $('#sel_jxc_theme').change(function () {
+                var theme=$(this).val();
+                manager.SetTheme({ 'theme': theme }, function (res) {
+                    if (res.Status == "ok") {
+                        location.reload();
+                    }
+                });
+            });
          });
     </script>
 </head>
@@ -108,6 +122,16 @@
                    <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                        <span class="ui-button-icon-primary ui-icon ui-icon-help"></span>
                        <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Corp/Help">帮助</a></span>
+                   </span>
+                   <span style="margin-left:10px;">
+                       主题 : 
+                       <select id="sel_jxc_theme">
+                           <option value="smoothness" @if(theme=="smoothness"){@Html.Raw("selected")}>smoothness</option>
+                           <option value="flick" @if(theme=="flick"){@Html.Raw("selected")}>flick</option>
+                           <option value="humanity" @if(theme=="humanity"){@Html.Raw("selected")}>humanity</option>
+                           <option value="pepper-grinder" @if(theme=="pepper-grinder"){@Html.Raw("selected")}>pepper-grinder</option>
+                           <option value="redmond" @if(theme=="redmond"){@Html.Raw("selected")}>redmond</option>
+                       </select>
                    </span>
                </div>              
            </div>

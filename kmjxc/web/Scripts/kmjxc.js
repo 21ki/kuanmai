@@ -322,6 +322,9 @@ function KMJXCBase() {
 
         return buffer.join("");
     }
+    this.SetTheme = function (params, callback) {
+        return this.AjaxCall("/Home/SetTheme", params, callback);
+    }
 }
 
 KMJXCUserManager.prototype = new KMJXCBase();

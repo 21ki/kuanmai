@@ -7,6 +7,7 @@ using System.Web.Security;
 using KM.JXC.BL;
 using KM.JXC.DBA;
 using KM.JXC.Web.Filters;
+using KM.JXC.Web.Models;
 namespace KM.JXC.Web.Controllers
 {   
     [HandleError]
@@ -93,6 +94,28 @@ namespace KM.JXC.Web.Controllers
         {
             FormsAuthentication.SignOut();
             return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public JsonResult SetTheme()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            JsonResult result = new JsonResult();
+            string theme = "smoothness";
+            if (!string.IsNullOrEmpty(Request["theme"]))
+            {
+                theme = Request["theme"];
+            }
+
+            string themePath = Request.PhysicalApplicationPath + "\\Third\\jqueryui\\css\\" + theme;
+            if (!System.IO.Directory.Exists(themePath))
+            {
+                theme = "smoothness";
+            }
+
+            Session["theme"] = theme;
+            result.Data = message;
+            return result;
         }
     }
 }
