@@ -14,6 +14,37 @@
         var val = Date.parse(str);
         var newDate = new Date(val);
         return newDate.getTime()/1000;
+    },
+    IsDecimal: function (str, digits) {
+        if ($.trim(str) == "") {
+            return false;
+        }
+
+        if (str.indexOf('.') < 0) {
+            if (isNaN(str)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        var strs = str.split('.');
+
+        if (strs.length > 2) {
+            return false;
+        }
+
+        if (isNaN(strs[0]) || isNaN(strs[1])) {
+            return false;
+        }
+
+        if (digits && digits > 0) {
+            if (strs[1].length > digits) {
+                return false;
+            }
+        }
+
+        return true;
     }
 });
 

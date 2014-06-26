@@ -30,25 +30,33 @@ namespace KM.JXC.Web.Controllers.api
             BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             ApiMessage message = new ApiMessage();
 
-            int buy_id = 0;
+            int[] buy_ids =null;
             int updateStock = 0;
             int shouseId = 0;
 
-            int.TryParse(request["buy_id"], out buy_id);
+            buy_ids = base.ConvertToIntArrar(request["buy_ids"]);
             int.TryParse(request["update_stock"], out updateStock);
             int.TryParse(request["house_id"], out shouseId);
             try
             {
-                BEnterStock stock = new BEnterStock();
-                stock.BuyID = buy_id;
-                stock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                stock.StoreHouse = new BStoreHouse() { ID = shouseId, Shop = new BShop() { ID = stockManager.Shop.Shop_ID } };
-                if (updateStock == 1)
+                if (buy_ids != null)
                 {
-                    stock.UpdateStock = true;
+                    foreach (int buy_id in buy_ids)
+                    {
+                        BEnterStock stock = new BEnterStock();
+                        stock.BuyID = buy_id;
+                        stock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        stock.StoreHouse = new BStoreHouse() { ID = shouseId, Shop = new BShop() { ID = stockManager.Shop.Shop_ID } };
+                        if (updateStock == 1)
+                        {
+                            stock.UpdateStock = true;
+                        }
+
+                        stockManager.CreateEnterStock(stock);
+                    }
                 }
 
-                stockManager.CreateEnterStock(stock);
+                
                 message.Status = "ok";
                 message.Message = "";
             }

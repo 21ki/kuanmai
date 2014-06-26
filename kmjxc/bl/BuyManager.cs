@@ -205,6 +205,104 @@ namespace KM.JXC.BL
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="order_id"></param>
+        /// <returns></returns>
+        public BBuyOrder GetBuyOrderFullInfo(int order_id)
+        {
+            BBuyOrder order = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                order = (from o in db.Buy_Order
+                         join c_u in db.User on o.User_ID equals c_u.User_ID into LBU
+                         from l_c_u in LBU.DefaultIfEmpty()
+                         join o_u in db.User on o.Order_User_ID equals o_u.User_ID into LOU
+                         from l_o_u in LOU.DefaultIfEmpty()
+                         join suppiler in db.Supplier on o.Supplier_ID equals suppiler.Supplier_ID into LSupplier
+                         from l_supplier in LSupplier.DefaultIfEmpty()
+                         where o.Buy_Order_ID == order_id
+                         select new BBuyOrder
+                         {
+                             Created = o.Create_Date,
+                             Created_By = new BUser
+                             {
+                                 ID = l_c_u.User_ID,
+                                 Name = l_c_u.Name,
+                                 Mall_Name = l_c_u.Mall_Name,
+                                 Mall_ID = l_c_u.Mall_ID
+                             },
+                             Description = o.Description,
+                             EndTime = (long)o.End_Date,
+                             ID = o.Buy_Order_ID,
+                             InsureTime = (long)o.Insure_Date,
+                             OrderUser = new BUser
+                             {
+                                 ID = l_o_u.User_ID,
+                                 Name = l_o_u.Name,
+                                 Mall_Name = l_o_u.Mall_Name,
+                                 Mall_ID = l_o_u.Mall_ID
+                             },
+                             Status = o.Status,
+                             Supplier = l_supplier,
+                             WriteTime = (long)o.Write_Date
+
+
+                         }).FirstOrDefault<BBuyOrder>();
+                if (order == null)
+                {
+                    throw new KMJXCException("编号为:" + order_id + " 的采购单信息不存在");
+                }
+
+                var tmpODetails = from od in db.Buy_Order_Detail
+                                  join product in db.Product on od.Product_ID equals product.Product_ID into LProduct
+                                  from l_product in LProduct.DefaultIfEmpty()
+                                  where od.Buy_Order_ID==order_id
+                                  select new BBuyOrderDetail
+                                  {
+                                      Parent_Product_ID = od.Parent_Product_ID,
+                                      Price = od.Price,
+                                      Quantity = od.Quantity,
+                                      Product = new BProduct
+                                      {
+                                          ID = l_product.Product_ID,
+                                          Title = l_product.Name
+                                      },
+                                      Status = od.Status
+                                  };
+
+                order.Details = tmpODetails.OrderBy(o=>o.Product.ID).ToList<BBuyOrderDetail>();
+
+                int[] product_ids = (from p in order.Details select p.Product.ID).ToArray<int>();
+
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where product_ids.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).ToList<BProductProperty>();
+
+                foreach (BBuyOrderDetail bd in order.Details)
+                {
+                    if (bd.Product != null)
+                    {
+                        bd.Product.Properties = (from prop in properties where prop.ProductID == bd.Product.ID select prop).ToList<BProductProperty>();
+                    }
+                }
+            }
+            return order;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="buy_id"></param>
         /// <returns></returns>
         public BBuy GetBuyFullInfo(int buy_id)
@@ -212,24 +310,51 @@ namespace KM.JXC.BL
             BBuy buy = null;
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                buy = (from b in db.Buy
-                       join b_u in db.User on b.User_ID equals b_u.User_ID into LBU
-                       from l_b_u in LBU.DefaultIfEmpty()
-                       select new BBuy
-                       {
-                           ComeDate = (long)b.Come_Date,
-                           Created = b.Create_Date,
-                           ID = b.Buy_ID,
-                           Description = b.Description,
-                           Status = b.Status,
-                           User = new BUser 
-                           {
-                               ID = l_b_u.User_ID,
-                               Name = l_b_u.Name,
-                               Mall_Name = l_b_u.Mall_Name,
-                               Mall_ID = l_b_u.Mall_ID
-                           }
-                       }).FirstOrDefault<BBuy>();
+                var tmp = from b in db.Buy
+                          join b_u in db.User on b.User_ID equals b_u.User_ID into LBU
+                          from l_b_u in LBU.DefaultIfEmpty()
+                          where b.Buy_ID==buy_id
+                          select new BBuy
+                          {
+                              ComeDate = (long)b.Come_Date,
+                              Created = b.Create_Date,
+                              ID = b.Buy_ID,
+                              Description = b.Description,
+                              Status = b.Status,
+                              User = new BUser
+                              {
+                                  ID = l_b_u.User_ID,
+                                  Name = l_b_u.Name != null ? l_b_u.Name : l_b_u.Mall_Name,
+                                  Mall_Name = l_b_u.Mall_Name,
+                                  Mall_ID = l_b_u.Mall_ID
+                              },
+                              Order = new BBuyOrder { ID=b.Buy_Order_ID}
+                          };
+                buy = tmp.FirstOrDefault<BBuy>();
+                if (buy == null)
+                {
+                    throw new KMJXCException("编号为:"+buy_id+" 的验货单信息不存在");
+                }
+                var tmpBuyDetails = from od in db.Buy_Detail
+                                    join product in db.Product on od.Product_ID equals product.Product_ID into LProduct
+                                    from l_product in LProduct.DefaultIfEmpty()
+                                    where od.Buy_ID==buy_id
+                                    select new BBuyDetail
+                                    {
+                                        Buy_Order_ID = od.Buy_Order_ID,
+                                        CreateDate = od.Create_Date,
+                                        Parent_Product_ID = od.Parent_Product_ID,
+                                        Price = od.Price,
+                                        Quantity = od.Quantity,
+                                        ProductId = od.Product_ID,
+                                        Product = new BProduct 
+                                        {
+                                            ID = l_product.Product_ID,
+                                            Title = l_product.Name
+                                        }
+                                    };
+
+                buy.Details = tmpBuyDetails.ToList<BBuyDetail>();
 
                 BBuyOrder order = (from o in db.Buy_Order
                                    join c_u in db.User on o.User_ID equals c_u.User_ID into LBU
@@ -238,6 +363,7 @@ namespace KM.JXC.BL
                                    from l_o_u in LOU.DefaultIfEmpty()
                                    join suppiler in db.Supplier on o.Supplier_ID equals suppiler.Supplier_ID into LSupplier
                                    from l_supplier in LSupplier.DefaultIfEmpty()
+                                   where o.Buy_Order_ID==buy.Order.ID
                                    select new BBuyOrder
                                    {
                                        Created = o.Create_Date,
@@ -266,9 +392,66 @@ namespace KM.JXC.BL
 
                                    }).FirstOrDefault<BBuyOrder>();
 
+                if (order == null)
+                {
+                    throw new KMJXCException("编号为:" + buy.Order.ID + " 的采购单信息不存在");
+                }
+
+                var tmpODetails = from od in db.Buy_Order_Detail
+                                  join product in db.Product on od.Product_ID equals product.Product_ID into LProduct
+                                  from l_product in LProduct.DefaultIfEmpty()
+                                  where od.Buy_Order_ID==order.ID
+                                  select new BBuyOrderDetail
+                                  {
+                                      Parent_Product_ID = od.Parent_Product_ID,
+                                      Price = od.Price,
+                                      Quantity = od.Quantity,
+                                      Product = new BProduct
+                                      {
+                                          ID = l_product.Product_ID,
+                                          Title = l_product.Name
+                                      },
+                                      Status = od.Status
+                                  };
+
+                order.Details = tmpODetails.ToList<BBuyOrderDetail>();
+
+                int[] product_ids=(from p in order.Details select p.Product.ID).ToArray<int>();
+
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where product_ids.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).ToList<BProductProperty>();
+
+                foreach (BBuyDetail bd in buy.Details)
+                {
+                    if (bd.Product != null)
+                    {
+                        bd.Product.Properties=(from prop in properties where prop.ProductID == bd.Product.ID select prop).ToList<BProductProperty>();
+                    }
+                }
+
+                foreach (BBuyOrderDetail bd in order.Details)
+                {
+                    if (bd.Product != null)
+                    {
+                        bd.Product.Properties = (from prop in properties where prop.ProductID == bd.Product.ID select prop).ToList<BProductProperty>();
+                    }
+                }
+
                 buy.Order = order;
             }
-            return new BBuy();
+            return buy;
         }
 
         /// <summary>

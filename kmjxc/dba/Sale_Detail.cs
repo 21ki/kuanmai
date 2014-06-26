@@ -30,5 +30,6 @@ namespace KM.JXC.DBA
         public string ImageUrl { get; set; }
         public string SyncResultMessage { get; set; }
         public string Mall_SkuID { get; set; }
+        public bool Refound { get; set; }
     }
 }

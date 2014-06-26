@@ -492,12 +492,12 @@ namespace KM.JXC.Web.Controllers.api
                                     oDetail.Product = new BProduct() { ID=(int)cjorders[j]["child_id"]};
                                     double price = 0;
                                     int quantity = 0;
-                                    double.TryParse(cjorders["price"].ToString(), out price);
-                                    int.TryParse(cjorders["quantity"].ToString(), out quantity);
+                                    double.TryParse(cjorders[j]["price"].ToString(), out price);
+                                    int.TryParse(cjorders[j]["quantity"].ToString(), out quantity);
                                     oDetail.Quantity = quantity;
                                     oDetail.Status = 0;
                                     oDetail.Price = price;
-                                    if (quantity <= 0)
+                                    if (quantity <= 0 || price<=0)
                                     {
                                         continue;
                                     }

@@ -27,6 +27,8 @@
             }            
         });
 
+        $syncForm.find('#trade_status').attr("disabled",true);
+
         $syncForm.find('#trade_edate').datepicker({
             currentText: "Now",
             dateFormat: "yy-mm-dd",
@@ -44,6 +46,7 @@
 
         tradeMger.GetLastSyncTime({}, function (res) {
             var stime = new Date();
+            var timeNow = stime;
             var etime = null;
             var year = 0;
             var month = 0;
@@ -85,6 +88,9 @@
             $syncForm.find('#trade_sdate_minute').val(stime.getMinutes());
 
             etime = stime.getTime() + (24 * 60 * 60 * 1000);
+            if (etime > timeNow) {
+                etime = timeNow;
+            }
             etime=new Date(etime);
             var eyear = etime.getFullYear();
             var emonth = (etime.getMonth() + 1) > 10 ? (etime.getMonth() + 1) : "0" + (etime.getMonth() + 1).toString();

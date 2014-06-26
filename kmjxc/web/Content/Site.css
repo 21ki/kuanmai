@@ -136,23 +136,49 @@ textarea {
     display: none;
 }
 
-
-.jxcMain,.jxcfoot {margin: 0 auto;width:1070px;overflow: hidden;}
+.jheader {
+    width:100%;
+    background:#FFF;
+    position:fixed;
+    z-index:99;
+}
+.jxcMain,.jxcfoot,.jxcHeader {margin: 0 auto;width:1070px;overflow: hidden;}
 .jxcfoot {
     text-align: center;
     margin-top:15px;
     margin-bottom:50px;
 }
-.jxcMain {
+.jxcMain,.jxcHeader {
 background-color:#FFF;
 padding:10px 10px;
 border: 1px solid #ddd;
+
 background: #fff;
 border-radius: 6px;
+border-top-left-radius:0px;
+border-top-right-radius:0px;
 box-shadow: 0px 3px 3px -3px rgba(0, 0, 0, .30);
 /* vertical-align: top; */
 
 }
+
+.jxcHeader {
+    border:0px;
+    border-bottom-left-radius:0px;
+    border-bottom-right-radius:0px;
+    margin-bottom:4px;
+    overflow:hidden;
+}
+.jxcHeader .head_logo {
+    float:left;
+    margin-right:10px;
+    /*background-image:url("/Content/images/app_icon.jpg");*/
+}
+    .jxcHeader a {
+        margin-right:5px;
+        margin-left:5px;
+        display:inline-block;
+    }
 .btn1 {
     padding-left:15px;padding-right:15px;
     cursor:pointer;
@@ -181,24 +207,36 @@ box-shadow: 0px 3px 3px -3px rgba(0, 0, 0, .30);
 .jxcfoot .item{
    display:inline-block;
    text-decoration:none;
-   color:#232323;
+   color:#FFF;
    padding:3px 10px 3px 10px;
 }
     .jxcfoot .item:hover {
         color:#0073B2;
     }
+
 .jxcLogin {
-    width: 400px;
-    margin: 100px auto;
-    margin-top: 100px;
+    /*
     border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    box-shadow: 0 0 3px 0 #E0E0E0;
+        box-shadow: 0 0 3px 0 #E0E0E0;
+        */
+    border-radius: 8px;    
     background: #FFF;
-    padding-bottom: 30px;
-    padding:10px;
     text-align:center;
+    margin: 0 auto;
+    overflow:hidden;
 }
+.loginS1 {
+    padding:10px 10px;
+    width:500px;
+    height:150px;
+    background-color:#6c828f;
+}
+
+.loginS2 {    
+    background-color:#FFF;
+    height:100%;
+}
+
 .jxcLogin .loginItem {
     display:block;    
     padding-top:10px;

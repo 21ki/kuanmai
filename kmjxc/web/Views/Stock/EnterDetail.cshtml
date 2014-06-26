@@ -104,78 +104,41 @@
                 }
                 //find child products by EnterStock Detail
 
-                if (bDetail.Product.Children == null)
+                @Html.Raw("<tr>")
+                @Html.Raw("<td>")
+                @Html.Raw(bDetail.Product.ID)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(bDetail.Product.Title)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                string propNames = "";
+                if (bDetail.Product.ID != bDetail.Parent_Product_ID)
                 {
-                    
-                        @Html.Raw("<tr>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(bDetail.Product.ID)
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(bDetail.Product.Title)
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>无")
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(bDetail.Price.ToString("0.00"))
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(bDetail.Quantity)
-                        @Html.Raw("</td>")
-                        @Html.Raw("</tr>")
-                    
-                    continue;
-                }
-
-                var ds = from estockDetail in stock.Details
-                         join ebuydetail in bDetail.Product.Children on estockDetail.StockProductId equals ebuydetail.ID
-                         select new
-                         {
-                             PID = estockDetail.StockProductId,
-                             Price = estockDetail.Price,
-                             Quantity = estockDetail.Quantity,
-                             Props = ebuydetail.Properties
-                         };
-                foreach (var dss in ds)
-                {
-                    if (dss.Quantity > 0)
+                    string names = "";
+                    foreach (var prop in bDetail.Product.Properties)
                     {
-                        @Html.Raw("<tr>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(dss.PID)
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(bDetail.Product.Title)
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        if (dss.Props != null)
+                        if (names == "")
                         {
-                            string stockName = "";
-                            foreach (var prop in dss.Props)
-                            {
-                                if (stockName == "")
-                                {
-                                    stockName = prop.PName + ":" + prop.PValue;
-                                }
-                                else
-                                {
-                                    stockName += " " + prop.PName + ":" + prop.PValue;
-                                }
-                            }
-                            @Html.Raw("<span>")
-                                                @Html.Raw(stockName)
-                                                @Html.Raw("</span>")
+                            names = prop.PName + ":" + prop.PValue;
                         }
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(dss.Price.ToString("0.00"))
-                        @Html.Raw("</td>")
-                        @Html.Raw("<td>")
-                        @Html.Raw(dss.Quantity)
-                        @Html.Raw("</td>")
-                        @Html.Raw("</tr>")
+                        else
+                        {
+                            names += "," + prop.PName + ":" + prop.PValue;
+                        }
                     }
+
+                    propNames = names;
                 }
+                @Html.Raw(propNames)  
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(bDetail.Price.ToString("0.00"))
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(bDetail.Quantity)
+                @Html.Raw("</td>")
+                @Html.Raw("</tr>")
             }
 
            
@@ -202,7 +165,10 @@
             <td>到货日期:
             </td>
             <td>
-                @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.ComeDate).ToString("yyyy-MM-dd")
+                @if (stock.Buy.ComeDate > 0)
+                {
+                    @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.ComeDate).ToString("yyyy-MM-dd")
+                }
             </td>
             <td>录入日期:
             </td>
@@ -242,6 +208,8 @@
         @Html.Raw("</td>")
         @Html.Raw("<td>产品名称")
         @Html.Raw("</td>")
+        @Html.Raw("<td>属性")
+        @Html.Raw("</td>")
         @Html.Raw("<td>单价")
         @Html.Raw("</td>")
         @Html.Raw("<td>数量")
@@ -249,20 +217,41 @@
         @Html.Raw("</tr>")
             foreach (KM.JXC.BL.Models.BBuyDetail oDetail in stock.Buy.Details)
             {
-        @Html.Raw("<tr>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Product.ID)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Product.Title)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Price)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Quantity)
-        @Html.Raw("</td>")
-        @Html.Raw("</tr>")
+                @Html.Raw("<tr>")
+                @Html.Raw("<td>")
+                @Html.Raw("<a href=\"/Product/Detail/"+oDetail.Parent_Product_ID+"\">"+oDetail.Parent_Product_ID+"</a>")
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Product.Title)
+                @Html.Raw("</td>")
+                string propNames = "";
+                if (oDetail.Product.ID != oDetail.Parent_Product_ID)
+                {
+                    string names = "";
+                    foreach (var prop in oDetail.Product.Properties)
+                    {
+                        if (names == "")
+                        {
+                            names = prop.PName + ":" + prop.PValue;
+                        }
+                        else
+                        {
+                            names += "," + prop.PName + ":" + prop.PValue;
+                        }
+                    }
+
+                    propNames = names;
+                }
+                @Html.Raw("<td>")
+                @Html.Raw(propNames)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Price)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Quantity)
+                @Html.Raw("</td>")
+                @Html.Raw("</tr>")
             }
         @Html.Raw("</table>")
         }
@@ -282,11 +271,14 @@
         </tr>
         <tr>
             <td>签订日期:</td>
-            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.WriteTime).ToString("yyyy-MM-dd")</td>
+            <td>@if (stock.Buy.Order.WriteTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.WriteTime).ToString("yyyy-MM-dd")}</td>
             <td>生效日期:</td>
-            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.InsureTime).ToString("yyyy-MM-dd")</td>
-            <td>截止日期:</td>
-            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.EndTime).ToString("yyyy-MM-dd")</td>
+            <td>@if (stock.Buy.Order.InsureTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.InsureTime).ToString("yyyy-MM-dd")}</td>
+            <td>结束日期:</td>
+            <td>@if (stock.Buy.Order.EndTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(stock.Buy.Order.EndTime).ToString("yyyy-MM-dd")}</td>
         </tr>
         <tr>
             <td>录入员:</td>
@@ -324,6 +316,8 @@
         @Html.Raw("</td>")
         @Html.Raw("<td>产品名称")
         @Html.Raw("</td>")
+        @Html.Raw("<td>属性")
+        @Html.Raw("</td>")
         @Html.Raw("<td>单价")
         @Html.Raw("</td>")
         @Html.Raw("<td>数量")
@@ -331,20 +325,41 @@
         @Html.Raw("</tr>")
             foreach (KM.JXC.BL.Models.BBuyOrderDetail oDetail in stock.Buy.Order.Details)
             {
-        @Html.Raw("<tr>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Product.ID)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Product.Title)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Price)
-        @Html.Raw("</td>")
-        @Html.Raw("<td>")
-        @Html.Raw(oDetail.Quantity)
-        @Html.Raw("</td>")
-        @Html.Raw("</tr>")
+                @Html.Raw("<tr>")
+                @Html.Raw("<td>")
+                 @Html.Raw("<a href=\"/Product/Detail/"+oDetail.Parent_Product_ID+"\">"+oDetail.Parent_Product_ID+"</a>")
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Product.Title)
+                @Html.Raw("</td>")
+                string propNames = "";
+                if (oDetail.Product.ID != oDetail.Parent_Product_ID)
+                {
+                    string names = "";
+                    foreach (var prop in oDetail.Product.Properties)
+                    {
+                        if (names == "")
+                        {
+                            names = prop.PName + ":" + prop.PValue;
+                        }
+                        else
+                        {
+                            names += "," + prop.PName + ":" + prop.PValue;
+                        }
+                    }
+
+                    propNames = names;
+                }
+                @Html.Raw("<td>")
+                @Html.Raw(propNames)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Price)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Quantity)
+                @Html.Raw("</td>")
+                @Html.Raw("</tr>")
             }
         @Html.Raw("</table>")
         }

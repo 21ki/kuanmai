@@ -23,7 +23,7 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Detail(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
                 return Redirect("/Home/Error?message="+HttpUtility.UrlEncode("请输入正确的产品ID"));
             }
@@ -34,13 +34,24 @@ namespace KM.JXC.Web.Controllers
             {
                 return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的产品ID"));
             }
-
+            BProduct product = null;
             string user_id = HttpContext.User.Identity.Name;
             UserManager userMgr = new UserManager(int.Parse(user_id), null);
             BUser user = userMgr.CurrentUser;
             Shop MainShop = userMgr.Main_Shop;
             ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            BProduct product = pdtManager.GetProductFullInfo(product_id);
+            try
+            {
+                product = pdtManager.GetProductFullInfo(product_id);
+            }
+            catch (KMJXCException kex)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode(kex.Message));
+            }
+            catch
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("未知错误"));
+            }
             return View(product);
         }
 

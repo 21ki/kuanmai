@@ -46,18 +46,50 @@
     </script>
    
 </head>
-<body>
-   <div class="jxcMain">
-       @if(CurrentUser!=null)
-       {
-           @Html.Raw("当前登录用户:"+CurrentUser.Mall_Name+"<br/>")
-       }
+<body style="background-image:url(/Content/images/login_bk.jpg)">
+   <div class="">
+       <div class="jxcHeader">
+           <div class="head_logo">
+               <img style="width:50px;height:50px; border-radius:3px;" src="/Content/images/app_icon.jpg" />
+           </div>
+           <div style="float:right;">               
+               <div style="overflow:hidden;display:block;">
+                  
+                       @if(CurrentUser!=null)
+                       {
+                            <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;">@CurrentUser.Mall_Name</span>
+                            </span>
+                            <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-power"></span>
+                               <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Home/Logout">退出</a></span>
+                            </span>
+                       }
+                       else
+                       {
+                          <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;"><a style="margin:0;" href="/Home/Login">登录</a></span>
+                          </span>
+                       }
+                  
+               </div> 
+               <div style="overflow:hidden;display:block;text-align:right">
+                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                       <span class="ui-button-icon-primary ui-icon ui-icon-home"></span>
+                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Shop/Dashboard">首页</a></span>
+                   </span>
 
-       @if(MainShop!=null)
-       {
-           @Html.Raw("当前用户所在主店铺:"+MainShop.Name)
-       }
+                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                       <span class="ui-button-icon-primary ui-icon ui-icon-help"></span>
+                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Corp/Help">帮助</a></span>
+                   </span>
+               </div>              
+           </div>
+       </div>
    </div>
+   
    <div class="jxcMain">       
        <div class="jxcLeftMenu">
 

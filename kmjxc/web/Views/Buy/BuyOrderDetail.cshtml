@@ -1,6 +1,129 @@
 ﻿@{
-    ViewBag.Title = "BuyOrderDetail";
+    ViewBag.Title = "采购单详细信息";
     Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.BL.Models.BBuyOrder order = (KM.JXC.BL.Models.BBuyOrder)Model;
 }
 
-<h2>BuyOrderDetail</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#OrderInfo">采购单信息</a></li>
+    </ul>
+    <div id="OrderInfo">
+
+        <h3>采购单信息</h3>
+        <div class="normallist b1 f1">
+    <table class="infolist">
+        <tr>
+            <td>采购单编号:</td>
+            <td>@order.ID</td>
+            <td>采购员:</td>
+            <td>@order.OrderUser.Name</td>
+            <td>供应商:</td>
+            <td>@order.Supplier.Name</td>
+
+        </tr>
+        <tr>
+            <td>签订日期:</td>
+            <td>@if (order.WriteTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(order.WriteTime).ToString("yyyy-MM-dd")}</td>
+            <td>生效日期:</td>
+            <td>@if (order.InsureTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(order.InsureTime).ToString("yyyy-MM-dd")}</td>
+            <td>结束日期:</td>
+            <td>@if (order.EndTime > 0)
+                {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(order.EndTime).ToString("yyyy-MM-dd")}</td>
+        </tr>
+        <tr>
+            <td>录入员:</td>
+            <td>@order.Created_By.Name</td>
+            <td>录入日期:</td>
+            <td>@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(order.Created).ToString("yyyy-MM-dd HH:mm")</td>
+            <td>状态:
+            </td>
+            <td style="color: red; font-weight: bold;">
+
+                @{
+                    if (order.Status == 1)
+                    {
+                    @Html.Raw("已经验货")
+                    }
+                    else
+                    {
+                    @Html.Raw("暂未验货") 
+                    }
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>备注:</td>
+            <td colspan="5">@order.Description</td>
+
+        </tr>
+    </table>
+    @{
+        if (order.Details != null)
+        {
+        @Html.Raw("<table class=\"infolist s1 t1\" id=\"order_products\">")
+        @Html.Raw("<tr class=\"header\">")
+        @Html.Raw("<td>产品编号")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>产品名称")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>属性")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>单价")
+        @Html.Raw("</td>")
+        @Html.Raw("<td>数量")
+        @Html.Raw("</td>")
+        @Html.Raw("</tr>")
+            foreach (KM.JXC.BL.Models.BBuyOrderDetail oDetail in order.Details)
+            {
+                @Html.Raw("<tr>")
+                @Html.Raw("<td>")
+                @Html.Raw("<a href=\"/Product/Detail/"+oDetail.Parent_Product_ID+"\">"+oDetail.Parent_Product_ID+"</a>")
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Product.Title)
+                @Html.Raw("</td>")
+                string propNames = "";
+                if (oDetail.Product.ID != oDetail.Parent_Product_ID)
+                {
+                    string names = "";
+                    foreach (var prop in oDetail.Product.Properties)
+                    {
+                        if (names == "")
+                        {
+                            names = prop.PName + ":" + prop.PValue;
+                        }
+                        else
+                        {
+                            names += "," + prop.PName + ":" + prop.PValue;
+                        }
+                    }
+
+                    propNames = names;
+                }
+                @Html.Raw("<td>")
+                @Html.Raw(propNames)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Price)
+                @Html.Raw("</td>")
+                @Html.Raw("<td>")
+                @Html.Raw(oDetail.Quantity)
+                @Html.Raw("</td>")
+                @Html.Raw("</tr>")
+            }
+        @Html.Raw("</table>")
+        }
+    }
+</div>
+
+    </div>
+</div>

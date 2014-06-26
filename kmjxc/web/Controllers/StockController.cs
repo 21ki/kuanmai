@@ -52,13 +52,37 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
-        public ActionResult EnterDetail(int id)
+        public ActionResult EnterDetail(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的入库单编号"));
+            }
+
+            int eId = 0;
+            int.TryParse(id,out eId);
+
+            if (eId <= 0)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的入库单编号"));
+            }
             string uid = HttpContext.User.Identity.Name;
+            BEnterStock stock = null;
             UserManager userMgr = new UserManager(int.Parse(uid), null);
             BUser user = userMgr.CurrentUser;
-            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            BEnterStock stock = stockManager.GetEnterStockFullInfo(id);
+            try
+            {
+                StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+                stock = stockManager.GetEnterStockFullInfo(eId);
+            }
+            catch (KMJXCException kex)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode(kex.Message));
+            }
+            catch
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("未知错误"));
+            }
             return View(stock);
         }
     }

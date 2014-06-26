@@ -28,5 +28,6 @@ namespace KM.JXC.BL.Models
         public string ImageUrl { get; set; }
         public string Message { get; set; }
         public BMallProduct MallProduct { get; set; }
+        public bool Refound { get; set; }
     }
 }

@@ -20,8 +20,8 @@
         obj.colModel = [{
                             title: "验货单编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
                             render: function (ui) {
-                                return ui.rowData["ID"];
-                                //return "<a target=\"_blank\" href=\"/Buy/BuyDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                                //return ui.rowData["ID"];
+                                return "<a target=\"_blank\" href=\"/Buy/BuyDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
                         },
                        {
@@ -98,16 +98,34 @@
         $("#buytable").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
             $("<span id=\"add_cate\">入库</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-disk" } }).click(function (e) {
+                var rows = getRowIndx();
                 var rowIndx = getRowIndx();
                 var DM = $grid.pqGrid("option", "dataModel");
-                var data = DM.data;
-                var row = data[rowIndx];
-                var oid = row["ID"]
-                var status = row["Status"];
-                var order = row.Order;
-                var bDetails = null;
-                if (status == 1) {
-                    alert("此验货单已经入库");
+                var data = DM.data; 
+                var oids = "";
+                if (rows == null || rows.length <= 0) {
+                    alert("请至少选择一条未入库的验货单进行入库");
+                    return;
+                }
+
+                for (var i = 0; i < rows.length; i++) {
+                    var rowData = data[rows[i]];
+                    var rowOid = rowData["ID"];
+                    var rowStatus = rowData["Status"];
+                    if (rowStatus == 1) {
+                        alert("请不要选择已经入库的验货单，用ctrl+鼠标左键取消选择");
+                        return;
+                    }
+
+                    if (oids == "") {
+                        oids = rowOid;
+                    } else {
+                        oids += "," + rowOid;
+                    }
+                }
+
+                if (oids == "") {
+                    alert("数据有误，请刷新浏览器重新操作");
                     return;
                 }
                 $('#popup-enter-stock').dialog({
@@ -136,30 +154,34 @@
                             }
                         });                     
 
-                        $("<div id=\"update_stock\" class=\"row\"><label>更新库存:</label><input class=\"W_input\" type=\"checkbox\" title=\"直接更新库存表，不需要到库存管理-采购入库里更新库存\"> </div>").appendTo(that);
+                        $("<div class=\"row\"><label>更新库存:</label><input id=\"update_stock\" class=\"W_input\" type=\"checkbox\" title=\"直接更新库存表，不需要到库存管理-采购入库里更新库存\"/> </div>").appendTo(that);
                     },
                     close: function (evt) {
                         
                     },
                     buttons: {
                         "保存": function () {
+                            var that = this;
                             var house_id = $(this).find("#store_house").val();
                             if (house_id <= 0) {
                                 alert("请选择仓库");
                             }
-
+                            var checked = $(this).find('#update_stock').attr("checked");
                             var updateStock = 0;
-                            if ($(this).find('#update_stock').attr("checked") == "checked") {
+                           
+                            if (checked == "checked") {
                                 updateStock = 1;
                             } else {
                                 updateStock = 0;
                             }
+                           
+                            var params = { buy_ids: oids, update_stock: updateStock, house_id: house_id };
+                            
                             if (updateStock == 1) {
                                 loadingBox = ShowProgress('page_loading', function () { }, "正在入库并更新库存，请等待...");
                             } else {
                                 loadingBox = ShowProgress('page_loading', function () { }, "正在入库，请等待...");
                             }
-                            var params = { buy_id: oid, update_stock: updateStock, house_id: house_id };
 
                             stockMgr.EnterStockFromBuy(params, function (res) {
                                 if (res.Status == 'ok') {
@@ -181,16 +203,19 @@
 
         $grid = $("#buytable").pqGrid(obj);
 
+        
         function getRowIndx() {
+            var rows = [];
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
             if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndxPage;
+                for (var i = 0; i < arr.length; i++) {
+                    var rowIndx = arr[i].rowIndxPage;
+                    rows.push(rowIndx);
+                }
 
-                //if (rowIndx != null && colIndx == null) {
-                return rowIndx;
+                return rows;
             }
             else {
-                alert("请选择一行");
                 return null;
             }
         }

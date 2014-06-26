@@ -237,7 +237,7 @@ namespace KM.JXC.BL
                             order_detail.SyncResultMessage = "";
                             if (order.Status1 != 0)
                             {
-                                order_detail.Status1 = 4;
+                                order_detail.Status1 = (int)SaleDetailStatus.REFOUND_BEFORE_SEND;
                                 order_detail.SyncResultMessage = "宝贝在发货前退货，不需要出库";
                                 db.SaveChanges();
                                 continue;
@@ -266,7 +266,7 @@ namespace KM.JXC.BL
                             //no need to create leave stock while the mall product is not mapped with local product
                             if (order.Product_ID == 0 && order.Parent_Product_ID == 0)
                             {
-                                order_detail.Status1 = 3;
+                                order_detail.Status1 = (int)SaleDetailStatus.NOT_CONNECTED;
                                 order_detail.SyncResultMessage = "宝贝未关联，不能出库";
                                 db.SaveChanges();
                                 continue;
@@ -302,13 +302,13 @@ namespace KM.JXC.BL
                                 {
                                     stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
                                     Store_House tmpHouse = (from h in houses where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
-                                    order_detail.Status1 = 1;
+                                    order_detail.Status1 = (int)SaleDetailStatus.LEAVED_STOCK;
                                     order_detail.SyncResultMessage = "出库仓库："+tmpHouse.Title;
                                 }
                                 else
                                 {
                                     //cannot leave stock, no stock pile
-                                    order_detail.Status1 = 2;
+                                    order_detail.Status1 = (int)SaleDetailStatus.NO_ENOUGH_STOCK;
                                     order_detail.SyncResultMessage = "没有足够的库存，不能出库";
                                 }
                             }                            
@@ -703,7 +703,7 @@ namespace KM.JXC.BL
                                 sd.Discount = order.Discount;
                                 sd.Mall_Order_ID = order.Order_ID;
                                 sd.Mall_Trade_ID = sale.Sale_ID;
-
+                                sd.Refound = order.Refound;
                                 sd.Parent_Product_ID = 0;
                                 sd.Product_ID = 0;
 
@@ -1007,7 +1007,8 @@ namespace KM.JXC.BL
                                  //    ID = ll_product.Product_ID,
                                  //    Title = ll_product.Name
                                  //}
-                                 Message=order.SyncResultMessage
+                                 Message=order.SyncResultMessage,
+                                 Refound=order.Refound
                              };
                     sale.Orders = os.ToList<BOrder>();
 

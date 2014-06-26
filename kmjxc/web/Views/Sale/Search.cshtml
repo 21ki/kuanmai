@@ -191,9 +191,17 @@
                             }
                         }
                                         
-                                                @Html.Raw("<div class=\"item\">" + propValue + "</div>")
+                    @Html.Raw("<div class=\"item\">" + propValue + "</div>")
                     }
-                    @Html.Raw("<div class=\"item\">"+order.Message+"</div>")
+                    
+                    if (order.Refound)
+                    {
+                        @Html.Raw("<div class=\"item\">退款成功，已经入库</div>")
+                    }
+                    else { 
+                        @Html.Raw("<div class=\"item\">"+order.Message+"</div>")
+                    }
+                    
                                      
                                 @Html.Raw("</div>")
                                 @Html.Raw("<div class=\"s_o_col colw2 fAlign1\">") 

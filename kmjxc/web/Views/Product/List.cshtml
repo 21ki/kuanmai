@@ -118,10 +118,16 @@
             return;
         }
         if (product_id == "" || product_id == "0") {
-            loadingBox = ShowProgress('page_loading', function () { }, "正在创建新产品，请等待...");
+            loadingBox = ShowProgress('page_loading', function () { }, "正在创保存建新产品信息，请等待...");
             productMgr.CreateProduct({ 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
                 loadingBox.hide();
                 if (res.Status == 'ok') {
+                    var href = location.href;
+                    if (href.indexOf("?") > -1) {
+                        var ahref = href.substring(0, href.indexOf("?"));
+                        location.href = ahref;
+                    }
+                    
                     propGroup = [];
                     propGroups = [];
                     $grid.pqGrid("refreshDataAndView");
@@ -136,6 +142,11 @@
             productMgr.UpdateProduct({ 'product_id': product_id, 'images': image_ids, 'props': buffer, 'title': title, 'desc': desc, 'cid': cid, 'sids': sids }, function (res) {
                 loadingBox.hide();
                 if (res.Status == 'ok') {
+                    var href = location.href;
+                    if (href.indexOf("?") > -1) {
+                        var ahref = href.substring(0, href.indexOf("?"));
+                        location.href = ahref;
+                    }                    
                     propGroup = [];
                     propGroups = [];
                     $grid.pqGrid("refreshDataAndView");
@@ -682,7 +693,7 @@
         obj.colModel = [{
                             title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
                             render: function (ui) {
-                                return "<a target=\"_blank\" href=\"/Product/Detail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                                return "<a href=\"/Product/Detail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
                             }
                         },
                         { title: "名称", width: 250, dataType: "string", dataIndx: "Title", editable: false },
@@ -1008,7 +1019,14 @@
         }
 
         if (isEdit == "1" && !isNaN(pdtID)) {
-            RenderEditHtml(pdtID);
+            if (allSuppliers == null || allSuppliers.length <= 0) {
+                buyMgr.GetSuppliers({}, function (res) {
+                    allSuppliers = res.data;
+                    RenderEditHtml(pdtID);
+                });
+            } else {
+                RenderEditHtml(pdtID);
+            }
         }
 
         $grid = $("#productTable").pqGrid(obj);

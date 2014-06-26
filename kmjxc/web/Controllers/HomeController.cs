@@ -67,7 +67,7 @@ namespace KM.JXC.Web.Controllers
         [AllowAnonymous]
         public ActionResult Login(string message)
         {
-            ViewBag.Title = "宽迈进销存登录";
+            ViewBag.Title = "宽迈好易库进销存登录";
             CommonManager sysMgr = new CommonManager();
             List<Open_Key> keys = sysMgr.GetOpenKeys();
             if (!string.IsNullOrEmpty(message))
@@ -87,6 +87,12 @@ namespace KM.JXC.Web.Controllers
 
             ViewData["message"] = message;
             return View();
-        }    
+        }
+
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Login");
+        }
     }
 }

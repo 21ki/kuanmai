@@ -15,6 +15,16 @@ using KM.JXC.Common.Util;
 
 namespace KM.JXC.BL
 {
+    public enum SaleDetailStatus
+    {
+        INITIALIZED=0,
+        LEAVED_STOCK=1,
+        NO_ENOUGH_STOCK=2,
+        NOT_CONNECTED=3,
+        REFOUND_BEFORE_SEND=4,
+        BACK_STOCK=5
+    }
+
     public class BBaseManager:CommonManager
     {
         public Shop Shop { get; private set; }

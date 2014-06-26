@@ -163,8 +163,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\images\add.png" />
+    <Content Include="Content\images\app_icon.jpg" />
     <Content Include="Content\images\loading.gif" />
     <Content Include="Content\images\loading2.gif" />
+    <Content Include="Content\images\login_bk.jpg" />
     <Content Include="Content\images\main-bg.png" />
     <Content Include="Content\images\remove.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />

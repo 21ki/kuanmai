@@ -104,8 +104,7 @@ namespace KM.JXC.BL
                             if (detail.StoreHouse != null)
                             {
                                 dbDetail.StoreHouse_ID = detail.StoreHouse.ID;
-                            }
-                            
+                            }                           
 
                             //Update stock pile
                             if (backStock.UpdateStock)
@@ -124,7 +123,7 @@ namespace KM.JXC.BL
                                 {
                                     product.Quantity += dbDetail.Quantity;
                                 }
-
+                                //1表示退库并更新了库存
                                 dbDetail.Status = 1;
                             }
 
@@ -176,7 +175,7 @@ namespace KM.JXC.BL
                 {
                     bdetails = bdetails.Where(d => order_id.Contains(d.Order_ID));
                 }
-
+                List<Sale_Detail> saleDetails=(from s in db.Sale_Detail where order_id.Contains(s.Mall_Order_ID) select s).ToList<Sale_Detail>();
                 List<Back_Sale_Detail> backSaleDetails = bdetails.ToList<Back_Sale_Detail>();
                 //Check if current sale trade has leave stock records
                 //if the sale doesn't have leave stock, so no need to back stock
@@ -217,8 +216,8 @@ namespace KM.JXC.BL
                     foreach (Back_Sale_Detail bsd in backSaleDetails)
                     {
                         BOrder order=(from o in orders where bsd.Order_ID == o.Order_ID select o).FirstOrDefault<BOrder>();
-
-                        Leave_Stock_Detail leaveStockDetail = (from lsd in leaveDetails where lsd.Order_ID == bsd.Order_ID && lsd.Product_ID == bsd.Product_ID select lsd).FirstOrDefault<Leave_Stock_Detail>();
+                        Sale_Detail saleDetail=(from s in saleDetails where s.Mall_Order_ID==bsd.Order_ID select s).FirstOrDefault<Sale_Detail>();
+                        Leave_Stock_Detail leaveStockDetail = (from lsd in leaveDetails where lsd.Order_ID == bsd.Order_ID select lsd).FirstOrDefault<Leave_Stock_Detail>();
                         if (leaveStockDetail == null)
                         {
                             continue;
@@ -234,9 +233,11 @@ namespace KM.JXC.BL
                         bsDetail.ProductID = leaveStockDetail.Product_ID;
                         bsDetail.ParentProductID = leaveStockDetail.Parent_Product_ID;
                         bsDetail.StoreHouse = new BStoreHouse() { ID = leaveStockDetail.StoreHouse_ID };
-                        backStock.Details.Add(bsDetail);
-                       
+                        backStock.Details.Add(bsDetail);                       
                         bsd.Status = backSaleStatus;
+                        //5 means refound and successfully back to sock
+                        saleDetail.Status1 = (int)SaleDetailStatus.BACK_STOCK;
+                        saleDetail.SyncResultMessage = "退款成功并成功退库";
                     }
 
                     if (backStock.Details.Count > 0)
@@ -250,8 +251,10 @@ namespace KM.JXC.BL
             catch (KMJXCException kex)
             {
                 throw kex;
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
+                throw ex;
             }
             finally
             {
@@ -1050,7 +1053,7 @@ namespace KM.JXC.BL
             List<BEnterStock> stocks = this.SearchEnterStocks(enter_stock_id,0,0,0,0,0,0,1,1,out stockCount);
             if (stockCount == 0)
             {
-                throw new KMJXCException("此入库单不存在");
+                throw new KMJXCException("编号为:"+enter_stock_id+ " 的入库单信息不存在");
             }
 
             if (stockCount > 1)
@@ -1139,11 +1142,14 @@ namespace KM.JXC.BL
                                                 Phone=house.Phone,
                                                 Address=house.Address
                                             }).FirstOrDefault<BStoreHouse>(),
-                              BuyID = (int)stock.Buy_ID
-
-                              
+                              BuyID = (int)stock.Buy_ID                              
 
                           }).FirstOrDefault<BEnterStock>();
+
+                if (bstock == null)
+                {
+                    throw new KMJXCException("编号为:"+id+" 的入库单信息不存在");
+                }
 
                 if (bstock != null)
                 {
@@ -1210,6 +1216,11 @@ namespace KM.JXC.BL
                 if (dbBuy == null)
                 {
                     throw new KMJXCException("编号为:"+stock.BuyID+" 的验货单没有找到");
+                }
+
+                if (dbBuy.Shop_ID != this.Shop.Shop_ID)
+                {
+                    throw new KMJXCException("编号为:" + stock.BuyID + " 为别的店铺的验货单，您不能操作，请不要再次尝试");
                 }
 
                 if (dbBuy.Status == 1)

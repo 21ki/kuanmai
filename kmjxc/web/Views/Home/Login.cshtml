@@ -1,21 +1,23 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="jxcLogin">
-    <h2>欢迎使用宽迈好买卖进销存系统</h2>
-    <div class="itemContainer">
+<div class="jxcLogin loginS1">
+    <div class="jxcLogin loginS2">
+        <h2>欢迎使用好易库进销存系统</h2>
+        <div class="itemContainer">
 
-         @if (ViewData["message"] != null)
-         {             
-             @ViewData["message"].ToString()
-         }
+             @if (ViewData["message"] != null)
+             {             
+                 @ViewData["message"].ToString()
+             }
 
-         @foreach (var key in Model)
-         {
-             string url = key.Auth_Main_Url + "/authorize?client_id=" + key.AppKey + "&response_type=code&redirect_uri=" + @Url.Encode(key.CallBack_Url);
-             <div class="loginItem">
-                 <a href="@url">淘宝登录授权</a>
-             </div>
-         }
+             @foreach (var key in Model)
+             {
+                 string url = key.Auth_Main_Url + "/authorize?client_id=" + key.AppKey + "&response_type=code&redirect_uri=" + @Url.Encode(key.CallBack_Url);
+                 <div class="loginItem">
+                     <a href="@url">淘宝登录授权</a>
+                 </div>
+             }
+        </div>
     </div>
 </div>
