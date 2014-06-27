@@ -47,13 +47,28 @@
             width: 859, height: 600, title: "采购订单列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
             rowSelect: function (event, obj) {
 
-            }
+            },
+            freezeCols: 3
         };
 
         obj.colModel = [{
                             title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false, render: function (ui) {
                                 //return ui.rowData["ID"];
                                 return "<a target=\"_blank\" href=\"/Buy/BuyOrderDetail/" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                            }
+                        },
+
+                        {
+                            title: "状态", width: 150, dataType: "integer", dataIndx: "Status", editable: false,
+                            render: function (ui) {
+                                var cellData = ui.rowData["Status"];
+                                if (cellData == 0) {
+                                    return "未验货";
+                                } else if (cellData == 1) {
+                                    return "已验货，验货单已生成";
+                                } else if (cellData == 2) {
+                                    return "验货未通过";
+                                }
                             }
                         },
                         {
@@ -72,44 +87,34 @@
 
                          },
 
-                         {
-                             title: "状态", width: 150, dataType: "integer", dataIndx: "Status", editable: false,
-                             render: function (ui) {
-                                 var cellData = ui.rowData["Status"];
-                                 if (cellData == 0) {
-                                     return "未验货";
-                                 } else if (cellData == 1) {
-                                     return "已验货，验货单已生成";
-                                 } else if (cellData == 2) {
-                                     return "验货未通过";
-                                 }
-                             }
-                         },
+                         
                         { title: "供应商", width: 150, dataType: "string", dataIndx: "Supplier.Name", editable: false },
-                        { title: "采购员", width: 150, dataType: "string", dataIndx: "OrderUser.Mall_Name", editable: false },
                         {
-                            title: "产品种类", width: 150, dataType: "string", dataIndx: "Details", editable: false,
-                            render: function (ui) {
-                                return $(ui.rowData.Details).size()+" 种";
-                            }
+                             title: "产品种类", width: 70, dataType: "string", dataIndx: "Details", editable: false,
+                             render: function (ui) {
+                                 return $(ui.rowData.Details).size() + " 种";
+                             }
                         },
-                        { title: "合同签订日期", width: 150, dataType: "timestamp", dataIndx: "WriteTime", editable: false },
-                        { title: "合同生效日期", width: 150, dataType: "timestamp", dataIndx: "InsureTime", editable: false },
-                        { title: "合同终止日期", width: 150, dataType: "timestamp", dataIndx: "EndTime", editable: false },
                         {
-                            title: "总金额", width: 150, dataType: "json", dataIndx: "Details", editable: false, render: function (ui) {
-                                var details = ui.rowData["Details"];
-                                var total = 0;
-                                $(details).each(function (index, item) {
-                                    total += (item.Quantity * item.Price);
-                                });
+                             title: "总金额", width: 70, dataType: "json", dataIndx: "Details", editable: false, render: function (ui) {
+                                 var details = ui.rowData["Details"];
+                                 var total = 0;
+                                 $(details).each(function (index, item) {
+                                     total += (item.Quantity * item.Price);
+                                 });
 
-                                return total;
-                            }
+                                 return total;
+                             }
                         },
+                        { title: "采购员", width: 150, dataType: "string", dataIndx: "OrderUser.Mall_Name", editable: false },
+                       
+                        { title: "合同签订日期", width: 130, dataType: "timestamp", dataIndx: "WriteTime", editable: false },
+                        { title: "合同生效日期", width: 130, dataType: "timestamp", dataIndx: "InsureTime", editable: false },
+                        { title: "合同终止日期", width: 130, dataType: "timestamp", dataIndx: "EndTime", editable: false },
+                       
                        
                         { title: "录入员", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
-                        { title: "录入日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                        { title: "录入日期", width: 130, dataType: "timestamp", dataIndx: "Created", editable: false },
 
         ];
 
@@ -125,8 +130,12 @@
             sortDir: "up",
             rPPOptions: [50,60,100],
             getUrl: function (prgrid) {
+
+                var oid = $('#order_id').val();
+                var sid = $("#order_supplier").val();
+                var keyword = $('#order_product').val();
                 return {
-                    url: "/api/Products/GetBuyOrders", data: "page="+this.curPage+"&pageSize="+this.rPP
+                    url: "/api/Products/GetBuyOrders", data: "page=" + this.curPage + "&pageSize=" + this.rPP + "&keyword=" + keyword+"&order_id="+oid+"&supplier_id="+sid
                 };
             },
             getData: function (dataJSON) {
@@ -794,8 +803,8 @@
 
         $("#buyorderstable").on("pqgridrender", function (evt, obj) {
             var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
-
-            $("<span id=\"add_cate\">添加</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
                 $('#popup-newedit-order').dialog({
                     position: { my: "top", at: "top", of: $("#buyorderstable") },
                     width: 650,
@@ -823,10 +832,9 @@
 
                 $('#popup-newedit-order').dialog("open");
             });
-
             //$("<a id=\"get_ccate\" href=\"/Buy/AddOrder\">添加</a>").appendTo($toolbar).button({ icons: { primary: "ui-icon-plus" } });
 
-            $("<span id=\"get_ccate\">编辑</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+            $("<span id=\"get_ccate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
 
                 var rows = getRowIndx();
                 if (rows == null || rows.length == 0) {
@@ -874,7 +882,7 @@
 
                 $('#popup-newedit-order').dialog("open");
             });
-            $("<span id=\"get_ccate\">生成验货单</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-newwin" } }).click(function (evt) {
+            $("<span id=\"get_ccate\">生成验货单</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-newwin" } }).click(function (evt) {
                 var rows = getRowIndx();
                 if (rows == null || rows.length == 0) {
                     alert("请选择一条采购单");
@@ -927,6 +935,38 @@
 
                 $('#popup-newedit-order').dialog("open");
             });
+            //$("<span id=\"get_ccate\">导出</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-disk" } }).click(function () {
+
+            //});
+
+
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"rowS\" style=\"text-align:left;\"></div>").appendTo($searchform);
+            $("<label class=\"gdl\">编号:</label>").appendTo($srow);
+            $("<input id=\"order_id\" title='采购单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+
+            $("<label class=\"gdll\">供应商:</label>").appendTo($srow);
+            var $supplier = $("<select id=\"order_supplier\" title='供应商' type='text' class='W_inputsel'></select>").appendTo($srow);
+            $('<option value=\"0\">--所有--</option>').appendTo($supplier);
+
+            buyMgr.GetSuppliers({}, function (res) {
+                suppliers = res.data;
+                $(suppliers).each(function (i, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($supplier);
+                });
+            })
+
+            $("<label class=\"gdll\">产品:</label>").appendTo($srow);
+            $("<input id=\"order_product\" title='产品关键字' type='text' class='W_input' style='height:22px;width:200px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                   .appendTo($srow)
+                   .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
+                       $grid.pqGrid("refreshDataAndView");
+                   });
 
             $toolbar.disableSelection();
         });

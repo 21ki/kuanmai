@@ -574,7 +574,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> SearchProducts(int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total,bool includeProps=false)
+        public List<BProduct> SearchProducts(int[] product_ids,int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total,bool includeProps=false,bool paging=true)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -602,6 +602,12 @@ namespace KM.JXC.BL
                                Pdt=product,
                                //Emp=employee,                              
                            };
+
+                if (product_ids != null && product_ids.Length > 0)
+                {
+                    dbps = dbps.Where(a => product_ids.Contains(a.Pdt.Product_ID));
+                }
+
                 if (childshop_ids != null && childshop_ids.Length > 0)
                 {
                     dbps = dbps.Where(a => a.Pdt.Shop_ID == this.Shop.Shop_ID || a.Pdt.Shop_ID == this.Main_Shop.Shop_ID || childshop_ids.Contains(a.Pdt.Shop_ID));
@@ -660,6 +666,8 @@ namespace KM.JXC.BL
                 if (total > 0)
                 {
                     var bps = from bpss in dbps
+                              join stock in db.Stock_Pile on bpss.Pdt.Product_ID equals stock.Product_ID into LStock
+                              from l_stock in LStock.DefaultIfEmpty()
                               select new BProduct
                               {
                                   Description = bpss.Pdt.Description,
@@ -669,7 +677,7 @@ namespace KM.JXC.BL
                                   Title = bpss.Pdt.Name,
                                   CreateTime = bpss.Pdt.Create_Time,
                                   Code = bpss.Pdt.Code,
-                                  Quantity = (int)bpss.Pdt.Quantity,                 
+                                  Quantity = l_stock!=null?l_stock.Quantity:0,            
                                   Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
                                               where bpss.Pdt.Product_Class_ID == c.Product_Class_ID
@@ -688,20 +696,35 @@ namespace KM.JXC.BL
                                           }).FirstOrDefault<BUser>()
                               };
 
-                    products = bps.OrderBy(a=>a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();                   
+                    if (paging)
+                    {
+                        products = bps.OrderBy(a => a.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BProduct>();
+                    }
+                    else
+                    {
+                        products = bps.OrderBy(a => a.ID).ToList<BProduct>();
+                    }
                 }
 
-                List<Product> childProducts = null;
+                List<BProduct> childProducts = null;
                 List<BProductProperty> properties = null;
                 if (includeProps)
                 {
                     int[] parent_ids = (from p in products select p.ID).ToArray<int>();
                     var tmpchildProducts = from p in db.Product
+                                           join stock in db.Stock_Pile on p.Product_ID equals stock.Product_ID into LStock
+                                           from l_stock in LStock.DefaultIfEmpty()
                                            where parent_ids.Contains(p.Parent_ID)
-                                           select p;
+                                           select new BProduct
+                                           {
+                                               ID = p.Product_ID,
+                                               Title = p.Name,
+                                               Quantity = l_stock != null ? l_stock.Quantity : 0,
+                                               ParentID=p.Parent_ID
+                                           };
 
-                    childProducts = tmpchildProducts.ToList<Product>();
-                    int[] child_product_ids = (from c in childProducts select c.Product_ID).ToArray<int>();
+                    childProducts = tmpchildProducts.ToList<BProduct>();
+                    int[] child_product_ids = (from c in childProducts select c.ID).ToArray<int>();
                     properties = (from pv in db.Product_Specifications
                                                          join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
                                                          from l_prop in LProp.DefaultIfEmpty()
@@ -730,15 +753,14 @@ namespace KM.JXC.BL
 
                     if (includeProps)
                     {
-                        List<Product> children = (from c in childProducts where c.Parent_ID == product.ID select c).ToList<Product>();
+                        List<BProduct> children = (from c in childProducts where c.ParentID == product.ID select c).ToList<BProduct>();
                         if (children.Count > 0)
                         {
                             product.Children = new List<BProduct>();
-                            foreach (Product child in children)
+                            foreach (BProduct child in children)
                             {
-                                BProduct bChild = new BProduct() { ID=child.Product_ID,Title=product.Title };
-                                bChild.Properties=(from prop in properties where prop.ProductID==bChild.ID select prop).ToList<BProductProperty>();
-                                product.Children.Add(bChild);
+                                child.Properties = (from prop in properties where prop.ProductID == child.ID select prop).ToList<BProductProperty>();
+                                product.Children.Add(child);
                             }
                         }
                     }

@@ -8,6 +8,7 @@ using System.Web.Http;
 
 using KM.JXC.BL;
 using KM.JXC.BL.Models;
+using KM.JXC.BL.Excel;
 using KM.JXC.DBA;
 using Newtonsoft.Json.Linq;
 using KM.JXC.Web.Models;
@@ -80,6 +81,48 @@ namespace KM.JXC.Web.Controllers.api
                 
             }
             return data;
+        }
+
+        [HttpPost]
+        public ApiMessage GetExcelSaleReport()
+        {
+            ApiMessage message = new ApiMessage() {Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ReportFactory reportManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            long stime = 0;
+            long etime = 0;
+         
+            int totalProducts = 0;
+            string[] product_id = null;
+           
+            long.TryParse(request["stime"], out stime);
+            long.TryParse(request["etime"], out etime);           
+
+            if (!string.IsNullOrEmpty(request["products"]))
+            {
+                product_id = request["products"].Split(',');
+            }
+           
+            try
+            {
+                string json = reportManager.GetSalesReport(stime, etime, product_id, 0, 0, out totalProducts, false, false);
+                SaleExcelReport excel = new SaleExcelReport();
+                excel.Export(json);
+                message.Item ="http://"+ request.Url.Authority+"/Content/reports/tmp/"+ excel.ReportFileName;               
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+            }
+            finally
+            {
+
+            }
+            return message;
         }
     }
 }

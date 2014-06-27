@@ -4,14 +4,12 @@
 
 <script>
 
-    var cateMgr = new KMJXCProductManager();
+    var productMgr = new KMJXCProductManager();
     var buyMgr = new KMJXCBuyManager();
     var stockMgr = new KMJXCStockManager();
     var $grid = null; 
     var $searchform = null;
     $(function () {
-
-        
 
         var obj = {
             width: 859, height: 600, title: "库存列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
@@ -116,7 +114,7 @@
             </select>").appendTo($srow).change(function () {
                 if ($(this).val() != 0) {
                     var pid = $(this).val();
-                    cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                    productMgr.GetCategories({ 'parent_id': pid }, function (res) {
                         if ($(res.data).size() > 0) {
 
                             $ccate.empty();
@@ -138,7 +136,7 @@
             });
 
             $("<option value=\"0\">--选择--</option>").appendTo($pcate);
-            cateMgr.GetCategories({ 'parent_id': 0 }, function (res) {
+            productMgr.GetCategories({ 'parent_id': 0 }, function (res) {
                 pcate = res.data;
                 $(res.data).each(function (index, item) {
                     $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
@@ -246,7 +244,170 @@
                 });
             });
             $("<span id=\"get_ccate\">修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+                var selectedRows = getRowIndx();
+                if (selectedRows == null) {
+                    alert("请至少选择一个产品");
+                    return;
+                }
+                if (selectedRows.length > 10) {
+                    alert("单次最多只能选择10个产品");
+                    return;
+                }
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var product_ids = "";// data[selectedRows[0]]["ID"];
+                for(var i=0;i<selectedRows.length;i++){
+                    if (product_ids == "") {
+                        product_ids = data[selectedRows[i]]["ID"];
+                    } else {
+                        product_ids +=","+ data[selectedRows[i]]["ID"];
+                    }
+                }
+                productMgr.SearchProducts({ 'product_ids': product_ids,'pading':0,'include_prop':1 }, function (res) {
+                    if (res == null || res.data == null || res.data.length <= 0) {
+                        return;
+                    }
 
+                    $('#popup_stock_edit').dialog({
+                        position: { my: "top", at: "top", of: $("#stockTable") },
+                        width: 550,
+                        //height:550,
+                        resizable: false,
+                        title: "库存详情" + data[selectedRows[0]]["Title"],
+                        modal: true,
+                        buttons: {
+                            "保存": function (e) {
+                                var verified=true;
+                                var stocks = "[";
+                                var $stockProducts = $(this).find("#edit_stock_products");
+                                var len = $stockProducts.find("div[class='row']").size();
+                                if (len <= 1) {
+                                    alert("产品已被全部移走，请关闭窗口重新选择产品");
+                                    return;
+                                }
+                                $stockProducts.find("div[class='row']").each(function (indx, row) {
+                                    if (indx == 0) {
+                                        return true;
+                                    }
+
+                                    var stock = "";
+                                    var $ul = $(row).find("ul");
+                                    if ($ul == null || $ul.html() == null) {
+                                        var pid = $(row).find("input").attr("id");
+                                        var quantity = $(row).find("input").val();
+                                        if (!$.IsNumber(quantity)) {
+                                            verified = verified & false;
+                                            return false;
+                                        }
+
+                                        stock = "{\"product_id\":" + pid + ",\"quantity\":" + quantity+"}";
+                                    } else {
+                                        var $llen = $ul.find("li").size();
+                                        var tmpStocks = "";
+                                        $($ul.find("li")).each(function (j, sku) {
+                                            var pid = $(sku).find("input").attr("id");
+                                            var quantity = $(sku).find("input").val();
+                                            if (!$.IsNumber(quantity)) {
+                                                verified = verified & false;
+                                                return false;
+                                            }
+                                            tmpStocks += "{\"product_id\":" + pid + ",\"quantity\":" + quantity + "}";
+                                            if (j < ($llen - 1)) {
+                                                tmpStocks += ",";
+                                            }
+                                        });
+
+                                        stock = tmpStocks;
+                                    }
+
+                                    if (!verified) {
+                                        return false;
+                                    }
+
+                                    stocks += stock;
+                                    if (indx < (len - 1)) {
+                                        stocks += ",";
+                                    }
+                                });
+
+                                if (!verified) {
+                                    alert("库存数量必须是整数");
+                                    return;
+                                }
+                                stocks += "]";
+
+                                alert(stocks);
+                            },
+                            "关闭": function (e) {
+                                $(this).dialog("close");
+                            }
+                        },
+                        open: function (e) {
+                            var that = this;
+                            $(this).html("");
+                            var $divList = $("<div id=\"edit_stock_products\"></div>").appendTo(that);
+                            $("<div class=\"row\"><span style=\"display:inline-block;width:400px;margin-right:10px;\">产品</span><span>库存</span></div>").appendTo($divList);
+                            $(res.data).each(function (indx, product) {                                
+                                var $row = $("<div class=\"row\"></div>");
+                                if (product.Children == null) {                                     
+                                    $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + product.Title + "</span>").appendTo($row);
+
+                                    $("<input id=\"" + product.ID + "\" value=\"" + product.Quantity + "\" class=\"W_input\" style=\"width:50px;\"/>").blur(function () {
+                                        if ($(this).val() != "" && !$.IsNumber($(this).val())) {
+                                            alert("库存数量必须是整数");
+                                        }
+                                    }).appendTo($row);
+
+                                    $("<span style=\"margin-left:20px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
+                                        $(this).parent().remove();
+                                    }).appendTo($row);
+                                } else {
+                                   
+                                    $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + product.Title + "</span>").appendTo($row);
+
+                                    var $totalq = $("<input readonly=\"readonly\" id=\"" + product.ID + "\" class=\"W_input\" style=\"width:50px;\"/>").blur(function () {
+                                      
+                                    }).appendTo($row);
+
+                                    $("<span><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
+                                        $(this).parent().parent().remove();
+                                    }).appendTo($row);
+
+                                    var $ul = $("<ul></ul>").appendTo($row);
+                                    var totalQuantity = 0;
+                                    $(product.Children).each(function (idx, sku) {
+                                        var $skuLi = $("<li></li>").appendTo($ul);
+                                        var propNames = "";
+                                        if (sku.Properties != null) {
+                                            $(sku.Properties).each(function (j, prop) {
+                                                if (propNames == "") {
+                                                    propNames = prop.PName + ":" + prop.PValue;
+                                                } else {
+                                                    propNames +=","+ prop.PName + ":" + prop.PValue;
+                                                }
+                                            });
+                                        }
+                                        totalQuantity += sku.Quantity;
+                                        $("<span style=\"display:inline-block;width:400px;margin-right:10px;text-align:center;\">" + propNames + "</span>").appendTo($skuLi);
+                                        $("<input id=\"" + sku.ID + "\" class=\"W_input\" value=\"" + sku.Quantity + "\" style=\"width:50px;\" />").blur(function () {
+                                            if ($(this).val() != "" && !$.IsNumber($(this).val())) {
+                                                alert("库存数量必须是整数");
+                                            }
+                                        }).appendTo($skuLi);
+                                    });
+
+                                    $totalq.val(totalQuantity);
+                                }
+
+                                $divList.append($row);
+                            });                          
+                            
+                        },
+                        close: function (e) {
+                            $(this).html("");
+                        }
+                    });
+                });
             });
 
 
@@ -277,4 +438,5 @@
 <div class="normallist">
     <div id="stockTable"></div>
     <div id="popup_stock_detail"></div>
+    <div id="popup_stock_edit"></div>
 </div>

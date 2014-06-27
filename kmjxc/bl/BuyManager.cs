@@ -34,7 +34,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="totalRecords"></param>
         /// <returns></returns>
-        public List<BBuyOrder> SearchBuyOrders(int[] order_ids, int[] user_ids, int[] supplier_ids,int[] product_ids, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords,bool onlyGetNonVerifiedDetails=true) 
+        public List<BBuyOrder> SearchBuyOrders(int[] order_ids, int[] user_ids, int[] supplier_ids,int[] product_ids,string keyword, int startTime, int endTime, int pageIndex, int pageSize, out int totalRecords,bool paging=true) 
         {
             List<BBuyOrder> buyOrders = new List<BBuyOrder>();
             totalRecords = 0;
@@ -70,6 +70,24 @@ namespace KM.JXC.BL
                     bo = bo.Where(a => supplier_ids.Contains(a.Supplier_ID));
                 }
 
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    List<int> ids=(from p in db.Product where p.Name.Contains(keyword) select p.Product_ID).ToList<int>();
+                    if (product_ids == null || product_ids.Length<=0)
+                    {
+                        product_ids = ids.ToArray<int>();
+                    }
+                    else
+                    {
+                        int[] newIds = ids.ToArray<int>();
+                        int len = product_ids.Length + newIds.Length;
+                        int[] tmp=new int[len];
+                        product_ids.CopyTo(tmp, 0);
+                        newIds.CopyTo(tmp,product_ids.Length);
+                        product_ids = newIds;
+                    }
+                }
+
                 if (product_ids != null && product_ids.Length > 0)
                 {
                     int[] buyOrderIds=(from buyo in db.Buy_Order_Detail where product_ids.Contains(buyo.Product_ID) select buyo.Buy_Order_ID).Distinct<int>().ToArray<int>();
@@ -91,6 +109,7 @@ namespace KM.JXC.BL
                 {
                     bo = bo.Where(a => a.Create_Date <= endTime);
                 }
+
                 totalRecords = bo.Count();
                 if (totalRecords > 0)
                 {
@@ -134,7 +153,11 @@ namespace KM.JXC.BL
 
                                     };
 
-                    efOrders = efOrders.OrderBy(a=>a.Status).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                    if (paging)
+                    {
+                        efOrders = efOrders.OrderBy(a => a.Status).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                    }
+
                     buyOrders = efOrders.ToList<BBuyOrder>();
                     int[] eorder_ids=(from o in buyOrders select o.ID).ToArray<int>();
                     int[] eproduct_ids = (from detail in db.Buy_Order_Detail where eorder_ids.Contains(detail.Buy_Order_ID) select detail.Product_ID).ToArray<int>();
@@ -156,36 +179,33 @@ namespace KM.JXC.BL
 
                     foreach (BBuyOrder o in buyOrders)
                     {
-                        if (o.Status == 0 && onlyGetNonVerifiedDetails)
-                        {
-                            var ds = from od in db.Buy_Order_Detail
-                                     where od.Buy_Order_ID == o.ID
-                                     select new BBuyOrderDetail
-                                     {
-                                         //BuyOrder = o,
-                                         Price = od.Price,
-                                         Quantity = od.Quantity,
-                                         Status = (int)od.Status,
-                                         Product = (from pdt in db.Product
-                                                    where pdt.Product_ID == od.Product_ID
-                                                    select new BProduct
-                                                        {
-                                                            ID = pdt.Product_ID,
-                                                            Title = pdt.Name,
-                                                        }).FirstOrDefault<BProduct>(),
-                                         Parent_Product_ID = od.Parent_Product_ID
-                                     };
+                        var ds = from od in db.Buy_Order_Detail
+                                 where od.Buy_Order_ID == o.ID
+                                 select new BBuyOrderDetail
+                                 {
+                                     //BuyOrder = o,
+                                     Price = od.Price,
+                                     Quantity = od.Quantity,
+                                     Status = (int)od.Status,
+                                     Product = (from pdt in db.Product
+                                                where pdt.Product_ID == od.Product_ID
+                                                select new BProduct
+                                                {
+                                                    ID = pdt.Product_ID,
+                                                    Title = pdt.Name,
+                                                }).FirstOrDefault<BProduct>(),
+                                     Parent_Product_ID = od.Parent_Product_ID
+                                 };
 
-                            List<BBuyOrderDetail> dss = ds.ToList<BBuyOrderDetail>();
-                            foreach (BBuyOrderDetail d in dss)
+                        List<BBuyOrderDetail> dss = ds.ToList<BBuyOrderDetail>();
+                        foreach (BBuyOrderDetail d in dss)
+                        {
+                            if (d.Parent_Product_ID != d.Product.ID && d.Parent_Product_ID > 0)
                             {
-                                if (d.Parent_Product_ID != d.Product.ID && d.Parent_Product_ID > 0)
-                                {
-                                    d.Product.Properties=(from prop in properties where prop.ProductID==d.Product.ID select prop).ToList<BProductProperty>();
-                                }
+                                d.Product.Properties = (from prop in properties where prop.ProductID == d.Product.ID select prop).ToList<BProductProperty>();
                             }
-                            o.Details = dss;
                         }
+                        o.Details = dss;
 
                         if (o.Shop.ID == this.Main_Shop.Shop_ID)
                         {

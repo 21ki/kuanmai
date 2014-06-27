@@ -45,6 +45,25 @@
         }
 
         return true;
+    },
+    IsNumber: function (str) {
+        if ($.trim(str)=="") {
+            return false;
+        }
+
+        if (isNaN(str)) {
+            return false;
+        }
+
+        if (str.length>1) {
+            if (str.substr(0, 1) == 0 || str.substr(0, 1) == "0") {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        return true;
     }
 });
 
@@ -413,6 +432,9 @@ function KMJXCProductManager() {
     cid -- category
     keyword -- product keyword
     suppliers -- suppliers, multiple values contact with ","
+    product_ids -- product id join with ","
+    paging -- 0 or 1
+    include_prop -- 0 or 1
     */
     this.SearchProducts = function (params, callback) {
         this.AjaxCall("/api/Products/SearchProducts", params, callback);
@@ -622,6 +644,9 @@ KMJXCReportManager.prototype = new KMJXCBase();
 function KMJXCReportManager() {
     this.GetSalesReport = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Report/GetSalesReport", params, callback);
+    }
+    this.GetExcelSaleReport = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Report/GetExcelSaleReport", params, callback);
     }
 }
 

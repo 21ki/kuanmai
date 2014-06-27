@@ -2026,5 +2026,15 @@ namespace KM.JXC.BL
 
             return stocks;
         }
+
+        public void UpdateProductsStocks(List<Stock_Pile> stocks, out List<string> messages)
+        {
+            messages = new List<string>();
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                
+            }
+        }
     }
 }

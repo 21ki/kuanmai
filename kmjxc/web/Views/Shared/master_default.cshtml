@@ -19,7 +19,9 @@
     <title>@ViewBag.Title</title>    
     <link href="/Third/jqueryui/css/@theme/jquery-ui-1.10.4.custom.css" rel="stylesheet">
     <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
-   @* <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">*@
+    @if (theme == "smoothness"){
+        <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
+    }
     <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
     <link href="/Third/boxy/boxy.css" rel="stylesheet">
 
@@ -131,6 +133,8 @@
                            <option value="humanity" @if(theme=="humanity"){@Html.Raw("selected")}>humanity</option>
                            <option value="pepper-grinder" @if(theme=="pepper-grinder"){@Html.Raw("selected")}>pepper-grinder</option>
                            <option value="redmond" @if(theme=="redmond"){@Html.Raw("selected")}>redmond</option>
+                           <option value="hot-sneaks" @if(theme=="hot-sneaks"){@Html.Raw("selected")}>hot-sneaks</option>
+                          
                        </select>
                    </span>
                </div>              

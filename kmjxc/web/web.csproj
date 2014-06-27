@@ -127,6 +127,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\api\BaseApiController.cs" />
     <Compile Include="Controllers\api\BugController.cs" />
+    <Compile Include="Controllers\api\BuyController.cs" />
     <Compile Include="Controllers\api\CategoriesController.cs" />
     <Compile Include="Controllers\api\CommonController.cs" />
     <Compile Include="Controllers\api\PermissionController.cs" />
@@ -225,6 +226,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\reports\templates\SaleReport.xlsx" />
     <None Include="Properties\PublishProfiles\kmjxc.pubxml" />
     <None Include="Scripts\jquery-1.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
@@ -347,6 +349,24 @@
     <Content Include="Third\jqPlot\plugins\jqplot.pyramidRenderer.min.js" />
     <Content Include="Third\jqPlot\plugins\jqplot.trendline.js" />
     <Content Include="Third\jqPlot\plugins\jqplot.trendline.min.js" />
+    <Content Include="Third\jqueryui\css\eggplant\images\animated-overlay.gif" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_flat_0_eeeeee_40x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_flat_55_994d53_40x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_flat_55_fafafa_40x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_gloss-wave_30_3d3644_500x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_highlight-soft_100_dcd9de_1x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_highlight-soft_100_eae6ea_1x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_highlight-soft_25_30273a_1x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-bg_highlight-soft_45_5f5964_1x100.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_454545_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_734d99_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_8d78a5_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_a8a3ae_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_ebccce_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Third\jqueryui\css\eggplant\jquery-ui-1.10.4.custom.css" />
+    <Content Include="Third\jqueryui\css\eggplant\jquery-ui-1.10.4.custom.min.css" />
     <Content Include="Third\jqueryui\css\flick\images\animated-overlay.gif" />
     <Content Include="Third\jqueryui\css\flick\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Third\jqueryui\css\flick\images\ui-bg_flat_0_eeeeee_40x100.png" />
@@ -363,6 +383,24 @@
     <Content Include="Third\jqueryui\css\flick\images\ui-icons_ffffff_256x240.png" />
     <Content Include="Third\jqueryui\css\flick\jquery-ui-1.10.4.custom.css" />
     <Content Include="Third\jqueryui\css\flick\jquery-ui-1.10.4.custom.min.css" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\animated-overlay.gif" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_diagonals-small_40_db4865_40x40.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_diagonals-small_50_93c3cd_40x40.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_diagonals-small_50_ff3853_40x40.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_diagonals-small_75_ccd232_40x40.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_dots-medium_80_ffff38_4x4.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_dots-small_35_35414f_2x2.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_flat_75_ba9217_40x100.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-bg_white-lines_85_f7f7ba_40x100.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_454545_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_88a206_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_c02669_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_e1e463_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_ffeb33_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\jquery-ui-1.10.4.custom.css" />
+    <Content Include="Third\jqueryui\css\hot-sneaks\jquery-ui-1.10.4.custom.min.css" />
     <Content Include="Third\jqueryui\css\humanity\images\animated-overlay.gif" />
     <Content Include="Third\jqueryui\css\humanity\images\ui-bg_flat_75_aaaaaa_40x100.png" />
     <Content Include="Third\jqueryui\css\humanity\images\ui-bg_glass_100_f5f0e5_1x400.png" />
@@ -823,6 +861,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\reports\tmp\" />
+    <Folder Include="Content\tmp\" />
     <Folder Include="Third\kindeditor\attached\" />
   </ItemGroup>
   <ItemGroup>

@@ -317,7 +317,21 @@ namespace KM.JXC.Web.Controllers.api
             {
                 includeProps = false;
             }
-            data.data = pdtManager.SearchProducts(sids, keyword, "", 0, 0, category_id, page, pageSize, out total,includeProps);
+
+            int[] product_ids = null;
+            if (!string.IsNullOrEmpty(request["product_ids"]))
+            {
+                product_ids = base.ConvertToIntArrar(request["product_ids"]);
+            }
+
+            bool paging = true;
+
+            if (!string.IsNullOrEmpty(request["paging"]) && request["paging"]=="0")
+            {
+                paging=false;
+            }
+
+            data.data = pdtManager.SearchProducts(product_ids, sids, keyword, "", 0, 0, category_id, page, pageSize, out total, includeProps, paging);
             data.totalRecords = total;
             data.curPage = page;
             data.pageSize = pageSize;
@@ -381,7 +395,22 @@ namespace KM.JXC.Web.Controllers.api
             int pageSize = 30;
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"],out pageSize);
-            data.data = buyManager.SearchBuyOrders(null,null, null, null, 0, 0, page, pageSize, out total);
+            int order_id = 0;
+            int supplier_id = 0;
+            int.TryParse(request["order_id"],out order_id);
+            int.TryParse(request["supplier_id"], out supplier_id);
+            string keyword = request["keyword"];
+            int[] orders = null;
+            if (order_id > 0)
+            {
+                orders = new int[] { order_id};
+            }
+            int[] suppliers = null;
+            if (supplier_id > 0)
+            {
+                suppliers = new int[] { supplier_id};
+            }
+            data.data = buyManager.SearchBuyOrders(orders, null, suppliers, null, keyword, 0, 0, page, pageSize, out total);
             data.totalRecords = total;
             return data;
         }

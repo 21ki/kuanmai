@@ -21,6 +21,12 @@ namespace KM.JXC.BL
         {
         }
 
+        public string ExportBuyOrders(List<BBuyOrder> orders)
+        {
+            string path = "";
+            return path;
+        }
+
 
         /// <summary>
         /// 
@@ -196,7 +202,7 @@ namespace KM.JXC.BL
                             shopName = "";
                         }
 
-                        string propNames = "其他";
+                        string propNames = "";
 
                         if (item.ProductID > 0)
                         {
@@ -236,6 +242,10 @@ namespace KM.JXC.BL
                             continue;
                         }
 
+
+                        if (propNames =="") {
+                            propNames = "--";
+                        }
                         DateTime time = DateTimeUtil.ConvertToDateTime(item.SaleTime);
                         string month = time.Year.ToString() + "-" + time.Month.ToString();
 

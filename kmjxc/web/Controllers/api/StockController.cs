@@ -459,5 +459,19 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
+
+        [HttpPost]
+        public ApiMessage UpdateProductsStocks()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+
+            return message;
+        }
     }
 }
