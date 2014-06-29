@@ -2036,5 +2036,93 @@ namespace KM.JXC.BL
                 
             }
         }
+
+        public List<BStocks> SearchStocks(List<int> product_ids, List<int> store_house_ids,int page,int pageSize,out int total,bool paging=false)
+        {
+            List<BStocks> stocks = new List<BStocks>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                total = 0;
+                if (page <= 0)
+                {
+                    page = 1;
+                }
+
+                if (pageSize <= 0)
+                {
+                    pageSize = 30;
+                }
+                var tmpProducts = from p in db.Product
+                                  select p;
+
+                if (product_ids != null && product_ids.Count > 0)
+                {
+                    tmpProducts = tmpProducts.Where(p=> product_ids.ToArray<int>().Contains(p.Product_ID) || product_ids.ToArray<int>().Contains(p.Parent_ID));
+                }
+
+                
+                int[] all_product_ids=(from p in tmpProducts select p.Product_ID).ToArray<int>();
+                var tmpStocks = from s in db.Stock_Pile
+                                join p in db.Product on s.Product_ID equals p.Parent_ID into LProduct
+                                from l_p in LProduct.DefaultIfEmpty()
+                                join h in db.Store_House on s.StockHouse_ID equals h.StoreHouse_ID
+                                select new BStocks
+                                {
+                                    Parent_Product_ID = l_p.Parent_ID > 0 ? l_p.Parent_ID : l_p.Product_ID,
+                                    Product = new BProduct
+                                    {
+                                        Title = l_p.Name,
+                                        ID = l_p.Product_ID
+                                    },
+                                    Quantity = s.Quantity,
+                                    StoreHouse = new BStoreHouse { ID=h.StoreHouse_ID,Name=h.Title }
+                                };
+
+                if (store_house_ids != null && store_house_ids.Count > 0)
+                {
+                    tmpStocks = tmpStocks.Where(s=>store_house_ids.ToArray<int>().Contains(s.StoreHouse.ID));
+                }
+
+                if (all_product_ids != null && all_product_ids.Length > 0)
+                {
+                    tmpStocks = tmpStocks.Where(s=>all_product_ids.Contains(s.Product.ID));
+                }
+
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where all_product_ids.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).ToList<BProductProperty>();
+
+                total = tmpStocks.Count();
+
+                if (paging)
+                {
+                    stocks = tmpStocks.Skip((page - 1) * pageSize).Take(pageSize).ToList<BStocks>();
+                }
+                else
+                {
+                    stocks = tmpStocks.ToList<BStocks>();
+                }
+
+                foreach (BStocks stock in stocks)
+                {
+                    if (stock.Product != null)
+                    {
+                        stock.Product.Properties=(from prop in properties where prop.ProductID == stock.Product.ID select prop).ToList<BProductProperty>();
+                    }
+                }
+            }
+            return stocks;
+        }
     }
 }
