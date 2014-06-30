@@ -740,6 +740,7 @@ namespace KM.JXC.BL
                                 sd.Mall_PID = order.Mall_PID;
                                 sd.Mall_SkuID = order.Mall_SkuID;
                                 sd.Supplier_ID = 0;
+                                sd.Refound = order.Refound;
                                 db.Sale_Detail.Add(sd);
                             }
                         }
@@ -794,11 +795,11 @@ namespace KM.JXC.BL
                                 sd.Status = "0";
                             }
                             sd.ImageUrl = order.ImageUrl;
-                            sd.Status1 = order.Status1;
+                            //sd.Status1 = order.Status1;
                             sd.StockStatus = 0;
                             sd.Mall_PID = order.Mall_PID;
                             sd.Supplier_ID = 0;
-
+                            sd.Refound = order.Refound;
                             if (isNew)
                             {
                                 db.Sale_Detail.Add(sd);
@@ -1008,7 +1009,8 @@ namespace KM.JXC.BL
                                  //    Title = ll_product.Name
                                  //}
                                  Message=order.SyncResultMessage,
-                                 Refound=order.Refound
+                                 Refound=order.Refound,
+                                 Status1=order.Status1
                              };
                     sale.Orders = os.ToList<BOrder>();
 

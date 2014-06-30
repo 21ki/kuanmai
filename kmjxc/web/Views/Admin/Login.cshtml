@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Login";
+}
+<script>
+    $(function () {
+        $('#sysLogin').button().click(function () {
+            var uid = $("#sysUser").val();
+            var pass = $("#sysPass").val();
+            if (uid == "") {
+                alert("请输入用户名");
+                return;
+            }
+
+            if (pass == "") {
+                alert("请输入密码");
+                return;
+            }
+            $('#systemForm').submit();
+        });
+    });
+</script>
+<div class="jxcLogin loginS1">
+    <div class="jxcLogin loginS2">
+        <h2>系统用户登录</h2>
+        <form id="systemForm" action="/Admin/Login?type=do" method="post">
+            <div class="itemContainer">
+
+                 @if (ViewData["message"] != null)
+                 {             
+                     @ViewData["message"].ToString()
+                 }
+             
+                 <div class="row">
+                     <label>用户:</label><input id="sysUser" type="text" class="W_input"/>
+                 </div>
+                 <div class="row">
+                     <label>密码:</label><input id="sysPass" type="password" class="W_input"/>
+                 </div>
+                  <div class="row">
+                     <span id="sysLogin">登录</span>
+                 </div>
+            </div>
+        </form>
+    </div>
+</div>

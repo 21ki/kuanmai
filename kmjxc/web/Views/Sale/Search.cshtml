@@ -194,13 +194,12 @@
                     @Html.Raw("<div class=\"item\">" + propValue + "</div>")
                     }
                     
-                    if (order.Refound)
+                    string style="color:red;";
+                    if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.LEAVED_STOCK || order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.BACK_STOCK)
                     {
-                        @Html.Raw("<div class=\"item\">退款成功，已经入库</div>")
+                        style = "color:green;";
                     }
-                    else { 
-                        @Html.Raw("<div class=\"item\">"+order.Message+"</div>")
-                    }
+                    @Html.Raw("<div class=\"item\" style=\""+style+"\">"+order.Message+"</div>")
                     
                                      
                                 @Html.Raw("</div>")

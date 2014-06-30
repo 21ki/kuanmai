@@ -112,6 +112,9 @@
     <Compile Include="Common_District.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Corp_Info.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Customer.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

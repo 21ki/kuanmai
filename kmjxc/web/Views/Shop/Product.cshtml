@@ -353,7 +353,7 @@
                 foreach (KM.JXC.BL.Models.BMallProduct product in products) { 
                     <div class="row jxclist1">
                         <div>
-                            <span style="display:inline-block;margin:0;width:15px;margin-right:10px;">@if(!product.HasProductCreated || product.OuterID==0){<input value="@product.ID" type="checkbox" id="pdt_chk_select_@product.ID" />}</span><span style="margin-left:0;vertical-align:top;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
+                            <span style="display:inline-block;margin:0;width:15px;margin-right:10px;">@if((!product.HasProductCreated && product.OuterID==0)){<input value="@product.ID" type="checkbox" id="pdt_chk_select_@product.ID" />}</span><span style="margin-left:0;vertical-align:top;" class="spanw3"><img style="width:50px;height:50px;" src="@Html.Raw(product.PicUrl)" /></span><span class="spanw1">@Html.Raw(product.Title)</span>
                             <span class="spanw4">@product.Shop.Title</span>
                             <span class="spanw2">@Html.Raw(product.Price.ToString("0.00"))</span>
                             <span class="spanw2">

@@ -220,10 +220,112 @@ namespace KM.JXC.Web.Controllers.api
             int.TryParse(request["pageSize"],out pageSize);
             string keyword = request["keyword"];
             int total = 0;
-            data.data=stockManager.SearchProductStocks(null, category, storeHouse, keyword, page, pageSize, out total);
+            data.data=stockManager.SearchProductsStocks(null, category, storeHouse, keyword, page, pageSize, out total);
             data.curPage = page;
             data.totalRecords = total;
             return data;
+        }
+
+        [HttpPost]
+        public PQGridData SearchStocks() 
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int pageSize = 30;         
+            int storeHouse = 0;
+            bool paging = false;
+            string product_ids = request["products"];           
+            int.TryParse(request["house"], out storeHouse);
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            string keyword = request["keyword"];
+            int total = 0;
+            List<int> storeHouses = new List<int>();
+            if (storeHouse > 0)
+            {
+                storeHouses.Add(storeHouse);
+            }
+
+            List<int> products = new List<int>();
+            if (!string.IsNullOrEmpty(product_ids))
+            {
+                string[] ids = product_ids.Split(',');
+                foreach (string id in ids)
+                {
+                    products.Add(int.Parse(id));
+                }
+            }
+
+            if (!string.IsNullOrEmpty(request["paging"]) && request["paging"] == "1")
+            {
+                paging = true;
+            }
+            else
+            {
+                paging = false;
+            }
+            data.data = stockManager.SearchStocks(products, storeHouses, page, pageSize, out total, paging);
+            data.curPage = page;
+            data.totalRecords = total;
+            return data;
+        }
+
+        [HttpPost]
+        public ApiMessage UpdateProductsStocks()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            string jsonStocks=request["stocks"];
+            try
+            {
+                List<BStock> bStocks = new List<BStock>();
+                if (string.IsNullOrEmpty(jsonStocks))
+                {
+                    message.Status = "failed";
+                    message.Message = "没有任何库存修改的信息";
+                    return message;
+                }
+
+                jsonStocks = HttpUtility.UrlDecode(jsonStocks);
+                JArray jStocks = JArray.Parse(jsonStocks);
+                if (jStocks != null)
+                {
+                    for (int i = 0; i < jStocks.Count(); i++)
+                    {
+                        JObject stock = (JObject)jStocks[i];
+                        int product_id = (int)stock["product_id"];
+                        int quantity = (int)stock["quantity"];
+                        int storeHouse_id = (int)stock["store_house"];
+                        BStock bStock = new BStock() { Quantity = quantity, Product = new BProduct { ID = product_id }, StoreHouse = new BStoreHouse() { ID = storeHouse_id } };
+                        bStocks.Add(bStock);
+                    }
+                }
+                List<string> messages = new List<string>();
+                stockManager.UpdateProductsStocks(bStocks, out messages);
+                message.Item = messages;
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return message;
         }
 
         [HttpPost]
@@ -458,20 +560,6 @@ namespace KM.JXC.Web.Controllers.api
             data.curPage = page;
             data.totalRecords = total;
             return data;
-        }
-
-        [HttpPost]
-        public ApiMessage UpdateProductsStocks()
-        {
-            ApiMessage message = new ApiMessage() { Status="ok"};
-            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
-            HttpRequestBase request = context.Request;
-            string user_id = User.Identity.Name;
-            UserManager userMgr = new UserManager(int.Parse(user_id), null);
-            BUser user = userMgr.CurrentUser;
-            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-
-            return message;
-        }
+        }       
     }
 }

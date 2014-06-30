@@ -50,6 +50,7 @@ namespace KM.JXC.BL
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var tmp = from sale in db.Sale_Detail
+                          where sale.Status1 != (int)SaleDetailStatus.BACK_STOCK && sale.Status1 != (int)SaleDetailStatus.REFOUND_BEFORE_SEND
                           select sale;
 
                 var sales = from s in db.Sale

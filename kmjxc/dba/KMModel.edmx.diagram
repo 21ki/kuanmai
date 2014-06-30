@@ -62,6 +62,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Feature" Width="1.5" PointX="10.99137889174343" PointY="29.724517925514149" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Status" Width="1.5" PointX="0.15905526287809724" PointY="26.635314864402318" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Response" Width="1.5" PointX="7.8541184588587463" PointY="6.1587787895271457" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Corp_Info" Width="1.5" PointX="7.4624966250092246" PointY="10.349323799064999" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

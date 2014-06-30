@@ -1,0 +1,132 @@
+﻿@{
+    string controller = ViewContext.RouteData.Values["controller"].ToString();
+    string action = ViewContext.RouteData.Values["action"].ToString();
+    string modelStyle = "";
+    KM.JXC.DBA.Shop CurrentShop = null;
+    if (ViewData["CurrentShop"]!=null)
+    {
+        CurrentShop=(KM.JXC.DBA.Shop)ViewData["CurrentShop"];
+    }
+    KM.JXC.DBA.Shop MainShop = null;
+    if (ViewData["MainShop"]!=null)
+    {
+        MainShop=(KM.JXC.DBA.Shop)ViewData["MainShop"];
+    }
+    KM.JXC.BL.Models.BUser CurrentUser = null;
+    if (ViewData["CurrentUser"]!=null)
+    {
+        CurrentUser=(KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>    
+    <link href="/Third/jqueryui/css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
+    <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
+    <link href="/Third/uploadify/uploadify.css" rel="stylesheet">
+    <link href="/Third/boxy/boxy.css" rel="stylesheet">
+    @Styles.Render("~/Content/css")   
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")   
+    @Scripts.Render("~/bundles/kmjxc")
+    @Scripts.Render("~/Third/pqgrid")
+    @Scripts.Render("~/Third/kindeditor")
+
+    <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
+    <script>
+        $(function () {
+            $(".jxcLeftMenu").accordion();
+        });
+    </script>
+   
+</head>
+<body style="background-image:url(/Content/images/login_bk.jpg)">
+   <div class="">
+       <div class="jxcHeader">
+           <div class="head_logo">
+               <img style="width:50px;height:50px; border-radius:3px;" src="/Content/images/app_icon.jpg" />
+           </div>
+           <div style="float:right;">               
+               <div style="overflow:hidden;display:block;">
+                  
+                       @if(CurrentUser!=null)
+                       {
+                            <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;">@CurrentUser.Mall_Name</span>
+                            </span>
+                            <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-power"></span>
+                               <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Home/Logout">退出</a></span>
+                            </span>
+                       }
+                       else
+                       {
+                          <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                               <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;"><a style="margin:0;" href="/Home/Login">登录</a></span>
+                          </span>
+                       }
+                  
+               </div> 
+               <div style="overflow:hidden;display:block;text-align:right">
+                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                       <span class="ui-button-icon-primary ui-icon ui-icon-home"></span>
+                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Shop/Dashboard">首页</a></span>
+                   </span>
+
+                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                       <span class="ui-button-icon-primary ui-icon ui-icon-help"></span>
+                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Corp/Help">帮助</a></span>
+                   </span>
+               </div>              
+           </div>
+       </div>
+   </div>
+   
+   <div class="jxcMain">       
+       <div class="jxcLeftMenu">
+
+            <h3 class="menu_wd1">系统管理</h3>
+           
+           <div id="buyMenuContainer"
+               @if (controller != "Admin")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+                   <li><a href="/Admin/CorpInfo" 
+                       @if (action == "CorpInfo")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >关于我们 </a></li>
+                 
+                  
+               </ul>
+           </div>
+
+       </div>
+       <div class="jxcRight">
+        @RenderBody()
+       </div>       
+    </div>
+    <div class="jxcfoot">
+            <a class="item" href="/Corp/About">关于我们</a>  <a class="item" href="/Corp/Contact">联系我们</a>  <a class="item" href="/Corp/Help">使用帮助</a> <a class="item" href="/Corp/Bug">缺陷报告</a> @*<a class="item" href="/Corp/Blog">Blog</a>*@
+    </div>
+</body>
+</html>
+

@@ -55,6 +55,10 @@
             return false;
         }
 
+        if (str.indexOf(".") > -1) {
+            return false;
+        }
+
         if (str.length>1) {
             if (str.substr(0, 1) == 0 || str.substr(0, 1) == "0") {
                 return false;
@@ -517,6 +521,23 @@ function KMJXCStockManager() {
         this.AjaxCall("/api/Stock/GetProductStockDetails", params, callback);
     }
 
+    /*
+    products -- parent id, support multiple ids, join with ","
+    house -- store house id don't support multiple ids
+    page -- des page
+    pageSize
+    paging -- 1/0
+    */
+    this.SearchStocks = function (params, callback) {
+        this.AjaxCall("/api/Stock/SearchStocks", params, callback);
+    }
+
+    /*
+    stocks -- json str [{\"product_id\":"xxx",\"quantity\":"xxx",\"store_house\":"xxx"}]
+    */
+    this.UpdateProductsStocks = function (params, callback) {
+        this.AjaxCall("/api/Stock/UpdateProductsStocks", params, callback);
+    }
 }
 
 KMJXCSaleManager.prototype = new KMJXCBase();

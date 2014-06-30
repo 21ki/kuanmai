@@ -125,6 +125,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\api\BaseApiController.cs" />
     <Compile Include="Controllers\api\BugController.cs" />
     <Compile Include="Controllers\api\BuyController.cs" />
@@ -858,6 +859,10 @@
     <Content Include="Views\Corp\Blog.cshtml" />
     <Content Include="Views\Corp\BugDetail.cshtml" />
     <Content Include="Views\Buy\AddOrder.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Admin\Login.cshtml" />
+    <Content Include="Views\Shared\master_admin.cshtml" />
+    <Content Include="Views\Admin\CorpInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

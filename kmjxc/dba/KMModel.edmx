@@ -27,6 +27,18 @@
           <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Store.Corp_Info" store:Type="Tables" store:Schema="kuanmai" store:Name="Corp_Info">
+            <DefiningQuery>SELECT
+      `Corp_Info`.`About`, 
+      `Corp_Info`.`Contact`, 
+      `Corp_Info`.`Help`, 
+      `Corp_Info`.`Created`, 
+      `Corp_Info`.`Modified`, 
+      `Corp_Info`.`Created_By`, 
+      `Corp_Info`.`Modified_By`, 
+      `Corp_Info`.`IsCurrent`
+      FROM `Corp_Info` AS `Corp_Info`</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Store.Customer_Shop" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" />
@@ -307,6 +319,26 @@
           <Property Name="name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="level" Type="tinyint" Nullable="false" />
           <Property Name="upid" Type="int" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+      warning 6002: The table/view 'def.kuanmai.Corp_Info' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+      -->
+        <EntityType Name="Corp_Info">
+          <Key>
+            <PropertyRef Name="Created" />
+            <PropertyRef Name="Modified" />
+            <PropertyRef Name="Created_By" />
+            <PropertyRef Name="Modified_By" />
+            <PropertyRef Name="IsCurrent" />
+          </Key>
+          <Property Name="About" Type="text" />
+          <Property Name="Contact" Type="text" />
+          <Property Name="Help" Type="text" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Modified" Type="uint" Nullable="false" />
+          <Property Name="Created_By" Type="int" Nullable="false" />
+          <Property Name="Modified_By" Type="int" Nullable="false" />
+          <Property Name="IsCurrent" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -869,6 +901,7 @@
           <EntitySet Name="Bug_Feature" EntityType="KM.JXC.DBA.Model.Bug_Feature" />
           <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Bug_Status" />
           <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Bug_Response" />
+          <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Corp_Info" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1603,6 +1636,23 @@
           <Property Type="String" Name="Description" MaxLength="65535" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Created" Nullable="false" />
           <Property Type="Int32" Name="Create_By" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Corp_Info">
+          <Key>
+            <PropertyRef Name="Created" />
+            <PropertyRef Name="Modified" />
+            <PropertyRef Name="Created_By" />
+            <PropertyRef Name="Modified_By" />
+            <PropertyRef Name="IsCurrent" />
+          </Key>
+          <Property Type="String" Name="About" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Contact" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Help" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Int64" Name="Modified" Nullable="false" />
+          <Property Type="Int32" Name="Created_By" Nullable="false" />
+          <Property Type="Int32" Name="Modified_By" Nullable="false" />
+          <Property Type="Boolean" Name="IsCurrent" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2374,6 +2424,20 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="BugID" ColumnName="BugID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Corp_Info">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Corp_Info">
+              <MappingFragment StoreEntitySet="Corp_Info">
+                <ScalarProperty Name="IsCurrent" ColumnName="IsCurrent" />
+                <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+                <ScalarProperty Name="Modified" ColumnName="Modified" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Help" ColumnName="Help" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="About" ColumnName="About" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

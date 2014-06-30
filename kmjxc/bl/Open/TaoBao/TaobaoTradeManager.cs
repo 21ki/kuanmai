@@ -554,8 +554,7 @@ namespace KM.JXC.BL.Open.TaoBao
                             order.Status1 = 0;
                             if (!string.IsNullOrEmpty(o.RefundStatus) && o.RefundStatus == "SUCCESS") 
                             {
-                                containRefound = true;
-                                order.Status1 = 1;
+                                containRefound = true;                               
                                 order.Refound = true;
                                 sale.Amount = sale.Amount - order.Amount;
                             }

@@ -10,7 +10,9 @@
         if(Session["theme"]!=null){
             theme = (string)Session["theme"];
         }
+    KM.JXC.BL.Models.BShopStatistic Statistic = (KM.JXC.BL.Models.BShopStatistic)ViewData["SPStatistic"];
     }
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -163,7 +165,13 @@
                            @Html.Raw("class=link");
                        }                        
                        
-                       >采购单管理 </a></li>
+                       >采购单管理 
+                       @if (Statistic.BuyOrderUnhandled > 0)
+                       {
+                           <span title="未处理" style="margin-left:5px;color:red">@Statistic.BuyOrderUnhandled</span>
+                       }
+
+                       </a></li>
                  
                    <li><a href="/Buy/Buy"
                        
@@ -176,7 +184,12 @@
                            @Html.Raw("class=link");
                        }                         
                        
-                       >验货单管理</a></li>
+                       >验货单管理
+                       @if (Statistic.BuyUnhandled > 0)
+                       {
+                           <span title="未处理" style="margin-left:5px;color:red">@Statistic.BuyUnhandled</span>
+                       }
+                       </a></li>
                    <li><a href="/Buy/Suppliers"
                        @if (action == "Suppliers")
                        {
@@ -244,7 +257,12 @@
                        }                         
                        
                        >
-                       退货处理</a>
+                       退货处理
+                       @if (Statistic.BackSaleUnhandled > 0)
+                       {
+                           <span title="未处理" style="margin-left:5px;color:red">@Statistic.BackSaleUnhandled</span>
+                       }
+                       </a>
 
                    </li>    
                  @*  <li>
@@ -299,7 +317,7 @@
                         {
                            @Html.Raw("class=link");
                         } 
-                       >库存查询</a></li> 
+                       >库存管理</a></li> 
                    <li><a href="/Stock/Enter"
                        @if (action == "Enter")
                        {
@@ -310,7 +328,9 @@
                            @Html.Raw("class=link");
                        } 
                        
-                       >入库查询</a></li>                   
+                       >采购入库
+                     
+                       </a></li>                   
                    <li><a href="/Stock/Leave"
                        
                         @if (action == "Leave")

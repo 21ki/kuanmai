@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace KM.JXC.BL.Models
 {
-    public class BStocks
-    {
+    public class BStock:BModel
+    {        
         public BProduct Product { get; set; }
         public int Parent_Product_ID { get; set; }
         public BStoreHouse StoreHouse { get; set; }

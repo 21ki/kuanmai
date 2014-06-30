@@ -22,19 +22,31 @@ namespace KM.JXC.Web.Filters
                 return;
             }
             //Verify if the cookie user is a valid user
-            UserManager userMgr = new UserManager(int.Parse(user_id), null);
-            BUser user = userMgr.CurrentUser;
-
-            if (user == null)
+            UserManagement userManagement = new UserManagement();
+            BUser loginuser = userManagement.GetUserInfo(int.Parse(user_id));
+            if (!loginuser.IsSystemUser)
             {
-                filterContext.HttpContext.Response.Redirect("/Home/Login?message=登录信息丢失，请重新登录并授权");
-            }
+                //normal user login
+                UserManager userMgr = new UserManager(int.Parse(user_id), null);
+                BUser user = userMgr.CurrentUser;
 
-            filterContext.Controller.ViewData["CurrentShop"] = userMgr.Shop;
-            filterContext.Controller.ViewData["MainShop"] = userMgr.Main_Shop;
-            filterContext.Controller.ViewData["ChildShop"] = userMgr.ChildShops;
-            filterContext.Controller.ViewData["CurrentPermission"] = userMgr.CurrentUserPermission;
-            filterContext.Controller.ViewData["CurrentUser"] = userMgr.CurrentUser;
+                if (user == null)
+                {
+                    filterContext.HttpContext.Response.Redirect("/Home/Login?message=登录信息丢失，请重新登录并授权");
+                }
+
+                ShopManager shopManager = new ShopManager(user, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+                filterContext.Controller.ViewData["CurrentShop"] = userMgr.Shop;
+                filterContext.Controller.ViewData["MainShop"] = userMgr.Main_Shop;
+                filterContext.Controller.ViewData["ChildShop"] = userMgr.ChildShops;
+                filterContext.Controller.ViewData["CurrentPermission"] = userMgr.CurrentUserPermission;
+                filterContext.Controller.ViewData["CurrentUser"] = userMgr.CurrentUser;
+                filterContext.Controller.ViewData["SPStatistic"] = shopManager.GetShopStatistic(0, true);
+            }
+            else
+            {
+                //system user login
+            }
         }
     }
 }

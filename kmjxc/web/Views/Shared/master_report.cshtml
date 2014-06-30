@@ -6,6 +6,7 @@
     KM.JXC.DBA.Shop CurrentShop = (KM.JXC.DBA.Shop)ViewData["CurrentShop"];
     KM.JXC.DBA.Shop MainShop = (KM.JXC.DBA.Shop)ViewData["MainShop"];
     KM.JXC.BL.Models.BUser CurrentUser = (KM.JXC.BL.Models.BUser)ViewData["CurrentUser"];
+    KM.JXC.BL.Models.BShopStatistic Statistic = (KM.JXC.BL.Models.BShopStatistic)ViewData["SPStatistic"];
     }
 <!DOCTYPE html>
 <html>
@@ -102,7 +103,12 @@
                            @Html.Raw("class=link");
                        }                        
                        
-                       >采购单管理 </a></li>
+                       >采购单管理 
+                       @if (Statistic.BuyOrderUnhandled > 0)
+                       {
+                           <span style="margin-left:5px;color:red">@Statistic.BuyOrderUnhandled</span>
+                       }
+                       </a></li>
                  
                    <li><a href="/Buy/Buy"
                        

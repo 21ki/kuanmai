@@ -19,5 +19,6 @@ namespace KM.JXC.BL.Models
         public BUser Parent { get; set; }
         public long Created { get; set; }
         public BShop Shop { get; set; }
+        public bool IsSystemUser { get; set; }
     }
 }

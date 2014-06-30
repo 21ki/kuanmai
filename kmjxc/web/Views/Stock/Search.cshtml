@@ -243,7 +243,7 @@
                     }
                 });
             });
-            $("<span id=\"get_ccate\">修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+            $("<span id=\"get_ccate\">批量修改库存</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
                 var selectedRows = getRowIndx();
                 if (selectedRows == null) {
                     alert("请至少选择一个产品");
@@ -263,20 +263,21 @@
                         product_ids +=","+ data[selectedRows[i]]["ID"];
                     }
                 }
-                productMgr.SearchProducts({ 'product_ids': product_ids,'pading':0,'include_prop':1 }, function (res) {
+                stockMgr.SearchStocks({ 'products': product_ids, 'paging': 0 }, function (res) {
                     if (res == null || res.data == null || res.data.length <= 0) {
                         return;
                     }
 
                     $('#popup_stock_edit').dialog({
                         position: { my: "top", at: "top", of: $("#stockTable") },
-                        width: 550,
+                        width: 750,
                         //height:550,
                         resizable: false,
                         title: "库存详情" + data[selectedRows[0]]["Title"],
                         modal: true,
                         buttons: {
                             "保存": function (e) {
+                                var that = this;
                                 var verified=true;
                                 var stocks = "[";
                                 var $stockProducts = $(this).find("#edit_stock_products");
@@ -293,25 +294,27 @@
                                     var stock = "";
                                     var $ul = $(row).find("ul");
                                     if ($ul == null || $ul.html() == null) {
-                                        var pid = $(row).find("input").attr("id");
-                                        var quantity = $(row).find("input").val();
+                                        var pid = $(row).find("input[id^='row_']").attr("id").split("_")[1];
+                                        var quantity = $(row).find("input[type='text']").val();
+                                        var houseId = $(row).find("input[type='hidden']").val();
                                         if (!$.IsNumber(quantity)) {
                                             verified = verified & false;
                                             return false;
                                         }
 
-                                        stock = "{\"product_id\":" + pid + ",\"quantity\":" + quantity+"}";
+                                        stock = "{\"product_id\":" + pid + ",\"quantity\":" + quantity+",\"store_house\":"+houseId+"}";
                                     } else {
                                         var $llen = $ul.find("li").size();
                                         var tmpStocks = "";
                                         $($ul.find("li")).each(function (j, sku) {
-                                            var pid = $(sku).find("input").attr("id");
-                                            var quantity = $(sku).find("input").val();
+                                            var pid = $(sku).find("input[id^='li_']").attr("id").split("_")[1];
+                                            var quantity = $(sku).find("input[type='text']").val();
+                                            var houseId = $(sku).find("input[type='hidden']").val();
                                             if (!$.IsNumber(quantity)) {
                                                 verified = verified & false;
                                                 return false;
                                             }
-                                            tmpStocks += "{\"product_id\":" + pid + ",\"quantity\":" + quantity + "}";
+                                            tmpStocks += "{\"product_id\":" + pid + ",\"quantity\":" + quantity + ",\"store_house\":" + houseId + "}";
                                             if (j < ($llen - 1)) {
                                                 tmpStocks += ",";
                                             }
@@ -331,12 +334,18 @@
                                 });
 
                                 if (!verified) {
-                                    alert("库存数量必须是整数");
+                                    alert("库存数量必须是正整数");
                                     return;
                                 }
                                 stocks += "]";
-
-                                alert(stocks);
+                                stockMgr.UpdateProductsStocks({ 'stocks': encodeURIComponent(stocks) }, function (res) {
+                                    if (res.Status == "ok") {
+                                        $(that).dialog("close");
+                                        $grid.pqGrid("refreshDataAndView");
+                                    } else {
+                                        alert(res.Message);
+                                    }
+                                });
                             },
                             "关闭": function (e) {
                                 $(this).dialog("close");
@@ -346,60 +355,90 @@
                             var that = this;
                             $(this).html("");
                             var $divList = $("<div id=\"edit_stock_products\"></div>").appendTo(that);
-                            $("<div class=\"row\"><span style=\"display:inline-block;width:400px;margin-right:10px;\">产品</span><span>库存</span></div>").appendTo($divList);
-                            $(res.data).each(function (indx, product) {                                
-                                var $row = $("<div class=\"row\"></div>");
-                                if (product.Children == null) {                                     
-                                    $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + product.Title + "</span>").appendTo($row);
+                            $("<div class=\"row\"><span style=\"display:inline-block;width:400px;margin-right:10px;\">产品</span><span  style=\"display:inline-block;width:56px;margin-right:10px;\">库存</span><span style=\"display:inline-block;width:150px;\">仓库</span></div>").appendTo($divList);
+                            $(res.data).each(function (indx, stock) {
+                                var $row = $divList.find("div[id^='product_" + stock.Parent_Product_ID + "']")
+                                if ($row == null || $row.html() == null) {
+                                    $row = $("<div id=\"product_" + stock.Parent_Product_ID + "\" class=\"row\"></div>").appendTo($divList);
+                                    $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + stock.Product.Title + "</span>").appendTo($row);
 
-                                    $("<input id=\"" + product.ID + "\" value=\"" + product.Quantity + "\" class=\"W_input\" style=\"width:50px;\"/>").blur(function () {
-                                        if ($(this).val() != "" && !$.IsNumber($(this).val())) {
-                                            alert("库存数量必须是整数");
-                                        }
+
+                                    $("<input type=\"text\" id=\"row_" + stock.Parent_Product_ID + "\" class=\"W_input\" style=\"width:50px;margin-right:10px;\" value=\"" + stock.Quantity + "\"/>").blur(function () {
+
                                     }).appendTo($row);
 
-                                    $("<span style=\"margin-left:20px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
+                                    $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
+
+                                    $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
                                         $(this).parent().remove();
                                     }).appendTo($row);
+
+                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($row);
                                 } else {
                                    
-                                    $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + product.Title + "</span>").appendTo($row);
+                                    if (stock.Product.Properties == null || $(stock.Product.Properties).size()<=0) {                                     
+                                        $row = $("<div id=\"product_" + stock.Parent_Product_ID + "\" class=\"row\"></div>").appendTo($divList);
+                                        $("<span style=\"display:inline-block;width:400px;margin-right:10px;\">" + stock.Product.Title + "</span>").appendTo($row);
 
-                                    var $totalq = $("<input readonly=\"readonly\" id=\"" + product.ID + "\" class=\"W_input\" style=\"width:50px;\"/>").blur(function () {
-                                      
-                                    }).appendTo($row);
 
-                                    $("<span><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
-                                        $(this).parent().parent().remove();
-                                    }).appendTo($row);
+                                        $("<input type=\"text\" id=\"row_" + stock.Parent_Product_ID + "\" class=\"W_input\" style=\"width:50px;margin-right:10px;\" value=\"" + stock.Quantity + "\"/>").blur(function () {
 
-                                    var $ul = $("<ul></ul>").appendTo($row);
-                                    var totalQuantity = 0;
-                                    $(product.Children).each(function (idx, sku) {
-                                        var $skuLi = $("<li></li>").appendTo($ul);
-                                        var propNames = "";
-                                        if (sku.Properties != null) {
-                                            $(sku.Properties).each(function (j, prop) {
-                                                if (propNames == "") {
-                                                    propNames = prop.PName + ":" + prop.PValue;
-                                                } else {
-                                                    propNames +=","+ prop.PName + ":" + prop.PValue;
-                                                }
-                                            });
-                                        }
-                                        totalQuantity += sku.Quantity;
-                                        $("<span style=\"display:inline-block;width:400px;margin-right:10px;text-align:center;\">" + propNames + "</span>").appendTo($skuLi);
-                                        $("<input id=\"" + sku.ID + "\" class=\"W_input\" value=\"" + sku.Quantity + "\" style=\"width:50px;\" />").blur(function () {
-                                            if ($(this).val() != "" && !$.IsNumber($(this).val())) {
-                                                alert("库存数量必须是整数");
-                                            }
-                                        }).appendTo($skuLi);
-                                    });
+                                        }).appendTo($row);
 
-                                    $totalq.val(totalQuantity);
+                                        $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
+
+                                        $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
+                                            $(this).parent().remove();
+                                        }).appendTo($row);
+
+                                        $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($row);
+                                    }
                                 }
 
-                                $divList.append($row);
+                                if (stock.Product.Properties != null && $(stock.Product.Properties).size() > 0) {
+
+                                    $row.find("span[id^='house_']").remove();
+                                    var $totalq = $row.find("input[id^='row_']").attr("readonly", true);
+                                    var totalQuantity = 0;
+                                    var $ul = $row.find("ul");
+                                    if ($ul == null || $ul.html() == null) {
+                                        $ul = $("<ul></ul>").appendTo($row);
+                                    }
+
+                                    $($ul).find("input[id^='li_']").each(function (j, s) {
+                                        if ($(s).val() != "")
+                                            totalQuantity += parseInt($(s).val());
+                                    });
+
+                                    var propNames = "";
+                                    $(stock.Product.Properties).each(function (i, prop) {
+                                        if (propNames == "") {
+                                            propNames = prop.PName + ":" + prop.PValue;
+                                        } else {
+                                            propNames += "," + prop.PName + ":" + prop.PValue;
+                                        }
+                                    });
+
+                                    totalQuantity += stock.Quantity;
+                                    var $li = $("<li></li>").appendTo($ul);
+                                    $("<span style=\"text-align:center;display:inline-block;width:400px;margin-right:10px;\">" + propNames + "</span>").appendTo($li);
+                                    $("<input type=\"text\" id=\"li_" + stock.Product.ID + "\" class=\"W_input\" style=\"width:50px;margin-right:10px;\" value=\"" + stock.Quantity + "\"/>").blur(function (e) {
+                                        var $ulList = $(this).parent().parent();
+                                        var totalQuantity = 0;
+                                        $($ulList).find("input[id^='li_']").each(function (j, s) {
+                                            if ($(s).val() != "")
+                                                totalQuantity += parseInt($(s).val());
+                                        });
+
+                                        $ulList.parent().find("input[id^='row_']").val(totalQuantity);
+                                    }).appendTo($li);
+                                    $("<span style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($li);
+                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Product.ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($li);
+                                    $($totalq).val(totalQuantity);
+                                } else {
+                                    
+                                }
+                               
                             });                          
                             
                         },

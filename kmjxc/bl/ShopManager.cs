@@ -1249,7 +1249,31 @@ namespace KM.JXC.BL
                 existedProperties = tmpProperties.ToList<Product_Spec>();
                 int[] prop_ids=(from prop in existedProperties select prop.Product_Spec_ID).ToArray<int>();
                 List<Product_Spec_Value> existedPropValues=(from pv in db.Product_Spec_Value where prop_ids.Contains(pv.Product_Spec_ID) select pv).ToList<Product_Spec_Value>();
-                
+
+                Store_House defaultStoreHouse = null;
+                List<Store_House> storeHouses=(from h in db.Store_House where h.Shop_ID==shop_id select h).ToList<Store_House>();
+
+                if (storeHouses.Count == 0)
+                {
+                    defaultStoreHouse = new Store_House();
+                    defaultStoreHouse.Shop_ID = shop_id;
+                    defaultStoreHouse.Title = "默认仓库";
+                    defaultStoreHouse.User_ID = this.CurrentUser.ID;
+                    defaultStoreHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    defaultStoreHouse.Default = true;
+                    db.Store_House.Add(defaultStoreHouse);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    defaultStoreHouse= (from h in storeHouses where h.Default==true select h).FirstOrDefault<Store_House>();
+                    if (defaultStoreHouse == null)
+                    {
+                        defaultStoreHouse = storeHouses[0];
+                        defaultStoreHouse.Default = true;
+                    }
+                }
+
                 foreach (BMallProduct product in products)
                 {
                     Mall_Product dbMallProduct=(from p in dbMallProcuts where p.Mall_ID==product.ID select p).FirstOrDefault<Mall_Product>();
@@ -1279,6 +1303,17 @@ namespace KM.JXC.BL
                     {
                         continue;
                     }
+
+                    Stock_Pile stockPile = new Stock_Pile();
+                    stockPile.LastLeave_Time = 0;
+                    stockPile.Price = 0;
+                    stockPile.Product_ID = dbProduct.Product_ID;
+                    stockPile.Quantity = 0;
+                    stockPile.Shop_ID = product.Shop.ID;
+                    stockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
+                    stockPile.StockPile_ID = 0;
+
+                    db.Stock_Pile.Add(stockPile);
 
                     if (product.Skus != null)
                     {
@@ -1311,6 +1346,17 @@ namespace KM.JXC.BL
                             {
                                 continue;
                             }
+
+                            Stock_Pile skustockPile = new Stock_Pile();
+                            skustockPile.LastLeave_Time = 0;
+                            skustockPile.Price = 0;
+                            skustockPile.Product_ID = dbChildProduct.Product_ID;
+                            skustockPile.Quantity = 0;
+                            skustockPile.Shop_ID = product.Shop.ID;
+                            skustockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
+                            skustockPile.StockPile_ID = 0;
+
+                            db.Stock_Pile.Add(skustockPile);
 
                             string[] props = sku.PropertiesName.Split(';');
                             foreach (string prop in props)

@@ -82,5 +82,6 @@ namespace KM.JXC.DBA
         public DbSet<Bug_Feature> Bug_Feature { get; set; }
         public DbSet<Bug_Status> Bug_Status { get; set; }
         public DbSet<Bug_Response> Bug_Response { get; set; }
+        public DbSet<Corp_Info> Corp_Info { get; set; }
     }
 }

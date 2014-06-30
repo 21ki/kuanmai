@@ -205,16 +205,40 @@ namespace KM.JXC.BL
                     db.SaveChanges();
                 }
 
-                //Stock_Pile stockPile = new Stock_Pile();
-                //stockPile.LastLeave_Time = 0;
-                //stockPile.Price = 0;
-                //stockPile.Product_ID = product.ID;
-                //stockPile.Quantity = 0;
-                //stockPile.Shop_ID = this.Shop.Shop_ID;
-                //stockPile.StockHouse_ID = 0;
-                //stockPile.StockPile_ID = 0;
+                Store_House defaultStoreHouse = null;
+                List<Store_House> storeHouses = (from h in db.Store_House where h.Shop_ID == dbProduct.Shop_ID select h).ToList<Store_House>();
 
-                //this.stockManager.CreateDefaultStockPile(stockPile);
+                if (storeHouses.Count == 0)
+                {
+                    defaultStoreHouse = new Store_House();
+                    defaultStoreHouse.Shop_ID = dbProduct.Shop_ID;
+                    defaultStoreHouse.Title = "默认仓库";
+                    defaultStoreHouse.User_ID = this.CurrentUser.ID;
+                    defaultStoreHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    defaultStoreHouse.Default = true;
+                    db.Store_House.Add(defaultStoreHouse);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    defaultStoreHouse = (from h in storeHouses where h.Default == true select h).FirstOrDefault<Store_House>();
+                    if (defaultStoreHouse == null)
+                    {
+                        defaultStoreHouse = storeHouses[0];
+                        defaultStoreHouse.Default = true;
+                    }
+                }
+
+                Stock_Pile stockPile = new Stock_Pile();
+                stockPile.LastLeave_Time = 0;
+                stockPile.Price = 0;
+                stockPile.Product_ID = product.ID;
+                stockPile.Quantity = 0;
+                stockPile.Shop_ID = dbProduct.Shop_ID;
+                stockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
+                stockPile.StockPile_ID = 0;
+
+                db.Stock_Pile.Add(stockPile);
 
                 if (product.Properties != null && product.Properties.Count > 0)
                 {                    
@@ -229,7 +253,7 @@ namespace KM.JXC.BL
                         db.Product_Specifications.Add(ps);
                     }
 
-                    db.SaveChanges();
+                    //db.SaveChanges();
                 }
 
                 if (product.Suppliers != null)
@@ -242,7 +266,7 @@ namespace KM.JXC.BL
                         db.Product_Supplier.Add(ps);
                     }
 
-                    db.SaveChanges();
+                    //db.SaveChanges();
                 }
 
                 if (product.Children != null)
@@ -257,6 +281,8 @@ namespace KM.JXC.BL
                         this.CreateProduct(p);
                     }
                 }
+
+                db.SaveChanges();
             }
         }
 
@@ -665,9 +691,7 @@ namespace KM.JXC.BL
                 total = dbps.Count();
                 if (total > 0)
                 {
-                    var bps = from bpss in dbps
-                              join stock in db.Stock_Pile on bpss.Pdt.Product_ID equals stock.Product_ID into LStock
-                              from l_stock in LStock.DefaultIfEmpty()
+                    var bps = from bpss in dbps                             
                               select new BProduct
                               {
                                   Description = bpss.Pdt.Description,
@@ -676,8 +700,7 @@ namespace KM.JXC.BL
                                   ID = bpss.Pdt.Product_ID,
                                   Title = bpss.Pdt.Name,
                                   CreateTime = bpss.Pdt.Create_Time,
-                                  Code = bpss.Pdt.Code,
-                                  Quantity = l_stock!=null?l_stock.Quantity:0,            
+                                  Code = bpss.Pdt.Code,                                
                                   Unit = (from u in db.Product_Unit where u.Product_Unit_ID == bpss.Pdt.Product_Unit_ID select u).FirstOrDefault<Product_Unit>(),
                                   Category = (from c in db.Product_Class
                                               where bpss.Pdt.Product_Class_ID == c.Product_Class_ID

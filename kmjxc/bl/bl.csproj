@@ -142,6 +142,7 @@
     <Compile Include="StockManager.cs" />
     <Compile Include="SupplierManager.cs" />
     <Compile Include="CommonManager.cs" />
+    <Compile Include="UserManagement.cs" />
     <Compile Include="UserManager.cs" />
   </ItemGroup>
   <ItemGroup>

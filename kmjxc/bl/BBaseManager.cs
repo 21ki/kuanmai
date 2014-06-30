@@ -22,7 +22,8 @@ namespace KM.JXC.BL
         NO_ENOUGH_STOCK=2,
         NOT_CONNECTED=3,
         REFOUND_BEFORE_SEND=4,
-        BACK_STOCK=5
+        BACK_STOCK=5,
+        REFOUNDED_WAIT_HANDLE=6
     }
 
     public class BBaseManager:CommonManager
@@ -148,7 +149,8 @@ namespace KM.JXC.BL
                              : new BShop {
                                  ID = 0,
                                  Title = ""
-                             }
+                             },
+                             IsSystemUser=us.IsSystemUser
                          };
                this.CurrentUser = cu.ToList<BUser>()[0];
                 if (this.CurrentUser != null && this.CurrentUser.Parent_ID > 0 && !string.IsNullOrEmpty(this.CurrentUser.Parent.Mall_ID))
@@ -178,7 +180,8 @@ namespace KM.JXC.BL
                                                      ID = mtype.Mall_Type_ID,
                                                      Name = mtype.Name,
                                                      Description=mtype.Description
-                                                 }).FirstOrDefault<BMallType>()
+                                                 }).FirstOrDefault<BMallType>(),
+                                        IsSystemUser=us.IsSystemUser
                                      }).FirstOrDefault<BUser>();
                 }
                 else
