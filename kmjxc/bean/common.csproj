@@ -52,6 +52,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserException.cs" />
     <Compile Include="Util\DateTimeUtil.cs" />
+    <Compile Include="Util\Encrypt.cs" />
     <Compile Include="Util\HttpRequester.cs" />
     <Compile Include="Util\HttpWebRequester.cs" />
     <Compile Include="Util\ImageUtil.cs" />
