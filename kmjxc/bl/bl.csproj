@@ -109,6 +109,7 @@
     <Compile Include="Models\BShop.cs" />
     <Compile Include="Models\BShopExpress.cs" />
     <Compile Include="Models\BShopStatistic.cs" />
+    <Compile Include="Models\BStocks.cs" />
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />
     <Compile Include="Models\BSale.cs" />
