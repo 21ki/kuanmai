@@ -2,16 +2,7 @@
     string controller = ViewContext.RouteData.Values["controller"].ToString();
     string action = ViewContext.RouteData.Values["action"].ToString();
     string modelStyle = "";
-    KM.JXC.DBA.Shop CurrentShop = null;
-    if (ViewData["CurrentShop"]!=null)
-    {
-        CurrentShop=(KM.JXC.DBA.Shop)ViewData["CurrentShop"];
-    }
-    KM.JXC.DBA.Shop MainShop = null;
-    if (ViewData["MainShop"]!=null)
-    {
-        MainShop=(KM.JXC.DBA.Shop)ViewData["MainShop"];
-    }
+    
     KM.JXC.BL.Models.BUser CurrentUser = null;
     if (ViewData["CurrentUser"]!=null)
     {
@@ -41,7 +32,26 @@
     <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
     <script>
         $(function () {
-            $(".jxcLeftMenu").accordion();
+            var con = "@controller";
+
+            switch (con) {
+                case "Admin":
+                    $(".jxcLeftMenu").accordion({ active: 0, heightStyle: "content" });
+                    break;
+                case "AdminUser":
+                    $(".jxcLeftMenu").accordion({ active: 1, heightStyle: "content" });
+                    break;
+                case "AdminAccount":
+                    $(".jxcLeftMenu").accordion({ active: 2, heightStyle: "content" });
+                    break;
+                case "AdminData":
+                    $(".jxcLeftMenu").accordion({ active: 3, heightStyle: "content" });
+                    break;
+                default:
+                    $(".jxcLeftMenu").accordion({ active: 0, heightStyle: "content" });
+                    break;
+            }
+
         });
     </script>
    
@@ -59,32 +69,32 @@
                        {
                             <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                                <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
-                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;">@CurrentUser.Mall_Name</span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;">@CurrentUser.NickName</span>
                             </span>
                             <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                                <span class="ui-button-icon-primary ui-icon ui-icon-power"></span>
-                               <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Home/Logout">退出</a></span>
+                               <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Admin/Logout">退出</a></span>
                             </span>
                        }
                        else
                        {
                           <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                                <span class="ui-button-icon-primary ui-icon ui-icon-person"></span>
-                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;"><a style="margin:0;" href="/Home/Login">登录</a></span>
+                               <span class="ui-button-text" style="padding-left:1.9em;padding-right:0px;"><a style="margin:0;" href="/Admin/Login">登录</a></span>
                           </span>
                        }
                   
                </div> 
                <div style="overflow:hidden;display:block;text-align:right">
-                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                  @* <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                        <span class="ui-button-icon-primary ui-icon ui-icon-home"></span>
-                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Shop/Dashboard">首页</a></span>
-                   </span>
+                       <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Admin/Index">首页</a></span>
+                   </span>*@
 
-                   <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
+                  @* <span class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="border:0;background:#FFF;" role="text" aria-disabled="false">
                        <span class="ui-button-icon-primary ui-icon ui-icon-help"></span>
                        <span class="ui-button-text" style="padding-left:1.5em;padding-right:0px;"><a style="margin:0;" href="/Corp/Help">帮助</a></span>
-                   </span>
+                   </span>*@
                </div>              
            </div>
        </div>
@@ -95,7 +105,7 @@
 
             <h3 class="menu_wd1">系统管理</h3>
            
-           <div id="buyMenuContainer"
+           <div id="systemMenuContainer"
                @if (controller != "Admin")
                {
                    modelStyle = "style=display:none;";
@@ -113,8 +123,145 @@
                            @Html.Raw("class=link");
                        }                        
                        
-                       >关于我们 </a></li>
+                       >站点信息 </a></li>
                  
+                  
+               </ul>
+           </div>
+
+           <h3 class="menu_wd1">用户管理</h3>
+           
+           <div id="adminUserbuyMenuContainer"
+               @if (controller != "AdminUser")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+                   <li><a href="/AdminUser/SysUser" 
+                       @if (action == "SysUser")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >系统用户 </a></li>
+                 
+                    <li><a href="/AdminUser/ShopUser" 
+                       @if (action == "ShopUser")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >店铺用户 </a></li>
+                  
+               </ul>
+           </div>
+
+            <h3 class="menu_wd1">账户中心</h3>
+           
+           <div id="adminAccountbuyMenuContainer"
+               @if (controller != "AdminAccount")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+
+                   <li><a href="/AdminAccount/Info" 
+                       @if (action == "Info")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >基本信息 </a></li>
+
+                   <li><a href="/AdminAccount/Password" 
+                       @if (action == "Password")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >修改密码 </a></li>
+                 
+                    <li><a href="/AdminAccount/Permission" 
+                       @if (action == "Permission")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >账户权限 </a></li>
+                  
+               </ul>
+           </div>
+
+            <h3 class="menu_wd1">数据中心</h3>
+           
+           <div id="AdminDataMenuContainer"
+               @if (controller != "AdminData")
+               {
+                   modelStyle = "style=display:none;";
+                   @modelStyle
+               }               
+               >                    
+               <ul>
+
+                   <li><a href="/AdminData/Shop" 
+                       @if (action == "Shop")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >店铺数据 </a></li>
+
+                   <li><a href="/AdminData/Customer" 
+                       @if (action == "Customer")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >客户数据 </a></li>
+                 
+                    <li><a href="/AdminData/Sales" 
+                       @if (action == "Sales")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >销售数据 </a></li>
                   
                </ul>
            </div>

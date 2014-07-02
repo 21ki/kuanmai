@@ -19,19 +19,22 @@ namespace KM.JXC.Web.Controllers
         [AllowAnonymous]
         public ActionResult About()
         {
-            return View();
+            CommonManager com = new CommonManager();
+            return View(com.GetCorpInfo());
         }
 
         [AllowAnonymous]
         public ActionResult Contact()
         {
-            return View();
+            CommonManager com = new CommonManager();
+            return View(com.GetCorpInfo());
         }
 
         [AllowAnonymous]
         public ActionResult Help()
         {
-            return View();
+            CommonManager com = new CommonManager();
+            return View(com.GetCorpInfo());
         }
 
         public ActionResult Bug()

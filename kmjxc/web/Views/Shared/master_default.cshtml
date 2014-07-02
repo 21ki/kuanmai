@@ -19,7 +19,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>    
-    <link href="/Third/jqueryui/css/@theme/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+    @*<link href="/Third/jqueryui/css/@theme/jquery-ui-1.10.4.custom.css" rel="stylesheet">*@
+    <link href="/Third/jqueryui/1.11.0/@theme/jquery-ui-1.11.0.custom/jquery-ui.min.css" rel="stylesheet">
     <link href="/Third/pqgrid/pqgrid.dev.css" rel="stylesheet">
     @if (theme == "smoothness"){
         <link href="/Third/pqgrid/themes/Office/pqgrid.css" rel="stylesheet">
@@ -41,7 +42,8 @@
     @Scripts.Render("~/Third/pqgrid")
     
     <script src="/Third/kindeditor/kindeditor-all-min.js" type="text/javascript"></script>
-    <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
+   @* <script src="/Third/jqueryui/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>*@
+    <script src="/Third/jqueryui/js/jquery-ui-1.11.0.min.js" type="text/javascript"></script>    
     <script src="/Third/pqgrid/pqgrid.dev.js" type="text/javascript"></script>
     <script src="/Third/pqgrid/pqGridCurd.js" type="text/javascript"></script>
     <script src="/Third/uploadify/jquery.uploadify.js" type="text/javascript"></script>
@@ -131,12 +133,14 @@
                        主题 : 
                        <select id="sel_jxc_theme">
                            <option value="smoothness" @if(theme=="smoothness"){@Html.Raw("selected")}>smoothness</option>
+                           <option value="ullightness" @if(theme=="ullightness"){@Html.Raw("selected")}>UI lightness</option>
                            <option value="flick" @if(theme=="flick"){@Html.Raw("selected")}>flick</option>
                            <option value="humanity" @if(theme=="humanity"){@Html.Raw("selected")}>humanity</option>
                            <option value="pepper-grinder" @if(theme=="pepper-grinder"){@Html.Raw("selected")}>pepper-grinder</option>
                            <option value="redmond" @if(theme=="redmond"){@Html.Raw("selected")}>redmond</option>
                            <option value="hot-sneaks" @if(theme=="hot-sneaks"){@Html.Raw("selected")}>hot-sneaks</option>
-                          
+                           <option value="blitzer" @if(theme=="blitzer"){@Html.Raw("selected")}>blitzer</option>
+                           <option value="overcast" @if(theme=="overcast"){@Html.Raw("selected")}>overcast</option>
                        </select>
                    </span>
                </div>              

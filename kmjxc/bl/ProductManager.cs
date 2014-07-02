@@ -206,7 +206,7 @@ namespace KM.JXC.BL
                 }
 
                 Store_House defaultStoreHouse = null;
-                List<Store_House> storeHouses = (from h in db.Store_House where h.Shop_ID == dbProduct.Shop_ID select h).ToList<Store_House>();
+                List<Store_House> storeHouses = (from h in db.Store_House where (h.Shop_ID == dbProduct.Shop_ID || h.Shop_ID==this.Main_Shop.Shop_ID) select h).ToList<Store_House>();
 
                 if (storeHouses.Count == 0)
                 {
@@ -216,6 +216,7 @@ namespace KM.JXC.BL
                     defaultStoreHouse.User_ID = this.CurrentUser.ID;
                     defaultStoreHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     defaultStoreHouse.Default = true;
+                    defaultStoreHouse.Guard = 0;
                     db.Store_House.Add(defaultStoreHouse);
                     db.SaveChanges();
                 }
@@ -679,7 +680,14 @@ namespace KM.JXC.BL
                         if (cate.Parent_ID == 0)
                         {
                             int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
-                            dbps = dbps.Where(a =>ccids.Contains(a.Pdt.Product_Class_ID));
+                            if (ccids != null && ccids.Length > 0)
+                            {
+                                dbps = dbps.Where(a => ccids.Contains(a.Pdt.Product_Class_ID));
+                            }
+                            else
+                            {
+                                dbps = dbps.Where(a => a.Pdt.Product_Class_ID == category_id);  
+                            }
                         }
                         else 
                         {

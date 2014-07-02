@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Login";
+    ViewBag.Title = "系统用户登录";
 }
 <script>
     $(function () {
@@ -25,20 +25,18 @@
         <h2>系统用户登录</h2>
         <form id="systemForm" action="/Admin/Login?type=do" method="post">
             <div class="itemContainer">
-
-                 @if (ViewData["message"] != null)
-                 {             
-                     @ViewData["message"].ToString()
-                 }
              
                  <div class="row">
-                     <label>用户:</label><input id="sysUser" type="text" class="W_input"/>
+                     <label>用户:</label><input id="sysUser" name="sysUser" type="text" class="W_input"/>
                  </div>
                  <div class="row">
-                     <label>密码:</label><input id="sysPass" type="password" class="W_input"/>
+                     <label>密码:</label><input id="sysPass" name="sysPass" type="password" class="W_input"/>
                  </div>
-                  <div class="row">
-                     <span id="sysLogin">登录</span>
+                  <div class="row" style="padding-left:60px;">
+                     <span id="sysLogin">登录</span>@if (ViewData["message"] != null)
+                                                     {             
+                                                         <span style="color:red;margin-left:10px;">@ViewData["message"].ToString()</span>
+                                                     }
                  </div>
             </div>
         </form>

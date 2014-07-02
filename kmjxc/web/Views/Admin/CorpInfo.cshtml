@@ -1,6 +1,126 @@
 ﻿@{
-    Layout = "~/Views/Shared/_master_admin.cshtml";
-    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/master_admin.cshtml";
+    ViewBag.Title = "站点信息";
 }
 
-<h2>Index</h2>
+<script>
+    var abouteditor = null;
+    var contacteditor = null;
+    var systemhelpeditor = null;
+    var jxcMgr = new KMJXCSystemAdmin();
+    $(function () {
+        $('#tabs').tabs();
+        KindEditor.ready(function (K) {
+            abouteditor = K.create('textarea[name="txtaboutUS"]', {
+                resizeType: 1,
+
+                width: '800px',
+                minWidth: 550,
+                height: '250px',
+                allowPreviewEmoticons: false,
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist', '|', 'link']
+            });
+
+            abouteditor.html("");
+        });
+
+        KindEditor.ready(function (K) {
+            contacteditor = K.create('textarea[name="txtcontactUS"]', {
+                resizeType: 1,
+                width: '800px',
+                minWidth: 550,
+                height: '250px',
+                allowPreviewEmoticons: false,
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist', '|', 'link']
+            });
+
+            contacteditor.html("");
+        });
+
+        KindEditor.ready(function (K) {
+            systemhelpeditor = K.create('textarea[name="txtsystemHelp"]', {
+                resizeType: 1,
+                width: '800px',
+                minWidth: 550,
+                height: '450px',
+                allowPreviewEmoticons: false,
+                allowImageUpload: true,
+                uploadJson: '/Third/kindeditor/asp.net/upload_json.ashx',
+                items: [
+                    'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+                    'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+                    'insertunorderedlist','|','image', '|', 'link']
+            });
+
+            systemhelpeditor.html("");
+        });
+
+        jxcMgr.GetCorpInfo({}, function (res) {
+            if (res != null) {
+                abouteditor.html(res.About);
+                contacteditor.html(res.Contact);
+                systemhelpeditor.html(res.Help);
+            }
+        });
+       
+
+        $('#btnSave').button().click(function () {
+            jxcMgr.SetCorpInfo({'about':abouteditor.html(),'contact':contacteditor.html(),'help':systemhelpeditor.html()}, function (res) {
+                if (res.Status == 'ok') {
+                    alert("保存成功");
+                } else {
+                    alert(res.Message);
+                }
+            });
+        });
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#aboutUS">关于我们</a></li>
+        <li><a href="#contactUS">联系我们</a></li>
+        <li><a href="#systemHelp">系统帮助</a></li>
+    </ul>
+    <div id="aboutUS">
+        <div id="aboutUSpreview" style="padding-left:1.4em;">
+
+        </div>
+        <div class="row" style="height:auto;">
+            <textarea id="txtaboutUS" name="txtaboutUS">
+
+            </textarea>
+        </div>
+    </div>
+    <div id="contactUS">
+        <div id="contactUSpreview" style="padding-left:1.4em;">
+
+        </div>
+        <div class="row" style="height:auto;">
+            <textarea id="txtcontactUS" name="txtcontactUS">
+
+            </textarea>
+        </div>
+
+    </div>
+    <div id="systemHelp">
+         <div id="systemHelppreview" style="padding-left:1.4em;">
+
+        </div>
+        <div class="row" style="height:auto;">
+            <textarea id="txtsystemHelp" name="txtsystemHelp">
+
+            </textarea>
+        </div>
+    </div>
+
+    <div class="row" style="padding-left:1.4em;">
+        <span id="btnSave">保存</span>
+    </div>
+</div>

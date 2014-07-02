@@ -194,7 +194,7 @@ namespace KM.JXC.BL
             List<Product> allproducts = (from pdt in db.Product where (pdt.Shop_ID == shop.Shop_ID || pdt.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(pdt.Shop_ID)) select pdt).ToList<Product>();
             string[] sale_ids=(from sale in trades select sale.Sale_ID).ToArray<string>();
             List<Leave_Stock> cacheLeaveStocks=(from ls in db.Leave_Stock where sale_ids.Contains(ls.Sale_ID) select ls).ToList<Leave_Stock>();
-            Store_House house=(from store in db.Store_House where store.Default==true select store).FirstOrDefault<Store_House>();
+            Store_House house = (from store in db.Store_House where store.Default == true && (store.Shop_ID == shop.Shop_ID || store.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(store.Shop_ID)) select store).FirstOrDefault<Store_House>();
             List<Store_House> houses = (from store in db.Store_House select store).ToList<Store_House>();
             List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(sp.Shop_ID) select sp).ToList<Stock_Pile>();
             List<Sale_Detail> tradeDetails=(from tradeDetail in db.Sale_Detail where sale_ids.Contains(tradeDetail.Mall_Trade_ID) select tradeDetail).ToList<Sale_Detail>();
@@ -267,7 +267,7 @@ namespace KM.JXC.BL
                             if (order.Product_ID == 0 && order.Parent_Product_ID == 0)
                             {
                                 order_detail.Status1 = (int)SaleDetailStatus.NOT_CONNECTED;
-                                order_detail.SyncResultMessage = "宝贝未关联，不能出库";
+                                order_detail.SyncResultMessage = "宝贝未关联，不能更新库存";
                                 db.SaveChanges();
                                 continue;
                             }
@@ -767,24 +767,27 @@ namespace KM.JXC.BL
                             sd.Mall_Order_ID = order.Order_ID;
                             sd.Mall_Trade_ID = sale.Sale_ID;
 
-                            Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
-                            Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
+                            if (isNew)
+                            {
+                                Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                                Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
 
-                            if (parentPdt != null)
-                            {
-                                sd.Parent_Product_ID = parentPdt.Product_ID;
-                            }
-                            else
-                            {
+                                if (parentPdt != null)
+                                {
+                                    sd.Parent_Product_ID = parentPdt.Product_ID;
+                                }
+                                else
+                                {
+                                    if (childPdt != null)
+                                    {
+                                        sd.Parent_Product_ID = childPdt.Parent_ID;
+                                    }
+                                }
+
                                 if (childPdt != null)
                                 {
-                                    sd.Parent_Product_ID = childPdt.Parent_ID;
+                                    sd.Product_ID = childPdt.Product_ID;
                                 }
-                            }
-
-                            if (childPdt != null)
-                            {
-                                sd.Product_ID = childPdt.Product_ID;
                             }
 
                             sd.Price = order.Price;

@@ -46,6 +46,8 @@ namespace KM.JXC.Web.Filters
             else
             {
                 //system user login
+                //filterContext.HttpContext.Response.Redirect("/Admin/Index");
+                filterContext.Controller.ViewData["CurrentUser"] = loginuser;
             }
         }
     }

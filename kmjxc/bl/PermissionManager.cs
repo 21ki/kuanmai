@@ -323,5 +323,19 @@ namespace KM.JXC.BL
                 db.SaveChanges();
             }
         }
+
+        public Permission GetAllPermission() 
+        {
+            Permission p = new Permission();
+            //shop owner has full permissions
+            Type permission = typeof(Permission);
+            FieldInfo[] fields = permission.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                field.SetValue(p, 1);
+            }
+
+            return p;
+        }
     }
 }

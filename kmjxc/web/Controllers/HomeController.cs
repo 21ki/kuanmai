@@ -107,7 +107,7 @@ namespace KM.JXC.Web.Controllers
                 theme = Request["theme"];
             }
 
-            string themePath = Request.PhysicalApplicationPath + "\\Third\\jqueryui\\css\\" + theme;
+            string themePath = Request.PhysicalApplicationPath + "\\Third\\jqueryui\\1.11.0\\" + theme;
             if (!System.IO.Directory.Exists(themePath))
             {
                 theme = "smoothness";

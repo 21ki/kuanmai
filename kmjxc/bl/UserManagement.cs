@@ -23,7 +23,8 @@ namespace KM.JXC.BL
                                 Name=u.Name,
                                 Mall_ID=u.Mall_ID,
                                 Mall_Name=u.Mall_Name,
-                                IsSystemUser=u.IsSystemUser
+                                IsSystemUser=u.IsSystemUser,
+                                NickName=u.NickName
                             }).FirstOrDefault<BUser>();
             }
             return user;

@@ -28,5 +28,6 @@ namespace KM.JXC.DBA
         public Nullable<long> Modified { get; set; }
         public Nullable<int> Modified_By { get; set; }
         public bool IsSystemUser { get; set; }
+        public string NickName { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace KM.JXC.DBA
     
     public partial class Corp_Info
     {
+        public int ID { get; set; }
         public string About { get; set; }
         public string Contact { get; set; }
         public string Help { get; set; }

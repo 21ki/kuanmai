@@ -44,6 +44,13 @@ namespace KM.JXC.Web.Controllers.api
         {
             CommonManager commonMgr = new CommonManager();
             return commonMgr.GetExpresses();
-        }       
+        }
+
+        [HttpPost]
+        public KM.JXC.DBA.Corp_Info GetCorpInfo()
+        {
+            CommonManager commonMgr = new CommonManager();
+            return commonMgr.GetCorpInfo();
+        }
     }
 }

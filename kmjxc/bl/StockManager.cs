@@ -318,7 +318,14 @@ namespace KM.JXC.BL
                         if (cate.Parent_ID == 0)
                         {
                             int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
-                            dbProducts = dbProducts.Where(a => ccids.Contains(a.pdt.Product_Class_ID));
+                            if (ccids != null && ccids.Length > 0)
+                            {
+                                dbProducts = dbProducts.Where(a => ccids.Contains(a.pdt.Product_Class_ID));
+                            }
+                            else
+                            {
+                                dbProducts = dbProducts.Where(a => a.pdt.Product_Class_ID == category_id);
+                            }
                         }
                         else
                         {
@@ -484,8 +491,8 @@ namespace KM.JXC.BL
                                           },
                                           Sale_ID = l_sale.Mall_Trade_ID,
                                           Amount = l_sale.Amount,
-                                          Created = (int)l_sale.Created,
-                                          Modified = (int)l_sale.Modified,
+                                          Created = (long)l_sale.Created,
+                                          Modified = (long)l_sale.Modified,
                                           Post_Fee = (double)l_sale.Post_Fee,
                                           Synced = (int)l_sale.Synced,
                                           Status = l_sale.Status,
@@ -1944,7 +1951,14 @@ namespace KM.JXC.BL
                         if (cate.Parent_ID == 0)
                         {
                             int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
-                            products = products.Where(a => ccids.Contains(a.Product_Class_ID));
+                            if (ccids != null && ccids.Length > 0)
+                            {
+                                products = products.Where(a => ccids.Contains(a.Product_Class_ID));
+                            }
+                            else
+                            {
+                                products = products.Where(a => a.Product_Class_ID == category_id);
+                            }
                         }
                         else
                         {
@@ -1965,12 +1979,12 @@ namespace KM.JXC.BL
 
                 if (storeHouse > 0)
                 {
-                    int[] pids = (from stock in db.Stock_Pile
-                                  from pdt in db.Product
-                                  where stock.Product_ID == pdt.Product_ID && stock.StockHouse_ID==storeHouse
-                                  from pdt1 in db.Product
-                                  where pdt.Parent_ID == pdt1.Product_ID
-                                  select pdt1.Product_ID).ToArray<int>();
+                    int[] pids = (from sp in db.Stock_Pile where sp.StockHouse_ID==storeHouse select sp.Product_ID).ToArray<int>();
+
+                    if (pids != null && pids.Length > 0)
+                    {
+                       
+                    }
 
                     products = products.Where(a => pids.Contains(a.Product_ID));
                 }

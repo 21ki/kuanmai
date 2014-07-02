@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="022ece02436b46bc88cca0b212632458" Name="KMDiagram" ShowGrid="false" ZoomLevel="82">
+      <Diagram DiagramId="022ece02436b46bc88cca0b212632458" Name="KMDiagram" ShowGrid="false" ZoomLevel="108">
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Access_Token" Width="1.5" PointX="8.0583380200240473" PointY="8.5147678146673211" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Action" Width="1.5" PointX="9.4511778473161066" PointY="0.23496432613346927" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Admin_Role_Action" Width="1.5" PointX="2.3966817643477962" PointY="28.130689559565248" />
@@ -62,7 +62,7 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Feature" Width="1.5" PointX="10.99137889174343" PointY="29.724517925514149" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Status" Width="1.5" PointX="0.15905526287809724" PointY="26.635314864402318" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Bug_Response" Width="1.5" PointX="7.8541184588587463" PointY="6.1587787895271457" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Corp_Info" Width="1.5" PointX="7.4624966250092246" PointY="10.349323799064999" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Corp_Info" Width="1.5" PointX="0.31257640771222134" PointY="24.527377289034135" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

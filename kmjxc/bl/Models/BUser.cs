@@ -20,5 +20,6 @@ namespace KM.JXC.BL.Models
         public long Created { get; set; }
         public BShop Shop { get; set; }
         public bool IsSystemUser { get; set; }
+        public string NickName { get; set; }
     }
 }

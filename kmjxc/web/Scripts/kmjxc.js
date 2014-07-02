@@ -348,6 +348,9 @@ function KMJXCBase() {
     this.SetTheme = function (params, callback) {
         return this.AjaxCall("/Home/SetTheme", params, callback);
     }
+    this.GetCorpInfo = function (params, callback) {
+        return this.AjaxCall("/api/Common/GetCorpInfo", params, callback);
+    }
 }
 
 KMJXCUserManager.prototype = new KMJXCBase();
@@ -713,6 +716,34 @@ function KMJXCBugManager() {
     }
     this.GetBugFeatures = function (params, callback) {
         this.AjaxCall("/api/Bug/GetBugFeatures", params, callback);
+    }
+}
+
+KMJXCSystemAdmin.prototype = new KMJXCBase();
+function KMJXCSystemAdmin() {
+    /*
+    about,
+    contact,
+    help
+    */
+    this.SetCorpInfo = function (params, callback) {
+        this.AjaxCall("/api/SystemAdmin/SetCorpInfo", params, callback);
+    }
+
+    /*
+    password
+    uid -- optional
+    */
+    this.VerifyPassword = function (params, callback) {
+        this.AjaxCall("/api/SystemAdmin/VerifyPassword", params, callback);
+    }
+
+    /*
+    password
+    uid -- optional
+    */
+    this.UpdatePassword = function (params, callback) {
+        this.AjaxCall("/api/SystemAdmin/UpdatePassword", params, callback);
     }
 }
 

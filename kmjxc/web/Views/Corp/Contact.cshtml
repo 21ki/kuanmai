@@ -1,6 +1,14 @@
 ﻿@{
     ViewBag.Title = "联系我们";
     Layout = "~/Views/Shared/master_corp.cshtml";
+    KM.JXC.DBA.Corp_Info info = null;
+    if(Model!=null){
+        info = (KM.JXC.DBA.Corp_Info)Model;
+    }
 }
 
-<h2></h2>
+<div>
+@if (info != null) { 
+    @Html.Raw(info.Contact)
+}
+</div>

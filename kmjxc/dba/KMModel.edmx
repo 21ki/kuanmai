@@ -27,18 +27,7 @@
           <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" />
-          <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Store.Corp_Info" store:Type="Tables" store:Schema="kuanmai" store:Name="Corp_Info">
-            <DefiningQuery>SELECT
-      `Corp_Info`.`About`, 
-      `Corp_Info`.`Contact`, 
-      `Corp_Info`.`Help`, 
-      `Corp_Info`.`Created`, 
-      `Corp_Info`.`Modified`, 
-      `Corp_Info`.`Created_By`, 
-      `Corp_Info`.`Modified_By`, 
-      `Corp_Info`.`IsCurrent`
-      FROM `Corp_Info` AS `Corp_Info`</DefiningQuery>
-          </EntitySet>
+          <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Store.Corp_Info" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Customer_Shop" EntityType="KM.JXC.DBA.Model.Store.Customer_Shop" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Employee" EntityType="KM.JXC.DBA.Model.Store.Employee" store:Type="Tables" Schema="kuanmai" />
@@ -320,17 +309,11 @@
           <Property Name="level" Type="tinyint" Nullable="false" />
           <Property Name="upid" Type="int" Nullable="false" />
         </EntityType>
-        <!--Errors Found During Generation:
-      warning 6002: The table/view 'def.kuanmai.Corp_Info' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
-      -->
         <EntityType Name="Corp_Info">
           <Key>
-            <PropertyRef Name="Created" />
-            <PropertyRef Name="Modified" />
-            <PropertyRef Name="Created_By" />
-            <PropertyRef Name="Modified_By" />
-            <PropertyRef Name="IsCurrent" />
+            <PropertyRef Name="ID" />
           </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="About" Type="text" />
           <Property Name="Contact" Type="text" />
           <Property Name="Help" Type="text" />
@@ -831,6 +814,7 @@
           <Property Name="Parent_Mall_Name" Type="varchar" MaxLength="45" />
           <Property Name="Mall_Type" Type="int" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" />
+          <Property Name="NickName" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="Password" Type="varchar" MaxLength="45" />
           <Property Name="Parent_User_ID" Type="int" />
           <Property Name="Shop_ID" Type="int" Nullable="false" />
@@ -1503,6 +1487,7 @@
           <Property Type="Int64" Name="Modified" />
           <Property Type="Int32" Name="Modified_By" />
           <Property Type="Boolean" Name="IsSystemUser" Nullable="false" />
+          <Property Type="String" Name="NickName" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Buy">
           <Key>
@@ -1639,12 +1624,9 @@
         </EntityType>
         <EntityType Name="Corp_Info">
           <Key>
-            <PropertyRef Name="Created" />
-            <PropertyRef Name="Modified" />
-            <PropertyRef Name="Created_By" />
-            <PropertyRef Name="Modified_By" />
-            <PropertyRef Name="IsCurrent" />
+            <PropertyRef Name="ID" />
           </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
           <Property Type="String" Name="About" MaxLength="65535" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Contact" MaxLength="65535" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Help" MaxLength="65535" FixedLength="false" Unicode="false" />
@@ -2266,6 +2248,7 @@
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="NickName" ColumnName="NickName" />
                 <ScalarProperty Name="IsSystemUser" ColumnName="IsSystemUser" />
                 <ScalarProperty Name="Modified_By" ColumnName="Modified_By" />
                 <ScalarProperty Name="Modified" ColumnName="Modified" />
@@ -2438,6 +2421,7 @@
                 <ScalarProperty Name="Help" ColumnName="Help" />
                 <ScalarProperty Name="Contact" ColumnName="Contact" />
                 <ScalarProperty Name="About" ColumnName="About" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -75,5 +75,19 @@ namespace KM.JXC.BL
             }
             return expresses;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Corp_Info GetCorpInfo()
+        {
+            Corp_Info info = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                info=(from ci in db.Corp_Info where ci.IsCurrent==true select ci).FirstOrDefault<Corp_Info>();
+            }
+            return info;
+        }
     }
 }
