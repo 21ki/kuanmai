@@ -235,7 +235,7 @@ namespace KM.JXC.BL
                             }
 
                             order_detail.SyncResultMessage = "";
-                            if (order.Status1 != 0)
+                            if (order.Refound)
                             {
                                 order_detail.Status1 = (int)SaleDetailStatus.REFOUND_BEFORE_SEND;
                                 order_detail.SyncResultMessage = "宝贝在发货前退货，不需要出库";
@@ -302,8 +302,10 @@ namespace KM.JXC.BL
                                 {
                                     stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
                                     Store_House tmpHouse = (from h in houses where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
-                                    order_detail.Status1 = (int)SaleDetailStatus.LEAVED_STOCK;
-                                    order_detail.SyncResultMessage = "出库仓库："+tmpHouse.Title;
+                                    if (tmpHouse != null)
+                                    {
+                                        house = tmpHouse;
+                                    }
                                 }
                                 else
                                 {
@@ -316,6 +318,8 @@ namespace KM.JXC.BL
                             //no stock cannot leave stock
                             if (stockPile != null)
                             {
+                                order_detail.Status1 = (int)SaleDetailStatus.LEAVED_STOCK;
+                                order_detail.SyncResultMessage = "出库仓库：" + house.Title;
                                 dbDetail.Parent_Product_ID = order.Parent_Product_ID;
                                 dbDetail.Product_ID = order.Product_ID;
                                 dbDetail.StoreHouse_ID = stockPile.StockHouse_ID;

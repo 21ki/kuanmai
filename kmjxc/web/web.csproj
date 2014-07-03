@@ -979,6 +979,8 @@
     <Content Include="Views\AdminData\Shop.cshtml" />
     <Content Include="Views\AdminData\Sales.cshtml" />
     <Content Include="Views\AdminData\Customer.cshtml" />
+    <Content Include="Views\Admin\Bug.cshtml" />
+    <Content Include="Views\Admin\BugDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

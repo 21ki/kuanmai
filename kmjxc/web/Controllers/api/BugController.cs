@@ -203,5 +203,43 @@ namespace KM.JXC.Web.Controllers.api
 
             return message;
         }
+
+        [HttpPost]
+        public ApiMessage UpdateStatus()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            BugManager bugManager = new BugManager(int.Parse(user_id));
+            int bug_id = 0;
+            int status = 0;
+            try
+            {
+                int.TryParse(request["bug_id"],out bug_id);
+                int.TryParse(request["status"],out status);
+                if (bug_id == 0)
+                {
+                    message.Status = "failed";
+                    message.Message = "没有问题编号数据";
+                    return message;
+                }
+
+                if (status == 0)
+                {
+                    message.Status = "failed";
+                    message.Message = "没有状态数据";
+                    return message;
+                }
+
+                bugManager.UpdateStatus(bug_id,status);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            return message;
+        }
     }
 }

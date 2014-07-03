@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "问题报告";
+    Layout = "~/Views/Shared/master_admin.cshtml";
+    KM.JXC.BL.Models.BPageData data = null;
+    if(Model!=null)
+    {
+        data = (KM.JXC.BL.Models.BPageData)Model;
+    }
+    System.Collections.Generic.Dictionary<string, string> paras = KM.JXC.Web.Utilities.JXCPageUtil.ParseURLParams(Request.RawUrl);
+    List<KM.JXC.BL.Models.Admin.BBug> bugs = (List<KM.JXC.BL.Models.Admin.BBug>)data.Data;
+   
+}
+
+<script>
+  
+    $(function () {
+
+        $('#tabs').tabs();
+       
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#bugList">问题报告</a></li>
+    </ul>
+    <div id="bugList">
+
+        <div class="row s_title shead jxcheader1">
+                    <span style="margin-left:0;" class="spanw3">编号</span><span class="spanw6">标题</span>
+                    <span class="spanw2">状态</span>
+                    <span class="spanw5">创建者</span>
+                    <span class="spanw5">创建日期</span> 
+                              
+        </div>
+        @{
+            string status = "";
+            string user_id = "";
+            if (paras.ContainsKey("status")){
+                status = paras["status"];
+            }
+
+            if (paras.ContainsKey("user"))
+            {
+                user_id = paras["user"];
+            } 
+         }
+        
+        @if (bugs.Count > 0)
+        {
+              <div>
+                  @foreach(KM.JXC.BL.Models.Admin.BBug bug in bugs)
+                  {
+                       <div class="row jxclist1">
+                            <span style="margin-left:0;" class="spanw3"><a target="_blank"  href="/Admin/BugDetail/@bug.ID">@bug.ID</a></span><span class="spanw6"><a href="/Admin/BugDetail/@bug.ID">@bug.Title</a></span>
+                            <span class="spanw2">@bug.Status.Name</span>
+                            <span class="spanw5">@bug.Created_By.Name</span>
+                            <span class="spanw5">@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(bug.Created).ToString("yyyy-MM-dd H:mm")</span> 
+                     
+                       </div>
+                  }
+              </div>
+              
+                  string pageHtml = KM.JXC.Web.Utilities.JXCPageUtil.Pager(data);
+                  if (!string.IsNullOrEmpty(pageHtml))
+                  {
+                    <div class="s_title spage pager">
+                         @Html.Raw(pageHtml)
+                    </div>
+                  }  
+        }
+    </div>
+</div>
+

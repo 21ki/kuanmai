@@ -717,6 +717,13 @@ function KMJXCBugManager() {
     this.GetBugFeatures = function (params, callback) {
         this.AjaxCall("/api/Bug/GetBugFeatures", params, callback);
     }
+    /*
+    bug_id: required
+    status:required
+    */
+    this.UpdateStatus = function (params, callback) {
+        this.AjaxCall("/api/Bug/UpdateStatus", params, callback);
+    }
 }
 
 KMJXCSystemAdmin.prototype = new KMJXCBase();

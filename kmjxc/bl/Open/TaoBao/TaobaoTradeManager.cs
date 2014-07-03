@@ -390,8 +390,9 @@ namespace KM.JXC.BL.Open.TaoBao
                             if (!string.IsNullOrEmpty(o.RefundStatus) && o.RefundStatus == "SUCCESS")
                             {
                                 containRefound = true;
-                                order.Status1 = 1;
+                                //order.Status1 = 1;
                                 order.Refound = true;
+                                sale.Amount = sale.Amount - order.Amount;
                             }
                             order.StockStatus = 0;
                             order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;

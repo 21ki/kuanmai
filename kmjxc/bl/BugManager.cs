@@ -395,5 +395,31 @@ namespace KM.JXC.BL
             }
             return features;
         }
+
+        public void UpdateStatus(int bug_id, int status)
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Bug bug=(from b in db.Bug where b.ID==bug_id select b).FirstOrDefault<Bug>();
+                if (bug == null)
+                {
+                    throw new KMJXCException("编号为:"+bug_id+" 的问题不存在");
+                }
+
+                Bug_Status dbStatus=(from s in db.Bug_Status where s.ID==status select s).FirstOrDefault<Bug_Status>();
+                if (dbStatus == null)
+                {
+                    throw new KMJXCException("状态数据:"+status+" 为无效数据");
+                }
+
+                if (bug.Status == status)
+                {
+                    throw new KMJXCException("当前的状态为:"+dbStatus.Status+", 选择其他状态进行设置");
+                }
+
+                bug.Status = status;
+                db.SaveChanges();
+            }
+        }
     }
 }

@@ -852,9 +852,9 @@ namespace KM.JXC.BL
                           select new BExpressFee
                           {
                               ID = fee.Express_Fee_ID,
-                              Created = fee.Created,
-                              Modified = fee.Modified,
-                              Fee = fee.Fee,
+                              Created = fee.Created != null ? fee.Created : 0,
+                              Modified = fee.Modified != null ? fee.Modified : 0,
+                              Fee = fee.Fee != null ? fee.Fee : 0,
                               City = l_city != null ? new BArea
                               {
                                   ID = l_city.id,
@@ -864,10 +864,14 @@ namespace KM.JXC.BL
                                   ID = 0,
                                   Name = ""
                               },
-                              Province = new BArea
+                              Province = l_province != null ? new BArea
                               {
                                   ID = l_province.id,
                                   Name = l_province.name
+                              } : new BArea
+                              {
+                                  ID = 0,
+                                  Name = ""
                               },
                               Created_By = new BUser
                               {
@@ -875,11 +879,16 @@ namespace KM.JXC.BL
                                   Mall_Name = l_created_by.Mall_Name,
                                   Mall_ID = l_created_by.Mall_ID
                               },
-                              Modified_By = new BUser
+                              Modified_By = l_modified_by != null ? new BUser
                               {
                                   ID = l_modified_by.User_ID,
                                   Mall_Name = l_modified_by.Mall_Name,
                                   Mall_ID = l_modified_by.Mall_ID
+                              } : new BUser
+                              {
+                                  ID = 0,
+                                  Mall_Name = "",
+                                  Mall_ID = ""
                               },
                               Express = new BExpress
                               {
@@ -891,11 +900,16 @@ namespace KM.JXC.BL
                                   ID = l_shop.Shop_ID,
                                   Title = l_shop.Name
                               },
-                              StoreHouse = new BStoreHouse
+                              StoreHouse = l_house != null ? new BStoreHouse
                               {
                                   ID = l_house.StoreHouse_ID,
                                   Name = l_house.Title,
                                   Address = l_house.Address
+                              } : new BStoreHouse
+                              {
+                                  ID = 0,
+                                  Name = "",
+                                  Address = ""
                               }
                           };
 
