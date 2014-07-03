@@ -28,6 +28,8 @@ namespace KM.JXC.BL
 
     public class BBaseManager:CommonManager
     {
+        public static List<Common_District> Areas = null;
+
         public Shop Shop { get; private set; }
         public Shop Main_Shop { get; private set; }
         protected List<Shop> DBChildShops { get; set; }
@@ -38,6 +40,7 @@ namespace KM.JXC.BL
         public Permission CurrentUserPermission {get;private set;}
         private PermissionManager permissionManager;
         public Access_Token AccessToken { get; private set; }
+        
         public List<BShop> ChildShops
         {
             get{
@@ -54,6 +57,15 @@ namespace KM.JXC.BL
                 return ss;
             }
         }
+
+        static BBaseManager()
+        {
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Areas = (from area in db.Common_District select area).ToList<Common_District>();
+            }
+        }
+
         public BBaseManager(BUser user,int shop_id,Permission permission)
         {
             this.CurrentUser = user;

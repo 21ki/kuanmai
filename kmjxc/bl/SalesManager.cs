@@ -567,7 +567,7 @@ namespace KM.JXC.BL
                 if (defaultExp != null)
                 {
                     expFees = (from fee in db.Express_Fee
-                               where fee.Express_ID == defaultExp.Express_ID && fee.Shop_ID == this.Shop.Shop_ID
+                               where fee.Express_ID == defaultExp.Express_ID && fee.Shop_ID == shop.Shop_ID
                                select fee).ToList<Express_Fee>();
                 }
 
@@ -580,7 +580,7 @@ namespace KM.JXC.BL
                 List<Sale> dbSales = (from sale in db.Sale where sale_ids.Contains(sale.Mall_Trade_ID) select sale).ToList<Sale>();
                
                 //var dbSales = dbSaleObjs;
-                List<Common_District> areas = (from area in db.Common_District select area).ToList<Common_District>(); ;
+                List<Common_District> areas = BBaseManager.Areas;
                 
                 foreach (BSale sale in allSales)
                 {
