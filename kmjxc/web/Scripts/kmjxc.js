@@ -541,6 +541,19 @@ function KMJXCStockManager() {
     this.UpdateProductsStocks = function (params, callback) {
         this.AjaxCall("/api/Stock/UpdateProductsStocks", params, callback);
     }
+
+    /*
+    trade_id:required;
+    order_id:required;
+    mall_item_id:required:
+    mall_sku_id:optional
+    product:required;
+    product_prop:optional, if mall_sku_id is given, it will be required,
+    connect:optional 1/0 1 means true 0 means false
+    */
+    this.CreateLeaveStockForMallTrade = function (params, callback) {
+        this.AjaxCall("/api/Stock/CreateLeaveStockForMallTrade", params, callback);
+    }
 }
 
 KMJXCSaleManager.prototype = new KMJXCBase();

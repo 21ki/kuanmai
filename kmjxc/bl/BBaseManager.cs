@@ -23,7 +23,8 @@ namespace KM.JXC.BL
         NOT_CONNECTED=3,
         REFOUND_BEFORE_SEND=4,
         BACK_STOCK=5,
-        REFOUNDED_WAIT_HANDLE=6
+        REFOUNDED_WAIT_HANDLE=6,
+        REFOUND_HANDLED=7
     }
 
     public class BBaseManager:CommonManager

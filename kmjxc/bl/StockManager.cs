@@ -236,8 +236,8 @@ namespace KM.JXC.BL
                         backStock.Details.Add(bsDetail);                       
                         bsd.Status = backSaleStatus;
                         //5 means refound and successfully back to sock
-                        saleDetail.Status1 = (int)SaleDetailStatus.BACK_STOCK;
-                        saleDetail.SyncResultMessage = "退款成功,成功退库";
+                        saleDetail.Status1 = (int)SaleDetailStatus.REFOUND_HANDLED;
+                        saleDetail.SyncResultMessage = "退货已经处理";
                     }
 
                     if (backStock.Details.Count > 0)
@@ -514,7 +514,7 @@ namespace KM.JXC.BL
 
                           };
                 totalRecords = tmp.Count();
-                stocks = tmp.OrderBy(s => s.Shop.ID).OrderBy(s => s.ID).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BLeaveStock>();
+                stocks = tmp.OrderByDescending(s => s.Created).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList<BLeaveStock>();
 
                 int[] stock_ids = (from stock in stocks select stock.ID).ToArray<int>();
                 List<Leave_Stock_Detail> dbdetails = (from detail in db.Leave_Stock_Detail
@@ -1629,6 +1629,173 @@ namespace KM.JXC.BL
             foreach (BLeaveStock stock in stocks)
             {
                 this.CreateLeaveStock(stock);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="trade_id"></param>
+        /// <param name="order_id"></param>
+        /// <param name="mall_product_id"></param>
+        /// <param name="mall_sku_id"></param>
+        /// <param name="parent_product_id"></param>
+        /// <param name="product_id"></param>
+        /// <param name="mapproduct"></param>
+        public void CreateLeaveStockForMallTrade(string trade_id, string order_id, string mall_product_id, string mall_sku_id, int parent_product_id, int product_id, bool mapproduct = false)
+        {
+            if (string.IsNullOrEmpty(mall_product_id))
+            {
+                throw new KMJXCException("丢失商城宝贝编号");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Sale trade = (from t in db.Sale where t.Mall_Trade_ID == trade_id select t).FirstOrDefault<Sale>();
+                if (trade == null)
+                {
+                    throw new KMJXCException("交易号为:" + trade_id + " 的交易不存在");
+                }
+
+                Sale_Detail order = (from sd in db.Sale_Detail where sd.Mall_Order_ID == order_id && sd.Mall_Trade_ID == trade_id select sd).FirstOrDefault<Sale_Detail>();
+                if (order == null)
+                {
+                    throw new KMJXCException("交易号为:" + trade_id + " 的交易不存在");
+                }
+
+                Product dbproduct=(from p in db.Product where p.Product_ID==parent_product_id select p).FirstOrDefault<Product>();
+                if (dbproduct == null)
+                {
+                    throw new KMJXCException("进销存产品编号为:" + parent_product_id + " 的产品不存在");
+                }
+
+                if (!string.IsNullOrEmpty(mall_sku_id))
+                {
+                    if (product_id <= 0)
+                    {
+                        throw new KMJXCException("交易产品有SKU属性，更新库存时必须选择进销存产品对应的销售属性");
+                    }
+
+                    Product childproduct = (from p in db.Product where p.Product_ID == product_id select p).FirstOrDefault<Product>();
+                    if (childproduct == null)
+                    {
+                        throw new KMJXCException("进销存产品编号为:" + parent_product_id + ", 库存编号为:"+product_id+" 的产品不存在");
+                    }
+                }
+                
+                Leave_Stock leaveStock = (from ls in db.Leave_Stock where ls.Sale_ID == trade_id select ls).FirstOrDefault<Leave_Stock>();
+                if (leaveStock == null)
+                {
+                    leaveStock = new Leave_Stock();
+                    leaveStock.Sale_ID = trade_id;
+                    leaveStock.Leave_Date = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    leaveStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    leaveStock.Shop_ID = trade.Shop_ID;
+                    leaveStock.Status = 0;
+                    leaveStock.User_ID = this.CurrentUser.ID;
+                    db.Leave_Stock.Add(leaveStock);                   
+                }
+
+                Leave_Stock_Detail lsDetail = (from lsd in db.Leave_Stock_Detail where lsd.Order_ID == order_id select lsd).FirstOrDefault<Leave_Stock_Detail>();
+                if (lsDetail != null)
+                {
+                    throw new KMJXCException("交易号为:" + trade_id + ",订单号为:" + order_id + " 的出库记录已经存在，不能重复出库");
+                }
+                int[] csp_ids = (from child in this.DBChildShops select child.Shop_ID).ToArray<int>();
+                Store_House house = (from store in db.Store_House where store.Default == true && (store.Shop_ID == trade.Shop_ID || store.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(store.Shop_ID)) select store).FirstOrDefault<Store_House>();
+                int stockPileProductId = parent_product_id;
+                if (product_id > 0)
+                {
+                    stockPileProductId = product_id;
+                }
+
+                Stock_Pile stockPile = null;
+                lsDetail = new Leave_Stock_Detail();
+                if (house != null)
+                {
+                    stockPile = (from sp in db.Stock_Pile where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();
+                }
+
+                if (stockPile == null)
+                {                   
+                    //get store house when it has the specific product
+                    var tmpstockPile = from sp in db.Stock_Pile where sp.Product_ID == stockPileProductId && sp.Quantity >= order.Quantity select sp;
+                    if (tmpstockPile.Count() > 0)
+                    {
+                        stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
+                        Store_House tmpHouse = (from h in db.Store_House where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
+                        if (tmpHouse != null)
+                        {
+                            house = tmpHouse;
+                        }
+                    }
+                    else
+                    {
+                        //cannot leave stock, no stock pile
+                        order.Status1 = (int)SaleDetailStatus.NO_ENOUGH_STOCK;
+                        order.SyncResultMessage = "没有足够的库存，不能出库";
+                    }
+                }
+
+                //no stock cannot leave stock
+                if (stockPile != null)
+                {
+                    db.SaveChanges();
+                    order.Status1 = (int)SaleDetailStatus.LEAVED_STOCK;
+                    order.SyncResultMessage = "出库仓库：" + house.Title;
+                    lsDetail.Leave_Stock_ID = leaveStock.Leave_Stock_ID;
+                    lsDetail.Quantity = order.Quantity;
+                    lsDetail.Price = order.Price;
+                    lsDetail.StoreHouse_ID = house.StoreHouse_ID;
+                    lsDetail.Order_ID = order_id;
+                    lsDetail.Amount = (double)order.Amount;
+                    lsDetail.Parent_Product_ID = parent_product_id;
+                    lsDetail.Product_ID = product_id;
+                    if (string.IsNullOrEmpty(mall_sku_id))
+                    {
+                        lsDetail.Product_ID = parent_product_id;
+                    }
+
+                    lsDetail.StoreHouse_ID = stockPile.StockHouse_ID;
+                    //Update stock
+                    stockPile.Quantity = stockPile.Quantity - order.Quantity;
+
+                    //Update stock field in Product table
+                    Product product = (from pdt in db.Product where pdt.Product_ID == lsDetail.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                    if (product != null)
+                    {
+                        product.Quantity = product.Quantity - order.Quantity;
+                    }
+                    lsDetail.Order_ID = order_id;
+
+                    db.Leave_Stock_Detail.Add(lsDetail);
+                    db.SaveChanges();
+                }
+
+                if (mapproduct)
+                {
+                    Mall_Product mallProduct=(from mp in db.Mall_Product where mp.Mall_ID==mall_product_id select mp).FirstOrDefault<Mall_Product>();
+                    if (mallProduct != null)
+                    {
+                       
+                        ShopManager shopManager = new ShopManager(this.CurrentUser, this.Shop, this.CurrentUserPermission);
+                        if (shopManager.MapMallProduct(mall_product_id, parent_product_id))
+                        {
+                            mallProduct.Outer_ID = order.Parent_Product_ID;
+                            if (!string.IsNullOrEmpty(mall_sku_id) && product_id>0)
+                            {
+                                Mall_Product_Sku sku = (from sk in db.Mall_Product_Sku where sk.Mall_ID == mallProduct.Mall_ID && sk.SKU_ID == mall_sku_id select sk).FirstOrDefault<Mall_Product_Sku>();
+
+                                if (shopManager.MapSku(mall_sku_id, product_id))
+                                {
+                                    sku.Outer_ID = order.Product_ID;
+                                }
+                            }
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
             }
         }
 

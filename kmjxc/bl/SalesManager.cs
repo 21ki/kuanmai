@@ -87,6 +87,7 @@ namespace KM.JXC.BL
                 List<Back_Sale> back_Sales=(from backSale in db.Back_Sale where sale_ids.Contains(backSale.Sale_ID) select backSale).ToList<Back_Sale>();
                 int[] bs_ids=(from bs in back_Sales select bs.Back_Sale_ID).ToArray<int>();
                 List<Back_Sale_Detail> back_Sale_Details=(from bsd in db.Back_Sale_Detail where bs_ids.Contains(bsd.Back_Sale_ID) select bsd).ToList<Back_Sale_Detail>();
+                List<Sale_Detail> saleDetails=(from sd in db.Sale_Detail where sale_ids.Contains(sd.Mall_Trade_ID) select sd).ToList<Sale_Detail>();
                 foreach (BSale trade in trades)
                 {
                     Leave_Stock ls=(from leaveStock in leave_Stocks where leaveStock.Sale_ID==trade.Sale_ID select leaveStock).FirstOrDefault<Leave_Stock>();
@@ -103,15 +104,14 @@ namespace KM.JXC.BL
                     {
                         isNewBackSale = true;                       
                         bSale = new Back_Sale();
+                        bSale.Back_Date = trade.Synced;
+                        bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        bSale.Description = "";
+                        bSale.Sale_ID = trade.Sale_ID;
+                        bSale.Shop_ID = shop.Shop_ID;
+                        bSale.Status = 0;
+                        bSale.User_ID = this.CurrentUser.ID;
                     }
-
-                    bSale.Back_Date = trade.Synced;                    
-                    bSale.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    bSale.Description = "";
-                    bSale.Sale_ID = trade.Sale_ID;
-                    bSale.Shop_ID = shop.Shop_ID;
-                    bSale.Status = 0;
-                    bSale.User_ID = this.CurrentUser.ID;
 
                     if (isNewBackSale)
                     {
@@ -122,14 +122,15 @@ namespace KM.JXC.BL
                     {
                         foreach (BOrder order in trade.Orders)
                         {
-                            //1- refound succeed
-                            //0- is normal
-                            if (order.Status1 != 1)
+                            Sale_Detail sale_detail=(from odetail in saleDetails where odetail.Mall_Order_ID==order.Order_ID select odetail).FirstOrDefault<Sale_Detail>();
+                            if (sale_detail == null)
                             {
                                 continue;
                             }
 
-                            if (order.Product_ID <= 0)
+                            //1- refound succeed
+                            //0- is normal
+                            if (!order.Refound)
                             {
                                 continue;
                             }
@@ -144,14 +145,15 @@ namespace KM.JXC.BL
                                 dbSaleDetail.Back_Sale_ID = bSale.Back_Sale_ID;
                                 dbSaleDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                                 dbSaleDetail.Description = "同步商城订单时处理有退货的订单(有出库单详细信息)";
-                                dbSaleDetail.Parent_Product_ID = order.Parent_Product_ID;
+                                dbSaleDetail.Parent_Product_ID = dbLeaveStockDetail.Parent_Product_ID;
                                 dbSaleDetail.Price = order.Price;
-                                dbSaleDetail.Product_ID = order.Product_ID;
+                                dbSaleDetail.Product_ID = dbLeaveStockDetail.Product_ID;
                                 dbSaleDetail.Quantity = order.Quantity;
                                 dbSaleDetail.Status = 0;
                                 dbSaleDetail.Refound = order.Amount;
                                 totalRefound += order.Amount;
                                 db.Back_Sale_Detail.Add(dbSaleDetail);
+                                sale_detail.Status1 = (int)SaleDetailStatus.REFOUNDED_WAIT_HANDLE;
                             }
                         }
                         bSale.Amount = totalRefound;  
@@ -210,14 +212,12 @@ namespace KM.JXC.BL
                     {
                         isNew = true;
                         dbStock = new Leave_Stock();
+                        dbStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        dbStock.Leave_Date = trade.Synced;
+                        dbStock.Sale_ID = trade.Sale_ID;
+                        dbStock.Shop_ID = shop.Shop_ID;
+                        dbStock.User_ID = this.CurrentUser.ID;  
                     }
-
-                    dbStock.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    dbStock.Leave_Date = trade.Synced;
-                    dbStock.Leave_Stock_ID = 0;
-                    dbStock.Sale_ID = trade.Sale_ID;
-                    dbStock.Shop_ID = shop.Shop_ID;
-                    dbStock.User_ID = this.CurrentUser.ID;  
 
                     if (trade.Orders != null)
                     {
@@ -807,6 +807,7 @@ namespace KM.JXC.BL
                             sd.Mall_PID = order.Mall_PID;
                             sd.Supplier_ID = 0;
                             sd.Refound = order.Refound;
+
                             if (isNew)
                             {
                                 db.Sale_Detail.Add(sd);
@@ -975,7 +976,7 @@ namespace KM.JXC.BL
                                 HasRefound = (bool)t.HasRefound
                             };//).OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
                 totalRecords = sObjs.Count();
-                sales = sObjs.OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+                sales = sObjs.OrderByDescending(s => s.Synced).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
 
                 string[] bsale_ids = (from sale in sales select sale.Sale_ID).ToArray<string>();
                 List<Sale_Detail> sale_details = (from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Mall_Trade_ID) select sdetail).ToList<Sale_Detail>();
@@ -1002,6 +1003,7 @@ namespace KM.JXC.BL
                              where order.Mall_Trade_ID==sale.Sale_ID
                              select new BOrder
                              {
+                                 Mall_SkuID=order.Mall_SkuID,
                                  Amount = (double)order.Amount,
                                  Order_ID = order.Mall_Order_ID,
                                  Quantity = order.Quantity,
@@ -1039,6 +1041,12 @@ namespace KM.JXC.BL
                                                  ID = p.Mall_ID,
                                                  Title = p.Title
                                              }).FirstOrDefault<BMallProduct>();
+
+                        if (order.MallProduct == null)
+                        {
+                            order.MallProduct = new BMallProduct() { ID=order.Mall_PID };
+                        }
+                       
 
                         if (order.Product != null)
                         {
@@ -1625,6 +1633,12 @@ namespace KM.JXC.BL
 
                     detail.Status = status;
                     leaveDetail.Status = status;
+                    Sale_Detail saleDetail=(from sd in db.Sale_Detail where sd.Mall_Order_ID==detail.Order_ID select sd).FirstOrDefault<Sale_Detail>();
+                    if (saleDetail != null)
+                    {
+                        saleDetail.Status1 = (int)SaleDetailStatus.REFOUND_HANDLED;
+                        saleDetail.SyncResultMessage = "退货已经处理";
+                    }
                 }
 
                 db.SaveChanges();

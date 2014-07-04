@@ -153,7 +153,7 @@ namespace KM.JXC.BL.Open.TaoBao
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
             long timeToEnd = timeEnd; //DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);  
-            long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);  
+            long timeNow = timeToEnd;// DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);  
             long endTime = 0;
             if (lastEndTime == 0)
             {
@@ -163,9 +163,9 @@ namespace KM.JXC.BL.Open.TaoBao
             else
             {
                 sDate = DateTimeUtil.ConvertToDateTime(lastEndTime);
-                if (DateTimeUtil.ConvertDateTimeToInt(sDate.AddDays(1)) > timeNow)
+                if (DateTimeUtil.ConvertDateTimeToInt(sDate.AddDays(1)) > timeToEnd)
                 {
-                    eDate = DateTimeUtil.ConvertToDateTime(timeNow);
+                    eDate = DateTimeUtil.ConvertToDateTime(timeToEnd);
                 }
                 else
                 {
@@ -392,7 +392,7 @@ namespace KM.JXC.BL.Open.TaoBao
                                 containRefound = true;
                                 //order.Status1 = 1;
                                 order.Refound = true;
-                                sale.Amount = sale.Amount - order.Amount;
+                                //sale.Amount = sale.Amount - order.Amount;
                             }
                             order.StockStatus = 0;
                             order.Discount = string.IsNullOrEmpty(o.DiscountFee) ? double.Parse(o.DiscountFee) : 0;

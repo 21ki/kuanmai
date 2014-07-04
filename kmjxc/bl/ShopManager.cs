@@ -32,6 +32,13 @@ namespace KM.JXC.BL
             this.UserManager=userMgr;
         }
 
+        public ShopManager(BUser user, Shop shop, Permission permission)
+            : base(user, shop, permission)
+        {
+            this.Mall_Type = shop.Mall_Type_ID;
+            this.UserManager = new UserManager(user, permission); ;
+        }
+
         /// <summary>
         /// Get local shop detail
         /// </summary>
@@ -1294,6 +1301,12 @@ namespace KM.JXC.BL
                     Product dbProduct = (from p in dbProducts where p.MallProduct == product.ID select p).FirstOrDefault<Product>();
                     if (dbProduct != null)
                     {
+                        if (!string.IsNullOrEmpty(dbMallProduct.Title) && dbMallProduct.Title!=dbProduct.Name)
+                        {
+                            dbProduct.Name = dbMallProduct.Title;
+                        }
+                        dbMallProduct.CreatedProduct = true;
+                        db.SaveChanges();
                         continue;
                     }
                     dbProduct = new Product();

@@ -370,7 +370,7 @@ namespace KM.JXC.Web.Controllers.api
             BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int page = 1;
             int pageSize = 30;
-            int sale_id = 0;
+            string sale_id = request["sale_id"];
             int leave_id=0;
             int uid = 0;
             long stime = 0;
@@ -395,7 +395,7 @@ namespace KM.JXC.Web.Controllers.api
             }
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"], out pageSize);
-            int.TryParse(request["sale_id"], out sale_id);
+           
             int.TryParse(request["leave_id"], out leave_id);
             int.TryParse(request["user_id"], out uid);
             int total = 0;
@@ -412,9 +412,9 @@ namespace KM.JXC.Web.Controllers.api
                 user_ids = new int[] { uid };
             }
 
-            if (sale_id>0)
+            if (!string.IsNullOrEmpty(sale_id))
             {
-                sale_ids = new string[] { sale_id.ToString() };
+                sale_ids = new string[] { sale_id };
             }
 
             data.data = stockManager.SearchLeaveStocks(leave_ids, sale_ids, user_ids, stime, etime, page, pageSize, out total);
@@ -560,6 +560,48 @@ namespace KM.JXC.Web.Controllers.api
             data.curPage = page;
             data.totalRecords = total;
             return data;
-        }       
+        }
+
+        [HttpPost]
+        public ApiMessage CreateLeaveStockForMallTrade()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok", Message = "更新成功" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            string mall_product=request["mall_item_id"];
+            string mall_sku=request["mall_sku_id"];
+            int product = 0;
+            int parent_product = 0;
+            string trade_id=request["trade_id"];
+            string order_id = request["order_id"];
+            int.TryParse(request["product"], out parent_product);
+            int.TryParse(request["product_prop"], out product);
+            bool map = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(request["connect"]) && request["connect"].Trim() == "1")
+                {
+                    map = true;
+                }
+                else
+                {
+                    map = false;
+                }
+                stockManager.CreateLeaveStockForMallTrade(trade_id, order_id, mall_product, mall_sku, parent_product, product, map);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+            }
+            return message;
+        }
     }
 }

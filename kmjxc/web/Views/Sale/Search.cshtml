@@ -19,7 +19,9 @@
     var $form = null;
     var $searchform = null;
     var tradeStatus = saleMgr.GetTradeStatusForSyncTrade();
+    var productListPageSize = 15;
     $(function () {
+        $(document).tooltip();
         $form = $('#searchform');
         $form.find('#trade_status').append("<option value=\"\">--所有--</option>");
         $(tradeStatus).each(function (index, item) {
@@ -60,8 +62,196 @@
         });
 
         $('#orderTabs').tabs();
+
+        cateMgr.GetCategories({}, function (res) {
+            if (res != null) {
+                $('#opt_pcategory').append("<option value=\"0\">--选择--</option>");
+                $(res.data).each(function (index, item) {
+                    $('#opt_pcategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                });
+            }
+        });
+
+        $('#btn_search_map_product').button({ icons: { primary: "ui-icon-search" } }).click(function () {
+            SearchProducts(1);
+        });
+
+        $('#opt_pcategory').change(function () {
+            var pid = $(this).val();
+            if (pid == 0) {
+                $('#opt_ccategory').empty().hide();
+                return;
+            }
+            cateMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                if (res != null) {
+                    $('#opt_ccategory').empty();
+                    $('#opt_ccategory').append("<option value=\"0\">--选择--</option>");
+                    $(res.data).each(function (index, item) {
+                        $('#opt_ccategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                    });
+                    $('#opt_ccategory').show();
+                }
+            });
+
+        });
+
+        $("#opt_products_list").delegate("input[type='radio']", 'change', function (e) {
+            $('#opt_product_props').html("");
+            var checked = $(this).attr("checked");
+            if (checked == "checked") {
+                var product_id = $(this).val();               
+                var sku_id = $('#popup_leavestock').find("#mall_pdt_sku_id").val();
+                $("#opt_searching").show();
+                cateMgr.GetProductFullInfo({ 'product_id': product_id }, function (res) {
+                    $("#opt_searching").hide();
+                    if (res.Status == "ok" && res.Item != null) {
+                        if (res.Item.Children == null) {
+                            if (sku_id != null && sku_id != 'undefined' && sku_id != "" && sku_id != "0") {
+                                alert("产品:" + res.Item.Title + " 还没有任何销售属性（库存属性），请先编辑产品添加库存属性");
+                            }                            
+                            return;
+                        }
+                        var $ul = $('#opt_product_props');
+                        $(res.Item.Children).each(function (index, item) {
+                            var $li = $("<li></li>").appendTo($ul);
+                            var $radio = $("<input value=\"" + item.ID + "\" type=\"radio\" name=\"opt_propsel\"/>").appendTo($li);
+                            $(item.Properties).each(function (index1, item1) {
+                                $("<span>" + item1.PName + ":" + item1.PValue + "</span>").appendTo($li);
+                            });
+                        });
+
+                    } else {
+                        alert(res.Message);
+                    }
+                });
+            }
+        });
     });
 
+    function ManualUpdateStock(trade_id, order_id, mall_id, sku_id) {
+        $('#popup_leavestock').find("#trade_id").val(trade_id);
+        $('#popup_leavestock').find("#order_id").val(order_id);
+        $('#popup_leavestock').find("#mall_pdt_id").val(mall_id);
+        $('#popup_leavestock').find("#mall_pdt_sku_id").val(sku_id);
+        $("#opt_products_list").html("");
+        $("#opt_products_list_Pager").html("");
+        $("#opt_product_props").html("");
+        $('#popup_leavestock').dialog({
+            position: { my: "top", at: "top", of: $("#orderTabs") },
+            width: 750,
+            //height:550,
+            resizable: false,
+            title: "更新库存",
+            modal: true,
+            open: function () {
+                $('#back_sale_type').val(0);
+            },
+            close: function () {
+                var that = this;
+            },
+            buttons: [
+                   {
+                       text: "确定", click: function () {
+                           if (!$('#opt_searching').is(":hidden")) {
+                               alert("请求还没有返回结果，请等待...");
+                               return;
+                           }
+                           var trade_id=$(this).find("#trade_id").val();
+                           var order_id = $(this).find("#order_id").val();
+                           var mall_pdt_id = $(this).find("#mall_pdt_id").val();
+                           var sku_id = $(this).find("#mall_pdt_sku_id").val();
+
+                           var product_id = $(this).find("input[name='opt_productsel']:checked").val();
+                           var product_sku_id = $(this).find("input[name='opt_propsel']:checked").val();
+
+                           var connect=0;
+                           if ($(this).find('#opt_connect').attr("checked") == "checked") {
+                               connect = 1;
+                           }
+                           if (product_id == null || product_id == "" || product_id == 0 || product_id == 'undefined') {
+                               alert("请选择一个进销存产品进行库存更新");
+                               return;
+                           }
+                         
+                           var props = $(this).find("#opt_product_props").find("li").size();
+                           if (sku_id == null || sku_id == 'undefined' || sku_id == "" || sku_id == "0") {                               
+                               if (props > 0) {
+                                   alert("所选进销存产品有销售属性，但是商城宝贝却没有SKU属性，两者不匹配不能选择此进销存产品更新库存");
+                                   return;
+                               }
+                           } else {
+
+                               if (props <= 0) {
+                                   alert("所选进销存产品没有销售属性，但是商城宝贝却有SKU属性，两者不匹配不能选择此进销存产品更新库存");
+                                   return;
+                               }
+
+                               if (product_sku_id == null || product_sku_id == "" || product_sku_id == 0 || product_sku_id == 'undefined') {
+                                   alert("商城宝贝有SKU属性，请选择对应的进销存产品销售属性");
+                                   return;
+                               }
+                           }
+
+                           stockMgr.CreateLeaveStockForMallTrade({
+                               'trade_id': trade_id, 'order_id': order_id, 'mall_item_id': mall_pdt_id, 'mall_sku_id': sku_id,
+                               'product': product_id, 'product_prop': product_sku_id, 'connect': connect
+                           }, function (res) {
+                               if (res.Status == 'ok') {
+                                   location.reload();
+                               } else {
+                                   alert(res.Message);
+                               }
+                           });
+                       },
+                       icons: { primary: "ui-icon-disk" }
+                   },
+                   {
+                       text: "取消", click: function () {
+                           $(this).dialog("close");
+                       },
+                       icons: { primary: "ui-icon-close" }
+                   }
+            ]
+        });
+      
+    }
+
+    function SearchProducts(page) {
+        var pid = $('#opt_pcategory').val();
+        var cid = $('#opt_ccategory').val();
+        var pkey = $('#opt_keyword').val();
+        var category = 0;
+
+        category = pid;
+
+        if (cid > 0) {
+            category = cid;
+        }
+
+        $("#opt_searching").show();
+        var $ul = $('#opt_products_list');
+        $ul.html("");
+        $('#opt_product_props').html("");
+
+        cateMgr.SearchProducts({ 'cid': category, 'keyword': pkey, 'pageSize': productListPageSize, 'page': page }, function (res) {
+            $("#opt_searching").hide();
+            if (res != null) {
+
+                $(res.data).each(function (index, item) {
+                    var $li = $("<li></li>").appendTo($ul);
+                    var $radio = $("<input value=\"" + item.ID + "\" type=\"radio\" name=\"opt_productsel\"/>").appendTo($li);
+                    $("<span>" + item.Title + "</span>").appendTo($li);
+                });
+
+                var htmlPage = cateMgr.Pager({ 'total': res.totalRecords, 'page': res.curPage, 'pageSize': res.pageSize, 'fun': 'SearchProducts' }, "spn", "pn");
+                if (htmlPage != '') {
+                    $('#opt_products_list_Pager').html(htmlPage).show();
+                } else {
+                    $('#opt_products_list_Pager').html("").hide();
+                }
+            }
+        });
+    }
 </script>
 
 <div id="orderTabs">
@@ -195,11 +385,24 @@
                     }
                     
                     string style="color:red;";
-                    if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.LEAVED_STOCK || order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.BACK_STOCK)
+                    if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.LEAVED_STOCK || order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.REFOUND_HANDLED)
                     {
                         style = "color:green;";
                     }
-                    @Html.Raw("<div class=\"item\" style=\""+style+"\">"+order.Message+"</div>")
+                    
+                    string needHandledSpan="";
+                    string sku_id="";
+                    if (!string.IsNullOrEmpty(order.Mall_SkuID))
+                    {
+                        sku_id = order.Mall_SkuID;
+                    }
+                    if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.NOT_CONNECTED) {
+                        needHandledSpan = "<span style=\"display:block;\"><a href=\"javascript:void(0)\" onclick=\"ManualUpdateStock(" + sale.Sale_ID + "," + order.Order_ID + "," + order.MallProduct.ID + ",'" + sku_id + "')\">手动更新库存</a><span>";
+                    }
+                    else if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.REFOUNDED_WAIT_HANDLE) {
+                        needHandledSpan = "<span style=\"display:block;\"><a href=\"/Sale/Back\">退货，请处理</a><span>";
+                    }
+                    @Html.Raw("<div class=\"item\" style=\""+style+"\"><span style=\"display:block;\">"+order.Message+"</span>"+needHandledSpan+"</div>")
                     
                                      
                                 @Html.Raw("</div>")
@@ -238,6 +441,38 @@
     
     
 </div>
+</div>
+
+<div id="popup_leavestock" style="display:none;overflow:hidden">
+        <input id="trade_id" type="hidden" value="" />
+        <input id="order_id" type="hidden" value="" />
+        <input id="mall_pdt_id" type="hidden" value="" />
+        <input id="mall_pdt_sku_id" type="hidden" value="" />
+        <div id="opt_mapp_search">
+            <div class="rowS"><label>产品类目:</label><select class="W_inputsel" id="opt_pcategory"></select> <select class="W_inputsel" id="opt_ccategory" style="display:none;"></select></div>
+            <div class="rowS"><label>产品名称:</label><input type="text" id="opt_keyword" class="W_input" style="width:200px;"/></div>
+            <div class="rowS"><label>是否关联:</label><input type="checkbox" id="opt_connect" title="把所选择的的进销存产品关联到商城宝贝的商家编码" /></div>
+            <div class="rowS nolabel1"><span id="btn_search_map_product">搜索</span></div>
+        </div>
+        <div class="rowS" id="opt_searching" style="display:none;">
+            <span style="height:20px;line-height:20px;vertical-align: middle;"><img style="vertical-align: middle;" src="/Content/images/loading.gif"/>正在加载,请稍等...</span>
+
+        </div>
+        <div style="overflow:hidden;">
+            <div style="float:left;overflow:hidden;">
+                 <ul class="ulchk" id="opt_products_list">
+
+                 </ul>
+                 <div class="s_title spage pager" id="opt_products_list_Pager" style="display:none;"></div>
+            </div>
+            <div style="float:left;overflow:hidden;margin-left:10px;border-left:1px solid #e0e0e0;padding-left:10px;">
+                
+                <ul class="ulchk" id="opt_product_props">
+
+                 </ul>
+            </div>
+        </div>
+       
 </div>
 
 
