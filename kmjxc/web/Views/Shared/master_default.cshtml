@@ -160,6 +160,20 @@
                }               
                >                    
                <ul>
+                     <li><a href="/Buy/Price" 
+                       @if (action == "Price")
+                       {                           
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       }                        
+                       
+                       >采购询价
+                     
+
+                       </a></li>
                    <li><a href="/Buy/Orders" 
                        @if (action == "Orders")
                        {                           
@@ -322,7 +336,17 @@
                         {
                            @Html.Raw("class=link");
                         } 
-                       >库存管理</a></li> 
+                       >库存查询</a></li> 
+                   <li><a href="/Stock/Analysis"
+                        @if (action == "Analysis")
+                        {
+                           @Html.Raw("class=links");
+                        }
+                        else
+                        {
+                           @Html.Raw("class=link");
+                        } 
+                       >库存分析</a></li> 
                    <li><a href="/Stock/Enter"
                        @if (action == "Enter")
                        {
@@ -544,7 +568,22 @@
                        } 
                            >
                        快递管理
-                        </a></li>                   
+                        </a></li> 
+                   <li>
+                       <a href="/Shop/Log"
+                       @if (action == "Log")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       操作日志
+                       </a>
+
+                   </li>                  
                </ul>
            </div>
 
@@ -585,6 +624,7 @@
                        </a>
 
                    </li>
+                   
                   
                </ul>
            </div>

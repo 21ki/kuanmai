@@ -981,6 +981,9 @@
     <Content Include="Views\AdminData\Customer.cshtml" />
     <Content Include="Views\Admin\Bug.cshtml" />
     <Content Include="Views\Admin\BugDetail.cshtml" />
+    <Content Include="Views\Buy\Price.cshtml" />
+    <Content Include="Views\Stock\Analysis.cshtml" />
+    <Content Include="Views\Shop\Log.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

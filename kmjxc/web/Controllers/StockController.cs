@@ -42,6 +42,11 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult Analysis()
+        {
+            return View();
+        }
+
         public ActionResult StockDetail(int id)
         {
             return View();
