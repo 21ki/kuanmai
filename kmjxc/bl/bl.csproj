@@ -75,6 +75,8 @@
     <Compile Include="Models\Admin\BSysUser.cs" />
     <Compile Include="Models\BAddChildRequest.cs" />
     <Compile Include="Models\BAdminRole.cs" />
+    <Compile Include="Models\BBuyPrice.cs" />
+    <Compile Include="Models\BBuyPriceDetail.cs" />
     <Compile Include="Models\BCustomer.cs" />
     <Compile Include="Models\BData.cs" />
     <Compile Include="Models\BEmployee.cs" />

@@ -112,6 +112,9 @@
     <Compile Include="Buy_Price.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Buy_Price_Detail.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Common_District.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

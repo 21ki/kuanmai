@@ -12,13 +12,15 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Buy_Price
+    public partial class Buy_Price_Detail
     {
-        public int ID { get; set; }
-        public int Shop_ID { get; set; }
-        public int User_ID { get; set; }
+        public int Buy_Price_ID { get; set; }
+        public int Supplier_ID { get; set; }
+        public int Parent_Product_ID { get; set; }
+        public int Product_ID { get; set; }
+        public double Price { get; set; }
+        public int PricedUser_ID { get; set; }
         public long Created { get; set; }
-        public string Title { get; set; }
         public string Description { get; set; }
     }
 }

@@ -9,6 +9,7 @@ using KM.JXC.Common.KMException;
 using KM.JXC.BL.Open.Interface;
 using KM.JXC.BL.Open.TaoBao;
 using KM.JXC.BL.Models;
+using KM.JXC.Common.Util;
 namespace KM.JXC.BL
 {
     public class BuyManager:BBaseManager
@@ -1390,6 +1391,131 @@ namespace KM.JXC.BL
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="details"></param>
+        /// <param name="buyPriceId"></param>
+        /// <returns></returns>
+        public bool CreateBuyPriceDetails(List<BBuyPriceDetail> details, int buyPriceId)
+        {
+            bool result = false;
+
+            if (details == null)
+            {
+                throw new KMJXCException("输入错误");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                foreach (BBuyPriceDetail detail in details)
+                {
+                    if (detail.Supplier == null || detail.Product==null)
+                    {
+                        continue;
+                    }
+                    Buy_Price_Detail dbDetail = new Buy_Price_Detail();
+                    dbDetail.Buy_Price_ID = buyPriceId;
+                    dbDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    if (detail.Created > 0)
+                    {
+                        dbDetail.Created = detail.Created;
+                    }
+
+                    dbDetail.Description = detail.Desc;
+                    dbDetail.Parent_Product_ID = detail.Product.ParentID;
+                    dbDetail.Price = detail.Price;
+                    dbDetail.Product_ID = detail.Product.ID;
+                    dbDetail.Supplier_ID = detail.Supplier.ID;
+                    dbDetail.PricedUser_ID = detail.User.ID;
+                    db.Buy_Price_Detail.Add(dbDetail);
+                }
+
+                db.SaveChanges();
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buyPrice"></param>
+        /// <returns></returns>
+        public bool CreateBuyPrice(BBuyPrice buyPrice)
+        {
+            bool result = false;
+
+            if (buyPrice == null)
+            {
+                throw new KMJXCException("输入不正确");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Buy_Price dbBuyPrice = new Buy_Price();
+                if (buyPrice.Created <= 0)
+                {
+                    dbBuyPrice.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                }
+
+                dbBuyPrice.Shop_ID = this.Shop.Shop_ID;
+                if (buyPrice.Shop != null || buyPrice.Shop.ID > 0)
+                {
+                    dbBuyPrice.Shop_ID = buyPrice.Shop.ID;
+                }
+
+                dbBuyPrice.User_ID = this.CurrentUser.ID;
+                if (buyPrice.User != null || buyPrice.User.ID > 0)
+                {
+                    dbBuyPrice.User_ID = buyPrice.User.ID;
+                }
+
+                dbBuyPrice.Title = buyPrice.Title;
+                dbBuyPrice.Description = buyPrice.Desc;
+                db.Buy_Price.Add(dbBuyPrice);
+                db.SaveChanges();
+                result = true;
+                if (dbBuyPrice.ID > 0 && buyPrice.Details!=null && buyPrice.Details.Count>0)
+                {
+                    result = result & this.CreateBuyPriceDetails(buyPrice.Details, dbBuyPrice.ID);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buyPriceID"></param>
+        /// <param name="priceUserID"></param>
+        /// <param name="supplierID"></param>
+        /// <param name="productID"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="total"></param>
+        /// <returns></returns>
+        public List<BBuyPriceDetail> SearchBuyPrices(int buyPriceID,int priceUserID,int supplierID,int productID,int page,int pageSize,out int total,int shopID=0)
+        {
+            List<BBuyPriceDetail> prices = new List<BBuyPriceDetail>();
+            total = 0;
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+
+            }
+            return prices;
         }
     }
 }
