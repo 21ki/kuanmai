@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web", "web\web.csproj", "{6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "bean\common.csproj", "{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jxcapp", "jxcapp\jxcapp.csproj", "{7D831382-0653-4CD4-BBB9-FC1E754B6E40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D91AC8C1-2030-4CF8-9B43-9EE6B2CD9EDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D831382-0653-4CD4-BBB9-FC1E754B6E40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D831382-0653-4CD4-BBB9-FC1E754B6E40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D831382-0653-4CD4-BBB9-FC1E754B6E40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D831382-0653-4CD4-BBB9-FC1E754B6E40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

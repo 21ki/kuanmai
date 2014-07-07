@@ -1,6 +1,97 @@
 ﻿@{
-    ViewBag.Title = "Analysis";
+    ViewBag.Title = "库存分析";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 
-<h2>Analysis</h2>
+<script>
+    var $grid = null;
+    $(function () {
+        var obj = {
+            width: 859, height: 600, title: "库存分析", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+            //,freezeCols: 3
+        };
+
+        obj.colModel = [{
+                            title: "类目", width: 100, dataType: "string", dataIndx: "Category.Name", editable: false
+                        },
+
+                        {
+                            title: "品种", width: 70, dataType: "integer", dataIndx: "ProductCount", editable: false
+                            
+                        },
+                       
+                        {
+                            title: "%", width: 50, dataType: "integer", dataIndx: "ProductCountPercentage", editable: false
+                            , render: function (ui) {
+                                var pct = ui.rowData["ProductCountPercentage"];
+                                pct = pct * 100;
+                                if (pct.toString().indexOf(".") > -1) {
+                                    return pct.toString().split(".")[0] + "%";
+                                } else {
+                                    return pct.toString() + "%";
+                                }
+                            }
+                        },
+
+                        {
+                            title: "年销售额", width: 100, dataType: "integer", dataIndx: "FiscalAmount", editable: false,
+                            render: function (ui) {
+                                var pct = ui.rowData["FiscalAmount"];
+                              
+                                if (pct.toString().indexOf(".") > -1) {
+                                    return pct.toString().split(".")[0];
+                                } else {
+                                    return pct.toString();
+                                }
+                            }
+                        },
+                        {
+                            title: "%", width: 50, dataType: "integer", dataIndx: "FiscalAmountPercentage", editable: false,
+                            render:function(ui){
+                                var pct = ui.rowData["FiscalAmountPercentage"];
+                                pct = pct * 100;
+                                if (pct.toString().indexOf(".") > -1) {
+                                    return pct.toString().split(".")[0] + "%";
+                                } else {
+                                    return pct.toString() + "%";
+                                }
+                            }
+                        },
+                        
+
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",           
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [50, 60, 100],
+            getUrl: function (prgrid) {
+                return {
+                    url: "/api/Stock/GetStockAnalysis", data: ""
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        $grid = $("#stockAnalysis").pqGrid(obj);
+
+    });
+</script>
+
+<div id="tabs">
+    <div id="stockAnalysis">
+
+    </div>
+    
+</div>

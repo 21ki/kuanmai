@@ -276,11 +276,15 @@ namespace KM.JXC.BL
                     {
                         if (p.Parent == null)
                         {
-                            p.Parent = new BProduct() {  ID=product.ID};
+                            p.Parent = new BProduct() { ID = product.ID };
                         }
                         p.Children = null;
                         this.CreateProduct(p);
                     }
+                }
+                else 
+                {
+                    base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = dbProduct.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_PRODUCT }, Description = "" });
                 }
 
                 db.SaveChanges();
@@ -336,12 +340,20 @@ namespace KM.JXC.BL
                 }
 
                 dbProducts = tmpProducts.ToList<Product>();
+                int[] parent_ids=(from p in dbProducts select p.Product_ID).ToArray<int>();
+                List<Product> children=(from p in db.Product where parent_ids.Contains(p.Parent_ID) select p).ToList<Product>();
                 foreach (Product pdt in dbProducts)
                 {
                     //cannot edit main shop products
                     if (this.Shop.Shop_ID != this.Main_Shop.Shop_ID && pdt.Shop_ID == this.Main_Shop.Shop_ID)
                     {
                         throw new KMJXCException("您不能修改主店铺产品信息");
+                    }
+
+                    List<Product> tchildren=(from p in children where p.Parent_ID==pdt.Product_ID select p).ToList<Product>();
+                    foreach (Product child in tchildren)
+                    {
+                        child.Product_Class_ID = category;
                     }
 
                     pdt.Product_Class_ID = category;                   
@@ -449,6 +461,15 @@ namespace KM.JXC.BL
                     }
                 }
 
+                //update children
+                List<Product> children=(from p in db.Product where p.Parent_ID==dbProduct.Product_ID select p).ToList<Product>();
+                foreach (Product child in children)
+                {
+                    child.Name = dbProduct.Name;
+                    child.Product_Class_ID = dbProduct.Product_Class_ID;
+                    child.Description = dbProduct.Description;
+                }
+
                 db.SaveChanges();
 
                 if (product.Children != null && product.Children.Count > 0)
@@ -500,7 +521,11 @@ namespace KM.JXC.BL
                         }
                     }
                 }
+
+
                 bproduct = this.GetProductFullInfo(product.ID);
+
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = bproduct.Shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.UPDATE_PRODUCT }, Description = "商品编号:" + bproduct.ID+ "\n商品名称:" + bproduct.Title });
                 result = true;
 
             }

@@ -793,6 +793,7 @@ namespace KM.JXC.BL
                 express_fee.Modified_By = this.CurrentUser.ID;
                 express_fee.Fee = fee;
                 db.SaveChanges();
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = this.Shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.UPDATE_SHOP_EXPRESS_FEE }, Description = "" });
             }
         }
 
@@ -1598,6 +1599,8 @@ namespace KM.JXC.BL
                 {
                     this.CreateProductsByMallProducts(newUnMappedProducts,mapProduct);
                 }
+
+                base.CreateActionLog(new BUserActionLog() {Shop=new BShop{ ID=shop.Shop_ID}, Action = new BUserAction() { Action_ID = UserLogAction.SYNC_SHOP_ONSALE_PRODUCT }, Description = "同步商城在售宝贝，共有 " + newProducts.Count+ " 个新宝贝同步到进销存" });
             }
 
             return newProducts;

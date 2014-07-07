@@ -111,12 +111,15 @@
     <Compile Include="Models\BShop.cs" />
     <Compile Include="Models\BShopExpress.cs" />
     <Compile Include="Models\BShopStatistic.cs" />
+    <Compile Include="Models\BStockAnalysis.cs" />
     <Compile Include="Models\BStocks.cs" />
     <Compile Include="Models\BStoreHouse.cs" />
     <Compile Include="Models\BSupplier.cs" />
     <Compile Include="Models\BSale.cs" />
     <Compile Include="Models\BSyncTime.cs" />
     <Compile Include="Models\BUser.cs" />
+    <Compile Include="Models\BUserAction.cs" />
+    <Compile Include="Models\BUserActionLog.cs" />
     <Compile Include="Open\BaseAccessToken.cs" />
     <Compile Include="BuyManager.cs" />
     <Compile Include="Open\Interface\IOProductManager.cs" />
@@ -144,6 +147,7 @@
     <Compile Include="StockManager.cs" />
     <Compile Include="SupplierManager.cs" />
     <Compile Include="CommonManager.cs" />
+    <Compile Include="UserActionLogManager.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="UserManager.cs" />
   </ItemGroup>

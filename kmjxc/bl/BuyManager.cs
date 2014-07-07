@@ -771,7 +771,8 @@ namespace KM.JXC.BL
                 if (details != null && details.Count>0)
                 {
                     result = true;
-                    result = result & this.CreateNewBuyDetails(dbBuy.Buy_ID, details);   
+                    result = result & this.CreateNewBuyDetails(dbBuy.Buy_ID, details);
+                    base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = dbBuy.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_BUY }, Description = "" });
                 }
             }
             return result;
@@ -1103,6 +1104,7 @@ namespace KM.JXC.BL
                     if (details != null && details.Count > 0)
                     {
                         result = result&this.CreateNewBuyOrderDetails(order.Buy_Order_ID, details);
+                        base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = order.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_BUY_ORDER }, Description = "" });
                     }
                 }
                

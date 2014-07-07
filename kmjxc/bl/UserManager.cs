@@ -368,17 +368,21 @@ namespace KM.JXC.BL
         /// 
         /// </summary>
         /// <returns></returns>
-        public List<BUser> GetUsers(int page,int pageSize,out int total)
+        public List<BUser> GetUsers(int page,int pageSize,out int total,int shop_id=0,bool paging=false)
         {
             List<BUser> users = new List<BUser>();
             total = 0;
-
+            int shop = this.Shop.Shop_ID;
+            if (shop_id > 0)
+            {
+                shop = shop_id;
+            }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 var usersobj = from user in db.User
                                join type in db.Mall_Type on user.Mall_Type equals type.Mall_Type_ID into Ltype
-                               from l_type in Ltype.DefaultIfEmpty()                              
-                               where user.Shop_ID == this.Shop.Shop_ID
+                               from l_type in Ltype.DefaultIfEmpty()
+                               where user.Shop_ID == shop
                                select new BUser
                                {
                                    ID = user.User_ID,
@@ -397,7 +401,10 @@ namespace KM.JXC.BL
                                };
 
                 total = usersobj.Count();
-                usersobj = usersobj.OrderBy(a => a.ID).Skip((page-1)*pageSize).Take(pageSize);
+                if (paging)
+                {
+                    usersobj = usersobj.OrderBy(a => a.ID).Skip((page - 1) * pageSize).Take(pageSize);
+                }
                 users = usersobj.ToList<BUser>();
             }
 

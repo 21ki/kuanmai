@@ -425,5 +425,61 @@ namespace KM.JXC.BL
                 db.Dispose();
             }
         }
+
+        public static void SyncUserAction()
+        {
+            Type action = typeof(UserLogAction);
+            
+            FieldInfo[] fields = action.GetFields();
+            if (fields == null || fields.Length <= 0)
+            {
+                return;
+            }
+
+            KuanMaiEntities db = new KuanMaiEntities();
+
+            try
+            {
+                List<User_Action> allActions=(from ac in db.User_Action select ac).ToList<User_Action>();
+                foreach (FieldInfo field in fields)
+                {
+                    UserActionAttribute attr = field.GetCustomAttribute<UserActionAttribute>();
+                    int aValue = (int)field.GetValue(null);
+                    User_Action userAc=(from ac in allActions where ac.Action_ID==aValue && ac.Action_Name==field.Name select ac).FirstOrDefault<User_Action>();
+                    if (userAc == null)
+                    {
+                        userAc = new User_Action();
+                        userAc.Action_ID = aValue;
+                        userAc.Action_Name = field.Name;
+                        userAc.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        if (attr != null)
+                        {
+                            userAc.Action_Description = attr.Description;
+                        }
+                        db.User_Action.Add(userAc);
+                    }
+                    else
+                    {
+                        if (attr != null)
+                        {
+                            userAc.Action_Description = attr.Description;
+                        }
+                    }
+                }
+
+                db.SaveChanges();
+            }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
     }
 }

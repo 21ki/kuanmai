@@ -11,5 +11,6 @@ namespace KM.JXC.BL.Models
         public int ID { get; set; }
         public bool FromMainShop { get; set; }
         public bool FromChildShop { get; set; }
+        public long Created { get; set; }
     }
 }

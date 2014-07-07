@@ -1264,6 +1264,7 @@ namespace KM.JXC.BL
                 }
 
                 result = result & this.CreateEnterStockDetails(dbStock, stock.Details, stock.UpdateStock);
+
                 if (result)
                 {
                     if (stock.UpdateStock)
@@ -1273,6 +1274,7 @@ namespace KM.JXC.BL
 
                     if (dbBuy != null)
                     {
+                        base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = dbBuy.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_ENTER_STOCK }, Description = "" });
                         dbBuy.Status = 1;
                         db.SaveChanges();
                     }
@@ -1665,9 +1667,12 @@ namespace KM.JXC.BL
 
                 Product dbproduct=(from p in db.Product where p.Product_ID==parent_product_id select p).FirstOrDefault<Product>();
                 if (dbproduct == null)
-                {
+                {                   
                     throw new KMJXCException("进销存产品编号为:" + parent_product_id + " 的产品不存在");
                 }
+
+                order.Parent_Product_ID = parent_product_id;
+                order.Product_ID = parent_product_id;
 
                 if (!string.IsNullOrEmpty(mall_sku_id))
                 {
@@ -1681,6 +1686,8 @@ namespace KM.JXC.BL
                     {
                         throw new KMJXCException("进销存产品编号为:" + parent_product_id + ", 库存编号为:"+product_id+" 的产品不存在");
                     }
+
+                    order.Product_ID = product_id;
                 }
                 
                 Leave_Stock leaveStock = (from ls in db.Leave_Stock where ls.Sale_ID == trade_id select ls).FirstOrDefault<Leave_Stock>();
@@ -1769,6 +1776,7 @@ namespace KM.JXC.BL
                     lsDetail.Order_ID = order_id;
 
                     db.Leave_Stock_Detail.Add(lsDetail);
+                    base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = leaveStock.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_LEAVE_STOCK }, Description = "宝贝未关联，同步订单时没有自动生成出库单，手动创建出库单并更新库存" });
                     db.SaveChanges();
                 }
 
@@ -1877,6 +1885,7 @@ namespace KM.JXC.BL
                 }
                 db.Store_House.Add(dbHouse);               
                 db.SaveChanges();
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = dbHouse.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_STOREHOUSE }, Description = "" });
             }
         }
 
@@ -1921,7 +1930,9 @@ namespace KM.JXC.BL
                     {
                         defaultHouse.Default = false;
                     }
-                }                
+                }
+
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = dbHouse.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.UPDATE_STOREHOUSE }, Description = "" });
                 db.SaveChanges();
             }
 
@@ -2258,7 +2269,7 @@ namespace KM.JXC.BL
                         dbstock.Quantity = stock.Quantity;
                     }
                 }
-
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = this.Shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.UPDATE_STOCK }, Description = "" });
                 db.SaveChanges();
             }
         }
@@ -2466,6 +2477,122 @@ namespace KM.JXC.BL
                 }
             }
             return stocks;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <param name="includeChildren"></param>
+        /// <param name="includeMain"></param>
+        /// <returns></returns>
+        public List<BStockAnalysis> StockAnalysis(int shop_id = 0,bool includeChildren=false,bool includeMain=false)
+        {
+            List<BStockAnalysis> analysis=new List<BStockAnalysis>();
+            using(KuanMaiEntities db=new KuanMaiEntities())
+            {
+                var tmpCate = from cate in db.Product_Class
+                              where cate.Parent_ID==0
+                              select cate;
+
+               
+                if (shop_id > 0)
+                {
+                    tmpCate = tmpCate.Where(c => c.Shop_ID == shop_id);
+                }
+                else
+                {
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        if (includeChildren)
+                        {
+                            int[] children = (from c in this.ChildShops select c.ID).ToArray<int>();
+                            tmpCate = tmpCate.Where(c => children.Contains(c.Shop_ID));
+                        }
+                        else
+                        {
+                            tmpCate = tmpCate.Where(c => c.Shop_ID == this.Shop.Shop_ID);
+                        }
+                    }
+                    else
+                    {
+                        if (!includeMain)
+                        {
+                            tmpCate = tmpCate.Where(c => c.Shop_ID == this.Shop.Shop_ID);
+                        }
+                        else
+                        {
+                            tmpCate = tmpCate.Where(c => (c.Shop_ID == this.Shop.Shop_ID || c.Shop_ID==this.Main_Shop.Shop_ID));
+                        }
+                    }
+                }
+
+                List<BCategory> categories = (from c in tmpCate
+                                              select new BCategory
+                                              {
+                                                  ID = c.Product_Class_ID,
+                                                  Name = c.Name
+                                              }).ToList<BCategory>();
+
+                int[] cate_ids = (from c in categories select c.ID).ToArray<int>();
+
+                List<Product_Class> childrenCate=(from c in db.Product_Class where cate_ids.Contains((int)c.Parent_ID) select c).ToList<Product_Class>();
+
+                int [] childred_cate_ids=(from c in childrenCate select c.Product_Class_ID).ToArray<int>();
+                List<Product> products=(from p in db.Product
+                                        where (cate_ids.Contains(p.Product_Class_ID) || childred_cate_ids.Contains(p.Product_Class_ID))
+                                        select p).ToList<Product>();
+
+                int[] product_ids=(from p in products select p.Product_ID).ToArray<int>();
+
+                long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                long timeOneYearBefore = timeNow-24*3600*365;
+
+                string[] sale_ids=(from s in db.Sale where s.Sale_Time>timeOneYearBefore && s.Sale_Time<timeNow select s.Mall_Trade_ID).ToArray<string>();
+
+                List<Sale_Detail> saleDetails=(from s in db.Sale_Detail 
+                                               where product_ids.Contains(s.Product_ID) && sale_ids.Contains(s.Mall_Trade_ID)
+                                               && (s.Status1 != (int)SaleDetailStatus.BACK_STOCK && s.Status1 != (int)SaleDetailStatus.REFOUND_BEFORE_SEND && s.Status1 != (int)SaleDetailStatus.REFOUND_HANDLED && s.Status1 != (int)SaleDetailStatus.REFOUNDED_WAIT_HANDLE)
+                                               select s).ToList<Sale_Detail>();
+
+                double totalSalesAmount=(from s in saleDetails select (double)s.Amount).Sum();
+                int totalProductCount = products.Count;
+                foreach (BCategory category in categories)
+                {
+                    BStockAnalysis analy = new BStockAnalysis();
+                    analy.Category = category;
+                    int[] cates=(from c in childrenCate where c.Parent_ID==category.ID select c.Product_Class_ID).ToArray<int>();
+
+                    List<Product> cProducts;
+                    if (cates != null && cates.Length > 0)
+                    {
+                        cProducts = (from p in products where (p.Product_Class_ID == category.ID || cates.Contains(p.Product_Class_ID)) select p).ToList<Product>();
+                    }
+                    else
+                    {
+                        cProducts = (from p in products where p.Product_Class_ID == category.ID select p).ToList<Product>();
+                    }
+
+                    int[] pIds=(from p in cProducts select p.Product_ID).ToArray<int>();
+                    if (pIds == null || pIds.Length <= 0)
+                    {
+                        analy.FiscalAmount = 0;
+                        analy.FiscalAmountPercentage = 0;
+                        analy.ProductCount = 0;
+                        analy.ProductCountPercentage = 0;
+                    }
+                    else
+                    {
+                        analy.ProductCount = cProducts.Count;
+                        analy.ProductCountPercentage =Math.Round((double) analy.ProductCount / totalProductCount,2);
+                        analy.FiscalAmount = (from s in saleDetails where pIds.Contains(s.Product_ID) select (double)s.Amount).Sum();
+                        analy.FiscalAmountPercentage = Math.Round(analy.FiscalAmount / totalSalesAmount,2);
+                    }
+
+                    analysis.Add(analy);
+                }
+            }
+            return analysis;
         }
     }
 }

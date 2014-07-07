@@ -27,6 +27,86 @@ namespace KM.JXC.BL
         REFOUND_HANDLED=7
     }
 
+    public class UserActionAttribute : System.Attribute
+    {
+        public string Description { get; set; }        
+    }
+
+    public class UserLogAction
+    {
+        [UserActionAttribute(Description = "创建采购订单")]
+        public static readonly int CREATE_BUY_ORDER = 1;
+
+        [UserActionAttribute(Description = "生成验货单")]
+        public static readonly int CREATE_BUY = 2;
+
+        [UserActionAttribute(Description = "创建采购询价单")]
+        public static readonly int CREATE_BUY_PRICE = 3;
+
+        [UserActionAttribute(Description = "更新库存")]
+        public static readonly int UPDATE_STOCK = 4;
+
+        [UserActionAttribute(Description = "创建退货单")]
+        public static readonly int CREATE_BACK_SALE = 5;
+
+        [UserActionAttribute(Description = "创建退库单")]
+        public static readonly int CREATE_BACK_STOCK = 6;
+
+        [UserActionAttribute(Description = "创建出库单")]
+        public static readonly int CREATE_LEAVE_STOCK = 7;
+
+        [UserActionAttribute(Description = "创建入库单")]
+        public static readonly int CREATE_ENTER_STOCK = 8;
+
+        [UserActionAttribute(Description = "创建商品")]
+        public static readonly int CREATE_PRODUCT = 9;
+
+        [UserActionAttribute(Description = "修改商品")]
+        public static readonly int UPDATE_PRODUCT = 10;
+
+        [UserActionAttribute(Description = "更新采购订单")]
+        public static readonly int UPDATE_BUY_ORDER = 11;
+
+        [UserActionAttribute(Description = "处理退货单")]
+        public static readonly int HANDLE_BACK_SALE = 12;
+
+        [UserActionAttribute(Description = "处理退库单")]
+        public static readonly int HANDLE_BACK_STOCK = 13;
+
+        [UserActionAttribute(Description = "处理入库单")]
+        public static readonly int HANDLE_ENTER_STOCK = 14;
+
+        [UserActionAttribute(Description = "用户登录")]
+        public static readonly int USER_LOGIN = 15;
+
+        [UserActionAttribute(Description = "创建商品类目")]
+        public static readonly int CREATE_PRODUCT_CATEGORY = 16;
+
+        [UserActionAttribute(Description = "创建商品销售属性")]
+        public static readonly int CREATE_PRODUCT_PROPERTY = 17;
+
+        [UserActionAttribute(Description = "添加快递")]
+        public static readonly int CREATE_SHOP_EXPRESS = 18;
+
+        [UserActionAttribute(Description = "添加快递费用")]
+        public static readonly int CREATE_SHOP_EXPRESS_FEE = 19;
+
+        [UserActionAttribute(Description = "添加仓库")]
+        public static readonly int CREATE_STOREHOUSE = 20;
+
+        [UserActionAttribute(Description = "更新仓库")]
+        public static readonly int UPDATE_STOREHOUSE = 21;
+
+        [UserActionAttribute(Description = "更新快递费用")]
+        public static readonly int UPDATE_SHOP_EXPRESS_FEE = 22;
+
+        [UserActionAttribute(Description = "同步在售宝贝")]
+        public static readonly int SYNC_SHOP_ONSALE_PRODUCT = 23;
+
+        [UserActionAttribute(Description = "同步订单")]
+        public static readonly int SYNC_SHOP_TRADE = 24;
+    }
+
     public class BBaseManager:CommonManager
     {
         public static List<Common_District> Areas = null;
@@ -340,6 +420,52 @@ namespace KM.JXC.BL
                 result = true;
             }
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
+        public void CreateActionLog(BUserActionLog action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+
+            if (action.Shop == null)
+            {
+                return;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                User_Action_Log log = new User_Action_Log();
+
+                log.Action = action.Action.Action_ID;
+
+                log.Description = action.Description;
+                if (action.User != null && action.User.ID > 0)
+                {
+                    log.User_ID = action.User.ID;
+                }
+                else
+                {
+                    log.User_ID = this.CurrentUser.ID;
+                }
+
+                log.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                if (string.IsNullOrEmpty(log.Description))
+                {
+                    log.Description = "";
+                }
+                if (action.Shop != null)
+                {
+                    log.Shop_ID = action.Shop.ID;
+                }
+                db.User_Action_Log.Add(log);
+                db.SaveChanges();
+            }
         }
     }
 }

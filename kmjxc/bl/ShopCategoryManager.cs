@@ -298,6 +298,7 @@ namespace KM.JXC.BL
                 db.SaveChanges();
                 category.ID = pc.Product_Class_ID;
                 result = true;
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = this.Shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_PRODUCT_CATEGORY }, Description = "" });
             }
             return result;
         }
@@ -493,6 +494,8 @@ namespace KM.JXC.BL
                         throw new KMJXCException(error.ToString());
                     }
                 }
+
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = this.Shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_PRODUCT_PROPERTY }, Description = "" });
             }
             catch (KMJXCException ex)
             {

@@ -554,6 +554,10 @@ function KMJXCStockManager() {
     this.CreateLeaveStockForMallTrade = function (params, callback) {
         this.AjaxCall("/api/Stock/CreateLeaveStockForMallTrade", params, callback);
     }
+
+    this.GetStockAnalysis = function (params, callback) {
+        this.AjaxCall("/api/Stock/GetStockAnalysis", params, callback);
+    }
 }
 
 KMJXCSaleManager.prototype = new KMJXCBase();

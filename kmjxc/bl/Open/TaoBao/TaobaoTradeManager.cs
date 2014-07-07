@@ -219,13 +219,13 @@ namespace KM.JXC.BL.Open.TaoBao
                     {
                         break;
                     }
-                    else if ((endTime + 24 * 3600 * 1000) > timeToEnd)
+                    else if ((endTime + 24 * 3600) > timeToEnd)
                     {
                         endTime = timeToEnd;
                     }
                     else
                     {
-                        endTime += 24 * 3600 * 1000;
+                        endTime += 24 * 3600;
                     }
                     eDate = DateTimeUtil.ConvertToDateTime(endTime);                    
                 }
@@ -281,13 +281,13 @@ namespace KM.JXC.BL.Open.TaoBao
                         {
                             break;
                         }
-                        else if ((tmpendTime + 24 * 3600 * 1000) > timeToEnd)
+                        else if ((tmpendTime + 24 * 3600) > timeToEnd)
                         {
                             tmpendTime = timeToEnd;
                         }
                         else 
                         {
-                            tmpendTime += 24 * 3600 * 1000;
+                            tmpendTime += 24 * 3600 ;
                         }
                         tmpeDate = DateTimeUtil.ConvertToDateTime(tmpendTime);
                     }

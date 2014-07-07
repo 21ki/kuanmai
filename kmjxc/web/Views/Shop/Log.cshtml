@@ -1,6 +1,105 @@
 ﻿@{
     ViewBag.Title = "Log";
     Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.BL.Models.BPageData data = null;
+    data = (KM.JXC.BL.Models.BPageData)Model;
+    List<KM.JXC.BL.Models.BUserActionLog> logs = (List<KM.JXC.BL.Models.BUserActionLog>)data.Data;
+    List<KM.JXC.BL.Models.BUserAction> actions = (List<KM.JXC.BL.Models.BUserAction>)ViewData["action_list"];
+    List<KM.JXC.BL.Models.BUser> users = (List<KM.JXC.BL.Models.BUser>)ViewData["user_list"];
 }
 
-<h2>Log</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+        $(document).tooltip();
+        $('#btn_search').button({ icons: {"primary":"ui-icon-search"}}).click(function () {
+            var action = $("#log_action").val();
+            var user = $("#log_user").val();
+            var sdate = $("#log_startdate").val();
+            var edate = $("#log_enddate").val();
+            if (sdate != "" && edate != "") {
+                var date1 = $.GetDateByStr(sdate);
+                var date2 = $.GetDateByStr(edate);
+                if (!date2.GTE(date1)) {
+                    alert("结束日期必须大于开始日期");
+                }
+            }
+
+            $('#searchForm').submit();
+        });
+
+        $('#log_startdate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+        });
+        $('#log_enddate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+        });
+    });
+</script>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#userActionLog">用户操作日志</a></li>
+    </ul>
+    <div id="userActionLog">
+         <form id="searchForm" method="get" action="/Shop/Log">
+          <div id="logSearchFilter" class="row" style="height:auto;">
+              <div class="row"><label>用户:</label><select class="W_inputsel" id="log_user" name="log_user">
+                  <option value="0">--所有--</option>
+                  @foreach (KM.JXC.BL.Models.BUser user in users) { 
+                     <option value="@user.ID">@user.Mall_Name</option>
+                  }
+
+                                                 </select></div>
+              <div class="row"><label>操作:</label><select class="W_inputsel" id="log_action" name="log_action">
+                  <option value="0">--所有--</option>
+                  @foreach (KM.JXC.BL.Models.BUserAction action in actions) { 
+                     <option value="@action.Action_ID">@action.Action_Desc</option>
+                  }
+                                                 </select></div>
+              <div class="row"><label>时间:</label><input class="W_input" type="text" name="log_startdate" id="log_startdate" readonly /> - <input readonly class="W_input" type="text" id="log_enddate" name="log_enddate" /></div>
+              <div class="row rowS nolabel1"><span id="btn_search">搜索</span></div>
+          </div>
+         </form>
+          <div class="row s_title shead jxcheader1" style="margin-top:0px;">
+                    <span class="spanw1">用户</span>
+                   @* <span class="spanw4">店铺</span>*@
+                    <span class="spanw1">操作</span>
+                    <span class="spanw1">时间</span>
+                    <span class="spanw2">操作说明</span>
+          </div>
+
+        @foreach (KM.JXC.BL.Models.BUserActionLog log in logs)
+        { 
+            <div class="row jxclist1">
+                <span class="spanw1">@log.User.Mall_Name</span>
+               @* <span class="spanw4">@log.Shop.Title</span>*@
+                <span class="spanw1">@log.Action.Action_Desc</span>
+                <span class="spanw1">@if (log.Created > 0)
+                                     { @KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(log.Created).ToString("yyyy-MM-dd HH:mm") }</span>
+                <span class="spanw2"><a style="cursor:pointer;" title="@log.Description">说明</a></span>
+            </div>
+        }
+
+        @{
+            string pageHtml = KM.JXC.Web.Utilities.JXCPageUtil.Pager(data);
+            if (!string.IsNullOrEmpty(pageHtml))
+            {
+            <div class="s_title spage pager">
+                 @Html.Raw(pageHtml)
+
+            </div>
+        }  
+     }
+    </div>
+</div>

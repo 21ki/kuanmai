@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using KM.JXC.BL;
+using KM.JXC.BL.Models;
 using KM.JXC.DBA;
 using KM.JXC.Web.Filters;
 using KM.JXC.Web.Models;
@@ -17,7 +18,11 @@ namespace KM.JXC.Web.Controllers
         public ActionResult Index()
         {
             string user = HttpContext.User.Identity.Name;
-            return Redirect("/Shop/Dashboard");            
+            //UserActionLogManager logManager = new UserActionLogManager(new BUser() { ID=int.Parse(user) });
+           
+            //logManager.CreateActionLog(new BUserActionLog() { Action = new BUserAction() { Action_ID=UserLogAction.USER_LOGIN }, Description="用户登录" });
+            return Redirect("/Shop/Dashboard");    
+            
         }        
 
         [AllowAnonymous]

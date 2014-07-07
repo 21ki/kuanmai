@@ -26,6 +26,7 @@
           <EntitySet Name="Buy_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Detail" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Order" EntityType="KM.JXC.DBA.Model.Store.Buy_Order" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Buy_Order_Detail" EntityType="KM.JXC.DBA.Model.Store.Buy_Order_Detail" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Buy_Price" EntityType="KM.JXC.DBA.Model.Store.Buy_Price" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Common_District" EntityType="KM.JXC.DBA.Model.Store.Common_District" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Store.Corp_Info" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Customer" EntityType="KM.JXC.DBA.Model.Store.Customer" store:Type="Tables" Schema="kuanmai" />
@@ -70,6 +71,8 @@
       FROM `SystemSettings` AS `SystemSettings`</DefiningQuery>
           </EntitySet>
           <EntitySet Name="User" EntityType="KM.JXC.DBA.Model.Store.User" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="User_Action" EntityType="KM.JXC.DBA.Model.Store.User_Action" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="User_Action_Log" EntityType="KM.JXC.DBA.Model.Store.User_Action_Log" store:Type="Tables" Schema="kuanmai" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -299,6 +302,17 @@
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Price">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Supplier_ID" Type="int" Nullable="false" />
+          <Property Name="Product_ID" Type="int" Nullable="false" />
+          <Property Name="Price" Type="double" Nullable="false" />
+          <Property Name="User_ID" Type="int" Nullable="false" />
+          <Property Name="Created" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Common_District">
           <Key>
@@ -823,6 +837,27 @@
           <Property Name="Modified_By" Type="int" />
           <Property Name="IsSystemUser" Type="bool" Nullable="false" />
         </EntityType>
+        <EntityType Name="User_Action">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Action_ID" Type="int" Nullable="false" />
+          <Property Name="Action_Name" Type="varchar" Nullable="false" MaxLength="45" />
+          <Property Name="Action_Description" Type="varchar" MaxLength="100" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User_Action_Log">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="User_ID" Type="int" Nullable="false" />
+          <Property Name="Action" Type="int" Nullable="false" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Description" Type="text" Nullable="false" />
+        </EntityType>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -886,6 +921,9 @@
           <EntitySet Name="Bug_Status" EntityType="KM.JXC.DBA.Model.Bug_Status" />
           <EntitySet Name="Bug_Response" EntityType="KM.JXC.DBA.Model.Bug_Response" />
           <EntitySet Name="Corp_Info" EntityType="KM.JXC.DBA.Model.Corp_Info" />
+          <EntitySet Name="Buy_Price" EntityType="KM.JXC.DBA.Model.Buy_Price" />
+          <EntitySet Name="User_Action_Log" EntityType="KM.JXC.DBA.Model.User_Action_Log" />
+          <EntitySet Name="User_Action" EntityType="KM.JXC.DBA.Model.User_Action" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1635,6 +1673,38 @@
           <Property Type="Int32" Name="Created_By" Nullable="false" />
           <Property Type="Int32" Name="Modified_By" Nullable="false" />
           <Property Type="Boolean" Name="IsCurrent" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Buy_Price">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int64" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="Double" Name="Price" Nullable="false" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User_Action_Log">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int64" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="User_ID" Nullable="false" />
+          <Property Type="Int32" Name="Action" Nullable="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="String" Name="Description" Nullable="false" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Shop_ID" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User_Action">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="Int32" Name="Action_ID" Nullable="false" />
+          <Property Type="String" Name="Action_Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Action_Description" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2421,6 +2491,41 @@
                 <ScalarProperty Name="Help" ColumnName="Help" />
                 <ScalarProperty Name="Contact" ColumnName="Contact" />
                 <ScalarProperty Name="About" ColumnName="About" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Buy_Price">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Buy_Price">
+              <MappingFragment StoreEntitySet="Buy_Price">
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User_Action_Log">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User_Action_Log">
+              <MappingFragment StoreEntitySet="User_Action_Log">
+                <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Action" ColumnName="Action" />
+                <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User_Action">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.User_Action">
+              <MappingFragment StoreEntitySet="User_Action">
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Action_Description" ColumnName="Action_Description" />
+                <ScalarProperty Name="Action_Name" ColumnName="Action_Name" />
+                <ScalarProperty Name="Action_ID" ColumnName="Action_ID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

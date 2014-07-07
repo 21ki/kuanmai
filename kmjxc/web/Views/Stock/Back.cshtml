@@ -26,7 +26,7 @@
                         }, 
                         { title: "产品", width: 200, dataType: "string", dataIndx: "Product.Title", editable: false },
                         {
-                            title: "库存状态", width: 150, dataType: "string", dataIndx: "Status", editable: false,
+                            title: "库存状态", width: 130, dataType: "string", dataIndx: "Status", editable: false,
                             render: function (ui) {
                                 if (ui.rowData["Status"] == 1) {
                                     return "已经更新到库存";
@@ -38,12 +38,12 @@
                        
                         { title: "商城订单号", width: 150, dataType: "string", dataIndx: "BackStock.BackSale.Sale.Sale_ID", editable: false },
                         
-                        { title: "退库数量", width: 150, dataType: "string", dataIndx: "Quantity", editable: false },
+                        { title: "数量", width: 50, dataType: "string", dataIndx: "Quantity", editable: false },
                         { title: "仓库", width: 150, dataType: "string", dataIndx: "StoreHouse.Name", editable: false },
                         { title: "退库员", width: 150, dataType: "string", dataIndx: "BackStock.Created_By.Mall_Name", editable: false },
                         { title: "退库日期", width: 150, dataType: "timestamp", dataIndx: "BackStock.Created", editable: false },
                         {
-                            title: "店铺", width: 120, dataType: "string", dataIndx: "BackStock.Shop.Title", editable: false
+                            title: "店铺", width: 200, dataType: "string", dataIndx: "BackStock.Shop.Title", editable: false
                         },
         ];
 

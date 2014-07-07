@@ -250,7 +250,7 @@ namespace KM.JXC.BL
                         DateTime time = DateTimeUtil.ConvertToDateTime(item.SaleTime);
                         string month = time.Year.ToString() + "-" + time.Month.ToString();
 
-                        string jobj = "{\"ProductName\":\"" + productName + "\",\"PropName\":\""+propNames+"\",\"ShopName\":\"" + shopName + "\",\"Month\":\"" + month + "\",\"Quantity\":\"" + item.Quantity + "\",\"Amount\":\"" + item.Amount + "\"}";
+                        string jobj = "{\"ProductName\":\"" + productName + "\",\"PropName\":\""+propNames+"\",\"ShopName\":\"" + shopName + "\",\"Month\":\"" + month + "\",\"Quantity\":\"" + item.Quantity + "\",\"Amount\":\"" + Math.Round((double)item.Amount,0) + "\"}";
 
                         if (firstRow)
                         {

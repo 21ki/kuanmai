@@ -109,6 +109,9 @@
     <Compile Include="Buy_Order_Detail.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Buy_Price.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Common_District.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
@@ -237,6 +240,12 @@
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
     <Compile Include="User.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User_Action.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User_Action_Log.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>

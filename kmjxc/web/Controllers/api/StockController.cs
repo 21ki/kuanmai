@@ -603,5 +603,22 @@ namespace KM.JXC.Web.Controllers.api
             }
             return message;
         }
+
+        [HttpPost]
+        public PQGridData GetStockAnalysis()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            List<BStockAnalysis> analysis = stockManager.StockAnalysis(0, true, true);
+            data.data = analysis;
+            data.curPage = 1;
+            data.totalRecords = analysis.Count;
+            return data;
+        }
     }
 }

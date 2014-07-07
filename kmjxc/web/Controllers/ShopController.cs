@@ -24,7 +24,65 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult Log()
         {
-            return View();
+            string user_id = HttpContext.User.Identity.Name;
+            UserActionLogManager logManager = new UserActionLogManager(new BUser() { ID=int.Parse(user_id) });
+            int page = 0;
+            int pageSize = 30;
+            int total = 0;
+            int userid = 0;
+            int action_id = 0;
+            long stime = 0;
+            long etime = 0;
+
+            int.TryParse(Request["page"],out page);
+            int.TryParse(Request["pageSize"], out pageSize);
+            int.TryParse(Request["log_user"], out userid);
+            int.TryParse(Request["log_action"], out action_id);
+
+            if (!string.IsNullOrEmpty(Request["log_startdate"]))
+            {
+                DateTime tmp = DateTime.MinValue;
+                DateTime.TryParse(Request["log_startdate"],out tmp);
+                if (tmp != DateTime.MinValue)
+                {
+                    stime = DateTimeUtil.ConvertDateTimeToInt(tmp);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Request["log_enddate"]))
+            {
+                DateTime tmp = DateTime.MinValue;
+                DateTime.TryParse(Request["log_enddate"], out tmp);
+                if (tmp != DateTime.MinValue)
+                {
+                    etime = DateTimeUtil.ConvertDateTimeToInt(tmp);
+                }
+            }
+
+            if(page<=0)
+            {
+                page=1;
+            }
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            List<BUserActionLog> logs= logManager.SearchUserActionLog(userid, action_id,stime,etime,page, pageSize, out total);
+            BPageData data = new BPageData();
+            data.Data = logs;
+            data.TotalRecords = total;
+            data.Page = page;
+            data.PageSize = pageSize;
+            data.URL = Request.RawUrl;
+
+            List<BUserAction> actions = logManager.GetActions();
+            ViewData["action_list"] = actions;
+
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            int totalUser=0;
+            List<BUser> users = userMgr.GetUsers(1, 1, out totalUser, 0, false);
+            ViewData["user_list"] = users;
+            return View(data);
         }
 
         public ActionResult Dashboard()
