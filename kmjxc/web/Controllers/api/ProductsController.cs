@@ -331,7 +331,16 @@ namespace KM.JXC.Web.Controllers.api
                 paging=false;
             }
 
-            data.data = pdtManager.SearchProducts(product_ids, sids, keyword, "", 0, 0, category_id, page, pageSize, out total, includeProps, paging);
+            bool includeSupplier = false;
+            if (!string.IsNullOrEmpty(request["include_supplier"]) && request["include_supplier"] == "1")
+            {
+                includeSupplier = true;
+            }
+            else
+            {
+                includeSupplier = false;
+            }
+            data.data = pdtManager.SearchProducts(product_ids, sids, keyword, "", 0, 0, category_id, page, pageSize, out total, includeProps, paging, includeSupplier);
             data.totalRecords = total;
             data.curPage = page;
             data.pageSize = pageSize;
@@ -410,8 +419,55 @@ namespace KM.JXC.Web.Controllers.api
             {
                 suppliers = new int[] { supplier_id};
             }
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
             data.data = buyManager.SearchBuyOrders(orders, null, suppliers, null, keyword, 0, 0, page, pageSize, out total);
             data.totalRecords = total;
+            return data;
+        }
+
+        [HttpPost]
+        public PQGridData GetBuyPrices()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int total = 0;
+            int page = 1;
+            int pageSize = 30;
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            int price_user_id = 0;
+            int supplier_id = 0;
+            int.TryParse(request["user_id"], out price_user_id);
+            int.TryParse(request["supplier_id"], out supplier_id);
+            int buyPriceId=0;
+            string keyWord = request["keyword"];
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            data.data = buyManager.SearchBuyPrices(buyPriceId,price_user_id,supplier_id,0,page,pageSize,out total);
+            data.totalRecords = total;
+            data.curPage = page;
+            data.pageSize = pageSize;
             return data;
         }
 
@@ -430,6 +486,15 @@ namespace KM.JXC.Web.Controllers.api
             int pageSize = 30;
             int.TryParse(request["page"], out page);
             int.TryParse(request["pageSize"], out pageSize);
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
             data.data = buyManager.SearchBuys(null,null,null,null,null,0,0,page,pageSize,out total);
             data.totalRecords = total;
             return data;
@@ -546,6 +611,72 @@ namespace KM.JXC.Web.Controllers.api
                     message.Status = "failed";
                     message.Message = "创建失败";
                 }
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = ex.Message;
+            }
+            finally
+            {
+
+            }
+
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage CreateBuyPrice()
+        {
+            ApiMessage message = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                string details = request["price_details"];
+                string desc = request["desc"];
+                string title = request["title"];
+                int shopId = 0;
+                int.TryParse(request["shop_id"], out shopId);
+                if (!string.IsNullOrEmpty(details))
+                {
+                    details = HttpUtility.UrlDecode(details);
+                }
+
+                JArray jDetails = JArray.Parse(details);
+                BBuyPrice buyPrice = new BBuyPrice() { Desc = desc, Title = title, Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                buyPrice.Shop = new BShop() { ID = buyManager.Shop.Shop_ID };
+                if (shopId > 0)
+                {
+                    buyPrice.Shop = new BShop() { ID = shopId };
+                }
+                buyPrice.Details = new List<BBuyPriceDetail>();
+                for (int i = 0; i < jDetails.Count(); i++)
+                {
+                    JObject jDetail = (JObject)jDetails[i];
+                    BBuyPriceDetail bDetail = new BBuyPriceDetail();
+                    bDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    bDetail.Price = (double)jDetail["price"];
+                    bDetail.Product = new BProduct() { ID = (int)jDetail["sku_id"], ParentID = (int)jDetail["product_id"] };
+                    bDetail.Supplier = new BSupplier() { ID = (int)jDetail["supplier_id"] };
+                    buyPrice.Details.Add(bDetail);
+                }
+
+                bool result = buyManager.CreateBuyPrice(buyPrice);
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException dbex)
+            {
+                message.Status = "failed";
+                message.Message = dbex.Message;
             }
             catch (KM.JXC.Common.KMException.KMJXCException kex)
             {

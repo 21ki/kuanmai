@@ -1,12 +1,543 @@
 ﻿@{
-    ViewBag.Title = "采购询价";
+    ViewBag.Title = "采购询价单";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 
 <script>
+    var buyMgr = new KMJXCBuyManager();
+    var productMgr = new KMJXCProductManager();
+    var shopMgr = new KMJXCShopManager();
+    var $grid = null;
+    var suppliers;
+    var shopUsers;
+    var $searchform;
+    var $editForm;
+    var productListPageSize = 15;
+    var selectedProducts = [];
+    var productsData = null;
+    $(function () {
+
+        $(document).tooltip();
+
+        $editForm = $('#price_edit_form');
+
+        productMgr.GetCategories({}, function (res) {
+            if (res != null) {
+                $('#opt_pcategory').append("<option value=\"0\">--选择--</option>");
+                $(res.data).each(function (index, item) {
+                    $('#opt_pcategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                });
+            }
+        });
+        $('#opt_pcategory').change(function () {
+            var pid = $(this).val();
+            if (pid == 0) {
+                $('#opt_ccategory').empty().hide();
+                return;
+            }
+            productMgr.GetCategories({ 'parent_id': pid }, function (res) {
+                if (res != null) {
+                    $('#opt_ccategory').empty();
+                    $('#opt_ccategory').append("<option value=\"0\">--选择--</option>");
+                    $(res.data).each(function (index, item) {
+                        $('#opt_ccategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                    });
+                    $('#opt_ccategory').show();
+                }
+            });
+
+        });
+
+        $('#btn_search_product').button({ icons: { primary: "ui-icon-search" } }).click(function () {
+            SearchProducts(1);
+        });
+
+        var obj = {
+            width: 859, height: 600, title: "采购询价单", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+
+            }
+        };
+
+        obj.colModel = [{
+                            title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false,
+                            render: function (ui) {
+                                return "<a target=\"_blank\" href=\"/Buy/PriceDetail/"+ ui.rowData["ID"]+"\">" + ui.rowData["ID"]+ "</a>";
+                            }
+                        }
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [50, 60, 100],
+            getUrl: function (prgrid) {               
+                return {
+                    url: "/api/Products/GetBuyPrices", data: "page=" + this.curPage + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+        $("#buyPrice").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+
+            $("<span id=\"add_cate\">添加</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-plus" } }).click(function (evt) {
+                $('#popup-newedit-price').dialog({
+                    position: { my: "top", at: "top", of: $("#buyPrice") },
+                    width: 800,
+                    //height:550,
+                    resizable: false,
+                    title: "添加询价单",
+                    modal: true,
+                    open: function (evt) {
+                       
+                    },
+                    close: function (evt) {
+                        $(this).find("#price_products").html("");
+                    },
+                    buttons: {
+                        "保存": function () {
+                            var that = this;
+                            var jsonStr = "";
+                            var $list = $(this).find("#price_products");
+                            var title = $(this).find("#price_title").val();
+                            var desc = $(this).find("#price_desc").val();
+                            if ($.trim(title) == "") {
+                                alert("请填写名称（用来识别询价单）");
+                                return;
+                            }
+                            if ($list.find("div[id^='product_']").size() <= 0) {
+                                alert("请先选择产品");
+                                return;
+                            }
+                            var verified = true;
+                            var productCount = $list.find("div[id^='product_']").size();
+                            var count1 = 1;
+                            $list.find("div[id^='product_']").each(function (i, product) {
+                                
+                                var product_id = $(product).attr("id").split("_")[1];
+                                var $ul = $(product).find("ul[id^='sp_']");
+                                if ($ul != null && $ul.html() != null) {
+                                    var len = $ul.find("li").size();
+                                    var count = 1;
+                                    var prices = "";
+                                    $ul.find("li").each(function (j, item) {
+                                        var supplier_id = $(item).find("span[id^='SP_']").attr("id").split("_")[1];
+                                        var skuObj = $(item).find("span[id^='SKU_']");
+                                        var skuId = product_id;
+                                        if (skuObj != null && skuObj.html() != null) {
+                                            skuId = skuObj.attr("id").split("_")[1];
+                                        }
+                                        var p=$(item).find("input[type='text']").val();
+                                        if(p=="" || !$.IsDecimal(p,2)){
+                                            alert("价格不能为空，并且最多只能两位小数");
+                                            verified=false;
+                                            return false;
+                                        }
+                                        var price = "{";
+                                        price += "\"product_id\":" + product_id + ",\"sku_id\":" + skuId + ",\"supplier_id\":"+supplier_id+",\"price\":\""+p+"\"";
+                                        price += "}";
+                                        
+                                        if (prices == "") {
+                                            prices = price;
+                                        } else {
+                                            prices +=","+ price;
+                                        }
+                                    });
+
+                                    if(!verified){
+                                        return false;
+                                    }
+                                }
+
+                                if (jsonStr == "") {
+                                    jsonStr = prices;
+                                } else {
+                                    jsonStr +=","+ prices;
+                                }
+                            });                          
+
+                            if (jsonStr == "") {
+                                alert("请添加产品+供应商组合");
+                                return;
+                            }
+
+                            jsonStr = "[" + jsonStr + "]";
+                            if(!verified){
+                                return;
+                            }
+                           
+                            jsonStr = encodeURIComponent(jsonStr);
+                           
+                            productMgr.CreateBuyPrice({ 'price_details': jsonStr, 'title': title, 'desc': desc }, function (res) {
+                                if (res.Status == "ok") {
+                                    $(that).dialog("close");
+                                    $grid.pqGrid("refreshDataAndView");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            });
+
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup-newedit-price').dialog("open");
+            });
+
+            $("<span id=\"add_cate\">编辑</span>").appendTo($menubar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+                $('#popup-newedit-price').dialog({
+                    position: { my: "top", at: "top", of: $("#buyPrice") },
+                    width: 650,
+                    //height:550,
+                    resizable: false,
+                    title: "修改询价单",
+                    modal: true,
+                    open: function (evt) {
+
+                    },
+                    close: function (evt) {
+                    },
+                    buttons: {
+                        "保存": function () {
+
+                        },
+                        "取消": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#popup-newedit-price').dialog("open");
+            });
+
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"rowS\" style=\"text-align:left;\"></div>").appendTo($searchform);
+            $("<label class=\"gdl\">编号:</label>").appendTo($srow);
+            $("<input id=\"price_id\" title='询价单编号' type='text' class='W_input' style='height:22px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+
+            $("<label class=\"gdll\">供应商:</label>").appendTo($srow);
+            var $supplier = $("<select id=\"price_supplier\" title='供应商' type='text' class='W_inputsel'></select>").appendTo($srow);
+            $('<option value=\"0\">--所有--</option>').appendTo($supplier);
+
+            buyMgr.GetSuppliers({}, function (res) {
+                suppliers = res.data;
+                $(suppliers).each(function (i, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($supplier);
+                });
+            })
+
+            $("<label class=\"gdll\">产品:</label>").appendTo($srow);
+            $("<input id=\"price_product\" title='产品关键字' type='text' class='W_input' style='height:22px;width:200px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                   .appendTo($srow)
+                   .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
+                       $grid.pqGrid("refreshDataAndView");
+                   });
+
+        });
+        $grid = $("#buyPrice").pqGrid(obj);
+
+        $editForm.find("#price_sel_product").button({ icons: {"primary":"ui-icon-plus"}}).click(function (e) {
+            
+            $('#popup_select_product').dialog({
+                position: { my: "top", at: "top", of: $("#popup-newedit-price") },
+                width: 500,
+                //height:550,
+                resizable: false,
+                title: "选择产品",
+                modal: true,
+                open: function (evt) {
+                   
+                },
+                close: function (evt) {
+                    $(this).find('#opt_products_list').html("");
+                    $(this).find('#opt_products_list_Pager').html("").hide()
+                    $(this).find("#opt_keyword").val("");
+                    $(this).find("#opt_pcategory").val("0");
+                    $(this).find("#opt_ccategory").html("").hide();
+                    //selectedProducts = [];
+                },
+                buttons: {
+                    "保存": function () {
+                        var $list = $editForm.find("#price_products");
+                        if (selectedProducts!=null && $(selectedProducts).size() > 0) {
+                            $(selectedProducts).each(function (i, product) {
+                                if (product.Suppliers == null || $(product.Suppliers).size() <= 0) {
+                                    return true;
+                                }
+
+                                var $pDiv = $list.find("div[id='product_" + product.ID + "']");
+                                var $ul = null;
+                                if ($pDiv == null || $pDiv.html() == null || $pDiv.html() == "") {
+                                    $pDiv = $("<div id=\"product_"+product.ID+"\" class=\"row\" style=\"height:auto;border-bottom:1px solid #ccc;margin-bottom:5px;padding-bottom:10px;\"></div>").appendTo($list);
+                                    var title = product.Title;
+                                    if (title.length > 23) {
+                                        title = title.substr(0, 23);
+                                        $("<span title=\"" + product.Title + "\" style=\"display:inline-block;width:300px;margin-right:10px;\">" + title + "</span>").appendTo($pDiv);
+                                    } else {
+                                        $("<span style=\"display:inline-block;width:300px;margin-right:10px;\">" + title + "</span>").appendTo($pDiv);
+                                    }
+
+                                    if (product.Children != null) {
+                                        var $props = $("<select id=\"sku_" + product.ID + "\" class=\"W_inputsel\" style=\"margin-right:10px;\"></select>").appendTo($pDiv);
+                                        $(product.Children).each(function (k, sku) {
+                                            if (sku.Properties != null) {
+                                                var propNames = "";
+                                                $(sku.Properties).each(function (j, prop) {
+                                                    if (propNames == "") {
+                                                        propNames = prop.PName + ":" + prop.PValue;
+                                                    } else {
+                                                        propNames += ";" + prop.PName + ":" + prop.PValue;
+                                                    }
+                                                });
+
+                                                $("<option value=\"" + sku.ID + "\">" + propNames + "</option>").appendTo($props);
+                                            }
+                                        });
+                                    } 
+
+                                    var suppliers = $("<select id=\"supplier_" + product.ID + "\" style=\"margin-right:20px;\" class=\"W_inputsel\"></select>").appendTo($pDiv);
+                                    $("<option value=\"0\">--选择供应商--</option>").appendTo(suppliers);
+                                    $(product.Suppliers).each(function (i, supplier) {
+                                        $("<option value=\"" + supplier.Supplier_ID + "\">" + supplier.Name+ "</option>").appendTo(suppliers);
+                                    });
+
+                                    var imgSpan=$("<span class=\"simg\"></span>").appendTo($pDiv);                                    
+                                    $("<img src=\"/Content/images/add.png\">").click(function (e) {
+                                        var row = $(this).parent().parent();
+                                        var $ul = row.find("ul[id^='sp_']");
+                                        var $li = null;
+                                        var sId = $(row).find("select[id^='supplier_']").val();
+                                        var sText = $(row).find("select[id^='supplier_']").find("option:selected").text();
+                                      
+                                        if (sId == 0) {
+                                            alert("请选择供应商");
+                                            return;
+                                        }
+
+                                        var existed = false;
+                                        var skuSel = $(row).find("select[id^='sku_']");
+                                        if (skuSel != 'undefined' && skuSel != null && skuSel.html() != null) {
+                                            var skuId = $(skuSel).val();
+                                            var prop = $(skuSel).find("option:selected").text()
+
+                                            if (prop == "undefined" || prop == null) {
+                                                prop = "";
+                                            }
+
+                                            $($ul).find("li").each(function (o, skus) {
+                                                var skID = $(this).find("span[id^='SKU_']").attr("id").split('_')[1];
+                                                var spID = $(this).find("span[id^='SP_']").attr("id").split('_')[1];
+                                                if (skID == skuId && sId == spID) {
+                                                    existed = true;
+                                                    alert("销售属性和供应商组合已经添加过");
+                                                    return false;
+                                                }
+                                            });
+
+                                            if (!existed) {
+                                                $li = $("<li></li>").appendTo($ul);
+                                                $("<span id=\"SKU_" + skuId + "\" style=\"display:inline-block;width:150px;text-align:center;\">" + prop + "</span>").appendTo($li);
+                                            }
+                                        } else {
+
+                                            $($ul).find("li").each(function (o, skus) {
+                                                var spID = $(this).find("span[id^='SP_']").attr("id").split('_')[1];                                               
+                                                if (sId == spID) {
+                                                    existed = true;
+                                                    alert("此供应商已经添加过");
+                                                    return false;
+                                                }
+                                            });
+                                            if (!existed) {
+                                                $li = $("<li></li>").appendTo($ul);
+                                            }
+
+                                            $("<span style=\"display:inline-block;width:150px;text-align:center;\"></span>").appendTo($li);
+                                        }
+                                        if (existed) {
+                                            return;
+                                        }
+                                        $("<span id=\"SP_" + sId + "\" style=\"display:inline-block;width:150px;text-align:center;\">" + sText + "</span>").appendTo($li);
+                                        $("<label>单价:</label>").appendTo($li);
+                                        $("<input type=\"text\" class=\"W_input\" style=\"width:30px;\" />").blur(function (e) {
+                                            var price = $(this).val();
+                                            if ($.trim(price) == "") {
+                                                alert("请输入价格，如果不需要，请移除");
+                                                return;
+                                            }
+
+                                            if (!$.IsDecimal(price, 2)) {
+                                                alert("");
+                                                return;
+                                            }
+                                        }).appendTo($li);
+
+                                        var delSpan = $("<span class=\"simg\" style=\"margin-left:10px;\"></span>").appendTo($li);
+                                        $("<img src=\"/Content/images/remove.gif\">").click(function (e) {
+                                            $(this).parent().parent().remove();
+                                        }).appendTo(delSpan);
+
+                                    }).appendTo(imgSpan);
+
+                                    var delSpan = $("<span class=\"simg\" style=\"margin-left:10px;\"></span>").appendTo($pDiv);
+                                    $("<img src=\"/Content/images/remove.gif\">").click(function (e) {
+                                        $(this).parent().parent().remove();
+                                    }).appendTo(delSpan);
+
+                                    $ul = $("<ul id=\"sp_"+product.ID+"\" class=\"ulchk\"></ul>").appendTo($pDiv);
+                                } 
+
+                                
+                                $list.show();
+                            });
+                        }                        
+                    },
+                    "取消": function () {                       
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $('#popup_select_product').dialog("open");
+        });
+    });
+
+    function SearchProducts(page) {
+        var pid = $('#opt_pcategory').val();
+        var cid = $('#opt_ccategory').val();
+        var pkey = $('#opt_keyword').val();
+        var category = 0;
+
+        category = pid;
+
+        if (cid > 0) {
+            category = cid;
+        }
+
+        $("#opt_searching").show();
+        var $ul = $('#opt_products_list');
+        $ul.html("");
+
+        productMgr.SearchProducts({ 'cid': category, 'keyword': pkey, 'pageSize': productListPageSize, 'page': page,'include_supplier':1,'include_prop':1 }, function (res) {
+            $("#opt_searching").hide();
+            if (res != null) {
+                productsData = res.data;
+               
+                $(res.data).each(function (index, item) {
+                    var $li = $("<li></li>").appendTo($ul);
+                    var selected, $radio;
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        if (selectedProducts[i].ID == item.ID) {
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if (!selected) {
+                        $radio = $("<input value=\"" + item.ID + "\" type=\"checkbox\"/>").appendTo($li);
+                    } else {
+                        $radio = $("<input checked value=\"" + item.ID + "\" type=\"checkbox\"/>").appendTo($li);
+                    }
+                    $("<span>" + item.Title + "</span>").appendTo($li);
+
+                    $radio.change(function () {
+                        var tmp = [];
+                        var checked = $(this).attr('checked');
+                        var curId = $(this).attr('value');
+                        var name = $(this).next().html();
+
+                        var newJson = null;
+                       
+                        $(productsData).each(function (pi, item) {
+                            if (item.ID == curId) {
+                                newJson = item;
+                                return false;
+                            }
+                        });
+
+                        var existed = false;
+                        for (var i = 0; i < selectedProducts.length; i++) {
+                            if (selectedProducts[i].ID == curId) {
+                                existed = true;
+                                if (checked == 'checked') {
+                                    tmp.push(selectedProducts[i]);
+                                }
+                            } else {
+                                tmp.push(selectedProducts[i]);
+                            }
+                        }
+
+                        if (!existed && checked == 'checked') {
+                            tmp.push(newJson);
+                        }
+
+                        selectedProducts = tmp;
+                    });
+                });
+
+                var htmlPage = productMgr.Pager({ 'total': res.totalRecords, 'page': res.curPage, 'pageSize': res.pageSize, 'fun': 'SearchProducts' }, "spn", "pn");
+                if (htmlPage != '') {
+                    $('#opt_products_list_Pager').html(htmlPage).show();
+                } else {
+                    $('#opt_products_list_Pager').html("").hide();
+                }
+            }
+        });
+    }
 
 </script>
 
 <div>
-    <div id="buyPrice"></div>
+    <div id="buyPrice">
+
+    </div>
+    <div id="popup-newedit-price" style="display:none;">
+        <form id="price_edit_form">
+            <div class="row">
+                <label>名称:</label><input id="price_title" class="W_input" type="text" value="" />
+            </div>
+            <div class="row">
+                <label>描述:</label><textarea id="price_desc"  class="W_input"></textarea>
+            </div>
+            <div class="row nolabel1">
+                <span id="price_sel_product">选择产品</span>
+            </div>
+            <div class="row nolabel1" style="height:auto;" id="price_products">
+
+            </div>
+        </form>
+    </div>
+    <div id="popup_select_product" style="display:none">
+        <div id="opt_mapp_search">
+            <div class="rowS"><label>产品类目:</label><select class="W_inputsel" id="opt_pcategory"></select> <select class="W_inputsel" id="opt_ccategory" style="display:none;"></select></div>
+            <div class="rowS"><label>产品名称:</label><input type="text" id="opt_keyword" class="W_input" style="width:200px;"/></div>
+            <div class="rowS nolabel1"><span id="btn_search_product">搜索</span></div>
+        </div>
+        <div class="rowS" id="opt_searching" style="display:none;">
+            <span style="height:20px;line-height:20px;vertical-align: middle;"><img style="vertical-align: middle;" src="/Content/images/loading.gif"/>正在搜索产品,请稍等...</span>
+
+        </div>
+        <ul class="ulchk" id="opt_products_list">
+
+        </ul>
+        <div class="s_title spage pager" id="opt_products_list_Pager" style="display:none;"></div>
+    </div>
 </div>

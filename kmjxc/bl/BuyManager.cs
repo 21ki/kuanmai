@@ -1403,6 +1403,11 @@ namespace KM.JXC.BL
         {
             bool result = false;
 
+            if (this.CurrentUserPermission.CREATE_BUY_PRICE == 0 || this.CurrentUserPermission.UPDATE_BUY_PRICE==0)
+            {
+                throw new KMJXCException("没有权限创建或者修改采购询价单内容");
+            }
+
             if (details == null)
             {
                 throw new KMJXCException("输入错误");
@@ -1425,11 +1430,17 @@ namespace KM.JXC.BL
                     }
 
                     dbDetail.Description = detail.Desc;
+                    if (dbDetail.Description == null)
+                    {
+                        dbDetail.Description = "";
+                    }
+
                     dbDetail.Parent_Product_ID = detail.Product.ParentID;
                     dbDetail.Price = detail.Price;
                     dbDetail.Product_ID = detail.Product.ID;
                     dbDetail.Supplier_ID = detail.Supplier.ID;
-                    dbDetail.PricedUser_ID = detail.User.ID;
+                    dbDetail.PricedUser_ID = 0;
+                    dbDetail.Buy_Price_ID = buyPriceId;
                     db.Buy_Price_Detail.Add(dbDetail);
                 }
 
@@ -1448,6 +1459,11 @@ namespace KM.JXC.BL
         {
             bool result = false;
 
+            if (this.CurrentUserPermission.CREATE_BUY_PRICE == 0)
+            {
+                throw new KMJXCException("没有权限创建采购询价单");
+            }
+
             if (buyPrice == null)
             {
                 throw new KMJXCException("输入不正确");
@@ -1462,17 +1478,18 @@ namespace KM.JXC.BL
                 }
 
                 dbBuyPrice.Shop_ID = this.Shop.Shop_ID;
-                if (buyPrice.Shop != null || buyPrice.Shop.ID > 0)
+                if (buyPrice.Shop != null && buyPrice.Shop.ID > 0)
                 {
                     dbBuyPrice.Shop_ID = buyPrice.Shop.ID;
                 }
 
                 dbBuyPrice.User_ID = this.CurrentUser.ID;
-                if (buyPrice.User != null || buyPrice.User.ID > 0)
+                if (buyPrice.User != null && buyPrice.User.ID > 0)
                 {
                     dbBuyPrice.User_ID = buyPrice.User.ID;
                 }
 
+                dbBuyPrice.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 dbBuyPrice.Title = buyPrice.Title;
                 dbBuyPrice.Description = buyPrice.Desc;
                 db.Buy_Price.Add(dbBuyPrice);
@@ -1498,9 +1515,9 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BBuyPriceDetail> SearchBuyPrices(int buyPriceID,int priceUserID,int supplierID,int productID,int page,int pageSize,out int total,int shopID=0)
+        public List<BBuyPrice> SearchBuyPrices(int buyPriceID,int priceUserID,int supplierID,int productID,int page,int pageSize,out int total,int shopID=0)
         {
-            List<BBuyPriceDetail> prices = new List<BBuyPriceDetail>();
+            List<BBuyPrice> prices = new List<BBuyPrice>();
             total = 0;
             if (page <= 0)
             {
@@ -1513,9 +1530,168 @@ namespace KM.JXC.BL
             }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                var tmp = from bp in db.Buy_Price
+                          select bp;
 
+                if (buyPriceID > 0)
+                {
+                    tmp = tmp.Where(b=>b.ID==buyPriceID);
+                }
+
+                if (priceUserID > 0)
+                {
+                    int[] priceIds=(from bpd in db.Buy_Price_Detail where bpd.PricedUser_ID==priceUserID select bpd.Buy_Price_ID).ToArray<int>();
+                    tmp = tmp.Where(b=>priceIds.Contains(b.ID));
+                }
+
+                if (supplierID > 0)
+                {
+                    int[] priceIds = (from bpd in db.Buy_Price_Detail where bpd.Supplier_ID == supplierID select bpd.Buy_Price_ID).ToArray<int>();
+                    tmp = tmp.Where(b => priceIds.Contains(b.ID));
+                }
+
+                if (productID > 0)
+                {
+                    int[] priceIds = (from bpd in db.Buy_Price_Detail where bpd.Parent_Product_ID == productID || bpd.Product_ID==productID select bpd.Buy_Price_ID).ToArray<int>();
+                    tmp = tmp.Where(b => priceIds.Contains(b.ID));
+                }
+
+                var tmpPrices = from b in tmp
+                                join shop in db.Shop on b.Shop_ID equals shop.Shop_ID into LShop
+                                from l_shop in LShop.DefaultIfEmpty()
+                                join user in db.User on b.User_ID equals user.User_ID into LUser
+                                from l_user in LUser.DefaultIfEmpty()
+                                select new BBuyPrice
+                                {
+                                    ID = b.ID,
+                                    Created = b.Created,
+                                    Desc = b.Description,
+                                    Shop = new BShop
+                                    {
+                                        ID = b.Shop_ID,
+                                        Title = l_shop.Name
+                                    },
+                                    Title = b.Title,
+                                    User = new BUser 
+                                    {
+                                        ID=b.User_ID,
+                                        Name=l_user.Name,
+                                        Mall_ID=l_user.Mall_ID,
+                                        Mall_Name=l_user.Mall_Name
+                                    }
+                                };
+
+                prices = tmpPrices.OrderByDescending(b => b.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BBuyPrice>();
             }
             return prices;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buyPriceID"></param>
+        /// <returns></returns>
+        public BBuyPrice GetBuyPriceDetails(int buyPriceID)
+        {
+            if (this.CurrentUserPermission.VIEW_BUY_PRICE == 0)
+            {
+                throw new KMJXCException("没有权限查看采购询价单");
+            }
+
+            BBuyPrice price = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmpPrice = from b in db.Buy_Price
+                                join shop in db.Shop on b.Shop_ID equals shop.Shop_ID into LShop
+                                from l_shop in LShop.DefaultIfEmpty()
+                                join user in db.User on b.User_ID equals user.User_ID into LUser
+                                from l_user in LUser.DefaultIfEmpty()
+                                where b.ID==buyPriceID
+                                select new BBuyPrice
+                                {
+                                    ID = b.ID,
+                                    Created = b.Created,
+                                    Desc = b.Description,
+                                    Shop = new BShop
+                                    {
+                                        ID = b.Shop_ID,
+                                        Title = l_shop.Name
+                                    },
+                                    Title = b.Title,
+                                    User = new BUser
+                                    {
+                                        ID = b.User_ID,
+                                        Name = l_user.Name,
+                                        Mall_ID = l_user.Mall_ID,
+                                        Mall_Name = l_user.Mall_Name
+                                    }
+                                };
+
+                price = tmpPrice.FirstOrDefault<BBuyPrice>();
+
+                if (price == null)
+                {
+                    throw new KMJXCException("编号为:"+buyPriceID+" 的询价单不存在");
+                }
+
+                var tmpDetails = from d in db.Buy_Price_Detail
+                                 join user in db.User on d.PricedUser_ID equals user.User_ID into LUser
+                                 from l_user in LUser.DefaultIfEmpty()
+                                 join supplier in db.Supplier on d.Supplier_ID equals supplier.Supplier_ID into LSupplier
+                                 from l_supplier in LSupplier.DefaultIfEmpty()
+                                 join product in db.Product on d.Product_ID equals product.Product_ID into LProduct
+                                 from l_product in LProduct.DefaultIfEmpty()
+                                 where d.Buy_Price_ID == buyPriceID
+                                 select new BBuyPriceDetail
+                                 {
+                                     Created = d.Created,
+                                     Desc = d.Description,
+                                     Price = d.Price,
+                                     Supplier = new BSupplier
+                                     {
+                                         ID = l_supplier.Supplier_ID,
+                                         Name = l_supplier.Name
+                                     },
+                                     User = new BUser
+                                     {
+                                         ID = d.PricedUser_ID,
+                                         Name = l_user.Name,
+                                         Mall_Name = l_user.Mall_Name,
+                                         Mall_ID = l_user.Mall_ID
+                                     },
+                                     Product = new BProduct 
+                                     {
+                                        ID=d.Product_ID,
+                                        ParentID=l_product.Parent_ID,
+                                        Title=l_product.Name
+                                     }
+                                 };
+
+                price.Details = tmpDetails.ToList<BBuyPriceDetail>();
+
+                int[] product_ids=(from d in price.Details select d.Product.ID).ToArray<int>();
+                List<BProductProperty> properties = null;
+                properties = (from pv in db.Product_Specifications
+                              join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                              from l_prop in LProp.DefaultIfEmpty()
+                              join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                              from l_propv in LPropv.DefaultIfEmpty()
+                              where product_ids.Contains(pv.Product_ID)
+                              select new BProductProperty
+                              {
+                                  PID = pv.Product_Spec_ID,
+                                  PName = l_prop.Name,
+                                  ProductID = pv.Product_ID,
+                                  PValue = l_propv.Name,
+                                  PVID = pv.Product_Spec_Value_ID
+                              }).ToList<BProductProperty>();
+
+                foreach (BBuyPriceDetail detail in price.Details)
+                {
+                    detail.Product.Properties=(from p in properties where p.ProductID==detail.Product.ID select p).ToList<BProductProperty>();
+                }
+            }
+            return price;
         }
     }
 }

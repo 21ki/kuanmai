@@ -984,6 +984,7 @@
     <Content Include="Views\Buy\Price.cshtml" />
     <Content Include="Views\Stock\Analysis.cshtml" />
     <Content Include="Views\Shop\Log.cshtml" />
+    <Content Include="Views\Buy\PriceDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

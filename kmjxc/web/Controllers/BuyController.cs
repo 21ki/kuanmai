@@ -43,6 +43,11 @@ namespace KM.JXC.Web.Controllers
             return View();
         }
 
+        public ActionResult PriceDetail(string id)
+        {
+            return View();
+        }
+
         public ActionResult BuyOrderDetail(string id)
         {
             if (string.IsNullOrEmpty(id))

@@ -12,6 +12,7 @@ namespace KM.JXC.jxcapp
     {
         static void Main(string[] args)
         {
+            PermissionManagement.SyncPermissionWithAction();
             PermissionManagement.SyncUserAction();
         }
     }

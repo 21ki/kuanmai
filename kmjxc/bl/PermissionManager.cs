@@ -57,6 +57,13 @@ namespace KM.JXC.BL
         public int UPDATE_CUSTOMER = 0;
 
         //Buy
+
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "创建采购询价单")]
+        public int CREATE_BUY_PRICE = 0;
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "修改采购询价单")]
+        public int UPDATE_BUY_PRICE = 0;
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看采购询价单")]
+        public int VIEW_BUY_PRICE = 0;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看验货单")]
         public int VIEW_BUY = 0;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "添加验货单")]
@@ -65,7 +72,7 @@ namespace KM.JXC.BL
         public int VIEW_BUY_ORDER;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "添加采购订单")]
         public int ADD_BUY_ORDER = 0;
-        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "更新采购订单")]
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "修改采购订单")]
         public int UPDATE_BUY_ORDER = 0;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "删除采购订单")]
         public int DELETE_BUY_ORDER = 0;//only this order doesn't has buy order detail could be deleted
@@ -133,7 +140,8 @@ namespace KM.JXC.BL
         public int ADD_SHOP_EXPRESS = 0;
         [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "更新快递")]
         public int UPDATE_SHOP_EXPRESS = 0;
-
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "查看日志")]
+        public int VIEW_USER_LOG = 0;
 
         //User Permission
         [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "查看权限管理")]

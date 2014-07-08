@@ -65,8 +65,8 @@
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Corp_Info" Width="1.5" PointX="0.31257640771222134" PointY="24.527377289034135" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.User_Action_Log" Width="1.5" PointX="3.5626045631070644" PointY="3.3072379395865079" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.User_Action" Width="1.5" PointX="3.3760835357830317" PointY="2.5554793190935063" />
-        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Price" Width="1.5" PointX="8.06347167308604" PointY="17.75830387405972" />
         <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Price_Detail" Width="1.5" PointX="7.678655341117949" PointY="3.4501503573032797" />
+        <EntityTypeShape EntityType="KM.JXC.DBA.Model.Buy_Price" Width="1.5" PointX="7.3946431909662866" PointY="24.513627764076752" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

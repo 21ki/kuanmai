@@ -626,7 +626,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BProduct> SearchProducts(int[] product_ids,int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total,bool includeProps=false,bool paging=true)
+        public List<BProduct> SearchProducts(int[] product_ids,int[] suppliers,string title, string description, int startTime, int endTime, int? category_id, int pageIndex, int pageSize, out int total,bool includeProps=false,bool paging=true,bool includeSupplier=false)
         {
             total = 0;
             List<BProduct> products = new List<BProduct>();
@@ -797,6 +797,22 @@ namespace KM.JXC.BL
                                                          }).ToList<BProductProperty>();
                 }
 
+                List<BProductSupplier> bsuppliers = new List<BProductSupplier>();
+
+                if (includeSupplier)
+                {
+                    int[] parent_ids = (from p in products select p.ID).ToArray<int>();
+                    bsuppliers = (from s in db.Product_Supplier
+                                  join supplier in db.Supplier on s.Supplier_ID equals supplier.Supplier_ID into LSupplier
+                                  from l_supplier in LSupplier.DefaultIfEmpty()
+                                  where parent_ids.Contains(s.Product_ID)
+                                  select new BProductSupplier
+                                  {
+                                      Supplier = new BSupplier { ID = s.Supplier_ID, Name = l_supplier.Name },
+                                      Product = new BProduct { ID=s.Product_ID }
+                                  }).ToList<BProductSupplier>();
+                }
+
                 foreach (BProduct product in products)
                 {
                     if (product.Shop.Shop_ID == this.Main_Shop.Shop_ID)
@@ -819,6 +835,11 @@ namespace KM.JXC.BL
                                 product.Children.Add(child);
                             }
                         }
+                    }
+
+                    if (includeSupplier)
+                    {
+                        product.Suppliers = (from ps in bsuppliers where ps.Product.ID == product.ID select new Supplier { Supplier_ID=ps.Supplier.ID, Name=ps.Supplier.Name }).ToList<Supplier>();
                     }
                 }
             }

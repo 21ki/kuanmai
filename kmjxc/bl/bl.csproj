@@ -106,6 +106,7 @@
     <Compile Include="Models\BProduct.cs" />
     <Compile Include="Models\BProductProperty.cs" />
     <Compile Include="Models\BProductStore.cs" />
+    <Compile Include="Models\BProductSupplier.cs" />
     <Compile Include="Models\BProductWastage.cs" />
     <Compile Include="Models\BProperty.cs" />
     <Compile Include="Models\BSaleReport.cs" />

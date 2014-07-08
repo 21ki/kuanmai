@@ -85,7 +85,7 @@ namespace KM.JXC.DBA
         public DbSet<Corp_Info> Corp_Info { get; set; }
         public DbSet<User_Action_Log> User_Action_Log { get; set; }
         public DbSet<User_Action> User_Action { get; set; }
-        public DbSet<Buy_Price> Buy_Price { get; set; }
         public DbSet<Buy_Price_Detail> Buy_Price_Detail { get; set; }
+        public DbSet<Buy_Price> Buy_Price { get; set; }
     }
 }

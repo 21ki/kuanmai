@@ -464,6 +464,15 @@ function KMJXCProductManager() {
         this.AjaxCall("/api/Products/BatchEditCategory", params, callback);
     }
 
+    /*
+    price_details - required field json string
+    desc - optional string
+    title - required string
+    */
+    this.CreateBuyPrice = function (params, callback) {
+       
+        this.AjaxCall("/api/Products/CreateBuyPrice", params, callback);
+    }
 }
 
 KMJXCBuyManager.prototype = new KMJXCBase();
