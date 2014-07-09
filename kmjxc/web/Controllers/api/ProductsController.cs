@@ -432,45 +432,7 @@ namespace KM.JXC.Web.Controllers.api
             data.totalRecords = total;
             return data;
         }
-
-        [HttpPost]
-        public PQGridData GetBuyPrices()
-        {
-            PQGridData data = new PQGridData();
-            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
-            HttpRequestBase request = context.Request;
-            string user_id = User.Identity.Name;
-            UserManager userMgr = new UserManager(int.Parse(user_id), null);
-            BUser user = userMgr.CurrentUser;
-            BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
-            int total = 0;
-            int page = 1;
-            int pageSize = 30;
-            int.TryParse(request["page"], out page);
-            int.TryParse(request["pageSize"], out pageSize);
-            int price_user_id = 0;
-            int supplier_id = 0;
-            int.TryParse(request["user_id"], out price_user_id);
-            int.TryParse(request["supplier_id"], out supplier_id);
-            int buyPriceId=0;
-            string keyWord = request["keyword"];
-            if (page <= 0)
-            {
-                page = 1;
-            }
-
-            if (pageSize <= 0)
-            {
-                pageSize = 30;
-            }
-
-            data.data = buyManager.SearchBuyPrices(buyPriceId,price_user_id,supplier_id,0,page,pageSize,out total);
-            data.totalRecords = total;
-            data.curPage = page;
-            data.pageSize = pageSize;
-            return data;
-        }
-
+       
         [HttpPost]
         public PQGridData GetBuys()
         {

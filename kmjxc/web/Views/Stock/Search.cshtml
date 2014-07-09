@@ -83,8 +83,11 @@
                     url: "/api/Stock/SearchProductsStore", data: "cid=" + cid + "&keyword=" + keyword + "&page=" + this.curPage + "&pageSize=" + this.rPP + "&house=" + house
                 };
             },
-            getData: function (dataJSON) {
-                //alert(dataJSON.totalRecords);
+            getData: function (dataJSON) {                
+                $searchform.find("#pq-parent-cate").val("0");
+                $searchform.find("#pq-child-cate").val("0");
+                $searchform.find('#pdt_key_word').val("");
+                $searchform.find('#pq-storehouse').val("0");
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };

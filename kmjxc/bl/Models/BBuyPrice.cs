@@ -13,5 +13,6 @@ namespace KM.JXC.BL.Models
         public string Desc { get; set; }
         public BShop Shop { get; set; }
         public List<BBuyPriceDetail> Details { get; set; }
+        public List<BBuyPriceDetailProduct> DetailProducts { get; set; }
     }
 }

@@ -86,7 +86,11 @@
                     url: "/api/Sale/SearchBackSaleDetails", data: "page=" + this.curPage + "&pageSize=" + this.rPP + "&sale_id=" + sale_id + "&sdate=" + sdate + "&edate=" + edate+"&status="+status
                 };
             },
-            getData: function (dataJSON) {                
+            getData: function (dataJSON) {
+                $($searchform).find("#sale_id").val("");
+                $($searchform).find("#back_sdate").val("");
+                $($searchform).find("#back_edate").val("");
+                $($searchform).find("#sale_status").val("");
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };

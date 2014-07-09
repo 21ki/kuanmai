@@ -8,24 +8,111 @@
 <script>
     var shopMgr = new KMJXCShopManager();
     var perMgr = new KMJXCPermissionManager();
+    var editPop = null;
     var currentUID=@CurrentUser.ID
+
     $(function () {
         $('#tabs').tabs();
         //$('#btn_Search').button({ icons: {primary:"ui-icon-search"}}).click(function (evt) {
 
         //});
+
+        $(document).tooltip();
+        editPop = $('#popup_user_roles');
+
         var shop_id=@CurrentShop.Shop_ID
         shopMgr.SearchShopUsers({ 'shop': shop_id, 'page': 1, 'pageSize': 5000 }, function (res) {
             if (res.data != null) {
                 var $ul = $('#users').find("ul");
                 $(res.data).each(function (index, item) {
-                    if (item.ID != currentUID) {
+                    //if (item.ID != currentUID) {
                         $("<li><input value=\"" + item.ID + "\" type=\"radio\" name=\"user_permission\" class=\"\" /><span>" + item.Mall_Name + "</span></li>").appendTo($ul);
-                    }                   
+                    //}                   
                 });
             }
         });
 
+        editPop.find('#btnAddRole').button({ text: false, icons: { primary: "ui-icon-plus" } }).click(function (e) {
+            perMgr.GetAdminRoles({ 'enabled': 1 }, function (res) {
+                if (res != null) {
+                    if (res.Status == "ok") {
+                        if (res.Item != null && res.Item != "") {
+                            var $rolesList = $("#popup_select_roles");
+                            var $ul = $rolesList.find("ul");
+                            $ul.html("");
+                            $(res.Item).each(function (index, item) {
+                                $("<li class=\"\" value=\"" + item.ID + "\" title=\"" + item.Description + "\"><input style=\"margin-right:5px;margin-left:5px;\" type=\"checkbox\" value=\"" + item.ID + "\"/><span>" + item.Name + "<span></li>").appendTo($ul);
+                            });
+
+                            $("#popup_select_roles").dialog({
+                                //position: { my: "top", at: "top", of: $("#userPermission") },
+                                width: 350,
+                                //height:550,
+                                resizable: false,
+                                title: "添加分组",
+                                modal: true,
+                                open: function () { },
+                                close: function () { },
+                                buttons: [
+                                   {
+                                       text: "保存", click: function () {
+                                           var that = this;
+                                           var $ul = $(that).find("ul");
+                                           var roList = $("#popup_user_roles").find("#role_list");
+
+                                           $ul.find("li").each(function (i, r) {
+                                               var rId = $(this).find("input[type='checkbox']").val();
+                                               var rText = $(this).find("span").html();
+                                               var checked = $(this).find("input[type='checkbox']").attr("checked");
+                                               if (checked == "checked") {
+                                                   var existed = false;
+                                                   $(roList).find("li").each(function (k, li) {
+                                                       if ($(this).attr("id").split("_")[1] == rId) {
+                                                           existed = true;
+                                                           return false;
+                                                       }
+                                                   });
+
+                                                   if (!existed) {
+                                                       $("<li title=\"点击查看权限列表\" id=\"role_" + rId + "\">" + rText + "</li>").appendTo(roList);
+                                                   }
+                                               }
+                                           });
+
+                                           $(that).dialog("close");
+                                       },
+                                       icons: { primary: "ui-icon-disk" }
+                                   },
+                                   {
+                                       text: "关闭", click: function () {
+                                           $(this).dialog("close");
+                                       },
+                                       icons: { primary: "ui-icon-close" }
+                                   }
+                                ]
+                            });
+
+                            $("#popup_select_roles").dialog("open");
+                        }
+                    }
+                }
+            });
+        });
+        editPop.find("#btnRemoveRole").button({ text: false, icons: { primary: "ui-icon-close" } }).click(function (e) {
+            var selected = false;
+            $("ul[id='role_list']").find("li").each(function (index, item) {
+                if ($(this).hasClass("sel")) {
+                    selected = true;
+                    $(this).remove();
+                    return false;
+                }
+            });
+
+            if (!selected) {
+                alert("请选择一个分组，然后点击移除");
+                return;
+            }
+        });
         $('#btn_update_role').button({ icons: { primary: "ui-icon-pencil" } }).click(function () {
 
             var $ul = $('#users').find("ul");
@@ -37,24 +124,48 @@
             
             $('#popup_user_roles').dialog({
                 position: { my: "top", at: "top", of: $("#userPermission") },
-                width: 850,
+                width: 550,
                 //height:550,
                 resizable: false,
                 title: "查看或者修改用户权限分组",
                 modal: true,
                 open: function () {
+                    var that = this;
+                    var roList = $(that).find("#role_list").html("");
+                    $(that).find('#role_action_list').html("");
                     perMgr.GetUserAdminRoles({'user':uid}, function (res) {
-                        
+                        if (res.Status == "ok" && res.Item != null && $(res.Item).size() > 0) {                            
+                            $(res.Item).each(function (i, item) {
+                                $("<li title=\"点击查看权限列表\" id=\"role_" + item.ID + "\">" + item.Name + "</li>").appendTo(roList);
+                            });
+                        }
                     });
                 },
                 close: function () { },
                 buttons: [
-                    //{
-                    //    text: "保存", click: function () {
-                            
-                    //    },
-                    //    icons: { primary: "ui-icon-disk" }
-                    //},
+                    {
+                        text: "保存", click: function () {
+                            var that = this;
+                            var roList = $(that).find("#role_list");
+                            var roles = "";
+                            $(roList).find("li").each(function (i, r) {
+                                if (roles == "") {
+                                    roles = $(this).attr("id").split("_")[1];
+                                } else {
+                                    roles +=","+ $(this).attr("id").split("_")[1];
+                                }
+                            });
+
+                            perMgr.UpdateUserRoles({ user: uid, roles: roles }, function (res) {
+                                if (res.Status == "ok") {
+                                    $(that).dialog("close");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            })
+                        },
+                        icons: { primary: "ui-icon-disk" }
+                    },
                     {
                         text: "关闭", click: function () {
                             $(this).dialog("close");
@@ -66,6 +177,38 @@
 
             $('#popup_user_roles').dialog("open");
         });
+
+        $("#role_list").delegate("li", "click", function (e) {
+
+            var rId = $(this).attr("id").split("_")[1];
+
+            if ($(this).hasClass("sel")) {
+                $(this).removeClass("sel");
+                $('#role_action_list').html("");
+                return;
+            };
+
+            $(this).addClass("sel");
+
+            var parent = $(this).parent();
+            $(parent).find("li").each(function (index, item) {
+                var id = $(this).attr("id").split("_")[1];
+                if (id != rId) {
+                    $(this).removeClass("sel");
+                }
+            });
+
+            perMgr.GetRoleActions({ 'role_id': rId }, function (res) {
+                if (res.Status == 'ok') {
+                    if (res.Item != null && $(res.Item).size() > 0) {
+                        var $aList = $('#role_action_list').html("");
+                        $(res.Item).each(function (i, action) {
+                            $("<div style=\"width:140px;padding:1px 1px;margin:1px 1px;float:left;\">" + action.Description+ "</div>").appendTo($aList);
+                        });
+                    }
+                }
+            });
+        });
     });
 </script>
 <div id="tabs">
@@ -76,7 +219,7 @@
     <div id="userPermission">
          <div id="topBar" class="list">            
             <div id="menubar" class="row">             
-               <span id="btn_update_role">查看/更新权限</span>               
+               <span id="btn_update_role">查看/更新权限</span>                 
             </div>
             <div id="message" class="row message1" style="display:none;"></div>
         </div>
@@ -92,13 +235,26 @@
     </div>
 </div>
 
-<div id="popup_user_roles" style="display:none">
-   
-    <div id="user_role_list">
-        <div id="list_bar"></div>
-        <div id="role_list"></div>
+<div id="popup_user_roles" style="display:none;overflow:hidden;">
+    <div id="list_bar" style="border-bottom:1px solid #ccc;padding-bottom:5px;"> 
+        <span id="btnAddRole">添加分组</span>
+        <span id="btnRemoveRole">移除权限分组</span> 
     </div>
-    <div id="role_action_list">
+    <div style="overflow:hidden;">
+        <div id="user_role_list" style="width:200px;float:left;">       
+            <ul id="role_list" class="ulhlist" style="">
 
+            </ul>
+        </div>
+        <div id="role_action_list" style="width:300px;float:left;overflow:hidden;padding-left:10px;">
+
+        </div>
     </div>
+    
+</div>
+
+<div id="popup_select_roles">
+    <ul class="ulchk">
+
+    </ul>
 </div>

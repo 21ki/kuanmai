@@ -504,6 +504,33 @@ function KMJXCBuyManager() {
     this.GetBuyDetails = function (params, callback) {
         this.AjaxCall("/api/Products/GetBuyDetails", params, callback);
     }
+
+    /*
+    buy_price_id:required
+    */
+    this.GetBuyPriceFullInfo = function (params, callback) {
+        this.AjaxCall("/api/Buy/GetBuyPriceFullInfo", params, callback);
+    }
+
+    /*
+    price_details - required field json string
+    desc - optional string
+    title - required string
+    */
+    this.CreateBuyPrice = function (params, callback) {
+
+        this.AjaxCall("/api/Buy/CreateBuyPrice", params, callback);
+    }
+
+    /*
+      price_id:required
+      price_details - required field json string
+      desc - optional string
+      title - required string
+    */
+    this.SaveBuyPrice = function (params, callback) {
+        this.AjaxCall("/api/Buy/SaveBuyPrice", params, callback);
+    }
 }
 
 KMJXCStockManager.prototype = new KMJXCBase();
@@ -673,6 +700,11 @@ function KMJXCPermissionManager() {
     this.GetAdminActions = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Permission/GetAdminActions", params, callback);
     }
+
+    /*
+    user: user id required
+    roles: multiple role id join with ","
+    */
     this.UpdateUserRoles = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Permission/UpdateUserRoles", params, callback);
     }
@@ -687,6 +719,13 @@ function KMJXCPermissionManager() {
     }
     this.GetUserAdminRoles = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Permission/GetUserAdminRoles", params, callback);
+    }
+
+    /*
+    role_i:required
+    */
+    this.GetRoleActions = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Permission/GetRoleActions", params, callback);
     }
 }
 

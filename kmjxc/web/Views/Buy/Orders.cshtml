@@ -139,6 +139,9 @@
                 };
             },
             getData: function (dataJSON) {
+                $('#order_id').val("");
+                $("#order_supplier").val("0");
+                $('#order_product').val("");
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };

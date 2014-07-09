@@ -1,6 +1,83 @@
 ﻿@{
-    ViewBag.Title = "PriceDetail";
+    ViewBag.Title = "询价单详细信息";
     Layout = "~/Views/Shared/master_default.cshtml";
+    KM.JXC.BL.Models.BBuyPrice buyPrice = null;
+    if(Model!=null)
+    {
+        buyPrice = Model as KM.JXC.BL.Models.BBuyPrice;
+    }
 }
 
-<h2>PriceDetail</h2>
+<script>
+    $(function () {
+        $('#tabs').tabs();
+        $('#price_Print').button({
+            icons: {
+                primary: "ui-icon-print"
+            },
+            text: false
+        }).click(function (e) {
+            $("#tabs").printArea();
+        });
+    });
+</script>
+
+<div id="tabs">
+
+    <ul>
+        <li><a href="#buyPriceInfo">询价单详细信息</a></li>
+    </ul>
+    <div id="buyPriceInfo">
+        @if (buyPrice != null) { 
+            <div class="rowS">
+                <span id="price_Print">打印</span>
+            </div>
+            <div class="rowS"><label style="text-align:right;margin-right:3px;">名称:</label>@buyPrice.Title</div>
+            <div class="rowS" style="height:auto;"><label style="text-align:right;margin-right:3px;">备注:</label>@buyPrice.Desc</div>
+            <div class="rowS" style="height:auto;"><label style="text-align:right;margin-right:3px;">时间:</label>@if (buyPrice.Created > 0) {@KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(buyPrice.Created).ToString("yyyy-MM-dd H:mm") }</div>
+            <div class="rowS" style="height:auto;"><label style="text-align:right;margin-right:3px;">创建者:</label>@buyPrice.User.Mall_Name</div>
+            <div class="rowS nolabel1" style="height:auto;overflow:hidden;">
+               
+                <div class="row" style="height:auto;">
+                    @foreach (KM.JXC.BL.Models.BBuyPriceDetailProduct product in buyPrice.DetailProducts) {
+                        bool noSku = false;
+                        if (product.Product.Children == null || product.Product.Children.Count <= 0) {
+                            noSku = true;
+                        }
+                        <div class="row" style="height:auto;border-bottom:1px solid #ccc;margin-bottom:5px;padding-bottom:10px;">
+                            <span style="display:block;width:300px;margin-right:10px;">@product.Product.Title</span>
+                            @if(product.Details!=null && product.Details.Count>0){
+                                <ul class="ulchk">
+                                @foreach (KM.JXC.BL.Models.BBuyPriceDetail detail in product.Details) { 
+                                    <li>
+                                        @if(noSku){
+                                            <span style="display:inline-block;width:150px;text-align:center;"></span>
+                                        }else{
+                                            string propNames="";
+
+                                            foreach (KM.JXC.BL.Models.BProductProperty prop in detail.Product.Properties) {
+                                                if (propNames == "")
+                                                {
+                                                    propNames = prop.PName + ":" + prop.PValue;
+                                                }
+                                                else {
+                                                    propNames +=";"+ prop.PName + ":" + prop.PValue;
+                                                }
+                                            }
+                                            
+                                            <span style="display:inline-block;width:150px;text-align:center;">@propNames</span>
+                                        }
+
+                                        <span style="display:inline-block;width:150px;text-align:center;">@detail.Supplier.Name</span>
+                                        <label>单价:</label><input class="W_input" style="width:50px;" readonly="readonly" type="text" value="@detail.Price" />
+                                    </li>
+                                }
+                                </ul>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

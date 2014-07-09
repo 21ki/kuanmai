@@ -45,14 +45,42 @@ namespace KM.JXC.Web.Controllers
 
         public ActionResult PriceDetail(string id)
         {
-            return View();
+            if (string.IsNullOrEmpty(id))
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的询价单编号"));
+            }
+
+            int oId = 0;
+            int.TryParse(id, out oId);
+            string uid = HttpContext.User.Identity.Name;
+            if (oId <= 0)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的询价单编号"));
+            }
+            BBuyPrice buyPrice = null;
+            try
+            {
+                UserManager userMgr = new UserManager(int.Parse(uid), null);
+                BUser user = userMgr.CurrentUser;
+                BuyManager buyManager = new BuyManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+                buyPrice = buyManager.GetBuyPriceFullInfo(oId);
+            }
+            catch (KMJXCException kex)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode(kex.Message));
+            }
+            catch
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("未知错误"));
+            }
+            return View(buyPrice);
         }
 
         public ActionResult BuyOrderDetail(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单ID"));
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单编号"));
             }
 
             int oId = 0;
@@ -61,7 +89,7 @@ namespace KM.JXC.Web.Controllers
             BBuyOrder order = null;
             if (oId <= 0)
             {
-                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单ID"));
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单编号"));
             }
             try
             {
@@ -85,7 +113,7 @@ namespace KM.JXC.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单ID"));
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单编号"));
             }
 
             int bId = 0;
@@ -93,7 +121,7 @@ namespace KM.JXC.Web.Controllers
             string uid = HttpContext.User.Identity.Name;
             if (bId <=0)
             {
-                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单ID"));
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("请输入正确的验货单编号"));
             }
             BBuy buy = null;
             try

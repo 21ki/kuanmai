@@ -218,6 +218,27 @@ namespace KM.JXC.BL
             return actions;
         }
 
+        public List<BAdminAction> GetRoleActions(int role_id)
+        {
+            List<BAdminAction> actions = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmpActions=from ar in db.Admin_Role_Action where ar.role_id==role_id select ar.action_id;
+
+                var acts = from ac in db.Admin_Action
+                           where tmpActions.Contains(ac.id)
+                           select new BAdminAction
+                           {
+                               ID = ac.id,
+                               ActionName = ac.action_name,
+                               Description=ac.action_description
+                           };
+
+                actions = acts.ToList<BAdminAction>();
+            }
+            return actions;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -232,7 +253,16 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                int[] userRoles=(from role in db.Admin_User_Role where role.user_id==user_id select role.role_id ).ToArray<int>();
+                if (user_id == this.Shop.User_ID)
+                {
+                    if (CurrentUser.ID != user_id)
+                    {
+                        throw new KMJXCException("您没有权限更新店铺掌柜的权限");
+                    }
+                }
+
+                List<Admin_User_Role> uRoles = (from role in db.Admin_User_Role where role.user_id == user_id select role).ToList<Admin_User_Role>();
+                int[] userRoles = (from role in uRoles select role.role_id).ToArray<int>();
 
                 foreach (int role in roles)
                 {
@@ -240,6 +270,14 @@ namespace KM.JXC.BL
                     {
                         Admin_User_Role uRole = new Admin_User_Role() { role_id=role, user_id=user_id };
                         db.Admin_User_Role.Add(uRole);
+                    }
+                }
+
+                foreach (Admin_User_Role role in uRoles)
+                {
+                    if (!roles.Contains(role.role_id))
+                    {
+                        db.Admin_User_Role.Remove(role);
                     }
                 }
 

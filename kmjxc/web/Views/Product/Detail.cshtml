@@ -9,7 +9,15 @@
 <script>
     $(function () {
         $('#tabs').tabs();
-        $("a[id='btnEditProduct']").button({ icons: { primary: "ui-icon-pencil" } });
+        $("a[id='btnEditProduct']").button({ icons: { primary: "ui-icon-pencil" }, text: false });
+        $('#btnPrintProduct').button({
+            icons: {
+                primary: "ui-icon-print"
+            },
+            text: false
+        }).click(function (e) {
+            $("#tabs").printArea();
+        });
     });
 </script>
 
@@ -20,7 +28,7 @@
     </ul>
     <div id="productInfo"> 
         <div class="row">
-           <a id="btnEditProduct" href="/Product/List?type=edit&id=@product.ID">编辑</a>
+           <a id="btnEditProduct" href="/Product/List?type=edit&id=@product.ID">编辑</a>  <span id="btnPrintProduct">打印</span>
         </div>      
         <div class="row">
             <label for="productName">编号:</label><span id="productNumber">@Html.Raw(product.ID)</span>
@@ -45,7 +53,7 @@
             @if (product.Children != null) {                 
                      foreach (KM.JXC.BL.Models.BProduct child in product.Children) { 
                         <ul class="row propul" style="margin-left:0px;">
-                                <li style="float:left;display:inline-block;">库存编号:@Html.Raw(child.ID)</li>
+                                <li style="float:left;display:inline-block;">编号:@Html.Raw(child.ID)</li>
                             @foreach(KM.JXC.BL.Models.BProductProperty prop in child.Properties){
                                 <li style="float:left;display:inline-block;">@Html.Raw(prop.PName+":"+prop.PValue)</li>
                             }

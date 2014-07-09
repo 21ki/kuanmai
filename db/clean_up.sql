@@ -1,5 +1,7 @@
 set SQL_SAFE_UPDATES=0;
 
+delete from Buy_Price;
+delete from Buy_Price_Detail;
 delete from Buy_Order;
 delete from Buy_Order_Detail;
 delete from Buy;
@@ -21,3 +23,4 @@ delete from Sale_SyncTime;
 delete from SyncWithMall;
 delete from Product;
 delete from Stock_Pile;
+delete from Stock_Waste;

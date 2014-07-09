@@ -92,6 +92,39 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public ApiMessage GetRoleActions()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            List<BAdminAction> actions = new List<BAdminAction>();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            PermissionManagement permissionMgt = new PermissionManagement(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int role_id = 0;
+            int.TryParse(request["role_id"], out role_id);
+            try
+            {
+                actions = permissionMgt.GetRoleActions(role_id);
+                message.Item = actions;
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch
+            {
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
+
+        [HttpPost]
         public ApiMessage UpdateUserRoles()
         {
             ApiMessage message = new ApiMessage() { Status = "ok" };            

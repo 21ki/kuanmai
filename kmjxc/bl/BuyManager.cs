@@ -1399,7 +1399,7 @@ namespace KM.JXC.BL
         /// <param name="details"></param>
         /// <param name="buyPriceId"></param>
         /// <returns></returns>
-        public bool CreateBuyPriceDetails(List<BBuyPriceDetail> details, int buyPriceId)
+        public bool SaveBuyPriceDetails(List<BBuyPriceDetail> details, int buyPriceId)
         {
             bool result = false;
 
@@ -1415,33 +1415,49 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
+                 List<Buy_Price_Detail> priceDetails=(from p in db.Buy_Price_Detail where p.Buy_Price_ID==buyPriceId select p).ToList<Buy_Price_Detail>();
+
                 foreach (BBuyPriceDetail detail in details)
                 {
+                    bool isNew = false;
                     if (detail.Supplier == null || detail.Product==null)
                     {
                         continue;
                     }
-                    Buy_Price_Detail dbDetail = new Buy_Price_Detail();
-                    dbDetail.Buy_Price_ID = buyPriceId;
-                    dbDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    if (detail.Created > 0)
+                    Buy_Price_Detail dbDetail = (from pd in priceDetails 
+                                                 where pd.Buy_Price_ID==buyPriceId && pd.Product_ID==detail.Product.ID && pd.Supplier_ID==detail.Supplier.ID 
+                                                 select pd).FirstOrDefault<Buy_Price_Detail>();
+
+                    if (dbDetail == null)
                     {
-                        dbDetail.Created = detail.Created;
+                        isNew = true;
+                        dbDetail = new Buy_Price_Detail();
                     }
 
-                    dbDetail.Description = detail.Desc;
-                    if (dbDetail.Description == null)
-                    {
-                        dbDetail.Description = "";
-                    }
-
-                    dbDetail.Parent_Product_ID = detail.Product.ParentID;
                     dbDetail.Price = detail.Price;
-                    dbDetail.Product_ID = detail.Product.ID;
-                    dbDetail.Supplier_ID = detail.Supplier.ID;
-                    dbDetail.PricedUser_ID = 0;
-                    dbDetail.Buy_Price_ID = buyPriceId;
-                    db.Buy_Price_Detail.Add(dbDetail);
+
+                    if (isNew)
+                    {
+                        dbDetail.Buy_Price_ID = buyPriceId;
+                        dbDetail.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        if (detail.Created > 0)
+                        {
+                            dbDetail.Created = detail.Created;
+                        }
+
+                        dbDetail.Description = detail.Desc;
+                        if (dbDetail.Description == null)
+                        {
+                            dbDetail.Description = "";
+                        }
+
+                        dbDetail.Parent_Product_ID = detail.Product.ParentID;                       
+                        dbDetail.Product_ID = detail.Product.ID;
+                        dbDetail.Supplier_ID = detail.Supplier.ID;
+                        dbDetail.PricedUser_ID = 0;
+                        db.Buy_Price_Detail.Add(dbDetail);
+                    }
+
                 }
 
                 db.SaveChanges();
@@ -1497,7 +1513,85 @@ namespace KM.JXC.BL
                 result = true;
                 if (dbBuyPrice.ID > 0 && buyPrice.Details!=null && buyPrice.Details.Count>0)
                 {
-                    result = result & this.CreateBuyPriceDetails(buyPrice.Details, dbBuyPrice.ID);
+                    result = result & this.SaveBuyPriceDetails(buyPrice.Details, dbBuyPrice.ID);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="buyPrice"></param>
+        /// <returns></returns>
+        public bool SaveBuyPrice(BBuyPrice buyPrice)
+        {
+            bool result = false;
+
+            if (this.CurrentUserPermission.CREATE_BUY_PRICE == 0)
+            {
+                throw new KMJXCException("没有权限创建采购询价单");
+            }
+
+            if (buyPrice == null)
+            {
+                throw new KMJXCException("输入不正确");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Buy_Price dbBuyPrice = null;
+                bool isNew = false;
+                if (buyPrice.ID > 0)
+                {
+                    dbBuyPrice = (from price in db.Buy_Price where price.ID == buyPrice.ID select price).FirstOrDefault<Buy_Price>();
+                    if (dbBuyPrice == null)
+                    {
+                        isNew = true;
+                        dbBuyPrice = new Buy_Price();
+                    }
+                }
+                else
+                {
+                    isNew = true;
+                    dbBuyPrice = new Buy_Price();
+                }
+
+                dbBuyPrice.Title = buyPrice.Title;
+                dbBuyPrice.Description = buyPrice.Desc;
+                if (string.IsNullOrEmpty(dbBuyPrice.Description))
+                {
+                    dbBuyPrice.Description = "";
+                }
+
+                if (isNew)
+                {
+                    dbBuyPrice.Shop_ID = this.Shop.Shop_ID;
+                    if (buyPrice.Shop != null && buyPrice.Shop.ID > 0)
+                    {
+                        dbBuyPrice.Shop_ID = buyPrice.Shop.ID;
+                    }
+
+                    dbBuyPrice.User_ID = this.CurrentUser.ID;
+                    if (buyPrice.User != null && buyPrice.User.ID > 0)
+                    {
+                        dbBuyPrice.User_ID = buyPrice.User.ID;
+                    }
+
+                    if (buyPrice.Created <= 0)
+                    {
+                        dbBuyPrice.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    }
+
+                    dbBuyPrice.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    db.Buy_Price.Add(dbBuyPrice);
+                }
+                db.SaveChanges();
+                result = true;
+                if (dbBuyPrice.ID > 0 && buyPrice.Details != null && buyPrice.Details.Count > 0)
+                {
+                    result = result & this.SaveBuyPriceDetails(buyPrice.Details, dbBuyPrice.ID);
                 }
             }
 
@@ -1515,7 +1609,7 @@ namespace KM.JXC.BL
         /// <param name="pageSize"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        public List<BBuyPrice> SearchBuyPrices(int buyPriceID,int priceUserID,int supplierID,int productID,int page,int pageSize,out int total,int shopID=0)
+        public List<BBuyPrice> SearchBuyPrices(int buyPriceID,int priceUserID,int supplierID,int productID,string keyword,int page,int pageSize,out int total,int shopID=0)
         {
             List<BBuyPrice> prices = new List<BBuyPrice>();
             total = 0;
@@ -1556,6 +1650,13 @@ namespace KM.JXC.BL
                     tmp = tmp.Where(b => priceIds.Contains(b.ID));
                 }
 
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    int[] product_ids=(from p in db.Product where p.Name.Contains(keyword) select p.Product_ID).ToArray<int>();
+                    int[] priceIds = (from bpd in db.Buy_Price_Detail where product_ids.Contains(bpd.Product_ID) select bpd.Buy_Price_ID).ToArray<int>();
+                    tmp = tmp.Where(b => priceIds.Contains(b.ID));
+                }
+
                 var tmpPrices = from b in tmp
                                 join shop in db.Shop on b.Shop_ID equals shop.Shop_ID into LShop
                                 from l_shop in LShop.DefaultIfEmpty()
@@ -1591,7 +1692,7 @@ namespace KM.JXC.BL
         /// </summary>
         /// <param name="buyPriceID"></param>
         /// <returns></returns>
-        public BBuyPrice GetBuyPriceDetails(int buyPriceID)
+        public BBuyPrice GetBuyPriceFullInfo(int buyPriceID)
         {
             if (this.CurrentUserPermission.VIEW_BUY_PRICE == 0)
             {
@@ -1669,14 +1770,23 @@ namespace KM.JXC.BL
 
                 price.Details = tmpDetails.ToList<BBuyPriceDetail>();
 
-                int[] product_ids=(from d in price.Details select d.Product.ID).ToArray<int>();
+                int[] product_ids=(from d in price.Details select d.Product.ParentID).Distinct().ToArray<int>();
+                List<BProduct> children = (from p in db.Product
+                                           where product_ids.Contains(p.Parent_ID)
+                                           select new BProduct
+                                           {
+                                               ID = p.Product_ID,
+                                               ParentID = p.Parent_ID,
+                                               Title = p.Name
+                                           }).ToList<BProduct>();
+                int[] child_product_ids = (from p in children select p.ID).Distinct().ToArray<int>();
                 List<BProductProperty> properties = null;
                 properties = (from pv in db.Product_Specifications
                               join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
                               from l_prop in LProp.DefaultIfEmpty()
                               join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
                               from l_propv in LPropv.DefaultIfEmpty()
-                              where product_ids.Contains(pv.Product_ID)
+                              where child_product_ids.Contains(pv.Product_ID)
                               select new BProductProperty
                               {
                                   PID = pv.Product_Spec_ID,
@@ -1686,10 +1796,53 @@ namespace KM.JXC.BL
                                   PVID = pv.Product_Spec_Value_ID
                               }).ToList<BProductProperty>();
 
+                foreach (BProduct child in children)
+                {
+                    child.Properties=(from prop in properties where prop.ProductID==child.ID select prop).ToList<BProductProperty>();
+                }
+
+                List<BBuyPriceDetailProduct> dProducts = new List<BBuyPriceDetailProduct>();
+                
                 foreach (BBuyPriceDetail detail in price.Details)
                 {
-                    detail.Product.Properties=(from p in properties where p.ProductID==detail.Product.ID select p).ToList<BProductProperty>();
+                    detail.Product.Properties = (from p in properties where p.ProductID == detail.Product.ID select p).ToList<BProductProperty>();
+                    int product_id = detail.Product.ParentID;
+                    if (product_id == 0)
+                    {
+                        product_id = detail.Product.ID;
+                    }
+
+                    BBuyPriceDetailProduct dProduct = (from dp in dProducts where dp.Product.ID == product_id select dp).FirstOrDefault<BBuyPriceDetailProduct>();
+                    if (dProduct == null)
+                    {
+                        dProduct = new BBuyPriceDetailProduct();
+                        dProduct.Product = new BProduct() { ID = product_id, Title = detail.Product.Title };
+                        dProduct.Product.Children = (from c in children where c.ParentID == product_id select c).ToList<BProduct>();
+                        dProduct.Suppliers = (from sp in db.Product_Supplier
+                                              join su in db.Supplier on sp.Supplier_ID equals su.Supplier_ID
+                                              where sp.Product_ID == product_id
+                                              select new BSupplier
+                                              {
+                                                  ID=sp.Supplier_ID,
+                                                  Name=su.Name
+                                              }).ToList<BSupplier>();
+
+
+                        if (product_id != detail.Product.ID)
+                        {
+                            dProduct.Details = (from d in price.Details where d.Product.ParentID == dProduct.Product.ID select d).ToList<BBuyPriceDetail>();
+                        }
+                        else
+                        {
+                            dProduct.Details = (from d in price.Details where d.Product.ID == dProduct.Product.ID select d).ToList<BBuyPriceDetail>();
+
+                        }
+
+                        dProducts.Add(dProduct);
+                    }                    
                 }
+
+                price.DetailProducts = dProducts;
             }
             return price;
         }

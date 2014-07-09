@@ -1886,7 +1886,10 @@ namespace KM.JXC.BL
                     int[] child_shop_ids = (from c in this.ChildShops select c.ID).ToArray<int>();
                     if (!child_shop_ids.Contains(locMallProduct.Shop_ID))
                     {
-                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                        if (locMallProduct.Shop_ID != this.Main_Shop.Shop_ID)
+                        {
+                            throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                        }
                     }
                     else
                     {

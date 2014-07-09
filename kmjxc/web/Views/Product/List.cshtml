@@ -565,7 +565,7 @@
                     var $ui = $("<ul id=\"propGroup_" + item.ID + "\" class=\"row propul\"></ul>").appendTo($props);
                     var pdtId = item.ID;
                     if (item.Properties != null && $(item.Properties).size() > 0) {
-                        $("<li style=\"float:left;display:inline-block;\">库存编号:" + pdtId + "</li>").appendTo($ui);
+                        $("<li style=\"float:left;display:inline-block;\">编号:" + pdtId + "</li>").appendTo($ui);
                         $(item.Properties).each(function (index, item) {
                             var json = { 'pdtid': pdtId, 'pid': item.PID, 'pvalue': item.PName, 'vid': item.PVID, 'vvalue': item.PValue };
                             propGroup.push(json);
@@ -761,7 +761,9 @@
                 };
             },
             getData: function (dataJSON) {
-                //alert(dataJSON.totalRecords);
+                $searchform.find("#pq-parent-cate").val("0");
+                $searchform.find("#pq-child-cate").val("0");
+                $searchform.find('#pdt_key_word').val("");               
                 return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
             }
         };
