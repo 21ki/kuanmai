@@ -15,7 +15,7 @@ using KM.JXC.Common.Util;
 namespace KM.JXC.Web.Controllers.api
 {
     [Authorize]
-    public class CategoriesController : ApiController
+    public class CategoriesController : BaseApiController
     {
         [HttpPost]
         public PQGridData GetCategories()
@@ -313,6 +313,37 @@ namespace KM.JXC.Web.Controllers.api
                 {
                     message.Message = "操作失败";
                 }
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException kex)
+            {
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage BatchUpdatePropertiesCategory()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok", Message = "" };
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            Shop MainShop = userMgr.Main_Shop;
+            ShopCategoryManager cateMgr = new ShopCategoryManager(userMgr.CurrentUser, MainShop, userMgr.CurrentUserPermission);
+
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            int[] props = null;
+            int category_id = 0;
+            try
+            {
+                int.TryParse(request["category_id"],out category_id);
+                props = base.ConvertToIntArrar(request["props"]);
+                cateMgr.BatchUpdatePropertiesCategory(props, category_id);
             }
             catch (KM.JXC.Common.KMException.KMJXCException kex)
             {

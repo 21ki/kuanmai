@@ -912,17 +912,21 @@ namespace KM.JXC.BL
                                          where ps.Product_ID == product.ID
                                          select sp
                                       ).ToList<Supplier>();
+                   
+                    //product.Properties = properties;
+                    List<Product> children = (from p in db.Product where p.Parent_ID == product.ID select p).ToList<Product>();
+                    int[] children_ids=(from c in children select c.Product_ID).ToArray<int>();
                     List<BProductProperty> properties = (from pp in db.Product_Specifications
-                                                         where pp.Product_ID == product.ID
+                                                         where children_ids.Contains(pp.Product_ID)
                                                          select new BProductProperty
                                                          {
+                                                             ProductID=pp.Product_ID,
                                                              PID = pp.Product_Spec_ID,
                                                              PName = (from prop in db.Product_Spec where prop.Product_Spec_ID == pp.Product_Spec_ID select prop.Name).FirstOrDefault<string>(),
                                                              PVID = pp.Product_Spec_Value_ID,
                                                              PValue = (from propv in db.Product_Spec_Value where propv.Product_Spec_Value_ID == pp.Product_Spec_Value_ID select propv.Name).FirstOrDefault<string>()
                                                          }).ToList<BProductProperty>();
-                    product.Properties = properties;
-                    List<Product> children = (from p in db.Product where p.Parent_ID == product.ID select p).ToList<Product>();
+
                     if (children != null && children.Count > 0)
                     {
                         if (product.Children == null)
@@ -931,7 +935,9 @@ namespace KM.JXC.BL
                         }
                         foreach (Product pdt in children)
                         {
-                            product.Children.Add(GetProductFullInfo(pdt.Product_ID));
+                            BProduct child = new BProduct() {  ID=pdt.Product_ID,Title=product.Title};
+                            child.Properties=(from prop in properties where prop.ProductID==child.ID select prop).ToList<BProductProperty>();
+                            product.Children.Add(child);
                         }
                     }
                 }
@@ -949,6 +955,70 @@ namespace KM.JXC.BL
                 db.Dispose();
             }
             return product;
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
+        public List<BProduct> GetProductProperties(int productId)
+        {
+            List<BProduct> props = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Product product = (from p in db.Product where p.Product_ID == productId select p).FirstOrDefault<Product>();
+                if (product == null)
+                {
+                    throw new KMJXCException("编号为:" + productId + " 的产品不存在");
+                }
+
+                var mall_id = from m in db.Mall_Product
+                              where m.Outer_ID == productId
+                              select m.Mall_ID;
+
+                var children_id = from sku in db.Mall_Product_Sku
+                                  where mall_id.Contains(sku.Mall_ID) && sku.Outer_ID>0
+                                  select sku.Outer_ID;
+
+                props=(from p in db.Product
+                                  where p.Parent_ID == productId && !children_id.Contains(p.Product_ID)
+                                  select new BProduct
+                                  {
+                                     ID=p.Product_ID,
+                                     Title=p.Name                
+                                  }).ToList<BProduct>();
+
+                if (props == null || props.Count <= 0)
+                {
+                    throw new KMJXCException("编号为:" + productId + " 的产品不存在销售属性");
+                }
+
+                int[] tmpProducts = (from p in props select p.ID).ToArray<int>();
+
+                List<BProductProperty> properties = new List<BProductProperty>();
+                properties = (from pv in db.Product_Specifications
+                         join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                         from l_prop in LProp.DefaultIfEmpty()
+                         join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                         from l_propv in LPropv.DefaultIfEmpty()
+                         where tmpProducts.Contains(pv.Product_ID)
+                         select new BProductProperty
+                         {                             
+                             PID = pv.Product_Spec_ID,
+                             PName = l_prop.Name,
+                             ProductID = pv.Product_ID,
+                             PValue = l_propv.Name,
+                             PVID = pv.Product_Spec_Value_ID
+                         }).ToList<BProductProperty>();
+
+                foreach (BProduct prop in props)
+                {
+                    prop.Properties=(from prp in properties where prp.ProductID==prop.ID select prp).ToList<BProductProperty>();
+                }
+            }
+
+            return props;
         }
     }
 }

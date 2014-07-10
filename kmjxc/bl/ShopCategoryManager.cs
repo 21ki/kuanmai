@@ -265,11 +265,7 @@ namespace KM.JXC.BL
 
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
-                Product_Class existed=(from ca in db.Product_Class where ca.Name.ToLower()==category.Name.ToLower() && ca.Shop_ID==this.Main_Shop.Shop_ID select ca).FirstOrDefault<Product_Class>();
-                if (existed != null)
-                {
-                    throw new KMJXCException("名为"+category.Name+"的类目已经存在");
-                }
+                
 
                 Product_Class pc = new Product_Class();
                 pc.Create_Time = category.Created;
@@ -294,6 +290,20 @@ namespace KM.JXC.BL
                 else {
                     pc.Parent_ID = category.Parent.ID;
                 }
+
+                Product_Class existed = (from ca in db.Product_Class where ca.Name.ToLower() == category.Name.ToLower() && ca.Shop_ID == pc.Shop_ID && ca.Parent_ID==pc.Parent_ID select ca).FirstOrDefault<Product_Class>();
+                if (existed != null)
+                {
+                    if (pc.Parent_ID > 0)
+                    {
+                        throw new KMJXCException("名为" + category.Name + "的子类目已经存在");
+                    }
+                    else
+                    {
+                        throw new KMJXCException("名为" + category.Name + "的类目已经存在");
+                    }
+                }
+
                 db.Product_Class.Add(pc);
                 db.SaveChanges();
                 category.ID = pc.Product_Class_ID;
@@ -432,6 +442,12 @@ namespace KM.JXC.BL
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyId"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
         public bool AddNewPropValue(int propertyId, List<string> values)
         {
             bool result = false;
@@ -615,13 +631,6 @@ namespace KM.JXC.BL
             return bproperty;
         }
 
-        public BProperty GetProperty(int propId)
-        {
-            BProperty prop = null;
-
-            return prop;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -802,6 +811,34 @@ namespace KM.JXC.BL
                 }
             }
             return properties;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="property_ids"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public bool BatchUpdatePropertiesCategory(int[] property_ids, int category)
+        {
+            bool result = false;
+            if (this.CurrentUserPermission.UPDATE_PORPERTY==0)
+            {
+                throw new KMJXCException("没有权限修改属性");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                List<Product_Spec> properties=(from p in db.Product_Spec where property_ids.Contains(p.Product_Spec_ID) select p).ToList<Product_Spec>();
+                foreach (Product_Spec prop in properties)
+                {
+                    prop.Product_Class_ID = category;
+                }
+
+                db.SaveChanges();
+                result = true;
+            }
+            return result;
         }
     }
 }

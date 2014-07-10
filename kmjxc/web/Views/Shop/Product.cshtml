@@ -231,26 +231,21 @@
         }
 
         $('#popup_guanlian').dialog({
-            position: { my: "top", at: "top", of: $("#mallpdtlist") },
+            position: { my: "top", at: "bottom", of: $(obj), collision: "fit" },
             width: 450,
             //height:550,
             resizable: false,
             title: "关联商城宝贝",
             modal: true,
+            draggable:false,
             open: function () {
                 $(this).find('#opt_products_list_Pager').html("").hide();
                 if (type == 1) {
                     var $ul = $('#opt_products_list');
                     $ul.html("");
-                    pdtMgr.GetProductFullInfo({ 'product_id': pOuterId }, function (res) {
-                        if (res.Status == "ok" && res.Item != null) {
-                            if (res.Item.Children == null) {
-                                alert("产品:" + res.Item.Title + " 还没有任何销售属性（库存属性），请先编辑产品添加库存属性");
-                                $(this).dialog("close");
-                                return;
-                            }
-
-                            $(res.Item.Children).each(function (index, item) {
+                    pdtMgr.GetProductProperties({ 'product_id': pOuterId }, function (res) {
+                        if (res.Status == "ok" && res.Item != null) {                            
+                            $(res.Item).each(function (index, item) {
                                 var $li = $("<li></li>").appendTo($ul);
                                 var $radio = $("<input value=\"" + item.ID + "\" type=\"radio\" name=\"opt_productsel\"/>").appendTo($li);
                                 $(item.Properties).each(function (index1, item1) {
@@ -269,7 +264,7 @@
                 $('#opt_pcategory').val("0");
                 $('#opt_ccategory').empty().hide();
                 $('#opt_products_list').html("");
-                
+                $('#opt_keyword').val("");
             },
             buttons: [
                    {
@@ -283,7 +278,9 @@
                            }
 
                            if (type == 0) {
+                               new ShowProgress("sync_trade_progress_bar", function () { }, "正在关联进销存产品编号到商城宝贝商家编码，不要关闭浏览器，请耐心等待...");
                                shopMgr.MapMallProduct({ 'mall_id': mall_id, 'product_id': product_id }, function (res) {
+                                   Boxy.get($('#sync_trade_progress_bar')).hide();
                                    if (res.Status == 'ok') {
                                        location.reload();
                                    } else {
@@ -292,7 +289,9 @@
                                });
 
                            } else if (type == 1) {
+                               new ShowProgress("sync_trade_progress_bar", function () { }, "正在关联进销存产品销售属性编号到商城宝贝SKU商家编码，不要关闭浏览器，请耐心等待...");
                                shopMgr.MapMallProductSku({ 'sku_id': mall_id, 'product_id': product_id }, function (res) {
+                                   Boxy.get($('#sync_trade_progress_bar')).hide();
                                    if (res.Status == 'ok') {
                                        location.reload();
                                    } else {

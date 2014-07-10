@@ -93,8 +93,9 @@
             }
             etime=new Date(etime);
             var eyear = etime.getFullYear();
-            var emonth = (etime.getMonth() + 1) > 10 ? (etime.getMonth() + 1) : "0" + (etime.getMonth() + 1).toString();
-            var eday = etime.getDate() > 10 ? etime.getDate() : "0" + etime.getDate().toString();
+            var emonth = (etime.getMonth() + 1) >= 10 ? (etime.getMonth() + 1) : "0" + (etime.getMonth() + 1).toString();           
+            var eday = etime.getDate() >= 10 ? etime.getDate() : "0" + etime.getDate().toString();
+           
             $syncForm.find('#trade_edate').val(eyear + "-" + emonth + "-" + eday);
             $syncForm.find('#trade_edate_hour').val(etime.getHours());
             $syncForm.find('#trade_edate_minute').val(etime.getMinutes());
@@ -154,7 +155,14 @@
             }, function (res) {
                 Boxy.get($('#sync_trade_progress_bar')).hide();
                 if (res.Status == 'ok') {
-                    alert("同步完成");
+                    new MessageBox("同步完成,请到订单查询里查看新同步的订单", 1500);
+                    $syncForm.find('#trade_sdate').val(edate.getFullYear() + "-" + ((edate.getMonth() + 1) > 10 ? (edate.getMonth()+1) : "0" + (edate.getMonth()+1)) + "-" + ((edate.getDate() + 1) > 10 ? (edate.getDate() + 1) : "0" + (edate.getDate() + 1)));
+                    $syncForm.find('#trade_sdate_hour').val(edate.getHours());
+                    $syncForm.find('#trade_sdate_minute').val(edate.getMinutes());
+                    var nDate = new Date();
+                    $syncForm.find('#trade_edate').val(nDate.getFullYear() + "-" + ((nDate.getMonth() + 1) > 10 ? (nDate.getMonth()+1) : "0" + (nDate.getMonth()+1)) + "-" + ((edate.getDate() + 1) > 10 ? (edate.getDate() + 1) : "0" + (edate.getDate() + 1)));
+                    $syncForm.find('#trade_edate_hour').val(nDate.getHours());
+                    $syncForm.find('#trade_edate_minute').val(nDate.getMinutes());
                 } else if (res.Status == 'failed') {
                     alert(res.Message);
                 }

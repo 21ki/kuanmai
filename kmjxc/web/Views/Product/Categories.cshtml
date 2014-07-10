@@ -223,24 +223,18 @@
                             $('#savemessage').show();
                             return;
                         }
-                        if (cid == 0) {
-                            cid = $frm.find('#cateParent').val();
-                        }
-                       
+                        cid = $frm.find('#cateParent').val();                       
+                        
                         cateMgr.CreateCategory({ 'name': name, 'parent_id': cid }, function (response) {
-                            if (typeof (response) == 'object') {
-                               
+                            if (typeof (response) == 'object') {                               
                                 if (response.Status == "ok") {
-                                    if (cid <= 0) {
-                                        $grid.pqGrid("refreshDataAndView");
-                                    } else {
-                                        var title = row["Name"]+" 的子类目列表";
+                                    $(that).dialog("close");
+                                    $grid.pqGrid("refreshDataAndView");
+                                    var title = row["Name"] + " 的子类目列表";
+                                    if ($cgrid != null) {
                                         $cgrid = $("#ccategoryList").pqGrid(cobj);
                                         $cgrid.pqGrid("option", "title", title);
-                                        //$cgrid.pqGrid("refreshDataAndView");
-                                    }
-
-                                    $(that).dialog("close");
+                                    }                                    
                                 } else {
                                     $('#savemessage').html(response.Message)
                                     $('#savemessage').show();

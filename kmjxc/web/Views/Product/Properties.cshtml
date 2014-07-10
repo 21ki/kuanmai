@@ -7,6 +7,39 @@
     var cateMgr = new KMJXCProductManager();
     var valueRows = 0;
     $(document).ready(function () {
+
+        cateMgr.GetCategories({ 'parent_id': 0 }, function (res) {
+            var $pcate = $("#pop_batch_edit_category").find("#batch_pCategory");
+            if ($(res.data).size() > 0) {
+                $(res.data).each(function (index, item) {
+                    $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($pcate);
+                });
+            }
+        });
+
+        $("#pop_batch_edit_category").find("#batch_pCategory").change(function () {
+            var $ccate = $("#pop_batch_edit_category").find("#batch_cCategory");
+            var pcid = $(this).val();
+            if (pcid > 0) {
+                cateMgr.GetCategories({ 'parent_id': pcid }, function (res) {
+                    $ccate.empty();
+                    if ($(res.data).size() > 0) {
+
+                        $("<option value=\"0\">--选择--</option>").appendTo($ccate);
+                        $(res.data).each(function (index, item) {
+                            $("<option value=\"" + item.ID + "\">" + item.Name + "</option>").appendTo($ccate);
+                        });
+                        $ccate.show();
+                    } else {
+                        $ccate.hide();
+                    }
+                });
+            } else {
+                $ccate.empty();
+                $ccate.hide();
+            }
+        });
+
         valueRows = $('#propValueList li').size();
 
         var obj = { width: 859, height: 600, title: "属性列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' } };
@@ -70,6 +103,10 @@
             });
             $("<span>查看/修改</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
                 editRow();
+            });
+
+            $("<span>批量修改类目</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-pencil" } }).click(function (evt) {
+                BatchEditCategories();
             });
             //$("<span>删除</span>").appendTo($toolbar).button({ icons: { primary: "ui-icon-circle-minus" } }).click(function () {
             //    deleteRow();
@@ -275,11 +312,17 @@
         });
 
         function editRow() {
-            var rowIndx = getRowIndx();
-            if (rowIndx != null) {
+            var rows = getRowIndx();
+            if (rows != null) {
+
+                if (rows.length > 1) {
+                    alert("只能选择一行属性进行修改");
+                    return;
+                }
+
                 var DM = $grid.pqGrid("option", "dataModel");
                 var data = DM.data;
-                var row = data[rowIndx];
+                var row = data[rows[0]];
                 var $frm = $("form#crud-form");
                 var pId = row["ID"];
                 var pName = row["Name"];
@@ -349,30 +392,114 @@
             }
         }
 
+        function BatchEditCategories() {
+            var rows = getRowIndx();
+
+            if (rows==null) {
+                alert("请至少选择一行属性进行批量类目修改");
+                return;
+            }
+
+            var $ui = $("#pop_batch_properties_list");
+            $ui.html("");
+            var DM = $grid.pqGrid("option", "dataModel");
+            var data = DM.data;
+            for (var i = 0; i < rows.length; i++) {
+                var $li = $("<li></li>").appendTo($ui);               
+                $("<span value=\"" + data[rows[i]]["ID"] + "\" style=\"display:inline-block;padding-rigth:10px;\">" + data[rows[i]]["Name"] + "</span>").appendTo($li);
+            }
+
+            $ui.show();
+
+            var $pcate = $("#batch_pCategory");
+            var $ccate = $("#batch_cCategory");          
+            $pcate.val("0");
+            $ccate.empty().hide();
+
+            $("#pop_batch_edit_category").dialog({
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+
+                },
+                close: function (event, ui) {
+
+                },
+                resizable: false,
+                title: "批量修改类目",
+                buttons: [
+                   {
+                       text: "保存", click: function () {
+                           var that = this;
+                           var category = 0;
+                           var pid = $('#batch_pCategory').val();
+                           var cid = $('#batch_cCategory').val();
+                           if (pid == 0) {
+                               alert("请选择类目");
+                               return;
+                           }
+
+                           category = pid;
+                           if (cid > 0) {
+                               category = cid;
+                           }
+
+                           var props = "";
+
+                           $(that).find("#pop_batch_properties_list").find("li").each(function (i, li) {
+                               if (props == "") {
+                                   props = $(li).find("span").attr("value");
+                               } else {
+                                   props += "," + $(li).find("span").attr("value");
+                               }
+                           });
+                          
+                           ShowProgress('page_loading', function () { }, "正在批量更新属性类目，请不要关闭浏览器，请等待...");
+                           cateMgr.BatchUpdatePropertiesCategory({ category_id: category, props: props }, function (res) {
+                               Boxy.get($('#page_loading')).hide();
+                               if (res.Status == "ok") {                                  
+                                   $(that).dialog("close");
+                                   $grid.pqGrid("refreshDataAndView");
+                               } else {
+                                   alert(res.Message);
+                               }
+                           });
+                           
+                       },
+                       icons: { primary: "ui-icon-disk" }
+                   },
+                   {
+                       text: "取消", click: function () {
+                           $(this).dialog("close");
+                       },
+                       icons: { primary: "ui-icon-close" }
+                   }
+                ]
+            });
+
+            $("#pop_batch_edit_category").dialog("open");
+        }
+
         function getRowIndx() {
-            //var $grid = $("#grid_render_cells");
-
-            //var obj = $grid.pqGrid("getSelection");
-            //debugger;
+            var rows = [];
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
+            var curPage = $grid.pqGrid("option", "dataModel.curPage");
+            var pageSize = $grid.pqGrid("option", "dataModel.rPP");
             if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndx;
+                for (var i = 0; i < arr.length; i++) {
+                    var rowIndx = arr[i].rowIndxPage;
+                    rows.push(rowIndx);
+                }
+                return rows;
+            }
 
-                //if (rowIndx != null && colIndx == null) {
-                return rowIndx;
-            }
-            else {
-                alert("Select a row.");
-                return null;
-            }
+            return null;
         }
 
         $('#pCategory').change(function () {
             //alert($(this).attr('id'));
             cateMgr.CategoryChange(this, 'cCategory')
         });
-
-        
     });
 
     function CleanForm() {
@@ -448,6 +575,18 @@
     </div>*@
   </div>
 </form>
+</div>
+
+<div id="pop_batch_edit_category" style="display:none;">
+     <ul class="row" id="pop_batch_properties_list" style="height:auto;display:none;"></ul>
+     <div class="row">
+            <label for="pCategory">类目:</label><select class="W_input" style="height:24px;" id="batch_pCategory">
+                <option value="0">--选择--</option>                  
+                </select>
+                <select class="W_input" style="height:24px;display:none;" id="batch_cCategory">
+
+                </select>
+        </div>
 </div>
 </div>
 

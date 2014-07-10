@@ -1980,7 +1980,7 @@ namespace KM.JXC.BL
                 locProduct = (from p in db.Product where p.Product_ID == locProductId && p.Parent_ID > 0 select p).FirstOrDefault<Product>();
                 if (locProduct == null)
                 {
-                    throw new KMJXCException("本地库存属性不存在，无法关联到商城宝贝的SKU");
+                    throw new KMJXCException("进销存销售属性不存在，无法关联到商城宝贝的SKU");
                 }
 
                 Mall_Product_Sku msku = null;
@@ -2007,7 +2007,10 @@ namespace KM.JXC.BL
                     int[] child_shop_ids = (from c in this.ChildShops select c.ID).ToArray<int>();
                     if (!child_shop_ids.Contains(locMallProduct.Shop_ID))
                     {
-                        throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                        if (locProduct.Shop_ID != this.Shop.Shop_ID)
+                        {
+                            throw new KMJXCException("不能关联他人店铺的宝贝，请不要尝试此操作");
+                        }
                     }
                     else
                     {

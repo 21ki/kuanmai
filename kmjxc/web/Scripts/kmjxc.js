@@ -457,6 +457,13 @@ function KMJXCProductManager() {
     }
 
     /*
+    product_id:required
+    */
+    this.GetProductProperties = function (params, callback) {
+        this.AjaxCall("/api/Products/GetProductProperties", params, callback);
+    }
+
+    /*
     category - category id:must
     products - product id join with "," : must
     */
@@ -472,6 +479,14 @@ function KMJXCProductManager() {
     this.CreateBuyPrice = function (params, callback) {
        
         this.AjaxCall("/api/Products/CreateBuyPrice", params, callback);
+    }
+    /*
+    category_id:required;
+    props:required multiple property id join with ","
+    */
+    this.BatchUpdatePropertiesCategory = function (params, callback) {
+
+        this.AjaxCall("/api/Categories/BatchUpdatePropertiesCategory", params, callback);
     }
 }
 

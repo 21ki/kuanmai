@@ -390,6 +390,46 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public ApiMessage GetProductProperties()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            List<BProduct> properties = new List<BProduct>();           
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int product_id = 0;           
+            int.TryParse(request["product_id"], out product_id);
+
+            try
+            {
+                properties = pdtManager.GetProductProperties(product_id);
+                if (properties != null)
+                {
+                    message.Item = properties;
+                }
+                else
+                {
+                    message.Status = "ok";
+                }
+            }
+            catch (KM.JXC.Common.KMException.KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+
+            return message;
+        }
+
+        [HttpPost]
         public PQGridData GetBuyOrders()
         {
             PQGridData data = new PQGridData();
