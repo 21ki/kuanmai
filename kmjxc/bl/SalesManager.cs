@@ -513,7 +513,7 @@ namespace KM.JXC.BL
                     }
                 }
 
-                base.CreateActionLog(new BUserActionLog() {Shop=new BShop{ ID=shop.Shop_ID}, Action = new BUserAction() { Action_ID = UserLogAction.SYNC_SHOP_TRADE }, Description = "同步商城订单到进销存，成功调用商城API" });
+                base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = shop.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.SYNC_SHOP_TRADE }, Description = "同步商城订单到进销存，成功调用商城API," + sales.Count+" 条新的交易同步回进销存" });
                 this.HandleMallTrades(sales, desshop);
                 db.SaveChanges();
             }

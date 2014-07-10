@@ -164,7 +164,7 @@ namespace KM.JXC.BL
                                    ID = 0,
                                    Title = ""
                                }
-                           }).OrderByDescending(a => a.Created).Skip((page - 1) * pageSize).Take(pageSize).ToList<BUserActionLog>();
+                           }).OrderByDescending(a => a.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BUserActionLog>();
             }
 
             return actions;
