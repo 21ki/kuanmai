@@ -142,5 +142,43 @@ namespace KM.JXC.Web.Controllers
 
             return View(buy);
         }
+
+        public ActionResult SupplierDetail(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("URL地址里的供应商编号不能为空"));
+            }
+
+            int oId = 0;
+            int.TryParse(id, out oId);
+            string uid = HttpContext.User.Identity.Name;
+            if (oId <= 0)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("URL地址里的供应商编号只能为数字"));
+            }
+
+            BSupplier supplier = null;
+            try
+            {
+                UserManager userMgr = new UserManager(int.Parse(uid), null);
+                BUser user = userMgr.CurrentUser;
+                SupplierManager supplierManager = new SupplierManager(user, userMgr.Shop, userMgr.CurrentUserPermission);
+                supplier = supplierManager.GetSupplierFullInfo(oId);
+                if (supplier == null)
+                {
+                    return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("没有找到对应的供应商信息"));
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode(kex.Message));
+            }
+            catch
+            {
+                return Redirect("/Home/Error?message=" + HttpUtility.UrlEncode("未知错误"));
+            }
+            return View(supplier);
+        }
     }
 }

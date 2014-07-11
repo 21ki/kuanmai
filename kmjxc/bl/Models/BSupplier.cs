@@ -8,7 +8,6 @@ namespace KM.JXC.BL.Models
 {
     public class BSupplier:BModel
     {
-        public long Created { get; set; }
         public BUser Created_By { get; set; }
         public BShop Shop { get; set; }              
         public string Name { get; set; }
@@ -21,5 +20,6 @@ namespace KM.JXC.BL.Models
         public BArea City { get; set; }
         public bool Enable { get;set; }
         public string Remark { get; set; }
+        public List<BProduct> Products { get; set; }
     }
 }

@@ -546,6 +546,22 @@ function KMJXCBuyManager() {
     this.SaveBuyPrice = function (params, callback) {
         this.AjaxCall("/api/Buy/SaveBuyPrice", params, callback);
     }
+
+    /*
+    id:supplier id required
+    products:multiple product id join with ","
+    */
+    this.UpdateSupplierProducts = function (params, callback) {
+        this.AjaxCall("/api/Suppliers/UpdateSupplierProducts", params, callback);
+    }
+
+    /*
+       id:supplier id required
+       products:multiple product id join with ","
+   */
+    this.RemoveSupplierProducts = function (params, callback) {
+        this.AjaxCall("/api/Suppliers/RemoveSupplierProducts", params, callback);
+    }
 }
 
 KMJXCStockManager.prototype = new KMJXCBase();

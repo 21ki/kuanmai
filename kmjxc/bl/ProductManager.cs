@@ -456,7 +456,7 @@ namespace KM.JXC.BL
                 {
                     foreach (Supplier s in product.Suppliers)
                     {
-                        Product_Supplier ps = new Product_Supplier() { Product_ID = product.ID, Supplier_ID = s.Supplier_ID };
+                        Product_Supplier ps = new Product_Supplier() { Product_ID = product.ID, Supplier_ID = s.Supplier_ID, Enabled=true,Created=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),Created_By=this.CurrentUser.ID };
                         db.Product_Supplier.Add(ps);
                     }
                 }
@@ -690,11 +690,9 @@ namespace KM.JXC.BL
 
                 if (suppliers != null && suppliers.Length > 0)
                 {
-                    int[] pdtIds=(from ps in db.Product_Supplier where suppliers.Contains(ps.Supplier_ID) select ps.Product_ID).ToArray<int>();
-                    if (pdtIds != null && pdtIds.Length > 0)
-                    {
-                        dbps = dbps.Where(a => pdtIds.Contains(a.Pdt.Product_ID));
-                    }
+                    //int[] pdtIds=(from ps in db.Product_Supplier where suppliers.Contains(ps.Supplier_ID) && ps.Enabled==true select ps.Product_ID).ToArray<int>();
+                    var pdtIds = from ps in db.Product_Supplier where suppliers.Contains(ps.Supplier_ID) && ps.Enabled == true orderby ps.Created descending select ps.Product_ID;
+                    dbps = dbps.Where(a => pdtIds.Contains(a.Pdt.Product_ID));
                 }
 
                 if (category_id !=null)
@@ -707,7 +705,7 @@ namespace KM.JXC.BL
                             int[] ccids = (from c in db.Product_Class where c.Parent_ID == category_id select c.Product_Class_ID).ToArray<int>();
                             if (ccids != null && ccids.Length > 0)
                             {
-                                dbps = dbps.Where(a => ccids.Contains(a.Pdt.Product_Class_ID));
+                                dbps = dbps.Where(a => (ccids.Contains(a.Pdt.Product_Class_ID) || a.Pdt.Product_Class_ID==category_id));
                             }
                             else
                             {
@@ -909,7 +907,7 @@ namespace KM.JXC.BL
                     product.Images = (from img in db.Image where img.ProductID == product.ID select img).ToList<Image>();
                     product.Suppliers = (from sp in db.Supplier
                                          join ps in db.Product_Supplier on sp.Supplier_ID equals ps.Supplier_ID
-                                         where ps.Product_ID == product.ID
+                                         where ps.Product_ID == product.ID && ps.Enabled==true
                                          select sp
                                       ).ToList<Supplier>();
                    

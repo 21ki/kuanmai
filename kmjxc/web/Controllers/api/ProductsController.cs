@@ -288,6 +288,17 @@ namespace KM.JXC.Web.Controllers.api
             ProductManager pdtManager = new ProductManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
             int.TryParse(request["page"],out page);
             int.TryParse(request["pageSize"],out pageSize);
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
             if (request["cid"] != null && request["cid"].ToString() != "" && request["cid"].ToString()!="0")
             {
                 int cid = 0;

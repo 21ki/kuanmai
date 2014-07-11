@@ -15,7 +15,7 @@ using KM.JXC.Common.Util;
 using KM.JXC.Common.KMException;
 namespace KM.JXC.Web.Controllers.api
 {
-    public class SuppliersController : ApiController
+    public class SuppliersController : BaseApiController
     {
         [HttpPost]
         public PQGridData GetSuppliers()
@@ -195,6 +195,70 @@ namespace KM.JXC.Web.Controllers.api
             int sid = 0;
             int.TryParse(request["sid"],out sid);
             return message;
-        }        
+        }
+
+        [HttpPost]
+        public ApiMessage UpdateSupplierProducts()
+        {
+            ApiMessage message = new ApiMessage() {Status="ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            SupplierManager supplierManager = new SupplierManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int supplier_id = 0;
+            string products = request["products"];
+            int[] product_ids = null;
+            int.TryParse(request["id"],out supplier_id);
+            try
+            {
+                product_ids = base.ConvertToIntArrar(products);
+                supplierManager.UpdateSupplierProducts(product_ids, supplier_id);
+            }
+            catch (KMJXCException ex)
+            {
+                message.Status = "failed";
+                message.Message = ex.Message;
+            }
+            catch
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public ApiMessage RemoveSupplierProducts()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            SupplierManager supplierManager = new SupplierManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int supplier_id = 0;
+            string products = request["products"];
+            int[] product_ids = null;
+            int.TryParse(request["id"], out supplier_id);
+            try
+            {
+                product_ids = base.ConvertToIntArrar(products);
+                supplierManager.RemoveSupplierProducts(product_ids, supplier_id);
+            }
+            catch (KMJXCException ex)
+            {
+                message.Status = "failed";
+                message.Message = ex.Message;
+            }
+            catch
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+            return message;
+        }
     }
 }

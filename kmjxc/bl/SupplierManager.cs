@@ -187,21 +187,240 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Update supplier products
+        /// </summary>
+        /// <param name="product_ids"></param>
+        /// <param name="supplier_id"></param>
+        public void UpdateSupplierProducts(int[] product_ids, int supplier_id)
+        {
+            if (supplier_id <= 0)
+            {
+                throw new KMJXCException("更新供应商产品时必须输入供应商编号");
+            }
+
+            if (this.CurrentUserPermission.UPDATE_SUPPLIER_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限更新供应商产品");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Supplier supplier = (from s in db.Supplier where s.Supplier_ID == supplier_id select s).FirstOrDefault<Supplier>();
+                if (supplier == null)
+                {
+                    throw new KMJXCException("编号为:" + supplier_id + " 的供应商信息不存在");
+                }
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    int[] child_shops = (from c in this.ChildShops select c.ID).ToArray<int>();
+                    if (this.Shop.Shop_ID != supplier.Shop_ID && !child_shops.Contains(supplier.Shop_ID))
+                    {
+                        throw new KMJXCException("不能操作其他店铺的供应商，只能使用主店铺和子店铺的供应商");
+                    }
+                }
+                else
+                {
+                    if (supplier.Shop_ID != this.Shop.Shop_ID && supplier.Shop_ID != this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能操作其他店铺的供应商，只能使用主店铺和子店铺的供应商");
+                    }
+                }
+
+                List<Product_Supplier> products = (from s in db.Product_Supplier where s.Supplier_ID == supplier_id select s).ToList<Product_Supplier>();
+                if(product_ids==null || product_ids.Length<=0)
+                {
+                    foreach (Product_Supplier p in products)
+                    {
+                        p.Enabled = false;
+                    }
+
+                    db.SaveChanges();
+                }else
+                {
+                    for (int i = 0; i < product_ids.Length; i++)
+                    {
+                        Product_Supplier ps=(from s in products where s.Product_ID==product_ids[i] select s).FirstOrDefault<Product_Supplier>();
+                        if (ps == null)
+                        {
+                            ps = new Product_Supplier();
+                            ps.Supplier_ID = supplier_id;
+                            ps.Product_ID = product_ids[i];
+                            ps.Enabled = true;
+                            ps.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                            ps.Created_By = this.CurrentUser.ID;
+                            db.Product_Supplier.Add(ps);
+                        }
+                        else
+                        {
+                            ps.Enabled = true;
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove supplier products
+        /// </summary>
+        /// <param name="product_ids"></param>
+        /// <param name="supplier_id"></param>
+        public void RemoveSupplierProducts(int[] product_ids, int supplier_id)
+        {
+            if (supplier_id <= 0)
+            {
+                throw new KMJXCException("更新供应商产品时必须输入供应商编号");
+            }
+
+            if (this.CurrentUserPermission.UPDATE_SUPPLIER_PRODUCT == 0)
+            {
+                throw new KMJXCException("没有权限移除供应商产品");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                if (product_ids == null || product_ids.Length <= 0)
+                {
+                    return;
+                }
+
+                Supplier supplier=(from s in db.Supplier where s.Supplier_ID==supplier_id select s).FirstOrDefault<Supplier>();
+                if (supplier == null)
+                {
+                    throw new KMJXCException("编号为:"+supplier_id+" 的供应商信息不存在");
+                }
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    int[] child_shops = (from c in this.ChildShops select c.ID).ToArray<int>();
+                    if (this.Shop.Shop_ID != supplier.Shop_ID && !child_shops.Contains(supplier.Shop_ID))
+                    {
+                        throw new KMJXCException("不能操作其他店铺的供应商，只能使用主店铺和子店铺的供应商");
+                    }
+                }
+                else
+                {
+                    if (supplier.Shop_ID != this.Shop.Shop_ID && supplier.Shop_ID != this.Main_Shop.Shop_ID)
+                    {
+                        throw new KMJXCException("不能操作其他店铺的供应商，只能使用主店铺和子店铺的供应商");
+                    }
+                }
+
+                List<Product_Supplier> products = (from s in db.Product_Supplier where s.Supplier_ID == supplier_id && product_ids.Contains(s.Product_ID) select s).ToList<Product_Supplier>();
+                foreach (Product_Supplier ps in products)
+                {
+                    ps.Enabled = false;
+                }
+
+                db.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// Get supplier detail information include products
+        /// </summary>
+        /// <param name="supplier_id">supplier id</param>
+        /// <returns>Instance of BSupplier object</returns>
+        public BSupplier GetSupplierFullInfo(int supplier_id,bool getProduct=false)
+        {
+            BSupplier supplier = null;
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                supplier = (from s in db.Supplier
+                            join user in db.User on s.User_ID equals user.User_ID into LUser
+                            from l_user in LUser.DefaultIfEmpty()
+                            join shop in db.Shop on s.Shop_ID equals shop.Shop_ID into LShop
+                            from l_shop in LShop.DefaultIfEmpty()
+                            join city in db.Common_District on s.City_ID equals city.id into LCity
+                            from l_city in LCity.DefaultIfEmpty()
+                            join province in db.Common_District on s.Province_ID equals province.id into LProvince
+                            from l_province in LProvince.DefaultIfEmpty()
+                            where s.Supplier_ID == supplier_id
+                            select new BSupplier
+                            {
+                                ID = s.Supplier_ID,
+                                Name = s.Name,
+                                Address = s.Address,
+                                City = l_city != null ? new BArea { ID = l_city.id, Name = l_city.name } : new BArea { ID = 0, Name = "" },
+                                ContactPerson = s.Contact_Person,
+                                Created = s.Create_Time,
+                                Created_By = l_user != null ? new BUser
+                                {
+                                    ID = l_user.User_ID,
+                                    Name = l_user.Name,
+                                    Mall_ID = l_user.Mall_ID,
+                                    Mall_Name = l_user.Mall_Name
+                                } : new BUser
+                                {
+                                    ID = 0,
+                                    Name = "",
+                                    Mall_ID = "",
+                                    Mall_Name = ""
+                                },
+                                Enable = (bool)s.Enabled,
+                                Fax = s.Fax,
+                                Phone = s.Phone,
+                                Province = l_province != null ? new BArea { ID = l_province.id, Name = l_province.name } : new BArea { ID = 0, Name = "" },
+                                Remark = s.Remark,
+                                Shop = l_shop != null ? new BShop
+                                {
+                                    ID = l_shop.Shop_ID,
+                                    Title = l_shop.Name
+                                } : new BShop
+                                {
+                                    ID = 0,
+                                    Title = ""
+                                }
+
+                            }).FirstOrDefault<BSupplier>();
+
+                if (supplier != null && getProduct)
+                {
+                    List<BProduct> products = null;
+                    var productIds = from s in db.Product_Supplier
+                                     where s.Supplier_ID == supplier.ID && s.Enabled==true
+                                     select s.Product_ID;
+
+                    products = (from p in db.Product 
+                                where p.Parent_ID == 0 && productIds.Contains(p.Product_ID) 
+                                select new BProduct 
+                                {
+                                    ID=p.Product_ID,
+                                    Title=p.Name
+                                }).ToList<BProduct>();
+
+                    supplier.Products = products;
+                }
+            }
+            return supplier;
+        }
+
+        /// <summary>
+        /// Update supplier basic information
         /// </summary>
         /// <param name="supplier"></param>
         /// <returns></returns>
         public bool UpdateSupplier(Supplier supplier)
         {
             bool result = false;
+
+            if (this.CurrentUserPermission.UPDATE_SUPPLIER == 0)
+            {
+                throw new KMJXCException("没有权限更新供应商");
+            }
+
             if (string.IsNullOrEmpty(supplier.Name))
             {
                 throw new KMJXCException("供应商名称不能为空");
             }
-            KuanMaiEntities db = new KuanMaiEntities();
+            KuanMaiEntities db = null;
 
             try
             {
+                
+                db = new KuanMaiEntities();
                 int[] child_shops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
                 Supplier existed = (from supp in db.Supplier where supp.Supplier_ID == supplier.Supplier_ID select supp).FirstOrDefault<Supplier>();
                 if (existed == null)
@@ -263,7 +482,12 @@ namespace KM.JXC.BL
         public bool CreateSupplier(Supplier supplier)
         {
             bool result = false;
-            
+
+            if (this.CurrentUserPermission.ADD_SUPPLIER == 0)
+            {
+                throw new KMJXCException("没有权限添加新供应商");
+            }
+
             if (string.IsNullOrEmpty(supplier.Name))
             {
                 throw new KMJXCException("供应商名称不能为空");

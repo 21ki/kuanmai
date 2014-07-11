@@ -21,7 +21,11 @@
                 provJsons = res;
             }
         });
-        obj.colModel = [{ title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false },
+        obj.colModel = [{
+                            title: "编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false, render: function (ui) {
+                                return "<a href=\"/Buy/SupplierDetail?id=" + ui.rowData["ID"] + "\">" + ui.rowData["ID"] + "</a>";
+                            }
+                        },
                         { title: "名称", width: 250, dataType: "string", dataIndx: "Name", editable: false },
                         { title: "店铺", width: 250, dataType: "string", dataIndx: "Shop.Title", editable: false },                        
                         {
@@ -297,6 +301,28 @@
                 Edit();
             });
 
+            $("<span id=\"get_ccate\">添加供应商产品</span>").appendTo($toolbar)
+                .button({ icons: { primary: "ui-icon-plus" } })
+            .click(function (e) {
+                var rows = getRowIndx();
+
+                if (rows == null) {
+                    alert("请选择一条供应商来添加产品");
+                    return;
+                }
+
+                if (rows.length > 1) {
+                    alert("只能选择一条供应商来添加产品");
+                    return;
+                }
+
+                
+                var DM = $grid.pqGrid("option", "dataModel");
+                var data = DM.data;
+                var supplier_id = data[rows[0]]["ID"];
+                location.href = "/Buy/SupplierDetail?id=" + supplier_id;
+            });
+
             $toolbar.disableSelection();
         });
 
@@ -304,17 +330,16 @@
         $grid = $("#supplierstable").pqGrid(obj);
 
         function getRowIndx() {           
+            var rows = [];
             var arr = $grid.pqGrid("selection", { type: 'row', method: 'getSelection' });
             if (arr && arr.length > 0) {
-                var rowIndx = arr[0].rowIndxPage;
-
-                //if (rowIndx != null && colIndx == null) {
-                return rowIndx;
+                for (var i = 0; i < arr.length; i++) {
+                    rows.push(arr[i].rowIndxPage);
+                }
+                return rows;
             }
-            else {
-                alert("请选择一条供应商数据进行编辑");
-                return null;
-            }
+            
+            return null;
         }
     })
 </script>
@@ -354,4 +379,3 @@
          </div>
     </form>   
 </div>
-

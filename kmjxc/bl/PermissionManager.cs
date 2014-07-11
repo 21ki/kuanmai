@@ -87,6 +87,8 @@ namespace KM.JXC.BL
         public int VIEW_SUPPLIER_SUMMARY = 0;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "查看供应商详细信息")]
         public int VIEW_SUPPLIER_DETAIL = 0;
+        [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "更新供应商产品")]
+        public int UPDATE_SUPPLIER_PRODUCT = 0;
 
         //Product
         [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品")]

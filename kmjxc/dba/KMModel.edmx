@@ -632,7 +632,9 @@
           </Key>
           <Property Name="Product_ID" Type="int" Nullable="false" />
           <Property Name="Supplier_ID" Type="int" Nullable="false" />
-          <Property Name="Enabled" Type="bool" />
+          <Property Name="Enabled" Type="bool" Nullable="false" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Created_By" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Unit">
           <Key>
@@ -1339,7 +1341,9 @@
           </Key>
           <Property Type="Int32" Name="Product_ID" Nullable="false" />
           <Property Type="Int32" Name="Supplier_ID" Nullable="false" />
-          <Property Type="Boolean" Name="Enabled" />
+          <Property Type="Boolean" Name="Enabled" Nullable="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Created_By" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Unit">
           <Key>
@@ -2154,6 +2158,8 @@
           <EntitySetMapping Name="Product_Supplier">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Product_Supplier">
               <MappingFragment StoreEntitySet="Product_Supplier">
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Supplier_ID" ColumnName="Supplier_ID" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
