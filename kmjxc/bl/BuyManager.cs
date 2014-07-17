@@ -1820,7 +1820,7 @@ namespace KM.JXC.BL
                         dProduct.Product.Children = (from c in children where c.ParentID == product_id select c).ToList<BProduct>();
                         dProduct.Suppliers = (from sp in db.Product_Supplier
                                               join su in db.Supplier on sp.Supplier_ID equals su.Supplier_ID
-                                              where sp.Product_ID == product_id
+                                              where sp.Product_ID == product_id && sp.Enabled==true
                                               select new BSupplier
                                               {
                                                   ID=sp.Supplier_ID,
