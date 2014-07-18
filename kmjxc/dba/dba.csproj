@@ -221,6 +221,9 @@
     <Compile Include="Shop_User.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Stock_Batch.cs">
+      <DependentUpon>KMModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Stock_Pile.cs">
       <DependentUpon>KMModel.tt</DependentUpon>
     </Compile>

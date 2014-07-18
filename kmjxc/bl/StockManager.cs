@@ -1776,7 +1776,7 @@ namespace KM.JXC.BL
                     lsDetail.Order_ID = order_id;
 
                     db.Leave_Stock_Detail.Add(lsDetail);
-                    base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = leaveStock.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_LEAVE_STOCK }, Description = "宝贝未关联，同步订单时没有自动生成出库单，手动创建出库单并更新库存" });
+                    base.CreateActionLog(new BUserActionLog() { Shop = new BShop { ID = leaveStock.Shop_ID }, Action = new BUserAction() { Action_ID = UserLogAction.CREATE_LEAVE_STOCK }, Description = "同步订单时未能成功自动出库更新库存，手动出库并更新库存" });
                     db.SaveChanges();
                 }
 
@@ -2507,7 +2507,7 @@ namespace KM.JXC.BL
                         if (includeChildren)
                         {
                             int[] children = (from c in this.ChildShops select c.ID).ToArray<int>();
-                            tmpCate = tmpCate.Where(c => children.Contains(c.Shop_ID));
+                            tmpCate = tmpCate.Where((c => children.Contains(c.Shop_ID) || c.Shop_ID == this.Shop.Shop_ID));
                         }
                         else
                         {

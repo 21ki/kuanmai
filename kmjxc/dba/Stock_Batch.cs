@@ -12,16 +12,15 @@ namespace KM.JXC.DBA
     using System;
     using System.Collections.Generic;
     
-    public partial class Stock_Pile
+    public partial class Stock_Batch
     {
-        public int StockPile_ID { get; set; }
-        public int Shop_ID { get; set; }
-        public int StockHouse_ID { get; set; }
-        public int Product_ID { get; set; }
-        public Nullable<long> First_Enter_Time { get; set; }
-        public Nullable<long> LastLeave_Time { get; set; }
-        public int Quantity { get; set; }
-        public double Price { get; set; }
-        public long Batch_ID { get; set; }
+        public long ID { get; set; }
+        public string Name { get; set; }
+        public int ProductID { get; set; }
+        public int ParentProductID { get; set; }
+        public long Created { get; set; }
+        public int Created_By { get; set; }
+        public int ShopID { get; set; }
+        public string Desc { get; set; }
     }
 }

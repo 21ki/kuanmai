@@ -23,5 +23,6 @@ namespace KM.JXC.DBA
         public Nullable<double> Invoice_Amount { get; set; }
         public long Create_Date { get; set; }
         public int Parent_Product_ID { get; set; }
+        public long Batch_ID { get; set; }
     }
 }

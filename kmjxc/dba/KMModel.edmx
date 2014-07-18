@@ -58,6 +58,7 @@
           <EntitySet Name="Shop" EntityType="KM.JXC.DBA.Model.Store.Shop" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop_Child_Request" EntityType="KM.JXC.DBA.Model.Store.Shop_Child_Request" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Shop_User" EntityType="KM.JXC.DBA.Model.Store.Shop_User" store:Type="Tables" Schema="kuanmai" />
+          <EntitySet Name="Stock_Batch" EntityType="KM.JXC.DBA.Model.Store.Stock_Batch" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Store.Stock_Pile" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Stock_Waste" EntityType="KM.JXC.DBA.Model.Store.Stock_Waste" store:Type="Tables" Schema="kuanmai" />
           <EntitySet Name="Store_House" EntityType="KM.JXC.DBA.Model.Store.Store_House" store:Type="Tables" Schema="kuanmai" />
@@ -423,6 +424,7 @@
           <Property Name="Invoice_Num" Type="varchar" MaxLength="45" />
           <Property Name="Invoice_Amount" Type="double" />
           <Property Name="Create_Date" Type="uint" Nullable="false" />
+          <Property Name="Batch_ID" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Express">
           <Key>
@@ -487,6 +489,8 @@
           <Key>
             <PropertyRef Name="Leave_Stock_ID" />
             <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Order_ID" />
+            <PropertyRef Name="Parent_Product_ID" />
           </Key>
           <Property Name="Leave_Stock_ID" Type="int" Nullable="false" />
           <Property Name="Product_ID" Type="int" Nullable="false" />
@@ -498,6 +502,7 @@
           <Property Name="StoreHouse_ID" Type="int" Nullable="false" />
           <Property Name="Message" Type="varchar" MaxLength="500" />
           <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="Batch_ID" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Product">
           <Key>
@@ -746,6 +751,19 @@
           <Property Name="Create_Time" Type="uint" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
         </EntityType>
+        <EntityType Name="Stock_Batch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uint" Nullable="false" />
+          <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
+          <Property Name="ProductID" Type="int" Nullable="false" />
+          <Property Name="ParentProductID" Type="int" Nullable="false" />
+          <Property Name="Created" Type="uint" Nullable="false" />
+          <Property Name="Created_By" Type="int" Nullable="false" />
+          <Property Name="ShopID" Type="int" Nullable="false" />
+          <Property Name="Desc" Type="varchar" MaxLength="500" />
+        </EntityType>
         <EntityType Name="Stock_Pile">
           <Key>
             <PropertyRef Name="StockPile_ID" />
@@ -758,6 +776,7 @@
           <Property Name="LastLeave_Time" Type="uint" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="Price" Type="double" Nullable="false" />
+          <Property Name="Batch_ID" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Stock_Waste">
           <Key>
@@ -904,7 +923,6 @@
           <EntitySet Name="Express_Shop" EntityType="KM.JXC.DBA.Model.Express_Shop" />
           <EntitySet Name="Image" EntityType="KM.JXC.DBA.Model.Image" />
           <EntitySet Name="Leave_Stock" EntityType="KM.JXC.DBA.Model.Leave_Stock" />
-          <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Leave_Stock_Detail" />
           <EntitySet Name="Mall_Product" EntityType="KM.JXC.DBA.Model.Mall_Product" />
           <EntitySet Name="Mall_Product_Sku" EntityType="KM.JXC.DBA.Model.Mall_Product_Sku" />
           <EntitySet Name="Mall_Type" EntityType="KM.JXC.DBA.Model.Mall_Type" />
@@ -944,6 +962,8 @@
           <EntitySet Name="User_Action" EntityType="KM.JXC.DBA.Model.User_Action" />
           <EntitySet Name="Buy_Price_Detail" EntityType="KM.JXC.DBA.Model.Buy_Price_Detail" />
           <EntitySet Name="Buy_Price" EntityType="KM.JXC.DBA.Model.Buy_Price" />
+          <EntitySet Name="Stock_Batch" EntityType="KM.JXC.DBA.Model.Stock_Batch" />
+          <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Leave_Stock_Detail" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1163,6 +1183,7 @@
           <Property Type="Double" Name="Invoice_Amount" />
           <Property Type="Int64" Name="Create_Date" Nullable="false" />
           <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
+          <Property Type="Int64" Name="Batch_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Express">
           <Key>
@@ -1205,22 +1226,6 @@
           <Property Type="Int32" Name="Shop_ID" Nullable="false" />
           <Property Type="Int64" Name="Created" Nullable="false" />
           <Property Type="Int32" Name="User_ID" Nullable="false" />
-          <Property Type="Int32" Name="Status" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Leave_Stock_Detail">
-          <Key>
-            <PropertyRef Name="Leave_Stock_ID" />
-            <PropertyRef Name="Product_ID" />
-          </Key>
-          <Property Type="Int32" Name="Leave_Stock_ID" Nullable="false" />
-          <Property Type="Int32" Name="Product_ID" Nullable="false" />
-          <Property Type="String" Name="Order_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
-          <Property Type="Int32" Name="Quantity" Nullable="false" />
-          <Property Type="Double" Name="Price" Nullable="false" />
-          <Property Type="Double" Name="Amount" Nullable="false" />
-          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
-          <Property Type="String" Name="Message" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Status" Nullable="false" />
         </EntityType>
         <EntityType Name="Mall_Product">
@@ -1587,6 +1592,7 @@
           <Property Type="Int64" Name="LastLeave_Time" />
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Double" Name="Price" Nullable="false" />
+          <Property Type="Int64" Name="Batch_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Product_Class">
           <Key>
@@ -1743,6 +1749,38 @@
           <Property Type="String" Name="Title" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Description" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="Int64" Name="Created" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Stock_Batch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int64" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="ProductID" Nullable="false" />
+          <Property Type="Int32" Name="ParentProductID" Nullable="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Int32" Name="Created_By" Nullable="false" />
+          <Property Type="Int32" Name="ShopID" Nullable="false" />
+          <Property Type="String" Name="Desc" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Leave_Stock_Detail">
+          <Key>
+            <PropertyRef Name="Leave_Stock_ID" />
+            <PropertyRef Name="Product_ID" />
+            <PropertyRef Name="Order_ID" />
+            <PropertyRef Name="Parent_Product_ID" />
+          </Key>
+          <Property Type="Int32" Name="Leave_Stock_ID" Nullable="false" />
+          <Property Type="Int32" Name="Product_ID" Nullable="false" />
+          <Property Type="String" Name="Order_ID" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
+          <Property Type="Double" Name="Price" Nullable="false" />
+          <Property Type="Double" Name="Amount" Nullable="false" />
+          <Property Type="Int32" Name="StoreHouse_ID" Nullable="false" />
+          <Property Type="String" Name="Message" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Status" Nullable="false" />
+          <Property Type="Int64" Name="Batch_ID" Nullable="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -1966,6 +2004,7 @@
           <EntitySetMapping Name="Enter_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Enter_Stock_Detail">
               <MappingFragment StoreEntitySet="Enter_Stock_Detail">
+                <ScalarProperty Name="Batch_ID" ColumnName="Batch_ID" />
                 <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
                 <ScalarProperty Name="Create_Date" ColumnName="Create_Date" />
                 <ScalarProperty Name="Invoice_Amount" ColumnName="Invoice_Amount" />
@@ -2020,22 +2059,6 @@
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="Leave_Date" ColumnName="Leave_Date" />
                 <ScalarProperty Name="Sale_ID" ColumnName="Sale_ID" />
-                <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Leave_Stock_Detail">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock_Detail">
-              <MappingFragment StoreEntitySet="Leave_Stock_Detail">
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Message" ColumnName="Message" />
-                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="Price" ColumnName="Price" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
-                <ScalarProperty Name="Order_ID" ColumnName="Order_ID" />
-                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
                 <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -2407,6 +2430,7 @@
           <EntitySetMapping Name="Stock_Pile">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Pile">
               <MappingFragment StoreEntitySet="Stock_Pile">
+                <ScalarProperty Name="Batch_ID" ColumnName="Batch_ID" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="LastLeave_Time" ColumnName="LastLeave_Time" />
@@ -2581,6 +2605,37 @@
                 <ScalarProperty Name="User_ID" ColumnName="User_ID" />
                 <ScalarProperty Name="Shop_ID" ColumnName="Shop_ID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Stock_Batch">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Batch">
+              <MappingFragment StoreEntitySet="Stock_Batch">
+                <ScalarProperty Name="Desc" ColumnName="Desc" />
+                <ScalarProperty Name="ShopID" ColumnName="ShopID" />
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="ParentProductID" ColumnName="ParentProductID" />
+                <ScalarProperty Name="ProductID" ColumnName="ProductID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Leave_Stock_Detail">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Leave_Stock_Detail">
+              <MappingFragment StoreEntitySet="Leave_Stock_Detail">
+                <ScalarProperty Name="Batch_ID" ColumnName="Batch_ID" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />
+                <ScalarProperty Name="Order_ID" ColumnName="Order_ID" />
+                <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
+                <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

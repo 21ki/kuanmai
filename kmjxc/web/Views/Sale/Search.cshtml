@@ -397,10 +397,17 @@
                         sku_id = order.Mall_SkuID;
                     }
                     if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.NOT_CONNECTED) {
-                        needHandledSpan = "<span style=\"display:block;\"><a href=\"javascript:void(0)\" onclick=\"ManualUpdateStock(" + sale.Sale_ID + "," + order.Order_ID + "," + order.MallProduct.ID + ",'" + sku_id + "')\">手动更新库存</a><span>";
+                        needHandledSpan = "<span style=\"display:block;\"><a href=\"javascript:void(0)\" onclick=\"ManualUpdateStock(" + sale.Sale_ID + "," + order.Order_ID + "," + order.MallProduct.ID + ",'" + sku_id + "')\">手动出库</a><span>";
                     }
                     else if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.REFOUNDED_WAIT_HANDLE) {
                         needHandledSpan = "<span style=\"display:block;\"><a href=\"/Sale/Back\">退货，请处理</a><span>";
+                    }
+                    else if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.NO_ENOUGH_STOCK) {
+                        needHandledSpan = "<span style=\"display:block;\"><a href=\"javascript:void(0)\" onclick=\"ManualUpdateStock(" + sale.Sale_ID + "," + order.Order_ID + "," + order.MallProduct.ID + ",'" + sku_id + "')\">重新出存</a><span>";
+                    }
+                    else if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.INITIALIZED) {
+                        order.Message = "同步订单时未能自动出库";
+                        needHandledSpan = "<span style=\"display:block;\"><a href=\"javascript:void(0)\" onclick=\"ManualUpdateStock(" + sale.Sale_ID + "," + order.Order_ID + "," + order.MallProduct.ID + ",'" + sku_id + "')\">手动出存</a><span>";
                     }
                     @Html.Raw("<div class=\"item\" style=\""+style+"\"><span style=\"display:block;\">"+order.Message+"</span>"+needHandledSpan+"</div>")
                     

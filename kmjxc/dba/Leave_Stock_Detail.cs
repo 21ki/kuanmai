@@ -24,5 +24,6 @@ namespace KM.JXC.DBA
         public int StoreHouse_ID { get; set; }
         public string Message { get; set; }
         public int Status { get; set; }
+        public long Batch_ID { get; set; }
     }
 }

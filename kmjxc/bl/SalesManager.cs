@@ -686,11 +686,7 @@ namespace KM.JXC.BL
                     if (dbSales != null && dbSales.Count>0)
                     {
                         existed = (from s in dbSales where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
-                    }
-                    //else
-                    //{
-                    //    existed = (from s in db.Sale where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
-                    //}
+                    }                   
 
                     if (sale.HasRefound)
                     {
@@ -753,48 +749,44 @@ namespace KM.JXC.BL
                         }
                     }
                     else
-                    {                       
+                    {
                         List<Sale_Detail> details = (from detail in db.Sale_Detail
                                                      where detail.Mall_Trade_ID == dbSale.Mall_Trade_ID
                                                      select detail).ToList<Sale_Detail>();
-                        this.UpdateProperties(existed, dbSale);
-
+                        existed.Modified = dbSale.Modified;
+                        existed.Status = dbSale.Status;
                         foreach (BOrder order in sale.Orders)
                         {
                             Sale_Detail sd = (from ed in details where ed.Mall_Order_ID == order.Order_ID select ed).FirstOrDefault<Sale_Detail>();
-                            bool isNew = false;
-                            if (sd == null)
+                            
+                            if (sd != null)
                             {
-                                isNew = true;
-                                sd = new Sale_Detail();
+                                continue;
                             }
-
+                            sd = new Sale_Detail();
                             sd.Amount = order.Amount;
                             sd.Discount = order.Discount;
                             sd.Mall_Order_ID = order.Order_ID;
                             sd.Mall_Trade_ID = sale.Sale_ID;
 
-                            if (isNew)
+                            Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
+                            Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
+
+                            if (parentPdt != null)
                             {
-                                Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
-                                Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
-
-                                if (parentPdt != null)
-                                {
-                                    sd.Parent_Product_ID = parentPdt.Product_ID;
-                                }
-                                else
-                                {
-                                    if (childPdt != null)
-                                    {
-                                        sd.Parent_Product_ID = childPdt.Parent_ID;
-                                    }
-                                }
-
+                                sd.Parent_Product_ID = parentPdt.Product_ID;
+                            }
+                            else
+                            {
                                 if (childPdt != null)
                                 {
-                                    sd.Product_ID = childPdt.Product_ID;
+                                    sd.Parent_Product_ID = childPdt.Parent_ID;
                                 }
+                            }
+
+                            if (childPdt != null)
+                            {
+                                sd.Product_ID = childPdt.Product_ID;
                             }
 
                             sd.Price = order.Price;
@@ -810,11 +802,7 @@ namespace KM.JXC.BL
                             sd.Mall_PID = order.Mall_PID;
                             sd.Supplier_ID = 0;
                             sd.Refound = order.Refound;
-
-                            if (isNew)
-                            {
-                                db.Sale_Detail.Add(sd);
-                            }
+                            db.Sale_Detail.Add(sd);
                         }
                     }
                 }
@@ -979,7 +967,7 @@ namespace KM.JXC.BL
                                 HasRefound = (bool)t.HasRefound
                             };//).OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
                 totalRecords = sObjs.Count();
-                sales = sObjs.OrderByDescending(s => s.Synced).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+                sales = sObjs.OrderByDescending(s => s.Synced).ThenByDescending(s=>s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
 
                 string[] bsale_ids = (from sale in sales select sale.Sale_ID).ToArray<string>();
                 List<Sale_Detail> sale_details = (from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Mall_Trade_ID) select sdetail).ToList<Sale_Detail>();
@@ -1067,16 +1055,16 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Search back sale details information
         /// </summary>
-        /// <param name="sale_ids"></param>
-        /// <param name="user_ids"></param>
-        /// <param name="stime"></param>
-        /// <param name="etime"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="totalRecords"></param>
-        /// <returns></returns>
+        /// <param name="sale_ids">Trade id list</param>
+        /// <param name="user_ids">User id list</param>
+        /// <param name="stime">Trade start time</param>
+        /// <param name="etime">Trade endt time</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="totalRecords">Total records</param>
+        /// <returns>List of BBackSaleDetail</returns>
         public List<BBackSaleDetail> SearchBackSaleDetails(string[] sale_ids, int[] user_ids, int? status, long stime, long etime, int pageIndex, int pageSize, out int totalRecords)
         {
             if (pageIndex <= 0)
@@ -1210,16 +1198,16 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Search back trades
         /// </summary>
-        /// <param name="sale_ids"></param>
-        /// <param name="user_ids"></param>
-        /// <param name="stime"></param>
-        /// <param name="etime"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="totalRecords"></param>
-        /// <returns></returns>
+        /// <param name="sale_ids">Trade id list</param>
+        /// <param name="user_ids">User id list</param>
+        /// <param name="stime">Trade start time</param>
+        /// <param name="etime">Trade end time</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="totalRecords">Total records</param>
+        /// <returns>List of BBackSale</returns>
         public List<BBackSale> SearchBackSales(string[] sale_ids, int[] user_ids, long stime, long etime, int pageIndex, int pageSize, out int totalRecords)
         {
             if (pageIndex <= 0)

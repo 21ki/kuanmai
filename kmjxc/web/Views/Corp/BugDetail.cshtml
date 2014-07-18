@@ -42,7 +42,7 @@
     <div id="bugInfo">
         <input type="hidden" id="bug_id" value="@bug.ID" />
         <div class="row nolabel1" style="color:#777;">
-            @Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(bug.Created).ToString("yyyy-M-dd H:mm")+" 由 "+bug.Created_By.Name+" 创建")
+            @Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(bug.Created).ToString("yyyy-MM-dd H:mm")+" 由 "+bug.Created_By.Name+" 创建")
         </div>
         <div class="row">
             <label>标题:</label><span>@bug.Title</span>
@@ -64,7 +64,7 @@
                         @foreach(KM.JXC.BL.Models.Admin.BBugResponse response in bug.Responses)
                         {
                             <div style="padding:10px 10px;border:1px solid #ccc;border-radius:3px;width:500px;margin-bottom:5px;">
-                                <div style="color:#777;">@Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(response.Created).ToString("yyyy-M-dd H:mm")+" 由 "+response.Created_By.Name+" 回复")</div>
+                                <div style="color:#777;">@Html.Raw(KM.JXC.Common.Util.DateTimeUtil.ConvertToDateTime(response.Created).ToString("yyyy-MM-dd H:mm")+" 由 "+response.Created_By.Name+" 回复")</div>
                                 <div style="padding-top:3px;">
                                     @Html.Raw(response.Description)
                                 </div>
