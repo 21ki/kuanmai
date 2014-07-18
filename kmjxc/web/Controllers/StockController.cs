@@ -51,7 +51,10 @@ namespace KM.JXC.Web.Controllers
         {
             return View();
         }
-
+        public ActionResult Batch()
+        {
+            return View();
+        }
         public ActionResult LeaveDetail(int id)
         {           
             return View();

@@ -359,7 +359,17 @@
                        
                        >采购入库
                      
-                       </a></li>                   
+                       </a></li>   
+                   <li><a href="/Stock/Batch"
+                        @if (action == "Batch")
+                        {
+                           @Html.Raw("class=links");
+                        }
+                        else
+                        {
+                           @Html.Raw("class=link");
+                        } 
+                       >库存批次</a></li>                  
                    <li><a href="/Stock/Leave"
                        
                         @if (action == "Leave")
@@ -400,7 +410,8 @@
                         {
                            @Html.Raw("class=link");
                         } 
-                       >仓库管理</a></li>                         
+                       >仓库管理</a></li> 
+                                          
                </ul>
            </div>
 

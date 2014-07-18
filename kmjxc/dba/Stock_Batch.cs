@@ -22,5 +22,6 @@ namespace KM.JXC.DBA
         public int Created_By { get; set; }
         public int ShopID { get; set; }
         public string Desc { get; set; }
+        public double Price { get; set; }
     }
 }

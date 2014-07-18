@@ -158,6 +158,7 @@ namespace KM.JXC.BL
             dbProduct.Code = product.Code;
             dbProduct.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             dbProduct.Name = product.Title;
+            dbProduct.Parent_ID = product.ParentID;
             dbProduct.Quantity = 0;
             dbProduct.Description = product.Description;
             if (product.Category != null)
@@ -204,6 +205,19 @@ namespace KM.JXC.BL
 
                     db.SaveChanges();
                 }
+                Stock_Batch batch = null;
+                if (dbProduct.Parent_ID == 0)
+                {
+                    batch = new Stock_Batch() { Name = "P0", ProductID = dbProduct.Product_ID, Price = 0, ShopID = dbProduct.Shop_ID, Desc = "", Created_By = this.CurrentUser.ID };
+                    batch.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    batch.ParentProductID = dbProduct.Parent_ID;
+                    db.Stock_Batch.Add(batch);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    batch=(from b in db.Stock_Batch where b.ProductID==dbProduct.Parent_ID select b).FirstOrDefault<Stock_Batch>();
+                }
 
                 Store_House defaultStoreHouse = null;
                 List<Store_House> storeHouses = (from h in db.Store_House where (h.Shop_ID == dbProduct.Shop_ID || h.Shop_ID==this.Main_Shop.Shop_ID) select h).ToList<Store_House>();
@@ -213,6 +227,8 @@ namespace KM.JXC.BL
                     defaultStoreHouse = new Store_House();
                     defaultStoreHouse.Shop_ID = dbProduct.Shop_ID;
                     defaultStoreHouse.Title = "默认仓库";
+                    defaultStoreHouse.Address = "";
+                    defaultStoreHouse.Phone = "";
                     defaultStoreHouse.User_ID = this.CurrentUser.ID;
                     defaultStoreHouse.Create_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     defaultStoreHouse.Default = true;
@@ -238,6 +254,7 @@ namespace KM.JXC.BL
                 stockPile.Shop_ID = dbProduct.Shop_ID;
                 stockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
                 stockPile.StockPile_ID = 0;
+                stockPile.Batch_ID = batch.ID;
 
                 db.Stock_Pile.Add(stockPile);
 
@@ -276,6 +293,7 @@ namespace KM.JXC.BL
                     {
                         if (p.Parent == null)
                         {
+                            p.ParentID = dbProduct.Product_ID;
                             p.Parent = new BProduct() { ID = product.ID };
                         }
                         p.Children = null;
@@ -765,15 +783,12 @@ namespace KM.JXC.BL
                 if (includeProps)
                 {
                     int[] parent_ids = (from p in products select p.ID).ToArray<int>();
-                    var tmpchildProducts = from p in db.Product
-                                           join stock in db.Stock_Pile on p.Product_ID equals stock.Product_ID into LStock
-                                           from l_stock in LStock.DefaultIfEmpty()
+                    var tmpchildProducts = from p in db.Product                                        
                                            where parent_ids.Contains(p.Parent_ID)
                                            select new BProduct
                                            {
                                                ID = p.Product_ID,
-                                               Title = p.Name,
-                                               Quantity = l_stock != null ? l_stock.Quantity : 0,
+                                               Title = p.Name,                                              
                                                ParentID=p.Parent_ID
                                            };
 

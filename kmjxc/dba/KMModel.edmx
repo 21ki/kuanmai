@@ -755,10 +755,11 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="uint" Nullable="false" />
+          <Property Name="ID" Type="uint" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="ProductID" Type="int" Nullable="false" />
           <Property Name="ParentProductID" Type="int" Nullable="false" />
+          <Property Name="Price" Type="double" Nullable="false" />
           <Property Name="Created" Type="uint" Nullable="false" />
           <Property Name="Created_By" Type="int" Nullable="false" />
           <Property Name="ShopID" Type="int" Nullable="false" />
@@ -1762,6 +1763,7 @@
           <Property Type="Int32" Name="Created_By" Nullable="false" />
           <Property Type="Int32" Name="ShopID" Nullable="false" />
           <Property Type="String" Name="Desc" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Type="Double" Name="Price" Nullable="false" />
         </EntityType>
         <EntityType Name="Leave_Stock_Detail">
           <Key>
@@ -2611,6 +2613,7 @@
           <EntitySetMapping Name="Stock_Batch">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Stock_Batch">
               <MappingFragment StoreEntitySet="Stock_Batch">
+                <ScalarProperty Name="Price" ColumnName="Price" />
                 <ScalarProperty Name="Desc" ColumnName="Desc" />
                 <ScalarProperty Name="ShopID" ColumnName="ShopID" />
                 <ScalarProperty Name="Created_By" ColumnName="Created_By" />

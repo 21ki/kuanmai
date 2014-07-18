@@ -1332,6 +1332,12 @@ namespace KM.JXC.BL
                         continue;
                     }
 
+                    Stock_Batch batch = new Stock_Batch() { Name = "P0", ProductID = dbProduct.Product_ID, Price = 0, ShopID = dbProduct.Shop_ID, Desc = "", Created_By = this.CurrentUser.ID };
+                    batch.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    batch.ParentProductID = dbProduct.Parent_ID;
+                    db.Stock_Batch.Add(batch);
+                    db.SaveChanges();
+
                     Stock_Pile stockPile = new Stock_Pile();
                     stockPile.LastLeave_Time = 0;
                     stockPile.Price = 0;
@@ -1340,6 +1346,7 @@ namespace KM.JXC.BL
                     stockPile.Shop_ID = product.Shop.ID;
                     stockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
                     stockPile.StockPile_ID = 0;
+                    stockPile.Batch_ID = batch.ID;
 
                     db.Stock_Pile.Add(stockPile);
 
@@ -1383,9 +1390,8 @@ namespace KM.JXC.BL
                             skustockPile.Shop_ID = product.Shop.ID;
                             skustockPile.StockHouse_ID = defaultStoreHouse.StoreHouse_ID;
                             skustockPile.StockPile_ID = 0;
-
+                            skustockPile.Batch_ID = batch.ID;
                             db.Stock_Pile.Add(skustockPile);
-
                             string[] props = sku.PropertiesName.Split(';');
                             foreach (string prop in props)
                             {
@@ -1429,8 +1435,6 @@ namespace KM.JXC.BL
                                     db.Product_Specifications.Add(ps);
                                 }
                             }
-
-                            //db.SaveChanges();
                         }
                     }
 

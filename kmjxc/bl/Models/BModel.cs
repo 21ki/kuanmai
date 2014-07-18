@@ -12,5 +12,6 @@ namespace KM.JXC.BL.Models
         public bool FromMainShop { get; set; }
         public bool FromChildShop { get; set; }
         public long Created { get; set; }
+        public BUser Created_By { get; set; }
     }
 }

@@ -273,7 +273,7 @@
 
                     $('#popup_stock_edit').dialog({
                         position: { my: "top", at: "top", of: $("#stockTable") },
-                        width: 750,
+                        width: 850,
                         //height:550,
                         resizable: false,
                         title: "库存详情" + data[selectedRows[0]]["Title"],
@@ -358,7 +358,7 @@
                             var that = this;
                             $(this).html("");
                             var $divList = $("<div id=\"edit_stock_products\"></div>").appendTo(that);
-                            $("<div class=\"row\"><span style=\"display:inline-block;width:400px;margin-right:10px;\">产品</span><span  style=\"display:inline-block;width:56px;margin-right:10px;\">库存</span><span style=\"display:inline-block;width:150px;\">仓库</span></div>").appendTo($divList);
+                            $("<div class=\"row\"><span style=\"display:inline-block;width:400px;margin-right:10px;\">产品</span><span  style=\"display:inline-block;width:56px;margin-right:10px;\">库存</span><span style=\"display:inline-block;width:150px;\">仓库</span><span style=\"display:inline-block;width:150px;\">库存批次</span></div>").appendTo($divList);
                             $(res.data).each(function (indx, stock) {
                                 var $row = $divList.find("div[id^='product_" + stock.Parent_Product_ID + "']")
                                 if ($row == null || $row.html() == null) {
@@ -371,7 +371,7 @@
                                     }).appendTo($row);
 
                                     $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
-
+                                    $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
                                     $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
                                         $(this).parent().remove();
                                     }).appendTo($row);
@@ -389,7 +389,7 @@
                                         }).appendTo($row);
 
                                         $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
-
+                                        $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
                                         $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
                                             $(this).parent().remove();
                                         }).appendTo($row);
@@ -436,6 +436,7 @@
                                         $ulList.parent().find("input[id^='row_']").val(totalQuantity);
                                     }).appendTo($li);
                                     $("<span style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($li);
+                                    $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
                                     $("<input type=\"hidden\" id=\"hidden_" + stock.Product.ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($li);
                                     $($totalq).val(totalQuantity);
                                 } else {

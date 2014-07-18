@@ -12,5 +12,6 @@ namespace KM.JXC.BL.Models
         public int Parent_Product_ID { get; set; }
         public BStoreHouse StoreHouse { get; set; }
         public int Quantity { get; set; }
+        public BStockBatch Batch { get; set; }
     }
 }

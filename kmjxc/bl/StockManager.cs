@@ -1308,9 +1308,12 @@ namespace KM.JXC.BL
             }            
 
             KuanMaiEntities db = new KuanMaiEntities();
-            List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == this.Shop.Shop_ID select sp).ToList<Stock_Pile>();
+            List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == dbstock.Shop_ID select sp).ToList<Stock_Pile>();
           
             int totalQuantity = 0;
+
+            List<Stock_Batch> batches=(from sb in db.Stock_Batch where sb.ShopID==dbstock.Shop_ID select sb ).ToList<Stock_Batch>();
+
             foreach (BEnterStockDetail detail in details)
             {
                 Product tmp = (from p in db.Product where p.Product_ID == detail.Product.ID select p).FirstOrDefault<Product>();
@@ -1328,12 +1331,50 @@ namespace KM.JXC.BL
                 dbDetail.Price = detail.Price;
                 dbDetail.Product_ID = detail.Product.ID;
                 dbDetail.Quantity = (int)detail.Quantity;
-                db.Enter_Stock_Detail.Add(dbDetail);
+               
                 totalQuantity += dbDetail.Quantity;
+                int parentProductId = dbDetail.Product_ID;
+                if (tmp.Parent_ID > 0)
+                {
+                    parentProductId = tmp.Parent_ID;
+                }
+                dbDetail.Parent_Product_ID = parentProductId;
+
+                List<Stock_Batch> pBatches = (from b in batches where b.ProductID == parentProductId select b).ToList<Stock_Batch>();
+                Stock_Batch batch = (from b in pBatches where b.Price==dbDetail.Price select b).FirstOrDefault<Stock_Batch>();
+                if (batch == null)
+                {                    
+                    if (pBatches.Count == 1 && pBatches[0].Price == 0)
+                    {
+                        batch = pBatches[0];
+                        batch.Price = dbDetail.Price;
+                        batch.Name = "P" + batch.Price.ToString("0.00");
+                    }
+                    else
+                    {
+                        batch = new Stock_Batch() { ProductID = parentProductId, ParentProductID = 0, Price = dbDetail.Price, ShopID = dbstock.Shop_ID, Desc = "" };
+                        batch.Created = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        batch.Created_By = this.CurrentUser.ID;
+                        batch.Name = "P" + batch.Price.ToString("0.00");
+                        db.Stock_Batch.Add(batch);
+                        db.SaveChanges();
+                    }
+                }
+
+                dbDetail.Batch_ID = batch.ID;
+                db.Enter_Stock_Detail.Add(dbDetail);
+
                 if (updateStock)
                 {                    
                     //update stock pile
-                    Stock_Pile stockPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == dbstock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                    Stock_Pile zeroPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == dbstock.StoreHouse_ID && sp.Quantity==0 select sp).FirstOrDefault<Stock_Pile>();
+                    if (zeroPile != null && zeroPile.Batch_ID!=batch.ID)
+                    {
+                        db.Stock_Pile.Remove(zeroPile);
+                        db.SaveChanges();
+                    }
+
+                    Stock_Pile stockPile = (from sp in stockPiles where sp.Product_ID == dbDetail.Product_ID && sp.StockHouse_ID == dbstock.StoreHouse_ID && sp.Batch_ID==dbDetail.Batch_ID select sp).FirstOrDefault<Stock_Pile>();
                     if (stockPile == null)
                     {
                         stockPile = new Stock_Pile();
@@ -1342,6 +1383,7 @@ namespace KM.JXC.BL
                         stockPile.StockHouse_ID = dbstock.StoreHouse_ID;
                         stockPile.Quantity = dbDetail.Quantity;
                         stockPile.Price = dbDetail.Price;
+                        stockPile.Batch_ID = dbDetail.Batch_ID;
                         stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         db.Stock_Pile.Add(stockPile);
                     }
@@ -1720,7 +1762,7 @@ namespace KM.JXC.BL
                 lsDetail = new Leave_Stock_Detail();
                 if (house != null)
                 {
-                    stockPile = (from sp in db.Stock_Pile where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();
+                    stockPile = (from sp in db.Stock_Pile where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).OrderBy(s=>s.Batch_ID).FirstOrDefault<Stock_Pile>();
                 }
 
                 if (stockPile == null)
@@ -1729,7 +1771,7 @@ namespace KM.JXC.BL
                     var tmpstockPile = from sp in db.Stock_Pile where sp.Product_ID == stockPileProductId && sp.Quantity >= order.Quantity select sp;
                     if (tmpstockPile.Count() > 0)
                     {
-                        stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
+                        stockPile = tmpstockPile.OrderBy(s => s.Batch_ID).ToList<Stock_Pile>()[0];
                         Store_House tmpHouse = (from h in db.Store_House where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
                         if (tmpHouse != null)
                         {
@@ -1764,6 +1806,7 @@ namespace KM.JXC.BL
                     }
 
                     lsDetail.StoreHouse_ID = stockPile.StockHouse_ID;
+                    lsDetail.Batch_ID = stockPile.Batch_ID;
                     //Update stock
                     stockPile.Quantity = stockPile.Quantity - order.Quantity;
 
@@ -2315,9 +2358,11 @@ namespace KM.JXC.BL
                                 from l_p in LProduct.DefaultIfEmpty()
                                 join h in db.Store_House on s.StockHouse_ID equals h.StoreHouse_ID into LHouse
                                 from l_h in LHouse.DefaultIfEmpty()
+                                join batch in db.Stock_Batch on s.Batch_ID equals batch.ID into LBatch
+                                from l_batch in LBatch.DefaultIfEmpty()
                                 select new BStock
                                 {
-                                    ID=s.StockPile_ID,
+                                    ID = s.StockPile_ID,
                                     Parent_Product_ID = l_p.Parent_ID > 0 ? l_p.Parent_ID : l_p.Product_ID,
                                     Product = new BProduct
                                     {
@@ -2325,7 +2370,8 @@ namespace KM.JXC.BL
                                         ID = l_p.Product_ID
                                     },
                                     Quantity = s.Quantity,
-                                    StoreHouse = new BStoreHouse { ID = l_h.StoreHouse_ID, Name = l_h.Title }
+                                    StoreHouse = new BStoreHouse { ID = l_h.StoreHouse_ID, Name = l_h.Title },
+                                    Batch = l_batch != null ? new BStockBatch { ID=l_batch.ID,Name=l_batch.Name,Price=l_batch.Price } : new BStockBatch {ID=0,Name="",Price=0 }
                                 };
 
                 if (store_house_ids != null && store_house_ids.Count > 0)

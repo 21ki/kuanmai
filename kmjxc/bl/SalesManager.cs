@@ -201,6 +201,7 @@ namespace KM.JXC.BL
             List<Store_House> houses = (from store in db.Store_House select store).ToList<Store_House>();
             List<Stock_Pile> stockPiles = (from sp in db.Stock_Pile where sp.Shop_ID == shop.Shop_ID || sp.Shop_ID == this.Main_Shop.Shop_ID || csp_ids.Contains(sp.Shop_ID) select sp).ToList<Stock_Pile>();
             List<Sale_Detail> tradeDetails=(from tradeDetail in db.Sale_Detail where sale_ids.Contains(tradeDetail.Mall_Trade_ID) select tradeDetail).ToList<Sale_Detail>();
+            List<Stock_Batch> batches=(from b in db.Stock_Batch where b.ShopID==shop.Shop_ID select b).ToList<Stock_Batch>();
             try
             {
                 foreach (BSale trade in trades)
@@ -288,7 +289,7 @@ namespace KM.JXC.BL
                             {
                                 //order_detail.SyncResultMessage = "默认仓库：" + house.Title;
                                 //create leave stock from default store house
-                                stockPile = (from sp in stockPiles where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).FirstOrDefault<Stock_Pile>();                                                               
+                                stockPile = (from sp in stockPiles where sp.Product_ID == stockPileProductId && sp.StockHouse_ID == house.StoreHouse_ID && sp.Quantity >= order.Quantity select sp).OrderBy(s=>s.Batch_ID).FirstOrDefault<Stock_Pile>();                                                               
                             }
 
                             if (stockPile == null)
@@ -301,7 +302,7 @@ namespace KM.JXC.BL
                                 var tmpstockPile = from sp in stockPiles where sp.Product_ID == stockPileProductId && sp.Quantity >= order.Quantity select sp;
                                 if (tmpstockPile.Count() > 0)
                                 {
-                                    stockPile = tmpstockPile.ToList<Stock_Pile>()[0];
+                                    stockPile = tmpstockPile.OrderBy(s=>s.Batch_ID).ToList<Stock_Pile>()[0];
                                     Store_House tmpHouse = (from h in houses where h.StoreHouse_ID == stockPile.StockHouse_ID select h).FirstOrDefault<Store_House>();
                                     if (tmpHouse != null)
                                     {
@@ -324,6 +325,7 @@ namespace KM.JXC.BL
                                 dbDetail.Parent_Product_ID = order.Parent_Product_ID;
                                 dbDetail.Product_ID = order.Product_ID;
                                 dbDetail.StoreHouse_ID = stockPile.StockHouse_ID;
+                                dbDetail.Batch_ID = stockPile.Batch_ID;
                                 //Update stock
                                 stockPile.Quantity = stockPile.Quantity - order.Quantity;
                                 
