@@ -366,9 +366,9 @@
                                     
                     }
                     //@Html.Raw("<div>产品编码："+order.Product.ID+"</div>")
+                    string propValue = "";
                     if (order.Product != null && order.Product.Properties != null)
                     {
-                        string propValue = "";
                         foreach (KM.JXC.BL.Models.BProductProperty prop in order.Product.Properties)
                         {
                             if (propValue == "")
@@ -380,9 +380,25 @@
                                 propValue += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + prop.PName + "：" + prop.PValue;
                             }
                         }
+                    }
+                    
+                    if (string.IsNullOrEmpty(propValue)) {
+                        if (order.MallProduct != null && order.MallProduct.Skus != null && order.MallProduct.Skus.Count>0)
+                        {
+                            KM.JXC.BL.Models.BMallSku sku = order.MallProduct.Skus[0];
+                            if (!string.IsNullOrEmpty(sku.Properities))
+                            {
+                                string[] pops = sku.Properities.Split(';');
+                                foreach (string p in pops)
+                                {
+                                    sku.PropertiesName = sku.PropertiesName.Replace(p + ":", "");
+                                }
+                            }
+                            propValue = sku.PropertiesName;
+                        }
+                    }
                                         
                     @Html.Raw("<div class=\"item\">" + propValue + "</div>")
-                    }
                     
                     string style="color:red;";
                     if (order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.LEAVED_STOCK || order.Status1 == (int)KM.JXC.BL.SaleDetailStatus.REFOUND_HANDLED)

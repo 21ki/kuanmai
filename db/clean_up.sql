@@ -24,6 +24,8 @@ delete from SyncWithMall;
 delete from Product;
 delete from Stock_Pile;
 delete from Stock_Waste;
+delete from Stock_Batch;
 update Shop set Parent_Shop_ID=0 where Parent_Shop_ID>0;
 delete from Shop_Child_Request;
 delete from Product_Supplier;
+delete from Store_House;

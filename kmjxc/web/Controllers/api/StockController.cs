@@ -79,6 +79,38 @@ namespace KM.JXC.Web.Controllers.api
         }
 
         [HttpPost]
+        public PQGridData SearchBatches()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int page = 1;
+            int pageSize = 30;
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+            string keyword = request["product_key"];
+            int total = 0;
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
+            data.data = stockManager.SearchBatches(0, null, keyword, page, pageSize, out total);
+            data.curPage = page;
+            data.pageSize = pageSize;
+            return data;
+        }
+
+        [HttpPost]
         public PQGridData GetStoreHouses()
         {
             PQGridData data = new PQGridData();
@@ -271,6 +303,16 @@ namespace KM.JXC.Web.Controllers.api
             {
                 paging = false;
             }
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+
             data.data = stockManager.SearchStocks(products, storeHouses, page, pageSize, out total, paging);
             data.curPage = page;
             data.totalRecords = total;

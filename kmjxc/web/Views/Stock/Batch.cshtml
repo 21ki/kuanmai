@@ -1,6 +1,71 @@
 ﻿@{
-    ViewBag.Title = "Batch";
+    ViewBag.Title = "库存批次";
     Layout = "~/Views/Shared/master_default.cshtml";
 }
 
-<h2>Batch</h2>
+<script>
+    var $grid = null;
+    $(function () {
+        var obj = {
+            width: 859, height: 600, title: "库存批次列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
+            rowSelect: function (event, obj) {
+                var pdtId = obj.data[obj.rowIndxPage]['ID'];
+            },
+            freezeCols: 4
+        };
+
+        obj.colModel = [
+                        {
+                            title: "批次编号", width: 100, dataType: "integer", dataIndx: "ID", editable: false
+                        },
+                        {
+                            title: "批次", width: 100, dataType: "string", dataIndx: "Name", editable: false
+                        },
+                        {
+                            title: "产品编号", width: 100, dataType: "integer", dataIndx: "Product.ID", editable: false
+                        },
+                        { title: "产品名称", width: 200, dataType: "string", dataIndx: "Product.Title", editable: false },                        
+                        { title: "价格", width: 100, dataType: "string", dataIndx: "Price", editable: true },
+                        { title: "创建人", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
+                        { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
+                        {
+                            title: "店铺", width: 200, dataType: "string", dataIndx: "Shop.Title", editable: false
+                        },
+        ];
+
+        obj.dataModel = {
+            location: "remote",
+            sorting: "remote",
+            paging: "remote",
+            dataType: "JSON",
+            method: "POST",
+            curPage: 1,
+            rPP: 30,
+            sortIndx: 2,
+            sortDir: "up",
+            rPPOptions: [30, 50, 60, 100],
+            getUrl: function (prgrid) {               
+                var page = this.curPage;
+                if (page == 0) {
+                    page = 1;
+                }
+                return {
+                    url: "/api/Stock/SearchBatches", data: "page=" + page + "&pageSize=" + this.rPP
+                };
+            },
+            getData: function (dataJSON) {
+                return { curPage: dataJSON.curPage, totalRecords: dataJSON.totalRecords, data: dataJSON.data };
+            }
+        };
+
+        obj.cellSave = function (event, ui) {
+            alert("ok");
+            //var row = ui.dataModel.data[ui.rowIndx];
+            //alert(row[ui.colIndx]);
+        }
+
+        $grid = $("#batches").pqGrid(obj);
+    });
+</script>
+
+<div id="batches"></div>

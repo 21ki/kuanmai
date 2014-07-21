@@ -209,6 +209,7 @@
           <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="StoreHouse_ID" Type="int" />
           <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="Batch_ID" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Bug">
           <Key>
@@ -1064,6 +1065,7 @@
           <Property Type="Int32" Name="Parent_Product_ID" Nullable="false" />
           <Property Type="Int32" Name="StoreHouse_ID" />
           <Property Type="Int32" Name="Status" Nullable="false" />
+          <Property Type="Int64" Name="Batch_ID" Nullable="false" />
         </EntityType>
         <EntityType Name="Buy_Detail">
           <Key>
@@ -1883,6 +1885,7 @@
           <EntitySetMapping Name="Back_Stock_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Back_Stock_Detail">
               <MappingFragment StoreEntitySet="Back_Stock_Detail">
+                <ScalarProperty Name="Batch_ID" ColumnName="Batch_ID" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="StoreHouse_ID" ColumnName="StoreHouse_ID" />
                 <ScalarProperty Name="Parent_Product_ID" ColumnName="Parent_Product_ID" />

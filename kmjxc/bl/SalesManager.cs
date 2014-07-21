@@ -247,14 +247,24 @@ namespace KM.JXC.BL
                             
                             Product parentPdt = (from pdt in allproducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
                             Product childPdt = (from pdt in allproducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
-                            order.Product_ID = 0;
+                           
                             order.Parent_Product_ID = 0;
                             if (parentPdt != null)
                             {                                
-                                order.Parent_Product_ID = parentPdt.Product_ID;                              
+                                order.Parent_Product_ID = parentPdt.Product_ID;
                                 if (childPdt != null)
                                 {
                                     order.Product_ID = childPdt.Product_ID;
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(order.Mall_SkuID))
+                                    {
+                                        order_detail.Status1 = (int)SaleDetailStatus.NOT_CONNECTED;
+                                        order_detail.SyncResultMessage = "宝贝已关联，当前SKU未关联，不能出库";
+                                        db.SaveChanges();
+                                        continue;
+                                    }
                                 }
                             }
                             else
@@ -262,6 +272,7 @@ namespace KM.JXC.BL
                                 if (childPdt != null)
                                 {
                                     order.Parent_Product_ID = childPdt.Parent_ID;
+                                    order.Product_ID = childPdt.Product_ID;
                                 }
                             }
 
@@ -990,6 +1001,8 @@ namespace KM.JXC.BL
                                  PVID = prop.Product_Spec_Value_ID,
                                  PValue = psv.Name
                              }).ToList<BProductProperty>();
+
+                List<Mall_Product_Sku> skus=(from sku in db.Mall_Product_Sku where mallProduct_ids.Contains(sku.Mall_ID) select sku).ToList<Mall_Product_Sku>();
                 foreach (BSale sale in sales)
                 {
                     var os = from order in sale_details                             
@@ -1035,11 +1048,10 @@ namespace KM.JXC.BL
                                                  Title = p.Title
                                              }).FirstOrDefault<BMallProduct>();
 
-                        if (order.MallProduct == null)
+                        if (order.MallProduct != null)
                         {
-                            order.MallProduct = new BMallProduct() { ID=order.Mall_PID };
+                            order.MallProduct.Skus = (from s in skus where s.SKU_ID == order.Mall_SkuID select new BMallSku { Properities=s.Properties,PropertiesName=s.Properties_name }).ToList<BMallSku>();
                         }
-                       
 
                         if (order.Product != null)
                         {

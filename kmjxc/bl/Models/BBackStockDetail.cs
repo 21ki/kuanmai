@@ -16,5 +16,6 @@ namespace KM.JXC.BL.Models
         public double Price { get; set; }
         public BStoreHouse StoreHouse { get; set; }
         public int Status { get; set; }
+        public BStockBatch Batch { get; set; }
     }
 }

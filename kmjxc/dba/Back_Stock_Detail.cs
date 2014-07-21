@@ -21,5 +21,6 @@ namespace KM.JXC.DBA
         public int Parent_Product_ID { get; set; }
         public Nullable<int> StoreHouse_ID { get; set; }
         public int Status { get; set; }
+        public long Batch_ID { get; set; }
     }
 }

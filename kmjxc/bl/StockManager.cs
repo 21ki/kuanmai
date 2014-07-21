@@ -101,6 +101,11 @@ namespace KM.JXC.BL
                             dbDetail.Product_ID = detail.ProductID;
                             dbDetail.Parent_Product_ID = detail.ParentProductID;
                             dbDetail.Quantity = detail.Quantity;
+                            if (detail.Batch != null)
+                            {
+                                dbDetail.Batch_ID = detail.Batch.ID;
+                            }
+
                             if (detail.StoreHouse != null)
                             {
                                 dbDetail.StoreHouse_ID = detail.StoreHouse.ID;
@@ -109,7 +114,7 @@ namespace KM.JXC.BL
                             //Update stock pile
                             if (backStock.UpdateStock)
                             {
-                                Stock_Pile pile = (from spile in db.Stock_Pile where spile.Product_ID == dbDetail.Product_ID && spile.StockHouse_ID == detail.StoreHouse.ID select spile).FirstOrDefault<Stock_Pile>();
+                                Stock_Pile pile = (from spile in db.Stock_Pile where spile.Product_ID == dbDetail.Product_ID && spile.StockHouse_ID == detail.StoreHouse.ID && spile.Batch_ID == dbDetail.Batch_ID select spile).FirstOrDefault<Stock_Pile>();
                                 if (pile != null)
                                 {
                                     pile.Quantity = pile.Quantity + dbDetail.Quantity;
@@ -142,7 +147,6 @@ namespace KM.JXC.BL
                 }
             }          
         }
-
 
         /// <summary>
         /// 
@@ -232,6 +236,7 @@ namespace KM.JXC.BL
 
                         bsDetail.ProductID = leaveStockDetail.Product_ID;
                         bsDetail.ParentProductID = leaveStockDetail.Parent_Product_ID;
+                        bsDetail.Batch = new BStockBatch() { ID = leaveStockDetail.Batch_ID };
                         bsDetail.StoreHouse = new BStoreHouse() { ID = leaveStockDetail.StoreHouse_ID };
                         backStock.Details.Add(bsDetail);                       
                         bsd.Status = backSaleStatus;
@@ -262,7 +267,7 @@ namespace KM.JXC.BL
             }            
         }
 
-       /// <summary>
+        /// <summary>
        /// 
        /// </summary>
        /// <param name="suppliers"></param>
@@ -734,7 +739,6 @@ namespace KM.JXC.BL
             }
             return bStockDetails;
         }
-
 
         /// <summary>
         /// 
@@ -1460,7 +1464,7 @@ namespace KM.JXC.BL
                         continue;
                     }
 
-                    Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == eDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID select sp).FirstOrDefault<Stock_Pile>();
+                    Stock_Pile stockPile = (from sp in db.Stock_Pile where sp.Product_ID == eDetail.Product_ID && sp.StockHouse_ID == stock.StoreHouse_ID && sp.Batch_ID == eDetail.Batch_ID select sp).FirstOrDefault<Stock_Pile>();
                     if (stockPile == null)
                     {
                         stockPile = new Stock_Pile();
@@ -1470,6 +1474,7 @@ namespace KM.JXC.BL
                         stockPile.Quantity = eDetail.Quantity;
                         stockPile.Price = eDetail.Price;
                         stockPile.First_Enter_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        stockPile.Batch_ID = eDetail.Batch_ID;
                         db.Stock_Pile.Add(stockPile);
                     }
                     else
@@ -2526,9 +2531,9 @@ namespace KM.JXC.BL
         }
 
         /// <summary>
-        /// 
+        /// Perform stock analysis
         /// </summary>
-        /// <param name="shop_id"></param>
+        /// <param name="shop_id">Shop ID</param>
         /// <param name="includeChildren"></param>
         /// <param name="includeMain"></param>
         /// <returns></returns>
@@ -2639,6 +2644,92 @@ namespace KM.JXC.BL
                 }
             }
             return analysis;
+        }
+
+        /// <summary>
+        /// Search stock batches
+        /// </summary>
+        /// <param name="shop_id">Shop</param>
+        /// <param name="batchName">Keyword of batch name</param>
+        /// <param name="productKeyWord">Keyword of product name</param>
+        /// <param name="page">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="total">Total records</param>
+        /// <returns>A list of BStockBatch</returns>
+        public List<BStockBatch> SearchBatches(int shop_id,string batchName,string productKeyWord,int page,int pageSize,out int total)
+        {
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            total=0;
+
+            List<BStockBatch> batches=new List<BStockBatch>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var tmp = from batch in db.Stock_Batch
+                          select batch;
+                if (shop_id > 0)
+                {
+                    tmp = tmp.Where(b => b.ShopID == shop_id);
+                }
+                else
+                {
+                    if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                    {
+                        int[] childs = (from c in this.ChildShops select c.ID).ToArray<int>();
+                        tmp = tmp.Where(b => (childs.Contains(b.ShopID) || b.ShopID == this.Shop.Shop_ID));
+                    }
+                    else
+                    {
+                        tmp = tmp.Where(b=>b.ShopID==this.Shop.Shop_ID);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(batchName))
+                {
+                    tmp = tmp.Where(b=>b.Name.Contains(batchName));
+                }
+
+                if (!string.IsNullOrEmpty(productKeyWord))
+                {
+                    var products = from p in db.Product
+                                   where p.Parent_ID == 0 && p.Name.Contains(productKeyWord)
+                                   select p.Product_ID;
+
+                    tmp = tmp.Where(b=>products.Contains(b.ProductID));
+                }
+
+                total = tmp.Count();
+                if (total > 0)
+                {
+                    var x = from batch in tmp
+                            join shop in db.Shop on batch.ShopID equals shop.Shop_ID into LShop
+                            from l_shop in LShop.DefaultIfEmpty()
+                            join user in db.User on batch.Created_By equals user.User_ID into LUser
+                            from l_user in LUser.DefaultIfEmpty()
+                            join product in db.Product on batch.ProductID equals product.Product_ID into LProduct
+                            from l_product in LProduct.DefaultIfEmpty()
+                            select new BStockBatch
+                            {
+                                ID = batch.ID,
+                                Name = batch.Name,
+                                Created = batch.Created,
+                                Created_By = l_user != null ? new BUser { ID = batch.Created_By, Mall_ID = l_user.Mall_ID, Mall_Name = l_user.Mall_Name } : new BUser { ID = 0, Mall_ID = "", Mall_Name = ""},
+                                Price = batch.Price,
+                                Product = new BProduct { ID = batch.ProductID, ParentID = l_product.Parent_ID, Title = l_product.Name },
+                                Shop = new BShop { ID=l_shop.Shop_ID,Title=l_shop.Name }
+                            };
+
+                    batches = (from b in x select b).OrderBy(b=>b.ID).ThenBy(b=>b.Product.ID).Skip((page-1)*pageSize).Take(pageSize).ToList<BStockBatch>();
+                }
+            }
+            return batches;
         }
     }
 }
