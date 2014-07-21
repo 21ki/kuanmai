@@ -980,7 +980,7 @@ namespace KM.JXC.BL
                                 HasRefound = (bool)t.HasRefound
                             };//).OrderByDescending(s => s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
                 totalRecords = sObjs.Count();
-                sales = sObjs.OrderByDescending(s => s.Synced).ThenByDescending(s=>s.SaleDateTime).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
+                sales = sObjs.OrderByDescending(s => s.SaleDateTime).ThenByDescending(s => s.Synced).Skip((page - 1) * pageSize).Take(pageSize).ToList<BSale>();
 
                 string[] bsale_ids = (from sale in sales select sale.Sale_ID).ToArray<string>();
                 List<Sale_Detail> sale_details = (from sdetail in db.Sale_Detail where bsale_ids.Contains(sdetail.Mall_Trade_ID) select sdetail).ToList<Sale_Detail>();
