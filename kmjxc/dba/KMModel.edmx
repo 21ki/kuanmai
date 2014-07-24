@@ -719,7 +719,7 @@
           <Key>
             <PropertyRef Name="Shop_ID" />
           </Key>
-          <Property Name="Shop_ID" Type="int" Nullable="false" />
+          <Property Name="Shop_ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
           <Property Name="Mall_Shop_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="100" />
           <Property Name="User_ID" Type="int" Nullable="false" />
@@ -728,6 +728,10 @@
           <Property Name="Mall_Type_ID" Type="int" Nullable="false" />
           <Property Name="Created" Type="uint" />
           <Property Name="Synced" Type="uint" />
+          <Property Name="EMail" Type="varchar" MaxLength="100" />
+          <Property Name="Mobile" Type="varchar" MaxLength="11" />
+          <Property Name="Contact" Type="varchar" MaxLength="45" />
+          <Property Name="Address" Type="varchar" MaxLength="300" />
         </EntityType>
         <EntityType Name="Shop_Child_Request">
           <Key>
@@ -1439,6 +1443,10 @@
           <Property Type="Int32" Name="Mall_Type_ID" Nullable="false" />
           <Property Type="Int64" Name="Created" />
           <Property Type="Int64" Name="Synced" />
+          <Property Type="String" Name="EMail" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Mobile" MaxLength="11" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Contact" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Address" MaxLength="300" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Shop_Child_Request">
           <Key>
@@ -2270,6 +2278,10 @@
           <EntitySetMapping Name="Shop">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Shop">
               <MappingFragment StoreEntitySet="Shop">
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="EMail" ColumnName="EMail" />
                 <ScalarProperty Name="Synced" ColumnName="Synced" />
                 <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Mall_Type_ID" ColumnName="Mall_Type_ID" />

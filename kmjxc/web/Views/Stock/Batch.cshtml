@@ -5,6 +5,7 @@
 
 <script>
     var $grid = null;
+    var $searchform=null;
     $(function () {
         var obj = {
             width: 859, height: 600, title: "库存批次列表", flexHeight: true, sortable: false, selectionModel: { mode: 'range' }, scrollModel: { pace: 'fast', horizontal: true },
@@ -25,7 +26,7 @@
                             title: "产品编号", width: 100, dataType: "integer", dataIndx: "Product.ID", editable: false
                         },
                         { title: "产品名称", width: 200, dataType: "string", dataIndx: "Product.Title", editable: false },                        
-                        { title: "价格", width: 100, dataType: "string", dataIndx: "Price", editable: true },
+                        { title: "价格", width: 100, dataType: "string", dataIndx: "Price", editable: false },
                         { title: "创建人", width: 150, dataType: "string", dataIndx: "Created_By.Mall_Name", editable: false },
                         { title: "创建日期", width: 150, dataType: "timestamp", dataIndx: "Created", editable: false },
                         {
@@ -49,8 +50,10 @@
                 if (page == 0) {
                     page = 1;
                 }
+
+                var keyword = $($searchform).find('#pdt_key_word').val();
                 return {
-                    url: "/api/Stock/SearchBatches", data: "page=" + page + "&pageSize=" + this.rPP
+                    url: "/api/Stock/SearchBatches", data: "page=" + page + "&pageSize=" + this.rPP + "&product_key=" + keyword
                 };
             },
             getData: function (dataJSON) {
@@ -63,6 +66,26 @@
             //var row = ui.dataModel.data[ui.rowIndx];
             //alert(row[ui.colIndx]);
         }
+
+        $("#batches").on("pqgridrender", function (evt, obj) {
+            var $toolbar = $("<div class='pq-grid-toolbar pq-grid-toolbar-search'></div>").appendTo($(".pq-grid-top", this));
+            var $menubar = $("<div class='pq-grid-toolbar pq-grid-toolbar-crud'></div>").appendTo($(".pq-grid-top", this));
+            $searchform = $("<form id=\"pdt_search_form\"></form>").appendTo($toolbar);
+            var $srow = $("<div class=\"row\"></div>").appendTo($searchform);
+
+            $("<label class=\"label1\">产品名称:</label>").appendTo($srow);
+            $("<input id=\"pdt_key_word\" title='产品名称关键字' type='text' class='W_input' style='height:22px;width:200px;padding-left:4px;'/>").appendTo($srow).keyup(function (evt) {
+
+            });
+
+            $("<span style='height:24px;line-height:24px;'>搜索</span>")
+                    .appendTo($srow)
+                    .button({ text: true, icons: { primary: "ui-icon-search" } }).bind("click", function (evt) {
+                        $grid.pqGrid("refreshDataAndView");
+                    });
+
+
+        });
 
         $grid = $("#batches").pqGrid(obj);
     });

@@ -296,28 +296,32 @@
 
                                     var stock = "";
                                     var $ul = $(row).find("ul");
-                                    if ($ul == null || $ul.html() == null) {
+                                    if ($ul == null || $ul.html() == null) {                                        
                                         var pid = $(row).find("input[id^='row_']").attr("id").split("_")[1];
-                                        var quantity = $(row).find("input[type='text']").val();
-                                        var houseId = $(row).find("input[type='hidden']").val();
+                                        var quantity = $(row).find("input[type='text']").val();                                        
+                                        var hb = $(row).find("input[type='hidden']").val();
+                                        var houseId = hb.split('_')[0];
+                                        var batchId = hb.split('_')[1];
                                         if (!$.IsNumber(quantity)) {
                                             verified = verified & false;
                                             return false;
                                         }
 
-                                        stock = "{\"product_id\":" + pid + ",\"quantity\":" + quantity+",\"store_house\":"+houseId+"}";
+                                        stock = "{\"product_id\":" + pid + ",\"quantity\":" + quantity+",\"store_house\":"+houseId+",\"batch_id\":"+batchId+"}";
                                     } else {
                                         var $llen = $ul.find("li").size();
                                         var tmpStocks = "";
                                         $($ul.find("li")).each(function (j, sku) {
                                             var pid = $(sku).find("input[id^='li_']").attr("id").split("_")[1];
                                             var quantity = $(sku).find("input[type='text']").val();
-                                            var houseId = $(sku).find("input[type='hidden']").val();
+                                            var hb = $(row).find("input[type='hidden']").val();
+                                            var houseId = hb.split('_')[0];
+                                            var batchId = hb.split('_')[1];
                                             if (!$.IsNumber(quantity)) {
                                                 verified = verified & false;
                                                 return false;
                                             }
-                                            tmpStocks += "{\"product_id\":" + pid + ",\"quantity\":" + quantity + ",\"store_house\":" + houseId + "}";
+                                            tmpStocks += "{\"product_id\":" + pid + ",\"quantity\":" + quantity + ",\"store_house\":" + houseId + ",\"batch_id\":" + batchId + "}";
                                             if (j < ($llen - 1)) {
                                                 tmpStocks += ",";
                                             }
@@ -341,6 +345,7 @@
                                     return;
                                 }
                                 stocks += "]";
+                               
                                 stockMgr.UpdateProductsStocks({ 'stocks': encodeURIComponent(stocks) }, function (res) {
                                     if (res.Status == "ok") {
                                         $(that).dialog("close");
@@ -371,12 +376,12 @@
                                     }).appendTo($row);
 
                                     $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
-                                    $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
+                                    $("<span id=\"batch_" + stock.Batch.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($row);
                                     $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
                                         $(this).parent().remove();
                                     }).appendTo($row);
 
-                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($row);
+                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "_" + stock.Batch.ID + "\" />").appendTo($row);
                                 } else {
                                    
                                     if (stock.Product.Properties == null || $(stock.Product.Properties).size()<=0) {                                     
@@ -389,18 +394,19 @@
                                         }).appendTo($row);
 
                                         $("<span id=\"house_" + stock.StoreHouse.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($row);
-                                        $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
+                                        $("<span id=\"batch_" + stock.Batch.ID + "\" style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
                                         $("<span style=\"margin-left:10px;\"><img src=\"/Content/images/remove.gif\" /></span>").click(function () {
                                             $(this).parent().remove();
                                         }).appendTo($row);
 
-                                        $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($row);
+                                        $("<input type=\"hidden\" id=\"hidden_" + stock.Parent_Product_ID + "\" value=\"" + stock.StoreHouse.ID + "_" + stock.Batch.ID + "\" />").appendTo($row);
                                     }
                                 }
 
                                 if (stock.Product.Properties != null && $(stock.Product.Properties).size() > 0) {
 
-                                    $row.find("span[id^='house_']").remove();
+                                    $row.find("span[id^='house_']").html("");
+                                    $row.find("span[id^='house_']").next().html("");
                                     var $totalq = $row.find("input[id^='row_']").attr("readonly", true);
                                     var totalQuantity = 0;
                                     var $ul = $row.find("ul");
@@ -437,7 +443,7 @@
                                     }).appendTo($li);
                                     $("<span style=\"display:inline-block;width:150px;\">" + stock.StoreHouse.Name + "</span>").appendTo($li);
                                     $("<span style=\"display:inline-block;width:150px;\">" + stock.Batch.Name + "</span>").appendTo($li);
-                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Product.ID + "\" value=\"" + stock.StoreHouse.ID + "\" />").appendTo($li);
+                                    $("<input type=\"hidden\" id=\"hidden_" + stock.Product.ID + "\" value=\"" + stock.StoreHouse.ID + "_" + stock.Batch.ID+ "\" />").appendTo($li);
                                     $($totalq).val(totalQuantity);
                                 } else {
                                     

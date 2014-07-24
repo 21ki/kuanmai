@@ -240,7 +240,7 @@ namespace KM.JXC.BL
                             if (order.Refound)
                             {
                                 order_detail.Status1 = (int)SaleDetailStatus.REFOUND_BEFORE_SEND;
-                                order_detail.SyncResultMessage = "宝贝在发货前退货，不需要出库";
+                                order_detail.SyncResultMessage = "已经退货，不需要出库";
                                 db.SaveChanges();
                                 continue;
                             }
@@ -1627,6 +1627,10 @@ namespace KM.JXC.BL
                         w.Parent_ProductID = detail.Parent_Product_ID;
                         w.Price = detail.Price;
                         w.Product_ID = w.Product_ID;
+                        if (w.Parent_ProductID == 0)
+                        {
+                            w.Parent_ProductID = w.Product_ID;
+                        }
                         w.Quantity = q;
                         w.Shop_ID = this.Shop.Shop_ID;
                         db.Stock_Waste.Add(w);

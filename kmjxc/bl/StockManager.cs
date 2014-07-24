@@ -394,7 +394,122 @@ namespace KM.JXC.BL
 
             return products;
         }
-        
+
+        /// <summary>
+        /// Get product detailed stock wastage
+        /// </summary>
+        /// <param name="product_ids"></param>
+        /// <returns></returns>
+        public List<BProduct> GetProductsWastageDetail(int[] product_ids)
+        {
+            if (product_ids == null || product_ids.Length<=0)
+            {
+                throw new KMJXCException("没有输入产品编号");
+            }
+
+            List<BProduct> products = new List<BProduct>();
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                products = (from p in db.Product 
+                            join pw in db.Stock_Waste on p.Product_ID equals pw.Product_ID into LPW
+                            from l_pw in LPW.DefaultIfEmpty()
+                            where product_ids.Contains(p.Product_ID) && p.Parent_ID == 0 
+                            select new BProduct 
+                            {
+                                ID = p.Product_ID,
+                                Title = p.Name,
+                                Quantity = l_pw!=null?l_pw.Quantity:0
+                            }).ToList<BProduct>();
+                List<BProduct> childProducts = (from p in db.Product
+                                                join pw in db.Stock_Waste on p.Product_ID equals pw.Product_ID into LPW
+                                                from l_pw in LPW.DefaultIfEmpty()
+                                                where product_ids.Contains(p.Parent_ID) 
+                                                select new BProduct 
+                                                {
+                                                    ID=p.Product_ID,
+                                                    ParentID=p.Parent_ID,
+                                                    Title=p.Name,
+                                                    Quantity = l_pw != null ? l_pw.Quantity : 0
+                                                }).ToList<BProduct>();
+
+                int[] child_ids=(from p in childProducts select p.ID).ToArray<int>();
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where child_ids.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).ToList<BProductProperty>();
+
+                foreach (BProduct product in childProducts)
+                {
+                    product.Properties = (from prop in properties where prop.ProductID == product.ID select prop).ToList<BProductProperty>();
+                }
+
+                foreach (BProduct product in products)
+                {
+                    product.Children=(from p in childProducts where p.ParentID==product.ID select p).ToList<BProduct>();
+                }
+            }
+            return products;
+        }
+
+        /// <summary>
+        /// Update product wastage quantity
+        /// </summary>
+        /// <param name="products">List of BProduct object, ID and Quantity fields must have valid values.</param>
+        public void UpdateProductsWastage(List<BProduct> products)
+        {
+            if (products == null || products.Count == 0)
+            {
+                return;
+            }
+
+            if (this.CurrentUserPermission.UPDATE_WASTAGE == 0)
+            {
+                throw new KMJXCException("没有权限更新产品损耗数量");
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] product_ids=(from p in products select p.ID).ToArray<int>();
+
+                List<Product> dbProducts=(from p in db.Product where product_ids.Contains(p.Product_ID) select p).ToList<Product>();
+                List<Stock_Waste> wss = (from s in db.Stock_Waste where product_ids.Contains(s.Product_ID) select s).ToList<Stock_Waste>();
+                foreach (Product product in dbProducts)
+                {
+                    BProduct bProduct=(from bp in products where bp.ID==product.Product_ID select bp).FirstOrDefault<BProduct>();
+                    Stock_Waste sw=(from s in wss where s.Product_ID == product.Product_ID select s).FirstOrDefault<Stock_Waste>();
+                    if (sw != null)
+                    {
+                        sw.Quantity = bProduct.Quantity;
+                    }
+                    else
+                    {
+                        sw = new Stock_Waste();
+                        sw.Product_ID = product.Product_ID;
+                        sw.Parent_ProductID = product.Parent_ID;
+                        if (sw.Parent_ProductID == 0)
+                        {
+                            sw.Parent_ProductID = product.Product_ID;
+                        }
+                        sw.Shop_ID = product.Shop_ID;
+                        sw.Quantity = bProduct.Quantity;
+                        db.Stock_Waste.Add(sw);
+                    }
+                }
+
+                db.SaveChanges();
+            }
+        }
+
         /// <summary>
         /// search leave stocks from database
         /// </summary>
@@ -2291,14 +2406,17 @@ namespace KM.JXC.BL
         public void UpdateProductsStocks(List<BStock> stocks, out List<string> messages)
         {
             messages = new List<string>();
-
+            if (this.CurrentUserPermission.UPDATE_STOCKS == 0)
+            {
+                throw new KMJXCException("没有权限盘点库存数量");
+            }
             using (KuanMaiEntities db = new KuanMaiEntities())
             {
                 List<BStock> needUpdatedStocks = new List<BStock>();
 
                 foreach (BStock stock in stocks)
                 {
-                    if (stock.Product == null || stock.Product.ID<=0 || stock.StoreHouse==null || stock.StoreHouse.ID<=0) 
+                    if (stock.Product == null || stock.Product.ID<=0 || stock.StoreHouse==null || stock.StoreHouse.ID<=0 || stock.Batch==null || stock.Batch.ID<=0) 
                     {
                         continue;
                     }
@@ -2311,7 +2429,7 @@ namespace KM.JXC.BL
                 List<Stock_Pile> dbStocks=(from stock in db.Stock_Pile where products.Contains(stock.Product_ID) select stock).ToList<Stock_Pile>();
                 foreach (BStock stock in needUpdatedStocks)
                 {
-                    Stock_Pile dbstock=(from sbsk in dbStocks where sbsk.Product_ID==stock.Product.ID && sbsk.StockHouse_ID==stock.StoreHouse.ID select sbsk).FirstOrDefault<Stock_Pile>();
+                    Stock_Pile dbstock=(from sbsk in dbStocks where sbsk.Product_ID==stock.Product.ID && sbsk.StockHouse_ID==stock.StoreHouse.ID && sbsk.Batch_ID==stock.Batch.ID select sbsk).FirstOrDefault<Stock_Pile>();
                     if (dbstock != null)
                     {
                         dbstock.Quantity = stock.Quantity;

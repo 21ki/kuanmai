@@ -690,5 +690,39 @@ namespace KM.JXC.Web.Controllers.api
             }
             return message;
         }
+
+        [HttpPost]
+        public ApiMessage UpdateShopContactInfo()
+        {
+            ApiMessage message = new ApiMessage() {Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ShopManager shopManager = new ShopManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
+            string phone = request["phone"];
+            string email = request["email"];
+            string address = request["address"];
+            string contact = request["contact"];
+            int shop_id = 0;
+            int.TryParse(request["shop_id"],out shop_id);
+            try
+            {
+                shopManager.UpdateShopContactInfo(0, phone, address, contact, email);
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+
+            return message;
+        }
     }
 }

@@ -17,7 +17,7 @@
 
         //});
 
-        $(document).tooltip();
+        //$(document).tooltip();
         editPop = $('#popup_user_roles');
 
         var shop_id=@CurrentShop.Shop_ID
@@ -98,12 +98,14 @@
                 }
             });
         });
+
         editPop.find("#btnRemoveRole").button({ text: false, icons: { primary: "ui-icon-close" } }).click(function (e) {
             var selected = false;
             $("ul[id='role_list']").find("li").each(function (index, item) {
                 if ($(this).hasClass("sel")) {
                     selected = true;
                     $(this).remove();
+                    $('#role_action_list').html("");
                     return false;
                 }
             });
@@ -113,6 +115,7 @@
                 return;
             }
         });
+
         $('#btn_update_role').button({ icons: { primary: "ui-icon-pencil" } }).click(function () {
 
             var $ul = $('#users').find("ul");
@@ -200,8 +203,8 @@
 
             perMgr.GetRoleActions({ 'role_id': rId }, function (res) {
                 if (res.Status == 'ok') {
-                    if (res.Item != null && $(res.Item).size() > 0) {
-                        var $aList = $('#role_action_list').html("");
+                    var $aList = $('#role_action_list').html("");
+                    if (res.Item != null && $(res.Item).size() > 0) {                       
                         $(res.Item).each(function (i, action) {
                             $("<div style=\"width:140px;padding:1px 1px;margin:1px 1px;float:left;\">" + action.Description+ "</div>").appendTo($aList);
                         });

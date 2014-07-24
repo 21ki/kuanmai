@@ -23,5 +23,9 @@ namespace KM.JXC.DBA
         public int Mall_Type_ID { get; set; }
         public Nullable<long> Created { get; set; }
         public Nullable<long> Synced { get; set; }
+        public string EMail { get; set; }
+        public string Mobile { get; set; }
+        public string Contact { get; set; }
+        public string Address { get; set; }
     }
 }

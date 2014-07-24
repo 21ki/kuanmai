@@ -17,5 +17,9 @@ namespace KM.JXC.BL.Models
         public long Created { get; set; }
         public long Synced { get; set; }
         public BUser Created_By { get; set; }
+        public string Mobile { get; set; }
+        public string Contact { get; set; }
+        public string Address { get; set; }
+        public string Email { get; set; }
     }
 }

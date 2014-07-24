@@ -134,8 +134,10 @@ namespace KM.JXC.BL
         public int UPDATE_STORE_HOUSE = 0;
         [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "删除仓库")]
         public int DELETE_STORE_HOUSE = 0;
-
-
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "盘点库存")]
+        public int UPDATE_STOCKS = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新损耗")]
+        public int UPDATE_WASTAGE = 0;
 
         //Express
         [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "添加快递")]

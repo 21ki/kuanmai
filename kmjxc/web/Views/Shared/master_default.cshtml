@@ -57,6 +57,12 @@
     <script src="/Third/jqPivot/js/src/adapter.js"></script>
     <script src="/Third/jqPivot/js/src/jquery.pivot.js"></script>
     <script type="text/javascript">
+        var uid = '@CurrentUser.ID';
+        var shop_uid = '@CurrentShop.User_ID';
+        var phone = '@CurrentShop.Mobile';
+        var contact = '@CurrentShop.Contact';
+        var email = '@CurrentShop.EMail';
+        var address = '@CurrentShop.Address';
         var manager = new KMJXCBase();
         $(function () {
            
@@ -97,6 +103,82 @@
                     }
                 });
             });
+
+            if (uid == shop_uid && (phone=="" || email=="")) {
+                var $editInfo = $("<div></div>").appendTo($("body"));
+                $("<h3>为了更好的为您服务，请更新您店铺的联系信息,请填写完整</h3>").appendTo($editInfo);
+                $("<div class=\"row\"><label>手机号:</label><input id=\"shop_mobile\" class=\"W_input\" type=\"text\"/></div>").appendTo($editInfo);               
+                $("<div class=\"row\"><label>联系人:</label><input id=\"shop_contact\" class=\"W_input\" type=\"text\"/></div>").appendTo($editInfo);
+                $("<div class=\"row\"><label>邮箱:</label><input id=\"shop_email\" class=\"W_input iptW200\" type=\"text\"/></div>").appendTo($editInfo);
+                $("<div class=\"row\"><label>地址:</label><input id=\"shop_address\" class=\"W_input iptW300\" type=\"text\"/></div>").appendTo($editInfo);
+                $editInfo.dialog({
+                    //position: { my: "top", at: "top", of: $("#ExpressTable") },
+                    closeText:"hide",
+                    width: 550,
+                    resizable: false,
+                    title: "完善店铺联系信息",
+                    modal: true,
+                    open: function () {
+
+                    },
+                    close: function () {
+
+                    },
+                    buttons: {
+                        "保存": function (e) {
+                            var regBox = {
+                                regEmail : /^([a-z0-9_\.-]+)@@([\da-z\.-]+)\.([a-z\.]{2,6})$/,//邮箱
+                                regName : /^[a-z0-9_-]{3,16}$/,//用户名
+                                regMobile : /^0?1[3|4|5|8][0-9]\d{8}$/,//手机
+                                regTel : /^0[\d]{2,3}-[\d]{7,8}$/
+                            }
+                            var that = this;
+                            var phone = $(this).find("#shop_mobile").val();
+                            var contact = $(this).find("#shop_contact").val();
+                            var address = $(this).find("#shop_address").val();
+                            var email = $(this).find("#shop_email").val();
+
+                            if (phone != "") {
+                                if (phone.length != 11) {
+                                    alert("手机号码必须是11位数");
+                                    return;
+                                }
+
+                                if (!regBox.regMobile.test(phone)) {
+                                    alert("手机号码不正确");
+                                    return;
+                                }
+                            } else {
+                                alert("请输入手机号码");
+                                return;
+                            }
+
+                            if (email != "") {
+                                if (!regBox.regEmail.test(email)) {
+                                    alert("邮箱格式不正确");
+                                    return;
+                                }
+                            } else {
+                                alert("请输入邮箱地址");
+                                return;
+                            }
+
+                            var shopMgr = new KMJXCShopManager();
+                            shopMgr.UpdateShopContactInfo({email:email,contact:contact,address:address,phone:phone}, function (res) {
+                                if (res.Status == "ok") {
+                                    $(that).dialog("close");
+                                } else {
+                                    alert(res.Message);
+                                }
+                            });
+                        }
+                        //,
+                        //"取消": function (e) { }
+                    }
+                });
+
+                $editInfo.dialog("open");
+            }
          });
     </script>
 </head>

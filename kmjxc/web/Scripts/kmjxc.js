@@ -215,6 +215,7 @@ function KMJXCBase() {
         }
         return cellData;
     }
+
     this.GetDateTime = function (timestampInPage,noTime) {
         if (timestampInPage==null || timestampInPage == 0 || timestampInPage == "") {
             return "";
@@ -252,6 +253,7 @@ function KMJXCBase() {
         
         return outPut;
     }
+
     this.Test = function () {
         return "TEST";
     }
@@ -268,6 +270,7 @@ function KMJXCBase() {
     this.GetMallTypes = function (params, callback) {
         return this.AjaxCall("/api/Common/GetMallTypes", params, callback);
     }
+
     this.GetTradeStatusForSyncTrade = function () {
         var status = [
                       { 'value': 'WAIT_BUYER_CONFIRM_GOODS', 'name': '已发货', 'selected': false },
@@ -279,8 +282,6 @@ function KMJXCBase() {
 
         return status;
     }
-
-    
 
     this.InitializeHour = function (obj,hour) {
         for (var i = 0; i <= 23; i++) {
@@ -345,9 +346,11 @@ function KMJXCBase() {
 
         return buffer.join("");
     }
+
     this.SetTheme = function (params, callback) {
         return this.AjaxCall("/Home/SetTheme", params, callback);
     }
+
     this.GetCorpInfo = function (params, callback) {
         return this.AjaxCall("/api/Common/GetCorpInfo", params, callback);
     }
@@ -625,6 +628,20 @@ function KMJXCStockManager() {
     this.GetStockAnalysis = function (params, callback) {
         this.AjaxCall("/api/Stock/GetStockAnalysis", params, callback);
     }
+
+    /*
+    product_ids:required
+    */
+    this.GetProductsWastageDetail = function (params, callback) {
+        this.AjaxCall("/api/Stock/GetProductsWastageDetail", params, callback);
+    }
+
+    /*
+    wastages:required, data format is json [{"product_id":1000,"quantity":100}] which must be url encoded
+    */
+    this.UpdateProductsWastage = function (params, callback) {
+        this.AjaxCall("/api/Stock/UpdateProductsWastage", params, callback);
+    }
 }
 
 KMJXCSaleManager.prototype = new KMJXCBase();
@@ -720,6 +737,17 @@ function KMJXCShopManager() {
     */
     this.CreateProductsByMallProducts = function (params, callback) {
         this.AjaxCall("/api/Shop/CreateProductsByMallProducts", params, callback);
+    }
+
+    /*
+    phone:optional,
+    address:optional,
+    contact:optional,
+    email:optional,
+    shop_id:optional, if it is 0, then use current user's shop
+    */
+    this.UpdateShopContactInfo = function (params, callback) {
+        this.AjaxCall("/api/Shop/UpdateShopContactInfo", params, callback);
     }
 }
 

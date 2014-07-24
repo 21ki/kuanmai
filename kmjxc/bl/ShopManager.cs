@@ -38,80 +38,7 @@ namespace KM.JXC.BL
             this.Mall_Type = shop.Mall_Type_ID;
             this.UserManager = new UserManager(user, permission); ;
         }
-
-        /// <summary>
-        /// Get local shop detail
-        /// </summary>
-        /// <param name="mall_shop_id">Mall Shop ID</param>
-        /// <param name="mall_type_id">Local Mall Type ID</param>
-        /// <returns></returns>
-        public Shop GetShopDetail(string mall_shop_id, int mall_type_id)
-        {
-            Shop shop = null;
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                var s = from sp in db.Shop where sp.Mall_Shop_ID == mall_shop_id && sp.Mall_Type_ID == mall_type_id select sp;
-                if (s.ToList<Shop>().Count > 0)
-                {
-                    shop = s.ToList<Shop>()[0];
-                }
-            }
-            
-            return shop;
-        }
-
-        /// <summary>
-        /// Get local shop detail
-        /// </summary>
-        /// <param name="shop_Id">Local Shop ID</param>
-        /// <returns></returns>
-        public Shop GetShopDetail(int shop_Id)
-        {
-            Shop shop = null;
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                var sps = from s in db.Shop where s.User_ID == shop_Id select s;
-                List<Shop> shops = new List<Shop>();
-                if (sps != null)
-                {
-                    shops = sps.ToList<Shop>();
-                }
-
-                if (shops.Count == 1)
-                {
-                    shop = shops[0];
-                }
-            }
-
-            return shop;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="shop"></param>
-        /// <returns></returns>
-        public void CreateNewShop(Shop shop)
-        {   
-            if (string.IsNullOrEmpty(shop.Mall_Shop_ID))
-            {
-                throw new KMJXCException("商城店铺ID丢失，无法创建本地店铺信息");
-            }
-
-            if (string.IsNullOrEmpty(shop.Name))
-            {
-                throw new KMJXCException("商城店铺名丢失，无法创建本地店铺信息");
-            }
-
-            using (KuanMaiEntities db = new KuanMaiEntities())
-            {
-                db.Shop.Add(shop);
-                db.SaveChanges();
-            }
-        }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -2072,6 +1999,60 @@ namespace KM.JXC.BL
                 db.SaveChanges();
             }
             return result;
+        }
+
+        /// <summary>
+        /// Update Shop contact information, main user email address, contact address, mobile phone.
+        /// </summary>
+        /// <param name="shop_id"></param>
+        /// <param name="phone"></param>
+        /// <param name="address"></param>
+        /// <param name="contact"></param>
+        /// <param name="email"></param>
+        public void UpdateShopContactInfo(int shop_id,string phone,string address,string contact,string email)
+        {
+            int shop = this.Shop.Shop_ID;
+            if (shop_id > 0)
+            {
+                shop = shop_id;
+            }
+
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                Shop dbShop=(from s in db.Shop where s.Shop_ID==shop select s).FirstOrDefault<Shop>();
+                if (dbShop == null)
+                {
+                    throw new KMJXCException("需要更新的店铺不存在");
+                }
+
+                if (dbShop.User_ID != this.CurrentUser.ID)
+                {
+                    throw new KMJXCException("只有掌柜才能更改店铺的联系信息");
+                }
+
+                if (!string.IsNullOrEmpty(phone))
+                {
+                    dbShop.Mobile = phone;
+                }
+
+                if (!string.IsNullOrEmpty(address))
+                {
+                    dbShop.Address = address;
+                }
+
+                if (!string.IsNullOrEmpty(contact))
+                {
+                    dbShop.Contact = contact;
+                }
+
+                if (!string.IsNullOrEmpty(email))
+                {
+                    dbShop.EMail = email;
+                }
+
+                db.SaveChanges();
+                return;
+            }
         }
     }
 }

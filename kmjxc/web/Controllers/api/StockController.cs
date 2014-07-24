@@ -350,7 +350,8 @@ namespace KM.JXC.Web.Controllers.api
                         int product_id = (int)stock["product_id"];
                         int quantity = (int)stock["quantity"];
                         int storeHouse_id = (int)stock["store_house"];
-                        BStock bStock = new BStock() { Quantity = quantity, Product = new BProduct { ID = product_id }, StoreHouse = new BStoreHouse() { ID = storeHouse_id } };
+                        int batch_id = (int)stock["batch_id"];
+                        BStock bStock = new BStock() { Quantity = quantity, Product = new BProduct { ID = product_id }, StoreHouse = new BStoreHouse() { ID = storeHouse_id }, Batch = new BStockBatch() { ID = batch_id } };
                         bStocks.Add(bStock);
                     }
                 }
@@ -602,6 +603,92 @@ namespace KM.JXC.Web.Controllers.api
             data.curPage = page;
             data.totalRecords = total;
             return data;
+        }
+
+        [HttpPost]
+        public ApiMessage GetProductsWastageDetail()
+        {
+            ApiMessage data = new ApiMessage() { Status="ok"};
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                int[] products = base.ConvertToIntArrar(request["product_ids"]);
+                data.Item = stockManager.GetProductsWastageDetail(products);
+            }
+            catch (KMJXCException kex)
+            {
+                data.Status = "failed";
+                data.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                data.Status = "failed";
+                data.Message = "未知错误";
+            }
+            return data;
+        }
+
+        [HttpPost]
+        public ApiMessage UpdateProductsWastage()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            StockManager stockManager = new StockManager(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            try
+            {
+                string ws=request["wastages"];
+                if (string.IsNullOrEmpty(ws))
+                {
+                    message.Status = "failed";
+                    message.Message = "输入错误";
+                    return message;
+                }
+                ws = HttpUtility.UrlDecode(ws);
+                JArray ps = (JArray)JArray.Parse(ws);
+                if (ps != null && ps.Count > 0)
+                {
+                    List<BProduct> products = new List<BProduct>();
+                    for (int i = 0; i < ps.Count; i++)
+                    {
+                        BProduct product = new BProduct();
+                        JObject json = (JObject)ps[i];
+                        if (json["product_id"] != null)
+                        {
+                            product.ID = (int)json["product_id"];
+                        }
+                        if (json["quantity"] != null)
+                        {
+                            product.Quantity = (int)json["quantity"];
+                        }
+                        if (json["parent_id"] != null)
+                        {
+                            product.ParentID = (int)json["parent_id"];
+                        }
+                        products.Add(product);
+                    }
+                    stockManager.UpdateProductsWastage(products);
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+                message.Message = "未知错误";
+            }
+            return message;
         }
 
         [HttpPost]
