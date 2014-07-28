@@ -1004,7 +1004,7 @@ namespace KM.JXC.BL
 
                 if (props == null || props.Count <= 0)
                 {
-                    throw new KMJXCException("编号为:" + productId + " 的产品不存在销售属性");
+                    throw new KMJXCException("编号为:" + productId + " 的产品不存在未关联的销售属性，请先编辑产品添加属性");
                 }
 
                 int[] tmpProducts = (from p in props select p.ID).ToArray<int>();
