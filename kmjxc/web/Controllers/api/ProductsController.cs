@@ -784,9 +784,8 @@ namespace KM.JXC.Web.Controllers.api
                                     oDetail.Parent_Product_ID = parent_product_id;
                                     double price = 0;
                                     int quantity = 0;
-                                    double.TryParse(cjorders["price"].ToString(), out price);
-                                    int.TryParse(cjorders["quantity"].ToString(), out quantity);
-
+                                    double.TryParse(cjorders[j]["price"].ToString(), out price);
+                                    int.TryParse(cjorders[j]["quantity"].ToString(), out quantity);
                                     oDetail.Product = new BProduct() { ID = (int)cjorders[j]["child_id"] };
                                     oDetail.Quantity = quantity;
                                     oDetail.Status = 0;

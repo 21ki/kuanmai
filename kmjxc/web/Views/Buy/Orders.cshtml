@@ -394,11 +394,7 @@
                         pdtQuantity.attr("readonly", true);
                         pdtPrice.attr("readonly", true);
                     }
-                } 
-
-                //if (oDetailJson.Details != null && oDetailJson.Details.Length >= 1 && oDetailJson.Details[0].Product.ID!=oDetailJson.Product.ID) {
-                //    var $ul = $("<ul style=\"margin-left:90px;\"></ul>").appendTo(pdtDiv);
-                //}
+                }
 
                 if (!generateBuy) {
                     if (index == 0) {
@@ -441,32 +437,29 @@
                             }
 
                             form.find('#resultmessage').html("");
-                            form.find('#resultmessage').hide();
-                            //productIndex++;
+                            form.find('#resultmessage').hide();                           
                             RenderProductList();
                         }).appendTo(pdtDiv);
                     } else {
                         $("<img style=\"margin-left:30px;\" src=\"/Content/images/remove.gif\"/>").click(function (e) {
                             var index = i;
-                            form.find("#order_details").find("#order_detail_" + i).remove();
-                            //productIndex--;
+                            form.find("#order_details").find("#order_detail_" + i).remove();                          
                         }).appendTo(pdtDiv);
                     }
                 }
-
                 productIndex++;
             }
 
             if (oDetailJson != null) {
                 if (oDetailJson.Parent_Product_ID != oDetailJson.Product.ID) {
-
+                    
                     var pq = $(pdtDiv).find("input[id^='order_detail_pdt_q']").val();
                     if (pq != "") {
                         $(pdtDiv).find("input[id^='order_detail_pdt_q']").val(parseInt(pq) + parseInt(oDetailJson.Quantity))
                     } else {
                         $(pdtDiv).find("input[id^='order_detail_pdt_q']").val(parseInt(oDetailJson.Quantity))
                     }
-
+                    $(pdtDiv).find("input[id^='order_detail_pdt_p']").unbind("blur");
                     var childId = oDetailJson.Product.ID;
                     var $ul = pdtDiv.find("#order_detail_skus_" + oDetailJson.Parent_Product_ID);
                     if ($ul == null || $ul.html() == null || $ul.html() == "") {
@@ -645,101 +638,95 @@
             form.find('#resultmessage').html("");
             form.find('#resultmessage').hide();
 
-            var products = "[";
+            var products = "";
             var details = form.find("#order_details").find("div[id^='order_detail_']");
             var verified = true;
             if ($(details).size() > 0) {
-                for (var i = 0; i < $(details).size() ; i++) {
-                    var detail = details[i];
+                $(details).each(function (i, detail) {                   
                     var pid = $(detail).find("input[id^='order_detail_pdt_id']").val();
                     var pQuantity = $(detail).find("input[id^='order_detail_pdt_q']").val();
                     var pPrice = $(detail).find("input[id^='order_detail_pdt_p']").val();
-                    var pJson = "{";
+                    var pJson = "";
                     if (pid != "" && pid != 0) {
                         if ($(detail).find("ul") == null || $(detail).find("ul") == 'undefined' || $(detail).find("ul").html() == null) {
-
-                            if (pPrice == "" || pQuantity == "") {
-                                verified = verified & false;
-                                form.find('#resultmessage').html("请输入价格和数量");
-                                form.find('#resultmessage').show();
-                                return;
+                            if (pPrice != "" && pQuantity != "") {                               
+                                if (isNaN(pQuantity)) {
+                                    verified = verified & false;
+                                    form.find('#resultmessage').html("数量必须是整数");
+                                    form.find('#resultmessage').show();
+                                    return true;
+                                }
+                                if (!$.IsDecimal(pPrice, 2)) {
+                                    verified = verified & false;
+                                    form.find('#resultmessage').html("价格不能为空，并且只能最多两位小数");
+                                    form.find('#resultmessage').show();
+                                    return true;
+                                }
+                                if (pQuantity > 0 && pPrice > 0) {
+                                    pJson += "{";
+                                    pJson += "\"product_id\":" + pid;
+                                    pJson += ",\"orders\":[";
+                                    pJson += "{\"child_id\":" + pid + ",\"price\":" + pPrice + ",\"quantity\":" + pQuantity + "}";
+                                    pJson += "]}";
+                                }
                             }
-
-                            if (isNaN(pQuantity)) {
-                                verified = verified & false;
-                                form.find('#resultmessage').html("数量必须是整数");
-                                form.find('#resultmessage').show();
-                                return;
-                            }
-
-                            if (!$.IsDecimal(pPrice,2)) {
-                                verified = verified & false;
-                                form.find('#resultmessage').html("价格不能为空，并且只能最多两位小数");
-                                form.find('#resultmessage').show();
-                                return;
-                            }
-
-                            pJson += "\"product_id\":" + pid;
-                            pJson += ",\"orders\":[";
-                            pJson += "{\"child_id\":" + pid + ",\"price\":" + pPrice + ",\"quantity\":" + pQuantity + "}";
-                            pJson += "]";
                         } else {
-                            var pJson = "{";
+                            pJson = "{";
                             pJson += "\"product_id\":" + pid;
                             pJson += ",\"orders\":[";
                             var len = $(detail).find("ul").find("li").size();
-
+                            var cpJson = "";
                             $(detail).find("ul").find("li").each(function (index1, prop) {
                                 var cpid = $(prop).val();
                                 var price = $(prop).find("input[id^='order_detail_cpdt_p']").val();
                                 var quantity = $(prop).find("input[id^='order_detail_cpdt_q']").val();
+                                if (price != "" && quantity != "") {
+                                    if (isNaN(quantity)) {
+                                        verified = verified & false;
+                                        form.find('#resultmessage').html("数量必须是整数");
+                                        form.find('#resultmessage').show();
+                                        return false;
+                                    }
 
-                                if (price == "" || quantity == "") {
-                                    verified = verified & false;
-                                    form.find('#resultmessage').html("请输入价格和数量");
-                                    form.find('#resultmessage').show();
-                                    return false;
-                                }
-
-
-                                if (isNaN(quantity)) {
-                                    verified = verified & false;
-                                    form.find('#resultmessage').html("数量必须是整数");
-                                    form.find('#resultmessage').show();
-                                    return false;
-                                }
-
-                                if (!$.IsDecimal(price, 2)) {
-                                    verified = verified & false;
-                                    form.find('#resultmessage').html("价格不能为空，并且只能最多两位小数");
-                                    form.find('#resultmessage').show();
-                                    return false;
-                                }
-
-                                var cpJson = "{\"child_id\":" + cpid + ",\"price\":" + price + ",\"quantity\":" + quantity + "}";
-                                pJson += cpJson;
-                                if (index1 < (len - 1)) {
-                                    pJson += ",";
-                                }
+                                    if (!$.IsDecimal(price, 2)) {
+                                        verified = verified & false;
+                                        form.find('#resultmessage').html("价格不能为空，并且只能最多两位小数");
+                                        form.find('#resultmessage').show();
+                                        return false;
+                                    }
+                                    if (quantity > 0 && price > 0) {
+                                        if (cpJson == "") {
+                                            cpJson = "{\"child_id\":" + cpid + ",\"price\":" + price + ",\"quantity\":" + quantity + "}";
+                                        } else {
+                                            cpJson += ",{\"child_id\":" + cpid + ",\"price\":" + price + ",\"quantity\":" + quantity + "}";
+                                        }
+                                    }
+                                }                                
                             });
-                            pJson += "]";
+                            if (cpJson != "") {
+                                pJson += cpJson + "]}";
+                            } else {
+                                pJson = "";
+                            }
                         }
                     }
 
-                    pJson += "}";
-
-                    products += pJson;
-                    if (i < ($(details).size() - 1)) {
-                        products += ","
+                    if (pJson != "") {
+                        if (products == "") {
+                            products = "[" + pJson;
+                        } else {
+                            products += "," + pJson;
+                        }
                     }
-                }
+                });
             }
 
             if (!verified) {
                 return;
             }            
             products += "]";
-          
+            alert(products);
+            //return;
             if (!generateBuy) {
                 if (oid == "" || oid == 0) {
                     buyMgr.CreateBuyOrder(
@@ -918,8 +905,7 @@
                     title: "生成采购订单验货单",
                     modal: true,
                     open: function (evt) {
-                        InitializeNewForm();
-                        //RenderProductList();   
+                        InitializeNewForm();   
                         form.find("#info").html("生成验货单时可修改产品价格和数量，如果未变化，请保留原值，直接点生成");
                         GetFillOrderForm(row,true);
                     },

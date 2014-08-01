@@ -568,11 +568,9 @@ namespace KM.JXC.BL
             try
             {
                 int[] child_shops=(from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
-
                 allProducts = (from p in db.Product
                                where p.Shop_ID == shop.Shop_ID || child_shops.Contains(p.Shop_ID) || p.Shop_ID == this.Main_Shop.Shop_ID
                                select p).ToList<Product>();
-
                 var tmpExp = from expsp in db.Express_Shop
                              join exp in db.Express on expsp.Express_ID equals exp.Express_ID into lExp
                              from l_exp in lExp
@@ -586,7 +584,6 @@ namespace KM.JXC.BL
                                where fee.Express_ID == defaultExp.Express_ID && fee.Shop_ID == shop.Shop_ID
                                select fee).ToList<Express_Fee>();
                 }
-
                 long timeNow = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 var customers = from customer in db.Customer
                                 where customer.Mall_Type_ID == shop.Mall_Type_ID
@@ -594,10 +591,7 @@ namespace KM.JXC.BL
                 List<Customer_Shop> shop_customers = (from shop_cus in db.Customer_Shop where shop_cus.Shop_ID == shop.Shop_ID select shop_cus).ToList<Customer_Shop>();
                 string[] sale_ids=(from sale in allSales select sale.Sale_ID).ToArray<string>();
                 List<Sale> dbSales = (from sale in db.Sale where sale_ids.Contains(sale.Mall_Trade_ID) select sale).ToList<Sale>();
-               
-                //var dbSales = dbSaleObjs;
-                List<Common_District> areas = BBaseManager.Areas;
-                
+                List<Common_District> areas = BBaseManager.Areas;                
                 foreach (BSale sale in allSales)
                 {
                     Sale dbSale = new Sale();
@@ -629,17 +623,15 @@ namespace KM.JXC.BL
                                 tmpFees=(from fee in expFees where fee.Province_ID ==  dbSale.Province_ID select fee).ToList<Express_Fee>();
                             }
                         }
-
                         if (sale.Buyer.City != null)
                         {
                             sale.Buyer.City = (from p in areas where p.name == sale.Buyer.City.name select p).FirstOrDefault<Common_District>();
                             if (sale.Buyer.City != null)
                             {
                                 dbSale.City_ID = sale.Buyer.City.id;
-                                tmpFees = (from fee in tmpFees where fee.City_ID == dbSale.City_ID select fee).ToList<Express_Fee>();
+                                tmpFees = (from fee in expFees where fee.City_ID == dbSale.City_ID select fee).ToList<Express_Fee>();
                             }
                         }
-
                         if (!string.IsNullOrEmpty(sale.Buyer.Mall_ID))
                         {
                             Customer cus = (from custo in customers where custo.Mall_ID == sale.Buyer.Mall_ID select custo).FirstOrDefault<Customer>();
@@ -655,11 +647,6 @@ namespace KM.JXC.BL
                                 cus.Phone = sale.Buyer.Phone;
                                 db.Customer.Add(cus);
                                 db.SaveChanges();
-
-                                //refresh customer cache
-                                //customers.Add(cus);
-
-                                //add to shop customers
                                 Customer_Shop cs = new Customer_Shop() { Shop_ID = shop.Shop_ID, Customer_ID = cus.Customer_ID };
                                 db.Customer_Shop.Add(cs);
                             }
@@ -673,7 +660,6 @@ namespace KM.JXC.BL
                                 cus.Mall_ID = sale.Buyer.Mall_ID;
                                 cus.Mall_Type_ID = this.Shop.Mall_Type_ID;
                                 cus.Phone = sale.Buyer.Phone;
-
                                 Customer_Shop cuss = (from cusshop in shop_customers where cusshop.Customer_ID == cus.Customer_ID && cusshop.Shop_ID == shop.Shop_ID select cusshop).FirstOrDefault<Customer_Shop>();
                                 if (cuss == null)
                                 {
@@ -681,7 +667,6 @@ namespace KM.JXC.BL
                                     db.Customer_Shop.Add(cs);
                                 }
                             }
-
                             dbSale.Buyer_ID = cus.Customer_ID;
                         }
                     }
@@ -689,7 +674,6 @@ namespace KM.JXC.BL
                     {
                         dbSale.Post_Fee1 = tmpFees[0].Fee;
                     }
-
                     dbSale.Sale_Time = sale.SaleDateTime;
                     dbSale.Shop_ID = shop.Shop_ID;
                     dbSale.Status = sale.Status;
@@ -699,13 +683,11 @@ namespace KM.JXC.BL
                     if (dbSales != null && dbSales.Count>0)
                     {
                         existed = (from s in dbSales where s.Mall_Trade_ID == dbSale.Mall_Trade_ID select s).FirstOrDefault<Sale>();
-                    }                   
-
+                    } 
                     if (sale.HasRefound)
                     {
                         backSales.Add(sale);
                     }
-
                     if (existed == null)
                     {
                         newSales.Add(sale);
