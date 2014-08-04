@@ -105,7 +105,9 @@ namespace KM.JXC.BL
                     sales = sales.Where(s => s.Sale_Time < endDate);
                 }
 
-                string[] saleids=(from s in sales select s.Mall_Trade_ID).ToArray<string>();
+                //string[] saleids=(from s in sales select s.Mall_Trade_ID).ToArray<string>();
+
+                var saleids = from s in sales select s.Mall_Trade_ID;
                 string[] mallSoldProducts= (from msp in db.Sale_Detail where saleids.Contains(msp.Mall_Trade_ID) select msp.Mall_PID).Distinct().ToArray<string>();
                 if (mallSoldProducts != null && mallSoldProducts.Length>0)
                 {
@@ -124,26 +126,28 @@ namespace KM.JXC.BL
 
                 
                 tmp = tmp.Where(s => saleids.Contains(s.Mall_Trade_ID)).Where(s => (product_ids.Contains(s.Mall_PID)));
-
+                int total = tmp.Count();
                 var saleObj = from saled in tmp
                               join sale in db.Sale on saled.Mall_Trade_ID equals sale.Mall_Trade_ID into lSale
                               from l_sale in lSale.DefaultIfEmpty()
+                              join mpt in db.Mall_Product_Sku on saled.Mall_SkuID equals mpt.SKU_ID into LMpt
+                              from l_mpt in LMpt.DefaultIfEmpty()
                               select new
                               {
-                                  SaleTime=l_sale.Sale_Time,
-                                  Created=l_sale.Created,
-                                  Quantity=saled.Quantity,
-                                  Amount=saled.Amount,
-                                  ProductID=saled.Product_ID,
-                                  ParentProductID=saled.Parent_Product_ID,
-                                  ShopId=l_sale.Shop_ID,
-                                  MallSkuID=saled.Mall_SkuID,
-                                  MallPID=saled.Mall_PID
+                                  SaleTime = l_sale.Sale_Time,
+                                  Created = l_sale.Created,
+                                  Quantity = saled.Quantity,
+                                  Amount = saled.Amount,
+                                  ProductID = saled.Product_ID != null ? saled.Product_ID: l_mpt.Outer_ID ,
+                                  ParentProductID = saled.Parent_Product_ID != null ? saled.Parent_Product_ID : 0,
+                                  ShopId = l_sale.Shop_ID,
+                                  MallSkuID = saled.Mall_SkuID,
+                                  MallPID = saled.Mall_PID,
+                                  Title=saled.Title
                               };
 
                 saleObj = saleObj.OrderBy(s => s.Created);
-
-                int total = saleObj.Count();
+                total = saleObj.Count();
                 bool firstRow = true;
                 foreach (Mall_Product pdt in products)
                 {
@@ -169,21 +173,25 @@ namespace KM.JXC.BL
                     {
                         string productName = "";
                         Mall_Product mpdt=(from p in products where p.Mall_ID==item.MallPID select p).FirstOrDefault<Mall_Product>();
-                        Product locpdt=(from p in localProducts where p.Product_ID==item.ParentProductID select p).FirstOrDefault<Product>();
+                        Product locpdt=(from p in localProducts where p.Product_ID==item.ProductID select p).FirstOrDefault<Product>();
                         if (locpdt != null)
                         {
                             productName = locpdt.Name;
                         }
                         else 
                         {
-                            productName = "未关联";
+                            if (mpdt != null)
+                            {
+                                productName = mpdt.Title;
+                            }
                         }
-
-                        if (mpdt != null)
+                        if (string.IsNullOrEmpty(productName))
                         {
-                            productName += "("+mpdt.Title+")";
+                            if (!string.IsNullOrEmpty(item.Title))
+                            {
+                                productName = item.Title;
+                            }
                         }
-
                         string shopName = "";
                         if (item.ShopId == this.Shop.Shop_ID)
                         {
@@ -222,8 +230,7 @@ namespace KM.JXC.BL
                         }
                         else
                         {
-                            Mall_Product_Sku sku=(from s in skus where s.Mall_ID==item.MallPID && s.SKU_ID==item.MallSkuID select s).FirstOrDefault<Mall_Product_Sku>();
-                           
+                            Mall_Product_Sku sku=(from s in skus where s.Mall_ID==item.MallPID && s.SKU_ID==item.MallSkuID select s).FirstOrDefault<Mall_Product_Sku>();                           
                             if (sku != null)
                             {
                                 propNames = sku.Properties_name;
@@ -236,22 +243,17 @@ namespace KM.JXC.BL
                                      }
                                 }
                             }
-                        }
-                        
+                        }                        
                         if (item.SaleTime <= 0)
                         {
                             continue;
                         }
-
-
                         if (propNames =="") {
                             propNames = "--";
                         }
                         DateTime time = DateTimeUtil.ConvertToDateTime(item.SaleTime);
                         string month = time.Year.ToString() + "-" + time.Month.ToString();
-
                         string jobj = "{\"ProductName\":\"" + productName + "\",\"PropName\":\""+propNames+"\",\"ShopName\":\"" + shopName + "\",\"Month\":\"" + month + "\",\"Quantity\":\"" + item.Quantity + "\",\"Amount\":\"" + Math.Round((double)item.Amount,0) + "\"}";
-
                         if (firstRow)
                         {
                             firstRow = false;
@@ -263,7 +265,6 @@ namespace KM.JXC.BL
                         }
                     }
                 }
-
                 json.Append("]");
             }
             return json.ToString();

@@ -22,14 +22,12 @@ namespace KM.JXC.BL
         public IOShopManager ShopManager { get; private set; }
         public IOUserManager MallUserManager { get; private set; }
         public UserManager LocUserManager { get; private set; }
-        public int Mall_Type_ID { get; set; }
-        
+        public int Mall_Type_ID { get; set; }        
         public AccessManager(int mall_type_id)
         {            
             this.Mall_Type_ID = mall_type_id;
             TokenManager = new TaoBaoAccessToken(this.Mall_Type_ID);            
         }
-
         /// <summary>
         /// Initialize IManager instances
         /// </summary>
@@ -39,7 +37,6 @@ namespace KM.JXC.BL
             this.ShopManager = new TaoBaoShopManager(token, this.Mall_Type_ID);
             this.MallUserManager = new TaoBaoUserManager(token,this.Mall_Type_ID);
         }
-
         /// <summary>
         /// Calback from Mall Open API Authorization, it will verify if current login user has access to the system
         /// </summary>

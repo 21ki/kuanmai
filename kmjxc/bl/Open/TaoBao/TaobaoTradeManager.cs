@@ -374,6 +374,11 @@ namespace KM.JXC.BL.Open.TaoBao
                             //    continue;
                             //}
                             BOrder order = new BOrder();
+                            if (!string.IsNullOrEmpty(o.Title))
+                            {
+                                order.Title = o.Title;
+                            }
+
                             if (!string.IsNullOrEmpty(o.Payment))
                             {
                                 order.Amount = double.Parse(o.Payment);
@@ -540,6 +545,11 @@ namespace KM.JXC.BL.Open.TaoBao
                             //    continue;
                             //}
                             BOrder order = new BOrder();
+                            if (!string.IsNullOrEmpty(o.Title))
+                            {
+                                order.Title = o.Title;
+                            }
+
                             if (!string.IsNullOrEmpty(o.Payment))
                             {
                                 order.Amount = double.Parse(o.Payment);

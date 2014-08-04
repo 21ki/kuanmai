@@ -31,5 +31,6 @@ namespace KM.JXC.DBA
         public string SyncResultMessage { get; set; }
         public string Mall_SkuID { get; set; }
         public bool Refound { get; set; }
+        public string Title { get; set; }
     }
 }

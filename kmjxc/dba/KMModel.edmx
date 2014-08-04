@@ -689,6 +689,7 @@
           <Property Name="Mall_Order_ID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Mall_PID" Type="varchar" Nullable="false" MaxLength="50" />
           <Property Name="Mall_SkuID" Type="varchar" MaxLength="50" />
+          <Property Name="Title" Type="varchar" Nullable="false" MaxLength="500" />
           <Property Name="Product_ID" Type="int" Nullable="false" />
           <Property Name="Parent_Product_ID" Type="int" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
@@ -1417,6 +1418,7 @@
           <Property Type="String" Name="SyncResultMessage" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Mall_SkuID" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Type="Boolean" Name="Refound" Nullable="false" />
+          <Property Type="String" Name="Title" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Sale_SyncTime">
           <Key>
@@ -2243,6 +2245,7 @@
           <EntitySetMapping Name="Sale_Detail">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Sale_Detail">
               <MappingFragment StoreEntitySet="Sale_Detail">
+                <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Refound" ColumnName="Refound" />
                 <ScalarProperty Name="Mall_SkuID" ColumnName="Mall_SkuID" />
                 <ScalarProperty Name="SyncResultMessage" ColumnName="SyncResultMessage" />

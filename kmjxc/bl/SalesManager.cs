@@ -704,10 +704,13 @@ namespace KM.JXC.BL
                                 sd.Refound = order.Refound;
                                 sd.Parent_Product_ID = 0;
                                 sd.Product_ID = 0;
-
+                                sd.Title = order.Title;
+                                if (string.IsNullOrEmpty(sd.Title))
+                                {
+                                    sd.Title = "";
+                                }
                                 Product parentPdt = (from pdt in allProducts where pdt.Product_ID == order.Parent_Product_ID select pdt).FirstOrDefault<Product>();
                                 Product childPdt = (from pdt in allProducts where pdt.Product_ID == order.Product_ID select pdt).FirstOrDefault<Product>();
-
                                 if (parentPdt != null)
                                 {
                                     sd.Parent_Product_ID = parentPdt.Product_ID;
@@ -719,12 +722,10 @@ namespace KM.JXC.BL
                                         sd.Parent_Product_ID = childPdt.Parent_ID;
                                     }
                                 }
-
                                 if (childPdt != null)
                                 {
                                     sd.Product_ID = childPdt.Product_ID;
                                 }
-
                                 sd.Price = order.Price;
                                 sd.Quantity = order.Quantity;
                                 sd.Status = order.Status;
@@ -1181,7 +1182,7 @@ namespace KM.JXC.BL
                 {
                     tmp = tmp.Where(t=>t.Status==status);
                 }
-                tmp = tmp.OrderBy(b=>b.Status).OrderBy(b=>b.BackSaleID);
+                tmp = tmp.OrderBy(b=>b.Status).ThenBy(b=>b.BackSaleID);
 
                 totalRecords = tmp.Count();
                 if (totalRecords > 0)
