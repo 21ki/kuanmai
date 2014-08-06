@@ -43,21 +43,56 @@ namespace KM.JXC.BL
         [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "创建员工信息")]
         public int CREATE_EMPLOYEE;
 
-        //Sale Order  
-        [AdminActionAttribute(ID = 6, CategoryName = "订单管理",ActionDescription = "同步订单")]
-        public int SYNC_ORDER = 0;
-        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "处理退货订单")]
-        public int HANDLE_BACK_SALE = 0;
-        //Customer
-        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "查看客户信息")]
-        public int VIEW_CUSTOMER = 0;
-        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "删除客户")]
-        public int DELETE_CUSTOMER = 0;
-        [AdminActionAttribute(ID = 6, CategoryName = "订单管理", ActionDescription = "更新客户信息")]
-        public int UPDATE_CUSTOMER = 0;
+        //Stock
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加入库单")]
+        public int ADD_ENTER_STOCK = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加出库单")]
+        public int ADD_LEAVE_STOCK = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加退库单")]
+        public int ADD_BACK_STOCK = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新入库单到库存")]
+        public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加仓库")]
+        public int ADD_STORE_HOUSE = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新仓库")]
+        public int UPDATE_STORE_HOUSE = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "删除仓库")]
+        public int DELETE_STORE_HOUSE = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "盘点库存")]
+        public int UPDATE_STOCKS = 0;
+        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新损耗")]
+        public int UPDATE_WASTAGE = 0;
+
+        //Product
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品")]
+        public int ADD_PRODUCT = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品")]
+        public int UPDATE_PRODUCT = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除产品")]
+        public int DELETE_PRODUCT = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
+        public int ADD_PRODUCT_CLASS = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
+        public int UPDATE_PRODUCT_CLASS = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除类目")]
+        public int DELETE_PRODUCT_CLASS = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品单位")]
+        public int ADD_PRODUCT_UNIT = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品单位")]
+        public int UPDATE_PRODUCT_UNIT = 0;
+        //Category and Property
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
+        public int ADD_CATEGORY = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
+        public int UPDATE_CATEGORY = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加属性")]
+        public int ADD_PORPERTY = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新属性")]
+        public int UPDATE_PORPERTY = 0;
+        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "禁用类目")]
+        public int DISABLE_CATEGORY = 0;
 
         //Buy
-
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "创建采购询价单")]
         public int CREATE_BUY_PRICE = 0;
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "修改采购询价单")]
@@ -90,63 +125,6 @@ namespace KM.JXC.BL
         [AdminActionAttribute(ID = 4, CategoryName = "采购管理", ActionDescription = "更新供应商产品")]
         public int UPDATE_SUPPLIER_PRODUCT = 0;
 
-        //Product
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品")]
-        public int ADD_PRODUCT = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品")]
-        public int UPDATE_PRODUCT = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除产品")]
-        public int DELETE_PRODUCT = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
-        public int ADD_PRODUCT_CLASS = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
-        public int UPDATE_PRODUCT_CLASS = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "删除类目")]
-        public int DELETE_PRODUCT_CLASS = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加产品单位")]
-        public int ADD_PRODUCT_UNIT = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新产品单位")]
-        public int UPDATE_PRODUCT_UNIT = 0;
-        //Category and Property
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加类目")]
-        public int ADD_CATEGORY = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新类目")]
-        public int UPDATE_CATEGORY = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "添加属性")]
-        public int ADD_PORPERTY = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "更新属性")]
-        public int UPDATE_PORPERTY = 0;
-        [AdminActionAttribute(ID = 3, CategoryName = "产品管理", ActionDescription = "禁用类目")]
-        public int DISABLE_CATEGORY = 0;
-
-        //Stock
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加入库单")]
-        public int ADD_ENTER_STOCK = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加出库单")]
-        public int ADD_LEAVE_STOCK = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加退库单")]
-        public int ADD_BACK_STOCK = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新入库单到库存")]
-        public int UPDATE_ENTERSTOCK_TO_PRODUCT_STOCK = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "添加仓库")]
-        public int ADD_STORE_HOUSE = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新仓库")]
-        public int UPDATE_STORE_HOUSE = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "删除仓库")]
-        public int DELETE_STORE_HOUSE = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "盘点库存")]
-        public int UPDATE_STOCKS = 0;
-        [AdminActionAttribute(ID = 2, CategoryName = "库存管理", ActionDescription = "更新损耗")]
-        public int UPDATE_WASTAGE = 0;
-
-        //Express
-        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "添加快递")]
-        public int ADD_SHOP_EXPRESS = 0;
-        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "更新快递")]
-        public int UPDATE_SHOP_EXPRESS = 0;
-        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "查看日志")]
-        public int VIEW_USER_LOG = 0;
-
         //User Permission
         [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "查看权限管理")]
         public int HAS_PERMISSION_ADMIN = 0;
@@ -164,8 +142,39 @@ namespace KM.JXC.BL
         public int UPDATE_USER_PERMISSION = 0;
         [AdminActionAttribute(ID = 5, CategoryName = "权限管理", ActionDescription = "更新管理分组权限")]
         public int UPDATE_ROLE_ACTION = 0;
-        //Report
 
+        //Express
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "添加快递")]
+        public int ADD_SHOP_EXPRESS = 0;
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "更新快递")]
+        public int UPDATE_SHOP_EXPRESS = 0;
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "查看日志")]
+        public int VIEW_USER_LOG = 0;
+        [AdminActionAttribute(ID = 6, CategoryName = "店铺管理", ActionDescription = "同步宝贝")]
+        public int SYNC_ONSALE_PRODUCT = 0;
+
+        //Sale Order  
+        [AdminActionAttribute(ID = 7, CategoryName = "订单管理", ActionDescription = "同步订单")]
+        public int SYNC_ORDER = 0;
+        [AdminActionAttribute(ID = 7, CategoryName = "订单管理", ActionDescription = "处理退货订单")]
+        public int HANDLE_BACK_SALE = 0;
+        //Customer
+        [AdminActionAttribute(ID = 7, CategoryName = "订单管理", ActionDescription = "查看客户信息")]
+        public int VIEW_CUSTOMER = 0;
+        [AdminActionAttribute(ID = 7, CategoryName = "订单管理", ActionDescription = "删除客户")]
+        public int DELETE_CUSTOMER = 0;
+        [AdminActionAttribute(ID = 7, CategoryName = "订单管理", ActionDescription = "更新客户信息")]
+        public int UPDATE_CUSTOMER = 0;     
+        
+        //Report
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "查看销售报表")]
+        public int VIEW_SALE_REPORT = 0;
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "导出销售报表")]
+        public int EXPORT_SALE_REPORT = 0;
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "查看库存报表")]
+        public int VIEW_STOCK_REPORT = 0;
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "导出库存报表")]
+        public int EXPORT_STOCK_REPORT = 0;
     }
 
     internal class PermissionManager

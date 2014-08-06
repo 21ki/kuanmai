@@ -27,16 +27,156 @@ namespace KM.JXC.BL
             return path;
         }
 
+        /// <summary>
+        /// Gets stock report in json format
+        /// </summary>
+        /// <param name="products">A array of products' id</param>
+        /// <param name="page">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="total">Total records</param>
+        /// <param name="paging">Paging</param>
+        /// <returns>Json string</returns>
+        public string GetStockReport(int[] products,int page,int pageSize,out int total,bool paging=true)
+        {
+            if (this.CurrentUserPermission.VIEW_STOCK_REPORT == 0)
+            {
+                throw new KMJXCException("没有权限查看库存报表");
+            }
+            string json="";
+            total = 0;
+            if (page <= 0)
+            {
+                page = 1;
+            }
+            if (pageSize <= 0)
+            {
+                pageSize = 30;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                var stocks = from stock in db.Stock_Pile
+                          select stock;
+
+                var pdts = from product in db.Product
+                           join shop in db.Shop on product.Shop_ID equals shop.Shop_ID into Lshop
+                           from l_shop in Lshop.DefaultIfEmpty()
+                           where product.Parent_ID==0
+                           select new BProduct
+                           {
+                               ID = product.Product_ID,
+                               Title = product.Name,
+                               BShop = l_shop != null ? new BShop { ID = product.Shop_ID, Title = l_shop.Name } : new BShop { ID = 0, Title = "" }
+                           };
+
+                if (products != null && products.Length > 0)
+                {
+                    pdts = pdts.Where(p=>products.Contains(p.ID));
+                }
+                List<BProduct> dbproducts = null;
+                total = pdts.Count();
+                if (paging)
+                {
+                    dbproducts = pdts.OrderBy(p => p.ID).Skip((page - 1) * pageSize).Take(pageSize).ToList<BProduct>();
+                }
+                else
+                {
+                    dbproducts = pdts.ToList<BProduct>();
+                }
+                int[] pPIds=(from p in dbproducts select p.ID).ToArray<int>();
+                List<Product> dbChildrenProducts = (from p in db.Product where pPIds.Contains(p.Parent_ID) select p).ToList<Product>();
+                int[] cPIds = (from p in dbChildrenProducts select p.Product_ID).ToArray<int>();
+                List<Stock_Pile> sPiles=(from s in stocks where pPIds.Contains(s.Product_ID) || cPIds.Contains(s.Product_ID) select s).ToList<Stock_Pile>();
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where cPIds.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).OrderBy(p=>p.PID).ToList<BProductProperty>();
+
+                foreach (BProduct pdt in dbproducts)
+                {
+                    string sJson = "";
+                    string productName = pdt.ID+" "+pdt.Title;
+                    string propName = "";
+                    int quantity = 0;
+                    string shopName = pdt.BShop.Title;
+                    List<Product> children=(from p in dbChildrenProducts where p.Parent_ID==pdt.ID select p).ToList<Product>();
+                    if (children == null || children.Count <= 0)
+                    {
+                        propName = "--";
+                        quantity = (from s in sPiles where s.Product_ID == pdt.ID select s.Quantity).Sum();
+                        sJson = "{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + propName + "\",\"shop_name\":\"" + shopName + "\",\"quantity\":" + quantity.ToString() + ",\"pivot\":\"库存\"}";
+                    }
+                    else
+                    {
+                        foreach (Product child in children)
+                        {
+                            propName = "";
+                            quantity = (from s in sPiles where s.Product_ID == child.Product_ID select s.Quantity).Sum();
+                            List<BProductProperty> props=(from p in properties where p.ProductID==child.Product_ID select p).ToList<BProductProperty>();
+                            foreach (BProductProperty prop in props)
+                            {
+                                if (propName == "")
+                                {
+                                    propName = prop.PName + ":" + prop.PValue;
+                                }
+                                else
+                                {
+                                    propName +=";"+ prop.PName + ":" + prop.PValue;
+                                }                                
+                            }
+
+                            if (sJson == "")
+                            {
+                                sJson = "{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + child.Product_ID +" "+ propName + "\",\"shop_name\":\"" + shopName + "\",\"quantity\":" + quantity.ToString() + ",\"pivot\":\"库存\"}";
+                            }
+                            else
+                            {
+                                sJson += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"" +child.Product_ID+" "+ propName + "\",\"shop_name\":\"" + shopName + "\",\"quantity\":" + quantity.ToString() + ",\"pivot\":\"库存\"}";
+                            }
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(sJson))
+                    {
+                        if (json == "")
+                        {
+                            json = "[" + sJson;
+                        }
+                        else
+                        {
+                            json += "," + sJson;
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(json))
+                {
+                    json += "]";
+                }
+            }
+            return json;
+        }
 
         /// <summary>
-        /// 
+        /// Gets sale report in json format
         /// </summary>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <param name="product_id"></param>
-        /// <returns></returns>
+        /// <param name="startDate">Trade start date</param>
+        /// <param name="endDate">Trade end date</param>
+        /// <param name="product_id">A Array of on sale product id</param>
+        /// <returns>Json string</returns>
         public string GetSalesReport(long startDate, long endDate, string[] product_id, int page, int pageSize, out int totalProducts, bool paging = true, bool includeNoSales = false)
         {
+            if (this.CurrentUserPermission.VIEW_SALE_REPORT == 0)
+            {
+                throw new KMJXCException("没有权限查看销售报表");
+            }
             totalProducts = 0;
             StringBuilder json = new StringBuilder("[");
             if (page <= 0)

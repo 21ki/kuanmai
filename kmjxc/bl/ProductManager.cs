@@ -1023,7 +1023,7 @@ namespace KM.JXC.BL
                              ProductID = pv.Product_ID,
                              PValue = l_propv.Name,
                              PVID = pv.Product_Spec_Value_ID
-                         }).ToList<BProductProperty>();
+                         }).OrderBy(p=>p.PID).ToList<BProductProperty>();
 
                 foreach (BProduct prop in props)
                 {

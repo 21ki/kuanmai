@@ -232,6 +232,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\reports\templates\SaleReport.xlsx" />
+    <Content Include="Content\reports\templates\StockReport.xlsx" />
     <None Include="Properties\PublishProfiles\kmjxc.pubxml" />
     <None Include="Scripts\jquery-1.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
@@ -246,6 +247,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\kmjxc.js" />
+    <Content Include="Scripts\kmwidget.js" />
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
@@ -987,6 +989,7 @@
     <Content Include="Views\Buy\PriceDetail.cshtml" />
     <Content Include="Views\Buy\SupplierDetail.cshtml" />
     <Content Include="Views\Stock\Batch.cshtml" />
+    <Content Include="Views\Report\Stock.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -71,6 +71,8 @@
     }
 });
 
+
+
 //Compare two dates object
 Date.prototype.GTE = function (date) {
     var date1 = this;
@@ -353,6 +355,26 @@ function KMJXCBase() {
 
     this.GetCorpInfo = function (params, callback) {
         return this.AjaxCall("/api/Common/GetCorpInfo", params, callback);
+    }
+
+    function getProducts(page,dialog) {
+       
+    }
+
+    this.SearchProductsDialog = function (close, ok) {       
+        var $div = $("<div></div>").appendTo($("body"));
+        $div.dialog({
+            width: 550,           
+            resizable: false,
+            title: "选择产品",
+            modal: true,
+            open: function () {
+                $('#ulProductList').html("");
+                getProducts(1, this);
+            },
+            close: function () { },
+        });
+        $div.dialog("open");
     }
 }
 
@@ -790,11 +812,40 @@ function KMJXCPermissionManager() {
 
 KMJXCReportManager.prototype = new KMJXCBase();
 function KMJXCReportManager() {
+    /*
+       paging:optional,default is 1
+       products:optional
+       page:required
+       pageSize:required
+   */
     this.GetSalesReport = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Report/GetSalesReport", params, callback);
     }
+
+
+
     this.GetExcelSaleReport = this.SearchExpressFee = function (params, callback) {
         this.AjaxCall("/api/Report/GetExcelSaleReport", params, callback);
+    }
+
+    /*
+    paging:optional,default is 1
+    products:optional
+    page:required
+    pageSize:required
+    */
+    this.GetStockReport = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Report/GetStockReport", params, callback);
+    }
+
+    /*
+      paging:optional,default is 1
+      products:optional
+      page:required
+      pageSize:required
+   */
+    this.GetExcelStockReport = this.SearchExpressFee = function (params, callback) {
+        this.AjaxCall("/api/Report/GetExcelStockReport", params, callback);
     }
 }
 
@@ -889,7 +940,6 @@ var manager = new KMJXManager();
 function ProductGrid(tableId) {
     
 }
-
 
 function MessageBox(message, time) {
     //check if the dom already contains the message box dialog

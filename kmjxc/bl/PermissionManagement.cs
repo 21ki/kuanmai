@@ -395,11 +395,8 @@ namespace KM.JXC.BL
                     if (action == null)
                     {
                         action = new Admin_Action();
-                        action.action_name = field.Name;
-                        //action.action_description = field.Name;
+                        action.action_name = field.Name;                        
                         action.enable = true;
-                                             
-
                         db.Admin_Action.Add(action);
                     }
 

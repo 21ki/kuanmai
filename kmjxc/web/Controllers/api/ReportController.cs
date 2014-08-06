@@ -110,9 +110,129 @@ namespace KM.JXC.Web.Controllers.api
             try
             {
                 string json = reportManager.GetSalesReport(stime, etime, product_id, 0, 0, out totalProducts, false, false);
-                SaleExcelReport excel = new SaleExcelReport();
-                excel.Export(json);
-                message.Item ="http://"+ request.Url.Authority+"/Content/reports/tmp/"+ excel.ReportFileName;               
+                if (!string.IsNullOrEmpty(json))
+                {
+                    SaleExcelReport excel = new SaleExcelReport();
+                    excel.Export(json);
+                    message.Item = "http://" + request.Url.Authority + "/Content/reports/tmp/" + excel.ReportFileName;
+                }
+                else
+                {
+                    message.Status = "failed";
+                    message.Message = "没有搜索到符合要求的销售数据";
+                }
+            }
+            catch (Exception ex)
+            {
+                message.Status = "failed";
+            }
+            finally
+            {
+
+            }
+            return message;
+        }
+
+        [HttpPost]
+        public PQGridData GetStockReport()
+        {
+            PQGridData data = new PQGridData();
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ReportFactory reportManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            
+            int page = 1;
+            int pageSize = 50;
+            int totalProducts = 0;
+            int[] product_id = null;
+            bool paging = false;
+          
+            int.TryParse(request["page"], out page);
+            int.TryParse(request["pageSize"], out pageSize);
+
+            if (!string.IsNullOrEmpty(request["products"]))
+            {
+                product_id = base.ConvertToIntArrar(request["products"]);
+            }
+
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 50;
+            }
+            if (!string.IsNullOrEmpty(request["paging"]) && request["paging"] == "1")
+            {
+                paging = true;
+            }
+            else
+            {
+                paging = false;
+            }
+            try
+            {
+                string json = reportManager.GetStockReport(product_id, page, pageSize, out totalProducts, paging);
+                data.totalRecords = totalProducts;
+                if (!string.IsNullOrEmpty(json))
+                {
+                    data.data = JArray.Parse(json);
+                }
+                data.curPage = page;
+            }
+            catch (Exception ex)
+            {
+                data.data = JArray.Parse("[]");
+                data.totalRecords = 0;
+                data.curPage = 1;
+            }
+            finally
+            {
+
+            }
+            return data;
+        }
+
+        [HttpPost]
+        public ApiMessage GetExcelStockReport()
+        {
+            ApiMessage message = new ApiMessage() { Status = "ok" };
+            HttpContextBase context = (HttpContextBase)Request.Properties["MS_HttpContext"];
+            HttpRequestBase request = context.Request;
+            string user_id = User.Identity.Name;
+            UserManager userMgr = new UserManager(int.Parse(user_id), null);
+            BUser user = userMgr.CurrentUser;
+            ReportFactory reportManager = new ReportFactory(userMgr.CurrentUser, userMgr.Shop, userMgr.CurrentUserPermission);
+            int totalProducts = 0;
+            int[] product_id = null;            
+            if (!string.IsNullOrEmpty(request["products"]))
+            {
+                product_id = base.ConvertToIntArrar(request["products"]);
+            }
+            try
+            {
+                string json = reportManager.GetStockReport(product_id, 0, 0, out totalProducts, false);
+                if (!string.IsNullOrEmpty(json))
+                {
+                    StockExcelReport excel = new StockExcelReport();
+                    excel.Export(json);
+                    message.Item = "http://" + request.Url.Authority + "/Content/reports/tmp/" + excel.ReportFileName;
+                }
+                else
+                {
+                    message.Status = "failed";
+                    message.Message = "没有搜索到符合要求的库存数据";
+                }
+            }
+            catch (KMJXCException kex)
+            {
+                message.Status = "failed";
+                message.Message = kex.Message;
             }
             catch (Exception ex)
             {

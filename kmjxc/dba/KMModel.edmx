@@ -104,7 +104,7 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="ID" Type="int" Nullable="false" />
           <Property Name="Name" Type="varchar" Nullable="false" MaxLength="45" />
           <Property Name="Created" Type="uint" Nullable="false" />
           <Property Name="System_category" Type="bool" />
@@ -957,7 +957,6 @@
           <EntitySet Name="Back_Stock" EntityType="KM.JXC.DBA.Model.Back_Stock" />
           <EntitySet Name="Stock_Pile" EntityType="KM.JXC.DBA.Model.Stock_Pile" />
           <EntitySet Name="Product_Class" EntityType="KM.JXC.DBA.Model.Product_Class" />
-          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
           <EntitySet Name="Admin_Role" EntityType="KM.JXC.DBA.Model.Admin_Role" />
           <EntitySet Name="Express_Fee" EntityType="KM.JXC.DBA.Model.Express_Fee" />
           <EntitySet Name="Bug" EntityType="KM.JXC.DBA.Model.Bug" />
@@ -971,6 +970,7 @@
           <EntitySet Name="Buy_Price" EntityType="KM.JXC.DBA.Model.Buy_Price" />
           <EntitySet Name="Stock_Batch" EntityType="KM.JXC.DBA.Model.Stock_Batch" />
           <EntitySet Name="Leave_Stock_Detail" EntityType="KM.JXC.DBA.Model.Leave_Stock_Detail" />
+          <EntitySet Name="Admin_Category" EntityType="KM.JXC.DBA.Model.Admin_Category" />
         </EntityContainer>
         <EntityType Name="Access_Token">
           <Key>
@@ -1622,15 +1622,6 @@
           <Property Type="String" Name="Mall_CID" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="Mall_PCID" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Admin_Category">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" p1:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Type="Int64" Name="Created" Nullable="false" />
-          <Property Type="Boolean" Name="System_category" />
-        </EntityType>
         <EntityType Name="Admin_Role">
           <Key>
             <PropertyRef Name="id" />
@@ -1795,6 +1786,15 @@
           <Property Type="String" Name="Message" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Type="Int32" Name="Status" Nullable="false" />
           <Property Type="Int64" Name="Batch_ID" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Category">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Type="Int64" Name="Created" Nullable="false" />
+          <Property Type="Boolean" Name="System_category" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2478,16 +2478,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Category">
-            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Category">
-              <MappingFragment StoreEntitySet="Admin_Category">
-                <ScalarProperty Name="System_category" ColumnName="System_category" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Admin_Role">
             <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Role">
               <MappingFragment StoreEntitySet="Admin_Role">
@@ -2657,6 +2647,16 @@
                 <ScalarProperty Name="Order_ID" ColumnName="Order_ID" />
                 <ScalarProperty Name="Product_ID" ColumnName="Product_ID" />
                 <ScalarProperty Name="Leave_Stock_ID" ColumnName="Leave_Stock_ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Category">
+            <EntityTypeMapping TypeName="KM.JXC.DBA.Model.Admin_Category">
+              <MappingFragment StoreEntitySet="Admin_Category">
+                <ScalarProperty Name="System_category" ColumnName="System_category" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -241,22 +241,24 @@ box-shadow: 0px 3px 3px -3px rgba(0, 0, 0, .30);
 }
 
 .jxcLogin .loginItem {
-    display:block;    
-    padding-top:10px;
-    padding-bottom:10px;
+    display:block;       
     width:120px;
     background-color:#7b9ebd;
     margin:auto auto;
+    height:40px;
 }
 .jxcLogin .itemContainer {
     text-align:center;
 }
 .jxcLogin .loginItem a {
-   display:block;
+   display:inline-block;
    color:#FFFFFF;
    text-decoration:none;
    font-size:14px;
    font-weight:bold;
+   height:40px;
+   line-height:40px;
+   width:100%;
 }
 
 .jxcLeftMenu ul {
@@ -747,7 +749,7 @@ td.tdc {
         text-decoration: none;
         border: 1px solid #ccd3e4;
         background-color: #f0f0f0;
-        
+        cursor:pointer;
     }
     .pager .spn {
         color: #FFF;

@@ -74,7 +74,6 @@ namespace KM.JXC.DBA
         public DbSet<Back_Stock> Back_Stock { get; set; }
         public DbSet<Stock_Pile> Stock_Pile { get; set; }
         public DbSet<Product_Class> Product_Class { get; set; }
-        public DbSet<Admin_Category> Admin_Category { get; set; }
         public DbSet<Admin_Role> Admin_Role { get; set; }
         public DbSet<Express_Fee> Express_Fee { get; set; }
         public DbSet<Bug> Bug { get; set; }
@@ -88,5 +87,6 @@ namespace KM.JXC.DBA
         public DbSet<Buy_Price> Buy_Price { get; set; }
         public DbSet<Stock_Batch> Stock_Batch { get; set; }
         public DbSet<Leave_Stock_Detail> Leave_Stock_Detail { get; set; }
+        public DbSet<Admin_Category> Admin_Category { get; set; }
     }
 }

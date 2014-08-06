@@ -73,7 +73,6 @@ namespace KM.JXC.Web.Controllers
         [AllowAnonymous]
         public ActionResult Login(string message)
         {
-            ViewBag.Title = "宽迈好易库进销存登录";
             CommonManager sysMgr = new CommonManager();
             List<Open_Key> keys = sysMgr.GetOpenKeys();
             if (!string.IsNullOrEmpty(message))

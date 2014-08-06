@@ -12,13 +12,12 @@ using KM.JXC.Common.KMException;
 
 namespace KM.JXC.BL.Excel
 {
-    public class SaleExcelReport:BaseExcel
+    public class StockExcelReport:BaseExcel
     {
-        public SaleExcelReport():base(ReportType.SaleReport)
+        public StockExcelReport()
+            : base(ReportType.StockReport)
         {
-        
         }
-
         public override string Export(string json)
         {
             string fileName = "";
@@ -26,44 +25,40 @@ namespace KM.JXC.BL.Excel
             {
                 if (string.IsNullOrEmpty(json))
                 {
-                    throw new KMJXCException("没有销售数据，不能导出");
+                    throw new KMJXCException("没有库存数据，不能导出");
                 }
 
                 JArray jObject = JArray.Parse(json);
-                if(jObject==null || jObject.Count()==0)
+                if (jObject == null || jObject.Count() == 0)
                 {
-                    throw new KMJXCException("没有销售数据，不能导出");
+                    throw new KMJXCException("没有库存数据，不能导出");
                 }
 
                 Worksheet sheet = (Worksheet)this.WorkBook.ActiveSheet;
-                sheet.Name = "销售报表";
-                int startRow = 2;                
-                object[,] os = new object[jObject.Count, 6];
+                sheet.Name = "库存报表";
+                int startRow = 2;
+                object[,] os = new object[jObject.Count,4];
                 for (int i = 0; i < jObject.Count(); i++)
                 {
                     JObject obj = (JObject)jObject[i];
-                    string productName = obj["ProductName"].ToString();
-                    string propName = obj["PropName"].ToString();
-                    string shopName = obj["ShopName"].ToString();
-                    string month = obj["Month"].ToString();
-                    string quantity =obj["Quantity"].ToString();
-                    string amount = obj["Amount"].ToString();
+                    string productName = obj["product_name"].ToString();
+                    string propName = obj["prop_name"].ToString();
+                    string shopName = obj["shop_name"].ToString();                    
+                    string quantity = obj["quantity"].ToString();
                     os[i, 0] = productName;
                     os[i, 1] = propName;
                     os[i, 2] = shopName;
-                    os[i, 3] = month;
-                    os[i, 4] = quantity;
-                    os[i, 5] = amount;
+                    os[i, 3] = quantity;
                 }
-                Range range1 = sheet.Cells[startRow, 1];
-                Range range2 = sheet.Cells[startRow + jObject.Count - 1, 6];
-                Range range = sheet.get_Range(range1, range2);
+                Range range1=sheet.Cells[startRow, 1];
+                Range range2=sheet.Cells[startRow + jObject.Count-1, 4];
+                Range range=sheet.get_Range(range1,range2);
                 range.Value2 = os;
                 Worksheet pivotTableSheet = (Worksheet)this.WorkBook.Worksheets[2];
-                pivotTableSheet.Name = "销售透视表";
+                pivotTableSheet.Name = "库存透视表";                
                 PivotCaches pch = WorkBook.PivotCaches();
                 sheet.Activate();
-                pch.Add(XlPivotTableSourceType.xlDatabase, "'" + sheet.Name + "'!A1:'" + sheet.Name + "'!F" + (jObject.Count() + 1)).CreatePivotTable(pivotTableSheet.Cells[4, 1], "PivTbl_1", Type.Missing, Type.Missing);
+                pch.Add(XlPivotTableSourceType.xlDatabase, "'" + sheet.Name + "'!A1:'" + sheet.Name + "'!D" + (jObject.Count() + 1)).CreatePivotTable(pivotTableSheet.Cells[4, 1], "PivTbl_1", Type.Missing, Type.Missing);
                 PivotTable pvt = pivotTableSheet.PivotTables("PivTbl_1") as PivotTable;
                 pvt.Format(XlPivotFormatType.xlTable1);
                 pvt.TableStyle2 = "PivotStyleLight16";
@@ -77,17 +72,13 @@ namespace KM.JXC.BL.Excel
                 productField.set_Subtotals(1, false);
                 PivotField propField = (PivotField)pvt.PivotFields("属性");
                 propField.Orientation = XlPivotFieldOrientation.xlRowField;
-                propField.set_Subtotals(1, false);     
+                propField.set_Subtotals(1, false);
                 PivotField shopField = (PivotField)pvt.PivotFields("店铺");
                 shopField.Orientation = XlPivotFieldOrientation.xlRowField;
                 shopField.set_Subtotals(1, false);
-                PivotField monthField = (PivotField)pvt.PivotFields("年月");
-                monthField.Orientation = XlPivotFieldOrientation.xlRowField;
-                monthField.set_Subtotals(1, false);
-                pvt.AddDataField(pvt.PivotFields(5), "销量", XlConsolidationFunction.xlSum);
-                pvt.AddDataField(pvt.PivotFields(6), "销售额", XlConsolidationFunction.xlSum);
-                ((PivotField)pvt.DataFields["销量"]).NumberFormat = "#,##0";
-                ((PivotField)pvt.DataFields["销售额"]).NumberFormat = "#,##0";
+                PivotField stockField = pvt.PivotFields(4);
+                pvt.AddDataField(stockField, "库存总数", XlConsolidationFunction.xlSum);
+                ((PivotField)pvt.DataFields["库存总数"]).NumberFormat = "#,##0";
                 pivotTableSheet.Activate();
                 this.WorkBook.Saved = true;
                 this.WorkBook.SaveCopyAs(this.ReportFilePath);

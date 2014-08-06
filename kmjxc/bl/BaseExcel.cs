@@ -12,7 +12,8 @@ namespace KM.JXC.BL
     public enum ReportType
     {
         SaleReport,
-        BuyOrderReport
+        BuyOrderReport,
+        StockReport
     }
 
     public class BaseExcel:IDisposable
@@ -38,18 +39,15 @@ namespace KM.JXC.BL
                 this.TemplatePath = tmpPath + "\\templates";
                 this.ReportTmpFilePath = tmpPath + "\\tmp";
 
-                if (this.type == ReportType.SaleReport)
-                {
-                    string reportTmpName = System.IO.Path.Combine(TemplatePath, this.type.ToString() + ".xlsx");
-                    ReportFileName = Guid.NewGuid().ToString() + ".xlsx";
-                    ReportFilePath = System.IO.Path.Combine(ReportTmpFilePath, ReportFileName);
-                    System.IO.File.Copy(reportTmpName, ReportFilePath);
-                    this.WorkBook = this.ExcelApp.Workbooks.Open(ReportFilePath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
-                }
+                string reportTmpName = System.IO.Path.Combine(TemplatePath, this.type.ToString() + ".xlsx");
+                ReportFileName = Guid.NewGuid().ToString() + ".xlsx";
+                ReportFilePath = System.IO.Path.Combine(ReportTmpFilePath, ReportFileName);
+                System.IO.File.Copy(reportTmpName, ReportFilePath);
+                this.WorkBook = this.ExcelApp.Workbooks.Open(ReportFilePath, 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
             }
             catch (Exception ex)
             {
-                throw new KM.JXC.Common.KMException.KMJXCException("服务器没有安装 Microsoft Excel 2007");
+                throw new KM.JXC.Common.KMException.KMJXCException("服务器没有安装 Microsoft Excel");
             }
         }
 

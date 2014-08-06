@@ -42,7 +42,7 @@
 
     @Scripts.Render("~/bundles/kmjxc")
     @Scripts.Render("~/Third/pqgrid")
-    
+    <script src="/Scripts/kmwidget.js" type="text/javascript"></script>
     <script src="/Third/kindeditor/kindeditor-all-min.js" type="text/javascript"></script>
  
     <script src="/Third/pqgrid/pqgrid.dev.js" type="text/javascript"></script>
@@ -745,9 +745,9 @@
                        销售报表
                        </a> 
                     </li>
-                   @* <li>
-                    <a href="/Report/Buy"
-                       @if (action == "Buy")
+                    <li>
+                    <a href="/Report/Stock"
+                       @if (action == "Stock")
                        {
                            @Html.Raw("class=links");
                        }
@@ -756,9 +756,9 @@
                            @Html.Raw("class=link");
                        } 
                            >
-                       采购报表
+                       库存报表
                        </a>   
-                    </li>    *@        
+                    </li>            
                                     
                </ul>
            </div>

@@ -2206,7 +2206,7 @@ namespace KM.JXC.BL
                                                      PName = ps.Name,
                                                      PVID = prop.Product_Spec_Value_ID,
                                                      PValue = psv.Name
-                                                 }).ToList<BProductProperty>();
+                                                 }).OrderBy(p=>p.PID).ToList<BProductProperty>();
 
                 var stocks = from stock in db.Stock_Pile
                              where child_product.Contains(stock.Product_ID)
