@@ -66,6 +66,7 @@
     <Compile Include="BaseExcel.cs" />
     <Compile Include="BBaseManager.cs" />
     <Compile Include="BugManager.cs" />
+    <Compile Include="Excel\BuyExcelReport.cs" />
     <Compile Include="Excel\SaleExcelReport.cs" />
     <Compile Include="Excel\StockExcelReport.cs" />
     <Compile Include="Models\Admin\BAdminBase.cs" />

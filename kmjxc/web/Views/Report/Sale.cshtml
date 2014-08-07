@@ -25,7 +25,7 @@
                 width: 550,
                 //height:550,
                 resizable: false,
-                title: "选择产品生成报表",
+                title: "选择产品/宝贝",
                 modal: true,
                 open: function () {
                     $('#ulProductList').html("");
@@ -73,6 +73,50 @@
             $('#popup_products').dialog("open");
         });
        
+        $('#popup_products').find("#selAll").change(function (e) {
+            var checked = $(this).attr("checked");
+            if (checked == "checked") {
+                $(this).next("span").html("取消全选");
+                $('#popup_products').find("#ulProductList").find("li").each(function (j, pdt) {
+                    $(pdt).find("input[type='checkbox']").attr("checked", true);
+                    var checked = $(pdt).find("input[type='checkbox']").attr('checked');
+                    var curId = $(pdt).find("input[type='checkbox']").attr('value');
+                    var name = $(pdt).find("input[type='checkbox']").next("span").html();
+                    var newJson = { id: curId, name: name };
+                    var existed = false;
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        if (selectedProducts[i].id == curId) {
+                            existed = true;
+                            break;
+                        }
+                    }
+                    if (!existed) {
+                        selectedProducts.push(newJson);
+                    }
+                });
+            } else {
+                $(this).next("span").html("全选");
+                $('#popup_products').find("#ulProductList").find("li").each(function (j, pdt) {
+                    $(pdt).find("input[type='checkbox']").removeAttr("checked");
+                    var tmp = [];
+                    var checked = $(pdt).find("input[type='checkbox']").attr('checked');
+                    var curId = $(pdt).find("input[type='checkbox']").attr('value');
+                    var name = $(pdt).find("input[type='checkbox']").next("span").html();
+                    var newJson = { id: curId, name: name };
+                    var existed = false;
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        if (selectedProducts[i].id == curId) {
+                            existed = true;
+                            break;
+                        } else {
+                            tmp.push(selectedProducts[i]);
+                        }
+                    }
+                    selectedProducts = tmp;
+                });
+            }
+        });
+
         $('#rpt_StartDate').datepicker({
             currentText: "Now",
             dateFormat: "yy-mm-dd",
@@ -250,6 +294,8 @@
     });
 
     function getProducts(page) {
+        $('#popup_products').find("#selAll").removeAttr("checked");
+        $('#popup_products').find("#selAll").next("span").html("全选");
         new ShowProgress("loadingProductPro", function () { }, "正在加载产品，请耐性等待...");
         Boxy.get($('#loadingProductPro')).show();
         shopMgr.SearchOnSaleProducts({ 'page': page, 'pageSize': productsPageSize }, function (res) {
@@ -266,6 +312,8 @@
                 $('#productsListPager').html('').hide();
             }
             if (data != null && data.length > 0) {
+                $('#popup_products').find("#selAll").removeAttr("disabled");
+                var selectedCount = 0;
                 $(data).each(function (index, item) {
                     var $li = $("<li></li>").appendTo($ul);
                     var $chk = null;
@@ -280,6 +328,7 @@
                     if (!selected) {
                         $chk = $("<input value=\"" + item.ID + "\" style=\"vertical-align:middle;\" type=\"checkbox\"/>").appendTo($li);
                     } else {
+                        selectedCount++;
                         $chk = $("<input value=\""+item.ID+"\" checked style=\"vertical-align:middle;\" type=\"checkbox\"/>").appendTo($li);
                     }
 
@@ -309,6 +358,10 @@
                     });
                     $("<span style=\"display:inline-block;\">" + item.Title + "</span>").appendTo($li);                   
                 });
+                if (selectedCount == data.length) {
+                    $('#popup_products').find("#selAll").attr("checked", true);
+                    $('#popup_products').find("#selAll").next("span").html("取消全选");
+                }
                 $ul.show();
             }
         });
@@ -437,6 +490,9 @@
 
     <div id="popup_products" style="display:none;">
         <h3>选择要生成报表的产品，以下为在售宝贝，如果宝贝不存在，请到店铺管理同步在售宝贝</h3>
+        <div class="row rowTool" style="border:0;padding-left:5px;margin-top:15px;">
+            <input id="selAll" type="checkbox" disabled title="全选"/><span style="margin-left:5px;">全选</span>
+        </div>
         <ul class="ulchk" id="ulProductList">
         
         </ul>

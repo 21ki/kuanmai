@@ -1,5 +1,328 @@
 ﻿@{
-    ViewBag.Title = "Buy";
+    ViewBag.Title = "采购报表";
+    Layout = "~/Views/Shared/master_default.cshtml";
 }
 
-<h2>Buy</h2>
+<script>
+    var reportManager = new KMJXCReportManager();
+    var productMgr = new KMJXCProductManager();
+    var shopMgr = new KMJXCShopManager();
+    var paged = false;
+    var pageSize = 1;
+    var pageHtml;
+    var productsPageSize = 15;
+    var selectedProducts = [];
+    $(function () {
+        $('#tabs').tabs();
+        generateReports(1);
+      
+        $('#btnRptSubmit').button({ icons: { primary: "ui-icon-search" } }).click(function () {
+            generateReports(1);
+        });
+
+        $('#btnSelectProducts').button({ icons: { primary: "ui-icon-plus" } }).click(function () {           
+            $('#popup_productsNew').SearchProductsDialog({
+                ok: function (products) {
+                    selectedProducts = products;
+                    var $ul = $('#ulSelectedProducts');
+                    $ul.html("");
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        var $li = $("<li></li>").appendTo($ul);
+                        $("<span style=\"display:inline-block\">" + selectedProducts[i].product_name + "</span>").appendTo($li);
+                        var $removeSpan = $("<span style=\"display:inline-block;float:right;margin-right:2px;\"></span>").appendTo($li);
+                        $("<img value=\"" + selectedProducts[i].product_id + "\" style=\"\" src=\"/Content/images/remove.gif\"/>").appendTo($removeSpan).click(function () {
+                            var id = $(this).attr("value");
+                            var tmp = [];
+                            for (var i = 0; i < selectedProducts.length; i++) {
+                                if (selectedProducts[i].product_id != id) {
+                                    tmp.push(selectedProducts[i]);
+                                }
+                            }
+                            selectedProducts = tmp;
+                            $(this).parent().parent().remove();
+                            if ($($ul.find("li")).size() == 0) {
+                                $($ul).hide();
+                            }
+                        });
+                    }
+                    $ul.show();
+                },
+                cancel: function () { },
+                pageSize: 15,
+                seltype: 'checkbox',
+                selected:selectedProducts
+            });
+        });  
+
+        $('#rpt_EnablePaging').change(function () {
+            var checked = $(this).attr('checked');
+            if (checked == "checked") {
+                $('#rpt_PageSizeDiv').show();
+            } else {
+                $('#rpt_PageSizeDiv').hide();
+            }
+        });
+
+        $('#rpt_StartDate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+            onSelect: function (date, p2) {
+                $("#rpt_Period").find("a").each(function (i, item) {
+                    $(this).removeClass("tabasel1");
+                    $(this).addClass("taba1");
+                });
+            }
+        });
+        $('#rpt_EndDate').datepicker({
+            currentText: "Now",
+            dateFormat: "yy-mm-dd",
+            showMonthAfterYear: true,
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: true,
+            onSelect: function (date, p2) {
+                $("#rpt_Period").find("a").each(function (i, item) {
+                    $(this).removeClass("tabasel1");
+                    $(this).addClass("taba1");
+                });
+            }
+        });
+
+        $("#rpt_Period").delegate("a", "click", function (e) {
+            $(this).addClass("tabasel1");
+            $(this).removeClass("taba1");
+            var text = $(this).html();
+            $(this).parent().find("a").each(function (i, item) {
+                var text1 = $(this).html();
+                if (text != text1) {
+                    $(this).addClass("taba1");
+                    $(this).removeClass("tabasel1");
+                }
+            });
+            var dateNow = new Date();
+            var month = dateNow.getMonth() + 1;
+            var year = dateNow.getFullYear();
+            switch (text) {
+                case "本月":
+                    var tMonth = month;
+                    var tday = 30;
+                    if (parseInt(month) < 10) {
+                        tMonth = "0" + month.toString();
+                    }
+                    $('#rpt_StartDate').val(year + "-" + tMonth + "-01");
+
+                    if (month >= 1 && month <= 7) {
+                        if (month % 2 == 0) {
+                            tday = 30;
+                        } else {
+                            tday = 31;
+                        }
+                    } else if (month > 7 && month <= 12) {
+                        if (month % 2 == 0) {
+                            tday = 31;
+                        } else {
+                            tday = 30;
+                        }
+                    }
+
+                    if (month == 2) {
+                        if (year % 4 == 0) {
+                            tday = 29;
+                        } else {
+                            tday = 28;
+                        }
+                    }
+
+                    $('#rpt_EndDate').val(year + "-" + tMonth + "-" + tday);
+                    break;
+                case "本季度":
+
+                    if (month >= 1 && month <= 3) {
+                        $('#rpt_StartDate').val(year + "-01-01");
+                        $('#rpt_EndDate').val(year + "-03-31");
+                    }
+
+                    if (month >= 4 && month <= 6) {
+                        $('#rpt_StartDate').val(year + "-04-01");
+                        $('#rpt_EndDate').val(year + "-06-30");
+                    }
+
+                    if (month >= 7 && month <= 9) {
+                        $('#rpt_StartDate').val(year + "-07-01");
+                        $('#rpt_EndDate').val(year + "-09-30");
+                    }
+
+                    if (month >= 10 && month <= 12) {
+                        $('#rpt_StartDate').val(year + "-10-01");
+                        $('#rpt_EndDate').val(year + "-12-31");
+                    }
+
+                    break;
+                case "本年度":
+                    $('#rpt_StartDate').val(year + "-01-01");
+                    $('#rpt_EndDate').val(year + "-12-31");
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        $('#rpt_Menu_Export').button({ icons: {primary:"ui-icon-print"}}).click(function () {           
+            var pdtIds = "";
+
+            for (var i = 0; i < selectedProducts.length; i++) {
+                if (pdtIds == "") {
+                    pdtIds = selectedProducts[i].product_id;
+                } else {
+                    pdtIds += "," + selectedProducts[i].product_id;
+                }
+            }
+
+            var isPaging = 0;
+            var paging = $('#rpt_EnablePaging').attr('checked');
+            if (paging == 'checked') {
+                var ps = $('#rpt_PageSize').val();
+                if (isNaN(ps)) {
+                    alert("每页显示必须为整数");
+                    return;
+                } else {
+                    pageSize = ps;
+                }
+
+                if (pageSize == 0) {
+                    pageSize = 30;
+                    $('#rpt_PageSize').val(30);
+                }
+
+                isPaging = 1;
+            }
+            ShowProgress('report_loading', function () { }, "正在导出Excel,请耐性等待...");
+            reportManager.GetExcelStockReport({ 'products': pdtIds }, function (res) {
+                Boxy.get($('#report_loading')).hide();
+                if (res.Status == "ok") {                   
+                    window.open(res.Item, "_blank", 'height=400, width=500');
+                } else {
+                    alert(res.Message);
+                }
+            })
+        });
+    });
+
+    function generateReports(page) {        
+        var pdtIds = "";
+        for (var i = 0; i < selectedProducts.length; i++) {            
+            if (pdtIds == "") {
+                pdtIds = selectedProducts[i].product_id;
+            } else {
+                pdtIds += "," + selectedProducts[i].product_id;
+            }
+        }
+        
+        var isPaging = 0;
+        var paging = $('#rpt_EnablePaging').attr('checked');
+        if (paging=='checked') {
+            var ps = $('#rpt_PageSize').val();
+            if (isNaN(ps)) {
+                alert("每页显示必须为整数");
+                return;
+            } else {
+                pageSize = ps;
+            }
+
+            if (pageSize == 0) {
+                pageSize = 30;
+                $('#rpt_PageSize').val(30);
+            }
+
+            isPaging = 1;
+        }
+        ShowProgress('report_loading', function () { }, "正在加载报表数据，请耐性等待...");
+        reportManager.GetStockReport({ 'products': pdtIds, 'page': page, 'pageSize': pageSize, 'paging': isPaging }, function (res) {
+            Boxy.get($('#report_loading')).hide();
+            $('#rptPivot').html("");
+            var row = res.data;
+            if (row == null || row.length == 0) {
+                return;
+            }
+           
+            pageHtml = reportManager.Pager({ 'page': page, 'total': res.totalRecords, 'pageSize': pageSize, 'fun': 'generateReports' }, "spn", "pn");
+            if (pageHtml != "") {
+                $('#rptPivotPager').html(pageHtml).show();
+            } else {
+                $('#rptPivotPager').html("").hide();
+            }
+
+            var JSONdata = {
+                dataid: 'An optional sourcetable identifier',
+                columns: [
+                    { colvalue: 'product_name', coltext: 'product_name', header: '产品名称', sortbycol: 'product_name', groupbyrank: 1, pivot: false, result: false },
+                    { colvalue: 'prop_name', coltext: 'prop_name', header: '销售属性', sortbycol: 'prop_name', groupbyrank: 2, pivot: false, result: false },
+                    { colvalue: 'pivot', coltext: 'pivot', header: '库存', sortbycol: 'pivot', groupbyrank: null, pivot: true, result: false },
+                    { colvalue: 'quantity', coltext: '库存', header: '库存', sortbycol: 'quantity', groupbyrank: null, pivot: false, result: true }
+                   
+                ],
+                rows: row
+            };
+
+            $('#rptPivot').pivot({
+                source: JSONdata,
+                formatFunc: function (n) {
+                    return n;
+                    //return jQuery.fn.pivot.formatDK(n, 2);
+                },
+                parseNumFunc: function (n) {
+                    //return +((typeof n === 'string') ? n.replace('.', '').replace(',', '.') : n);
+                    return +parseFloat(n);
+                },
+                onResultCellClicked: function (data) {
+                    alert(dumpObj(data, 'data'));
+                }
+            });
+        });
+    }
+
+
+</script>
+<div id="tabs">
+    <ul>
+        <li><a href="#stockReport">采购报表</a></li>
+    </ul>
+    <div id="stockReport">
+        <div id="rptFilter" style="padding-bottom:10px;">
+            <div class="rowS"><label>时间范围:</label><input id="rpt_StartDate" class="W_input" readonly="true"/>  至  <input id="rpt_EndDate" class="W_input" readonly="true"/></div>
+            <div class="rowS nolabel1" id="rpt_Period"><a class="taba1">本月</a><a class="taba1">本季度</a><a class="taba1">本年度</a></div>
+            <div class="rowS"><label>是否分页:</label><input style="margin-right:5px;" id="rpt_EnablePaging" type="checkbox" checked/></div>
+            <div class="rowS" id="rpt_PageSizeDiv"><label>每页显示:</label><input id="rpt_PageSize" class="W_input" style="width:30px;" value="30"/></div>
+            <div class="rowS" style="height:auto;">
+                <label style="display:inline-block;float:left;">产品:</label>
+                <div style="float:left;">
+                    <span style="display:block;" id="btnSelectProducts">添加</span>                                   
+                </div>                
+            </div>          
+            <ul class="ulchk rowS nolabel1" id="ulSelectedProducts" style="height:auto;display:none;"></ul>
+            <div class="rowS nolabel1"><span id="btnRptSubmit">搜索</span></div>
+          
+        </div>
+        <div style="padding-bottom:5px;"> 
+            <div class="rowS">
+                <span id="rpt_Menu_Export" style="border:0;background:#FFF">导出</span>
+            </div>
+            <div id="rptPivot">
+            </div>
+            <div style="display:none;" class="s_title spage pager" id="rptPivotPager"></div>
+        </div>        
+        <div id="rptBar"></div>
+    </div>
+    <div id="popup_products" style="display:none;">       
+        <ul class="ulchk" id="ulProductList">
+        
+        </ul>
+        <div class="s_title spage pager" id="productsListPager" style="display:none;"></div>
+    </div>
+
+    <div id="popup_productsNew" style="display:none;"></div>
+</div>

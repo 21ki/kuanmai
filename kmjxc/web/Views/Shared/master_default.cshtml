@@ -759,7 +759,20 @@
                        库存报表
                        </a>   
                     </li>            
-                                    
+                    <li>
+                    <a href="/Report/Buy"
+                       @if (action == "Buy")
+                       {
+                           @Html.Raw("class=links");
+                       }
+                       else
+                       {
+                           @Html.Raw("class=link");
+                       } 
+                           >
+                       采购报表
+                       </a>   
+                    </li>                
                </ul>
            </div>
 

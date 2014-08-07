@@ -175,6 +175,10 @@ namespace KM.JXC.BL
         public int VIEW_STOCK_REPORT = 0;
         [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "导出库存报表")]
         public int EXPORT_STOCK_REPORT = 0;
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "查看采购报表")]
+        public int VIEW_BUY_REPORT = 0;
+        [AdminActionAttribute(ID = 8, CategoryName = "报表中心", ActionDescription = "导出采购报表")]
+        public int EXPORT_BUY_REPORT = 0;
     }
 
     internal class PermissionManager

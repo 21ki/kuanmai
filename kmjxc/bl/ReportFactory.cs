@@ -409,5 +409,186 @@ namespace KM.JXC.BL
             }
             return json.ToString();
         }
+
+        /// <summary>
+        /// Gets buy orders report in json format
+        /// </summary>
+        /// <param name="startDate">Buy order start date</param>
+        /// <param name="endDate">Buy order end date</param>
+        /// <param name="product_id">A array of product ids</param>
+        /// <param name="page">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="totalProducts">Total records according to the conditions</param>
+        /// <param name="paging">Paging(true/false)</param>        
+        /// <returns></returns>
+        public string GetBuyReport(long startDate, long endDate, int[] product_id, int page, int pageSize, out int totalProducts, bool paging = true)
+        {
+            string json = "";
+            totalProducts = 0;
+            if (this.CurrentUserPermission.VIEW_BUY_REPORT == 0)
+            {
+                throw new KMJXCException("没有权限查看采购报表");
+            }
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 20;
+            }
+            using (KuanMaiEntities db = new KuanMaiEntities())
+            {
+                int[] childShops = (from c in this.DBChildShops select c.Shop_ID).ToArray<int>();
+                List<BProduct> products = null;
+                var tmpProducts = from p in db.Product
+                                  join shop in db.Shop on p.Shop_ID equals shop.Shop_ID into LShop
+                                  from l_shop in LShop.DefaultIfEmpty()
+                                  where p.Parent_ID == 0
+                                  select new BProduct
+                                  {
+                                      ID=p.Product_ID,
+                                      BShop = new BShop { ID=p.Shop_ID,Title=l_shop.Name},
+                                      Title=p.Name
+                                  };
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    tmpProducts = tmpProducts.Where(p => (p.BShop.ID == this.Shop.Shop_ID || childShops.Contains(p.BShop.ID)));
+                }
+                else
+                {
+                    tmpProducts = tmpProducts.Where(p => p.BShop.ID == this.Shop.Shop_ID);
+                }
+
+                if (product_id != null && product_id.Length > 0)
+                {
+                    tmpProducts = tmpProducts.Where(p => product_id.Contains(p.ID));
+                }
+
+                var tmpBuyOrders = from bo in db.Buy_Order
+                                   select bo;
+
+                if (this.Shop.Shop_ID == this.Main_Shop.Shop_ID)
+                {
+                    tmpBuyOrders = tmpBuyOrders.Where(o => (o.Shop_ID == this.Shop.Shop_ID || childShops.Contains(o.Shop_ID)));
+                }
+                else
+                {
+                    tmpBuyOrders = tmpBuyOrders.Where(o => o.Shop_ID == this.Shop.Shop_ID);
+                }
+
+                if (startDate > 0)
+                {
+                    tmpBuyOrders = tmpBuyOrders.Where(o => o.Create_Date > startDate);
+                }
+                if (endDate > 0)
+                {
+                    tmpBuyOrders = tmpBuyOrders.Where(o => o.Create_Date <= endDate);
+                }
+
+                var tmpBuyOrderIds = from o in tmpBuyOrders select o.Buy_Order_ID;
+
+                var tmpBuyOrderDetails = from bd in db.Buy_Order_Detail
+                                    where tmpBuyOrderIds.Contains(bd.Buy_Order_ID)
+                                    select bd;
+
+                var orderProductIds = from o in tmpBuyOrderDetails select o.Product_ID;
+                tmpProducts = tmpProducts.Where(p=>orderProductIds.Contains(p.ID));
+                if (paging)
+                {
+                    products = tmpProducts.OrderBy(p => p.ID).Skip((page - 1) * page).Take(pageSize).ToList<BProduct>();
+                }
+                else
+                {
+                    products = tmpProducts.OrderBy(p => p.ID).ToList<BProduct>();
+                }
+                int[] parent_pIds = (from p in products select p.ID).ToArray<int>();
+                List<Product> childrenProducts = (from p in db.Product where parent_pIds.Contains(p.Parent_ID) select p).ToList<Product>();
+                int[] child_pIds = (from p in childrenProducts select p.Product_ID).ToArray<int>();
+                List<BProductProperty> properties = (from pv in db.Product_Specifications
+                                                     join prop in db.Product_Spec on pv.Product_Spec_ID equals prop.Product_Spec_ID into LProp
+                                                     from l_prop in LProp.DefaultIfEmpty()
+                                                     join propV in db.Product_Spec_Value on pv.Product_Spec_Value_ID equals propV.Product_Spec_Value_ID into LPropv
+                                                     from l_propv in LPropv.DefaultIfEmpty()
+                                                     where child_pIds.Contains(pv.Product_ID)
+                                                     select new BProductProperty
+                                                     {
+                                                         PID = pv.Product_Spec_ID,
+                                                         PName = l_prop.Name,
+                                                         ProductID = pv.Product_ID,
+                                                         PValue = l_propv.Name,
+                                                         PVID = pv.Product_Spec_Value_ID
+                                                     }).OrderBy(p => p.PID).ToList<BProductProperty>();
+
+                var details = from detail in tmpBuyOrderDetails
+                              join order in db.Buy_Order on detail.Buy_Order_ID equals order.Buy_Order_ID into LOrder
+                              from l_order in LOrder.DefaultIfEmpty()
+                              select new
+                              {
+                                  ProductId = detail.Product_ID,
+                                  Quantity = detail.Quantity,
+                                  DateTime = l_order.Create_Date
+                              };
+                foreach (BProduct product in products)
+                {
+                    string productName = product.Title;
+                    string shopName = product.BShop.Title;
+                    List<Product> children=(from c in childrenProducts where c.Parent_ID==product.ID select c).ToList<Product>();
+                    if (children == null || children.Count <= 0)
+                    {
+                        var vdetails = from d in details where d.ProductId == product.ID select d;
+                        foreach (var detail in vdetails)
+                        {
+                            string month = DateTimeUtil.ConvertToDateTime(detail.DateTime).ToString("yyyy-M");
+                            if (json == "")
+                            {
+                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                            }
+                            else
+                            {
+                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int[] childrenIds=(from c in children select c.Product_ID).ToArray<int>();
+                        var vdetails = from d in details where childrenIds.Contains(d.ProductId) select d;
+                        foreach (var detail in vdetails)
+                        {
+                            string pNames = "";
+                            List<BProductProperty> props=(from p in properties where p.ProductID==detail.ProductId select p).ToList<BProductProperty>();
+                            foreach (BProductProperty prop in props)
+                            {
+                                if (pNames == "")
+                                {
+                                    pNames = prop.PName + ":" + prop.PValue;
+                                }
+                                else
+                                {
+                                    pNames +=","+ prop.PName + ":" + prop.PValue;
+                                }
+                            }
+                            string month = DateTimeUtil.ConvertToDateTime(detail.DateTime).ToString("yyyy-M");
+                            if (json == "")
+                            {
+                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                            }
+                            else
+                            {
+                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                            }
+                        }
+                    }
+                }
+            }
+            if (json != "")
+            {
+                json += "]";
+            }
+            return json;
+        }
     }
 }

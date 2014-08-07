@@ -203,7 +203,7 @@
                 }
             });
             that.checkAll = $chkAllBox;
-            $('<span style="margin-left:5px;">全选<span>').appendTo($checkAllRow);
+            $('<span style="margin-left:5px;">全选</span>').appendTo($checkAllRow);
         }
 
         //products list area
