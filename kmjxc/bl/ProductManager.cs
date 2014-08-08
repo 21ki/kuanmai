@@ -938,7 +938,7 @@ namespace KM.JXC.BL
                                                              PName = (from prop in db.Product_Spec where prop.Product_Spec_ID == pp.Product_Spec_ID select prop.Name).FirstOrDefault<string>(),
                                                              PVID = pp.Product_Spec_Value_ID,
                                                              PValue = (from propv in db.Product_Spec_Value where propv.Product_Spec_Value_ID == pp.Product_Spec_Value_ID select propv.Name).FirstOrDefault<string>()
-                                                         }).ToList<BProductProperty>();
+                                                         }).OrderBy(p=>p.PID).ToList<BProductProperty>();
 
                     if (children != null && children.Count > 0)
                     {

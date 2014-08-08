@@ -24,17 +24,16 @@ namespace KM.JXC.Web.Filters
             //Verify if the cookie user is a valid user
             UserManagement userManagement = new UserManagement();
             BUser loginuser = userManagement.GetUserInfo(int.Parse(user_id));
+            if (loginuser == null)
+            {
+                return;
+            }
+
             if (!loginuser.IsSystemUser)
             {
                 //normal user login
                 UserManager userMgr = new UserManager(int.Parse(user_id), null);
                 BUser user = userMgr.CurrentUser;
-
-                if (user == null)
-                {
-                    filterContext.HttpContext.Response.Redirect("/Home/Login?message=登录信息丢失，请重新登录并授权");
-                }
-
                 ShopManager shopManager = new ShopManager(user, userMgr.Shop, userMgr.CurrentUserPermission, userMgr);
                 filterContext.Controller.ViewData["CurrentShop"] = userMgr.Shop;
                 filterContext.Controller.ViewData["MainShop"] = userMgr.Main_Shop;

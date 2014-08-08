@@ -141,6 +141,7 @@ namespace KM.JXC.BL
                     dbUser.User_ID = requester.ID;
                     dbUser.Mall_ID = requester.Mall_ID;
                     dbUser.Mall_Name = requester.Mall_Name;
+                    dbUser.NickName = "";
                     dbUser.Name = requester.Name;
                     dbUser.Mall_Type = requester.Type.ID;
                     dbUser.Parent_Mall_ID = "";
@@ -284,7 +285,7 @@ namespace KM.JXC.BL
             }
             catch (DbEntityValidationException dbex)
             {
-
+                throw new KMJXCException("登录失败，请联系管理员");
             }
             catch (Exception ex)
             {

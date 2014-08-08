@@ -413,9 +413,8 @@
                         $($expHouses).append("<option value=\"" + houseId + "\">" + houseName + "</option>");
                         $($expHouses).attr("disabled", true);
                         $($prov).val(provId).attr("disabled", true);
-                        $($expFeetxt).val(fee);
-                       
-                        if (provId > 0 && provId != 1 && provId != 2 && provId != 9 && provId != 22) {
+                        $($expFeetxt).val(fee);                       
+                        if (provId > 0 && provId != 1 && provId != 2 && provId != 9 && provId != 22) {                           
                             $($city).append("<option value=\"" + cityId + "\">" + cityName + "</option>");
                             $($city).show().attr("disabled",true);
                         }
@@ -653,10 +652,6 @@
                 return null;
             }
         }
-
-
-        
-        
     });
 
 </script>
