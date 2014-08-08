@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using KM.JXC.DBA;
 using KM.JXC.Common.KMException;
 using KM.JXC.Common.Util;
@@ -421,7 +422,7 @@ namespace KM.JXC.BL
         /// <param name="totalProducts">Total records according to the conditions</param>
         /// <param name="paging">Paging(true/false)</param>        
         /// <returns></returns>
-        public string GetBuyReport(long startDate, long endDate, int[] product_id, int page, int pageSize, out int totalProducts, bool paging = true)
+        public JToken[] GetBuyReport(long startDate, long endDate, int[] product_id, int page, int pageSize, out int totalProducts, bool paging = true)
         {
             string json = "";
             totalProducts = 0;
@@ -491,10 +492,10 @@ namespace KM.JXC.BL
                 var tmpBuyOrderIds = from o in tmpBuyOrders select o.Buy_Order_ID;
 
                 var tmpBuyOrderDetails = from bd in db.Buy_Order_Detail
-                                    where tmpBuyOrderIds.Contains(bd.Buy_Order_ID)
+                                    where tmpBuyOrderIds.Contains(bd.Buy_Order_ID)                                     
                                     select bd;
 
-                var orderProductIds = from o in tmpBuyOrderDetails select o.Product_ID;
+                var orderProductIds = from o in tmpBuyOrderDetails select o.Parent_Product_ID;
                 tmpProducts = tmpProducts.Where(p=>orderProductIds.Contains(p.ID));
                 if (paging)
                 {
@@ -520,46 +521,49 @@ namespace KM.JXC.BL
                                                          ProductID = pv.Product_ID,
                                                          PValue = l_propv.Name,
                                                          PVID = pv.Product_Spec_Value_ID
-                                                     }).OrderBy(p => p.PID).ToList<BProductProperty>();
+                                                     }).OrderBy(p => p.PID).ToList<BProductProperty>();                
 
-                var details = from detail in tmpBuyOrderDetails
-                              join order in db.Buy_Order on detail.Buy_Order_ID equals order.Buy_Order_ID into LOrder
-                              from l_order in LOrder.DefaultIfEmpty()
-                              select new
-                              {
-                                  ProductId = detail.Product_ID,
-                                  Quantity = detail.Quantity,
-                                  DateTime = l_order.Create_Date
-                              };
+                List<Buy_Order> orders=(from o in tmpBuyOrders select o).ToList<Buy_Order>();
+                List<BBuyOrderDetail> details = (from detail in tmpBuyOrderDetails
+                                                 join order in tmpBuyOrders on detail.Buy_Order_ID equals order.Buy_Order_ID into LOrder
+                                                 from l_order in LOrder.DefaultIfEmpty()
+                                                 select new BBuyOrderDetail
+                                                 {
+                                                     Product=new BProduct{ID =detail.Product_ID},
+                                                     Parent_Product_ID = detail.Parent_Product_ID,
+                                                     BuyDate = l_order.Insure_Date != null && l_order.Insure_Date > 0 ? (long)l_order.Insure_Date : l_order.Create_Date,
+                                                     Quantity = detail.Quantity,
+                                                     Price = detail.Price
+                                                 }).OrderBy(d=>d.BuyDate).ToList<BBuyOrderDetail>();
                 foreach (BProduct product in products)
                 {
-                    string productName = product.Title;
+                    string productName =product.ID+" "+ product.Title;
                     string shopName = product.BShop.Title;
                     List<Product> children=(from c in childrenProducts where c.Parent_ID==product.ID select c).ToList<Product>();
                     if (children == null || children.Count <= 0)
                     {
-                        var vdetails = from d in details where d.ProductId == product.ID select d;
+                        var vdetails = from d in details where d.Parent_Product_ID == product.ID select d;
                         foreach (var detail in vdetails)
                         {
-                            string month = DateTimeUtil.ConvertToDateTime(detail.DateTime).ToString("yyyy-M");
+                            string month = DateTimeUtil.ConvertToDateTime(detail.BuyDate).ToString("yyyy-M");
                             if (json == "")
                             {
-                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\",\"amount\":" + (detail.Quantity * detail.Price).ToString("0.00") + "}";
                             }
                             else
                             {
-                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"--\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\",\"amount\":" + (detail.Quantity * detail.Price).ToString("0.00") + "}";
                             }
                         }
                     }
                     else
                     {
                         int[] childrenIds=(from c in children select c.Product_ID).ToArray<int>();
-                        var vdetails = from d in details where childrenIds.Contains(d.ProductId) select d;
+                        var vdetails = from d in details where childrenIds.Contains(d.Product.ID) select d;
                         foreach (var detail in vdetails)
                         {
                             string pNames = "";
-                            List<BProductProperty> props=(from p in properties where p.ProductID==detail.ProductId select p).ToList<BProductProperty>();
+                            List<BProductProperty> props=(from p in properties where p.ProductID==detail.Product.ID select p).ToList<BProductProperty>();
                             foreach (BProductProperty prop in props)
                             {
                                 if (pNames == "")
@@ -571,14 +575,14 @@ namespace KM.JXC.BL
                                     pNames +=","+ prop.PName + ":" + prop.PValue;
                                 }
                             }
-                            string month = DateTimeUtil.ConvertToDateTime(detail.DateTime).ToString("yyyy-M");
+                            string month = DateTimeUtil.ConvertToDateTime(detail.BuyDate).ToString("yyyy-M");
                             if (json == "")
                             {
-                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                                json = "[{\"product_name\":\"" + productName + "\",\"prop_name\":\"" +detail.Product.ID+" "+ pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\",\"amount\":" + (detail.Quantity * detail.Price).ToString("0.00") + "}";
                             }
                             else
                             {
-                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\"}";
+                                json += ",{\"product_name\":\"" + productName + "\",\"prop_name\":\"" + detail.Product.ID + " " + pNames + "\",\"shop_name\":\"" + shopName + "\",\"month\":\"" + month + "\",\"quantity\":\"" + detail.Quantity + "\",\"amount\":" + (detail.Quantity * detail.Price).ToString("0.00") + "}";
                             }
                         }
                     }
@@ -588,7 +592,12 @@ namespace KM.JXC.BL
             {
                 json += "]";
             }
-            return json;
+
+            JArray ja = JArray.Parse(json);
+
+            JToken[] jac = (from j in ja orderby j["month"] select j).ToArray<JToken>();
+            
+            return jac;
         }
     }
 }

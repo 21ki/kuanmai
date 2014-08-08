@@ -813,18 +813,18 @@ function KMJXCPermissionManager() {
 KMJXCReportManager.prototype = new KMJXCBase();
 function KMJXCReportManager() {
     /*
+       stime:optional
+       etime:optional
        paging:optional,default is 1
-       products:optional
+       products:optional,a string join with "," for multiple product id
        page:required
        pageSize:required
    */
-    this.GetSalesReport = this.SearchExpressFee = function (params, callback) {
+    this.GetSalesReport = function (params, callback) {
         this.AjaxCall("/api/Report/GetSalesReport", params, callback);
     }
 
-
-
-    this.GetExcelSaleReport = this.SearchExpressFee = function (params, callback) {
+    this.GetExcelSaleReport = function (params, callback) {
         this.AjaxCall("/api/Report/GetExcelSaleReport", params, callback);
     }
 
@@ -834,18 +834,32 @@ function KMJXCReportManager() {
     page:required
     pageSize:required
     */
-    this.GetStockReport = this.SearchExpressFee = function (params, callback) {
+    this.GetStockReport = function (params, callback) {
         this.AjaxCall("/api/Report/GetStockReport", params, callback);
     }
 
     /*
       paging:optional,default is 1
-      products:optional
+      products:optional,a string join with "," for multiple product id
       page:required
       pageSize:required
    */
-    this.GetExcelStockReport = this.SearchExpressFee = function (params, callback) {
+    this.GetExcelStockReport = function (params, callback) {
         this.AjaxCall("/api/Report/GetExcelStockReport", params, callback);
+    }
+    /*
+      stime:optional
+      etime:optional
+      paging:optional,default is 1
+      products:optional,a string join with "," for multiple product id
+      page:required
+      pageSize:required
+   */
+    this.GetBuyReport = function (params, callback) {
+        this.AjaxCall("/api/Report/GetBuyReport", params, callback);
+    }
+    this.GetExcelBuyReport = function (params, callback) {
+        this.AjaxCall("/api/Report/GetExcelBuyReport", params, callback);
     }
 }
 

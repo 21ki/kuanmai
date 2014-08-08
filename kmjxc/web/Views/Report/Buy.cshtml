@@ -172,8 +172,15 @@
         });
 
         $('#rpt_Menu_Export').button({ icons: {primary:"ui-icon-print"}}).click(function () {           
+            var sdate = $('#rpt_StartDate').val();
+            var edate = $('#rpt_EndDate').val();
+            sdate = $.GetUnixTime(sdate);
+            edate = $.GetUnixTime(edate);
+            if (edate < sdate) {
+                alert("结束时间必须大于开始时间");
+                return;
+            }
             var pdtIds = "";
-
             for (var i = 0; i < selectedProducts.length; i++) {
                 if (pdtIds == "") {
                     pdtIds = selectedProducts[i].product_id;
@@ -181,7 +188,6 @@
                     pdtIds += "," + selectedProducts[i].product_id;
                 }
             }
-
             var isPaging = 0;
             var paging = $('#rpt_EnablePaging').attr('checked');
             if (paging == 'checked') {
@@ -201,7 +207,7 @@
                 isPaging = 1;
             }
             ShowProgress('report_loading', function () { }, "正在导出Excel,请耐性等待...");
-            reportManager.GetExcelStockReport({ 'products': pdtIds }, function (res) {
+            reportManager.GetExcelBuyReport({ 'stime': sdate, 'etime': edate, 'products': pdtIds }, function (res) {
                 Boxy.get($('#report_loading')).hide();
                 if (res.Status == "ok") {                   
                     window.open(res.Item, "_blank", 'height=400, width=500');
@@ -213,6 +219,14 @@
     });
 
     function generateReports(page) {        
+        var sdate = $('#rpt_StartDate').val();
+        var edate = $('#rpt_EndDate').val();
+        sdate = $.GetUnixTime(sdate);
+        edate = $.GetUnixTime(edate);
+        if (edate < sdate) {
+            alert("结束时间必须大于开始时间");
+            return;
+        }
         var pdtIds = "";
         for (var i = 0; i < selectedProducts.length; i++) {            
             if (pdtIds == "") {
@@ -241,11 +255,12 @@
             isPaging = 1;
         }
         ShowProgress('report_loading', function () { }, "正在加载报表数据，请耐性等待...");
-        reportManager.GetStockReport({ 'products': pdtIds, 'page': page, 'pageSize': pageSize, 'paging': isPaging }, function (res) {
+        reportManager.GetBuyReport({ 'stime': sdate, 'etime': edate, 'products': pdtIds, 'page': page, 'pageSize': pageSize, 'paging': isPaging }, function (res) {
             Boxy.get($('#report_loading')).hide();
             $('#rptPivot').html("");
             var row = res.data;
             if (row == null || row.length == 0) {
+                alert("没有符合要求的采购数据");
                 return;
             }
            
@@ -261,9 +276,9 @@
                 columns: [
                     { colvalue: 'product_name', coltext: 'product_name', header: '产品名称', sortbycol: 'product_name', groupbyrank: 1, pivot: false, result: false },
                     { colvalue: 'prop_name', coltext: 'prop_name', header: '销售属性', sortbycol: 'prop_name', groupbyrank: 2, pivot: false, result: false },
-                    { colvalue: 'pivot', coltext: 'pivot', header: '库存', sortbycol: 'pivot', groupbyrank: null, pivot: true, result: false },
-                    { colvalue: 'quantity', coltext: '库存', header: '库存', sortbycol: 'quantity', groupbyrank: null, pivot: false, result: true }
-                   
+                    { colvalue: 'month', coltext: 'pivot', header: '采购年月', sortbycol: 'pivot', groupbyrank: null, pivot: true, result: false },
+                    { colvalue: 'quantity', coltext: '数量', header: '数量', sortbycol: 'quantity', groupbyrank: null, pivot: false, result: true },
+                    { colvalue: 'amount', coltext: '金额', header: '金额', sortbycol: 'amount', groupbyrank: null, pivot: false, result: true }
                 ],
                 rows: row
             };
@@ -307,11 +322,11 @@
             <div class="rowS nolabel1"><span id="btnRptSubmit">搜索</span></div>
           
         </div>
-        <div style="padding-bottom:5px;"> 
+        <div style="overflow-x:scroll;padding-bottom:5px;"> 
             <div class="rowS">
                 <span id="rpt_Menu_Export" style="border:0;background:#FFF">导出</span>
             </div>
-            <div id="rptPivot">
+            <div id="rptPivot" style="width:1800px;">
             </div>
             <div style="display:none;" class="s_title spage pager" id="rptPivotPager"></div>
         </div>        

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Configuration;
 using KMEXCEL = Microsoft.Office.Interop.Excel;
-
+using Newtonsoft.Json.Linq;
 namespace KM.JXC.BL
 {
     public enum ReportType
@@ -93,9 +93,15 @@ namespace KM.JXC.BL
             }
         }
 
-        public virtual string Export(string JsonStr)
+        public virtual string Export(JToken[] objects)
         {
             string path=null;
+            return path;
+        }
+
+        public virtual string Export(string json)
+        {
+            string path = null;
             return path;
         }
 

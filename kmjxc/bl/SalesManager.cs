@@ -261,7 +261,7 @@ namespace KM.JXC.BL
                                     if (!string.IsNullOrEmpty(order.Mall_SkuID))
                                     {
                                         order_detail.Status1 = (int)SaleDetailStatus.NOT_CONNECTED;
-                                        order_detail.SyncResultMessage = "宝贝已关联，当前SKU未关联，不能出库";
+                                        order_detail.SyncResultMessage = "SKU未关联，不能更新库存";
                                         db.SaveChanges();
                                         continue;
                                     }
