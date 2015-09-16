@@ -16,81 +16,36 @@
     var selectedProducts = [];
     $(function () {
         $("#tabs").tabs();
+        $('#btnAddProduct').button({text:false, icons: { primary: "ui-icon-plus" } }).click(function (e) {    
+            $('#popup_select_product').SearchProductsDialog({
+                ok: function (selected) {
+                    selectedProducts = selected;
+                    var id = $('#supplierID').val();
+                    var products = "";
 
-        productMgr.GetCategories({}, function (res) {
-            if (res != null) {
-                $('#opt_pcategory').append("<option value=\"0\">--选择--</option>");
-                $(res.data).each(function (index, item) {
-                    $('#opt_pcategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
-                });
-            }
-        });
-
-        $('#opt_pcategory').change(function () {
-            var pid = $(this).val();
-            if (pid == 0) {
-                $('#opt_ccategory').empty().hide();
-                return;
-            }
-            productMgr.GetCategories({ 'parent_id': pid }, function (res) {
-                if (res != null) {
-                    $('#opt_ccategory').empty();
-                    $('#opt_ccategory').append("<option value=\"0\">--选择--</option>");
-                    $(res.data).each(function (index, item) {
-                        $('#opt_ccategory').append("<option value=\"" + item.ID + "\">" + item.Name + "</option>");
+                    for (var i = 0; i < selectedProducts.length; i++) {
+                        if (products == "") {
+                            products = selectedProducts[i].product_id;
+                        } else {
+                            products += "," + selectedProducts[i].product_id;
+                        }
+                    }
+                    var that = this;
+                    buyManager.UpdateSupplierProducts({ id: id, products: products }, function (res) {
+                        if (res.Status == "ok") {
+                            selectedProducts = [];                            
+                            SearchSupplierProducts(1);
+                        } else {
+                            alert(res.Message);
+                        }
                     });
-                    $('#opt_ccategory').show();
-                }
-            });
-
-        });
-
-        $('#btnAddProduct').button({text:false, icons: { primary: "ui-icon-plus" } }).click(function (e) {
-            $('#popup_select_product').dialog({
-                position: { my: "top", at: "top", of: $("#supplierProducts") },
-                width: 500,
-                //height:550,
-                resizable: false,
-                title: "选择产品",
-                modal: true,
-                open: function (evt) {
-
                 },
-                close: function (evt) {
-                    $(this).find('#opt_products_list').html("");
-                    $(this).find('#opt_products_list_Pager').html("").hide()
-                    $(this).find("#opt_keyword").val("");
-                    $(this).find("#opt_pcategory").val("0");
-                    $(this).find("#opt_ccategory").html("").hide();
+                cancel: function () {
                     selectedProducts = [];
                 },
-                buttons: {
-                    "保存": function (e) {
-                        var id = $('#supplierID').val();
-                        var products = "";
-
-                        for (var i = 0; i < selectedProducts.length; i++) {
-                            if (products == "") {
-                                products = selectedProducts[i].ID;
-                            } else {
-                                products +="," + selectedProducts[i].ID;
-                            }
-                        }
-                        var that = this;
-                        buyManager.UpdateSupplierProducts({ id: id, products: products }, function (res) {
-                            if (res.Status == "ok") {
-                                $(that).dialog("close");
-                                SearchSupplierProducts(1);
-                            } else {
-                                alert(res.Message);
-                            }
-                        });
-                        
-                    },
-                    "取消": function (e) {
-                        $(this).dialog("close");
-                    }
-                }
+                pageSize: 15,
+                seltype: 'checkbox',
+                selected: selectedProducts
             });
         });
 
@@ -161,89 +116,7 @@
         $('#btn_search_product').button({ icons: { primary: "ui-icon-search" } }).click(function () {
             SearchProducts(1);
         });
-    });
-
-    function SearchProducts(page) {
-        var pid = $('#opt_pcategory').val();
-        var cid = $('#opt_ccategory').val();
-        var pkey = $('#opt_keyword').val();
-        var category = 0;
-
-        category = pid;
-
-        if (cid > 0) {
-            category = cid;
-        }
-
-        $("#opt_searching").show();
-        var $ul = $('#opt_products_list');
-        $ul.html("");
-
-        productMgr.SearchProducts({ 'cid': category, 'keyword': pkey, 'pageSize': productListPageSize, 'page': page, 'include_supplier': 0, 'include_prop': 0 }, function (res) {
-            $("#opt_searching").hide();
-            if (res != null) {
-                productsData = res.data;
-
-                $(res.data).each(function (index, item) {
-                    var $li = $("<li></li>").appendTo($ul);
-                    var selected, $radio;
-                    for (var i = 0; i < selectedProducts.length; i++) {
-                        if (selectedProducts[i].ID == item.ID) {
-                            selected = true;
-                            break;
-                        }
-                    }
-                    if (!selected) {
-                        $radio = $("<input value=\"" + item.ID + "\" type=\"checkbox\"/>").appendTo($li);
-                    } else {
-                        $radio = $("<input checked value=\"" + item.ID + "\" type=\"checkbox\"/>").appendTo($li);
-                    }
-                    $("<span>" + item.Title + "</span>").appendTo($li);
-
-                    $radio.change(function () {
-                        var tmp = [];
-                        var checked = $(this).attr('checked');
-                        var curId = $(this).attr('value');
-                        var name = $(this).next().html();
-
-                        var newJson = null;
-
-                        $(productsData).each(function (pi, item) {
-                            if (item.ID == curId) {
-                                newJson = item;
-                                return false;
-                            }
-                        });
-
-                        var existed = false;
-                        for (var i = 0; i < selectedProducts.length; i++) {
-                            if (selectedProducts[i].ID == curId) {
-                                existed = true;
-                                if (checked == 'checked') {
-                                    tmp.push(selectedProducts[i]);
-                                }
-                            } else {
-                                tmp.push(selectedProducts[i]);
-                            }
-                        }
-
-                        if (!existed && checked == 'checked') {
-                            tmp.push(newJson);
-                        }
-
-                        selectedProducts = tmp;
-                    });
-                });
-
-                var htmlPage = productMgr.Pager({ 'total': res.totalRecords, 'page': res.curPage, 'pageSize': res.pageSize, 'fun': 'SearchProducts' }, "spn", "pn");
-                if (htmlPage != '') {
-                    $('#opt_products_list_Pager').html(htmlPage).show();
-                } else {
-                    $('#opt_products_list_Pager').html("").hide();
-                }
-            }
-        });
-    }
+    });   
 
     function SearchSupplierProducts(page) {
         var supplier_id = $("#supplierID").val();
@@ -308,17 +181,4 @@
 </div>
 
  <div id="popup_select_product" style="display:none">
-        <div id="opt_mapp_search">
-            <div class="rowS"><label>产品类目:</label><select class="W_inputsel" id="opt_pcategory"></select> <select class="W_inputsel" id="opt_ccategory" style="display:none;"></select></div>
-            <div class="rowS"><label>产品名称:</label><input type="text" id="opt_keyword" class="W_input" style="width:200px;"/></div>
-            <div class="rowS nolabel1"><span id="btn_search_product">搜索</span></div>
-        </div>
-        <div class="rowS" id="opt_searching" style="display:none;">
-            <span style="height:20px;line-height:20px;vertical-align: middle;"><img style="vertical-align: middle;" src="/Content/images/loading.gif"/>正在搜索产品,请稍等...</span>
-
-        </div>
-        <ul class="ulchk" id="opt_products_list">
-
-        </ul>
-        <div class="s_title spage pager toolbar ui-widget ui-helper-clearfix ui-state-default" id="opt_products_list_Pager" style="display:none;border:0;"></div>
-    </div>
+ </div>

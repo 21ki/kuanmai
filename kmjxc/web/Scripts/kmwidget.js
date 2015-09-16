@@ -113,7 +113,7 @@
         }
 
         var that = this;
-        var defaultOpts = { ok: function (selected) { }, cancel: function (selected) { },pageSize:25,seltype:'radio',selected:[] };
+        var defaultOpts = { ok: function (selected) { }, cancel: function () { },pageSize:25,seltype:'radio',selected:[] };
         var opts = $.extend(defaultOpts, options);
         _selectedProducts = opts.selected;
         this.options = opts;
@@ -225,6 +225,7 @@
             close: function () {
                 $(this).html("");
                 _selectedProducts = [];
+                that.options.cancel();
             },
             buttons: {
                 "确定": function (e) {
