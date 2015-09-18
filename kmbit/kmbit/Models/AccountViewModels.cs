@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace kmbit.Models
+namespace KMBit.Models
 {
     public class ExternalLoginConfirmationViewModel
     {

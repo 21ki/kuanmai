@@ -8,9 +8,9 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using kmbit.Models;
-
-namespace kmbit.Controllers
+using KMBit.Models;
+using KMBit.DAL;
+namespace KMBit.Controllers
 {
     [Authorize]
     public class AccountController : Controller
@@ -68,17 +68,20 @@ namespace kmbit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
+            //PasswordHasher ph = new PasswordHasher();
+            //PasswordVerificationResult results = ph.VerifyHashedPassword("ACvYkgryHPtgvEVbgvSOzhqGDR1gNqAL0SdThqJUChcFyvFBfsPGP+x9C8nOWe6IzA==", model.Password);
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
-                case SignInStatus.Success:
+                case SignInStatus.Success:  
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -139,6 +142,8 @@ namespace kmbit.Controllers
         [AllowAnonymous]
         public ActionResult Register()
         {
+            KMBit.DAL.chargebitEntities c = new DAL.chargebitEntities();
+            var users = (from u in c.Users select u).ToList<KMBit.DAL.Users>();
             return View();
         }
 
@@ -151,7 +156,7 @@ namespace kmbit.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email };
+                var user = new Users { UserName = model.Email, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -367,7 +372,7 @@ namespace kmbit.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Email};
+                var user = new Users { UserName = model.Email, Email = model.Email };
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {

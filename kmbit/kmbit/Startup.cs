@@ -1,8 +1,8 @@
 ﻿using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartupAttribute(typeof(kmbit.Startup))]
-namespace kmbit
+[assembly: OwinStartupAttribute(typeof(KMBit.Startup))]
+namespace KMBit
 {
     public partial class Startup
     {

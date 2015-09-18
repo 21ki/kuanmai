@@ -6,9 +6,9 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using kmbit.Models;
+using KMBit.Models;
 
-namespace kmbit.Controllers
+namespace KMBit.Controllers
 {
     [Authorize]
     public class ManageController : Controller
@@ -63,14 +63,14 @@ namespace kmbit.Controllers
                 : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
                 : "";
 
-            int userId = User.Identity.GetUserId<int>();
+            var userId = User.Identity.GetUserId<int>();
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
                 PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
                 TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
                 Logins = await UserManager.GetLoginsAsync(userId),
-                //BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId.ToString())
             };
             return View(model);
         }
@@ -356,8 +356,7 @@ namespace kmbit.Controllers
             var user = UserManager.FindById(User.Identity.GetUserId<int>());
             if (user != null)
             {
-                return true;
-                //return user.PasswordHash != null;
+                return user.PasswordHash != null;
             }
             return false;
         }
@@ -367,8 +366,7 @@ namespace kmbit.Controllers
             var user = UserManager.FindById(User.Identity.GetUserId<int>());
             if (user != null)
             {
-                return true;
-                //return user.PhoneNumber != null;
+                return user.PhoneNumber != null;
             }
             return false;
         }

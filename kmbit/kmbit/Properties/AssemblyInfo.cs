@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("kmbit")]
+[assembly: AssemblyTitle("KMBit")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("PTC")]
-[assembly: AssemblyProduct("kmbit")]
-[assembly: AssemblyCopyright("Copyright © PTC 2015")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("KMBit")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e8d2a947-80f5-4848-8077-cdee20f7aad8")]
+[assembly: Guid("fdd7fe56-4d30-495e-b62e-f024f297a5fa")]
 
 // Version information for an assembly consists of the following four values:
 //

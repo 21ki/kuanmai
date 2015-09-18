@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace kmbit
+namespace KMBit
 {
     public class FilterConfig
     {
