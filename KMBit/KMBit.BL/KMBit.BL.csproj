@@ -49,6 +49,7 @@
     <Compile Include="BaseManagement.cs" />
     <Compile Include="PermissionManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceManagement.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KMBit.Beans\KMBit.Beans.csproj">
