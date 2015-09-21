@@ -24,11 +24,11 @@ namespace KMBit.DAL
         public sbyte Pay_type { get; set; }
         public float Remaining_amount { get; set; }
         public float Credit_amount { get; set; }
-        public Nullable<int> Province_id { get; set; }
-        public Nullable<int> City_id { get; set; }
+        public int Province_id { get; set; }
+        public int City_id { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
-        public Nullable<bool> PhoneNumberConfirmed { get; set; }
+        public bool PhoneNumberConfirmed { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public bool TwoFactorEnabled { get; set; }

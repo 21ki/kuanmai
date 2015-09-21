@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.Util", "KMBit.Util\KM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBitAdm", "KMBitAdm\KMBitAdm.csproj", "{03436829-A957-4B31-9107-B5F5BC764A9A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.Beans", "KMBit.Beans\KMBit.Beans.csproj", "{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{03436829-A957-4B31-9107-B5F5BC764A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03436829-A957-4B31-9107-B5F5BC764A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03436829-A957-4B31-9107-B5F5BC764A9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

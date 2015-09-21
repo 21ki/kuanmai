@@ -15,6 +15,6 @@ namespace KMBit.DAL
     public partial class Admin_Users_Actions
     {
         public int User_Id { get; set; }
-        public string Action_Id { get; set; }
+        public int Action_Id { get; set; }
     }
 }

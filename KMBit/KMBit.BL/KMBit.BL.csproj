@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -43,11 +46,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseManagement.cs" />
     <Compile Include="PermissionManagement.cs" />
-    <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\KMBit.Beans\KMBit.Beans.csproj">
+      <Project>{416e6a8e-ade7-4475-b675-95c88f1f1c7f}</Project>
+      <Name>KMBit.Beans</Name>
+    </ProjectReference>
     <ProjectReference Include="..\KMBit.DAL\KMBit.DAL.csproj">
       <Project>{31f94f8d-96ba-4b7f-b92f-db01f251ba08}</Project>
       <Name>KMBit.DAL</Name>

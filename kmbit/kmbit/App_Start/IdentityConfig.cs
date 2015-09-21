@@ -33,9 +33,9 @@ namespace KMBit
     }
 
     // Configure the application user manager used in this application. UserManager is defined in ASP.NET Identity and is used by the application.
-    public class ApplicationUserManager : UserManager<DAL.Users,int>
+    public class ApplicationUserManager : UserManager<ApplicationUser, int>
     {
-        public ApplicationUserManager(IUserStore<DAL.Users,int> store)
+        public ApplicationUserManager(IUserStore<ApplicationUser, int> store)
             : base(store)
         {
 
@@ -89,16 +89,16 @@ namespace KMBit
             return manager;
         }
 
-        public override Task<bool> CheckPasswordAsync(DAL.Users user, string password)
+        public override Task<bool> CheckPasswordAsync(ApplicationUser user, string password)
         {
             return base.CheckPasswordAsync(user,password);
         }
     }
 
     // Configure the application sign-in manager which is used in this application.
-    public class ApplicationSignInManager : SignInManager<DAL.Users, int>
+    public class ApplicationSignInManager : SignInManager<ApplicationUser, int>
     {
-        public ApplicationSignInManager(UserManager<DAL.Users,int> userManager, IAuthenticationManager authenticationManager)
+        public ApplicationSignInManager(UserManager<ApplicationUser, int> userManager, IAuthenticationManager authenticationManager)
             : base(userManager, authenticationManager)
         {
         }
@@ -109,11 +109,11 @@ namespace KMBit
         }
     }
 
-    public class ApplicationUserStore : IUserStore<DAL.Users,int>,
-        IUserPasswordStore<DAL.Users,int>, 
-        IUserSecurityStampStore<DAL.Users,int>,
-        IUserLockoutStore<DAL.Users,int>,
-        Microsoft.AspNet.Identity.IUserTwoFactorStore<DAL.Users, int>
+    public class ApplicationUserStore : IUserStore<ApplicationUser, int>,
+        IUserPasswordStore<ApplicationUser, int>, 
+        IUserSecurityStampStore<ApplicationUser, int>,
+        IUserLockoutStore<ApplicationUser, int>,
+        Microsoft.AspNet.Identity.IUserTwoFactorStore<ApplicationUser, int>
     {
         KMBit.DAL.chargebitEntities content;
         UserStore<IdentityUser> userStore;
@@ -127,13 +127,14 @@ namespace KMBit
             this.userStore = new UserStore<IdentityUser>(this.content);
         }
 
-        public Task CreateAsync(DAL.Users user)
+        public Task CreateAsync(ApplicationUser user)
         {
-            content.Users.Add(user);
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            content.Users.Add(dbUser);
             return content.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(DAL.Users user)
+        public Task DeleteAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
@@ -146,17 +147,19 @@ namespace KMBit
             }
         }
 
-        public Task<DAL.Users> FindByIdAsync(int userId)
+        public Task<ApplicationUser> FindByIdAsync(int userId)
         {
-            return content.Users.FindAsync(userId);
+            Users user= content.Users.Find(userId);
+            return Task.FromResult(ApplicationUser.DBUserToAppUser(user));
         }
 
-        public Task<DAL.Users> FindByNameAsync(string userName)
+        public Task<ApplicationUser> FindByNameAsync(string userName)
         {
-            return content.Users.Where(us => us.Email == userName).FirstOrDefaultAsync<KMBit.DAL.Users>();
+            Users dbUser= content.Users.Where(us => us.Email == userName).FirstOrDefault<KMBit.DAL.Users>();
+            return Task.FromResult(ApplicationUser.DBUserToAppUser(dbUser));
         }
 
-        public Task<string> GetPasswordHashAsync(DAL.Users user)
+        public Task<string> GetPasswordHashAsync(ApplicationUser user)
         {
             var identityUser = ToIdentityUser(user);
             var task = userStore.GetPasswordHashAsync(identityUser);
@@ -164,7 +167,7 @@ namespace KMBit
             return task;
         }
 
-        public Task<bool> HasPasswordAsync(DAL.Users user)
+        public Task<bool> HasPasswordAsync(ApplicationUser user)
         {
             var identityUser = ToIdentityUser(user);
             var task = userStore.HasPasswordAsync(identityUser);
@@ -172,7 +175,7 @@ namespace KMBit
             return task;
         }
 
-        public Task SetPasswordHashAsync(DAL.Users user, string passwordHash)
+        public Task SetPasswordHashAsync(ApplicationUser user, string passwordHash)
         {
             var identityUser = ToIdentityUser(user);
             var task = userStore.SetPasswordHashAsync(identityUser, passwordHash);
@@ -185,7 +188,7 @@ namespace KMBit
             throw new NotImplementedException();
         }
 
-        private static void SetApplicationUser(DAL.Users user, IdentityUser identityUser)
+        private static void SetApplicationUser(ApplicationUser user, IdentityUser identityUser)
         {
             user.PasswordHash = identityUser.PasswordHash;
             user.SecurityStamp = identityUser.SecurityStamp;
@@ -193,7 +196,7 @@ namespace KMBit
             user.UserName = identityUser.UserName;
         }
 
-        private IdentityUser ToIdentityUser(DAL.Users user)
+        private IdentityUser ToIdentityUser(ApplicationUser user)
         {
             return new IdentityUser
             {
@@ -204,7 +207,7 @@ namespace KMBit
             };
         }
 
-        public Task SetSecurityStampAsync(DAL.Users user, string stamp)
+        public Task SetSecurityStampAsync(ApplicationUser user, string stamp)
         {
             var identityUser = ToIdentityUser(user);
             var task = userStore.SetSecurityStampAsync(identityUser, stamp);
@@ -212,7 +215,7 @@ namespace KMBit
             return task;
         }
 
-        public Task<string> GetSecurityStampAsync(DAL.Users user)
+        public Task<string> GetSecurityStampAsync(ApplicationUser user)
         {
             var identityUser = ToIdentityUser(user);
             var task = userStore.GetSecurityStampAsync(identityUser);
@@ -220,7 +223,7 @@ namespace KMBit
             return task;
         }
 
-        public Task<DateTimeOffset> GetLockoutEndDateAsync(Users user)
+        public Task<DateTimeOffset> GetLockoutEndDateAsync(ApplicationUser user)
         {
             return
                 Task.FromResult(user.LockoutEndDateUtc.HasValue
@@ -228,59 +231,127 @@ namespace KMBit
                     : new DateTimeOffset());
         }
 
-        public Task SetLockoutEndDateAsync(Users user, DateTimeOffset lockoutEnd)
+        public Task SetLockoutEndDateAsync(ApplicationUser user, DateTimeOffset lockoutEnd)
         {
-            user.LockoutEndDateUtc = lockoutEnd.UtcDateTime;
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            dbUser.LockoutEndDateUtc = lockoutEnd.UtcDateTime;
             content.Users.Attach(user);
             content.SaveChanges();
             return Task.FromResult(0);
         }
 
-        public Task<int> IncrementAccessFailedCountAsync(Users user)
+        public Task<int> IncrementAccessFailedCountAsync(ApplicationUser user)
         {
-            user.AccessFailedCount++;
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            dbUser.AccessFailedCount++;
             content.Users.Attach(user);
             content.SaveChanges();
             return Task.FromResult(user.AccessFailedCount);
         }
 
-        public Task ResetAccessFailedCountAsync(Users user)
+        public Task ResetAccessFailedCountAsync(ApplicationUser user)
         {
-            user.AccessFailedCount = 0;
-            content.Users.Attach(user);
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            dbUser.AccessFailedCount = 0;
+            content.Users.Attach(dbUser);
             content.SaveChanges();
             return Task.FromResult(0);
         }
 
-        public Task<int> GetAccessFailedCountAsync(Users user)
+        public Task<int> GetAccessFailedCountAsync(ApplicationUser user)
         {
             return Task.FromResult(user.AccessFailedCount);
         }
 
-        public Task<bool> GetLockoutEnabledAsync(Users user)
+        public Task<bool> GetLockoutEnabledAsync(ApplicationUser user)
         {
             return Task.FromResult(user.LockoutEnabled);
         }
 
-        public Task SetLockoutEnabledAsync(Users user, bool enabled)
+        public Task SetLockoutEnabledAsync(ApplicationUser user, bool enabled)
         {
-            user.LockoutEnabled = enabled;
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            dbUser.LockoutEnabled = enabled;
             content.Users.Attach(user);
             content.SaveChanges();
             return Task.FromResult(0);
         }
 
-        public Task<bool> GetTwoFactorEnabledAsync(Users user)
+        public Task<bool> GetTwoFactorEnabledAsync(ApplicationUser user)
         {
             return Task.FromResult(user.TwoFactorEnabled);
         }
 
-        public Task SetTwoFactorEnabledAsync(Users user, bool enabled)
+        public Task SetTwoFactorEnabledAsync(ApplicationUser user, bool enabled)
         {
-            user.TwoFactorEnabled = enabled;
+            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            dbUser.TwoFactorEnabled = enabled;
             content.Users.Attach(user);
             content.SaveChanges();
             return Task.FromResult(0);
+        }
+
+        public Task UpdateAsync(ApplicationUser user)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ApplicationUser : KMBit.DAL.Users, IUser<int>
+    {
+        public string UserName
+        {
+            get
+            {
+                return this.Email;
+            }
+
+            set
+            {
+                this.Email = value;
+            }
+        }
+
+        public static ApplicationUser DBUserToAppUser(Users dbUser)
+        {
+            if(dbUser==null)
+            {
+                return null;
+            }
+
+            ApplicationUser appUser = new ApplicationUser();
+            System.Reflection.PropertyInfo[] properties = appUser.GetType().GetProperties();
+            foreach (System.Reflection.PropertyInfo property in properties)
+            {
+                System.Reflection.PropertyInfo p = dbUser.GetType().GetProperty(property.Name);
+                if(p!=null)
+                {
+                    property.SetValue(appUser, p.GetValue(dbUser));
+                }
+            }
+
+            return appUser;
+        }
+
+        public static Users AppUserToDBUser(ApplicationUser appUser)
+        {
+            if(appUser==null)
+            {
+                return null;
+            }
+
+            Users dbUser = new Users();            
+            System.Reflection.PropertyInfo[] properties = dbUser.GetType().GetProperties();
+            foreach (System.Reflection.PropertyInfo property in properties)
+            {
+                System.Reflection.PropertyInfo p = appUser.GetType().GetProperty(property.Name);
+                if (p != null)
+                {
+                    property.SetValue(appUser, p.GetValue(dbUser));
+                }
+            }
+
+            return dbUser;
         }
     }
 }

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{03436829-A957-4B31-9107-B5F5BC764A9A}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{416E6A8E-ADE7-4475-B675-95C88F1F1C7F}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KMBitAdm</RootNamespace>
-    <AssemblyName>KMBitAdm</AssemblyName>
+    <RootNamespace>KMBit.Beans</RootNamespace>
+    <AssemblyName>KMBit.Beans</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -32,13 +32,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,24 +46,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="BaseManagement.cs" />
+    <Compile Include="BUser.cs" />
+    <Compile Include="PermissionCategory.cs" />
+    <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserAdminAction.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\KMBit.BL\KMBit.BL.csproj">
-      <Project>{77c42282-41aa-4f62-b9c4-af5821f809e6}</Project>
-      <Name>KMBit.BL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\KMBit.DAL\KMBit.DAL.csproj">
       <Project>{31f94f8d-96ba-4b7f-b92f-db01f251ba08}</Project>
       <Name>KMBit.DAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\KMBit.Util\KMBit.Util.csproj">
-      <Project>{5492d2d8-54c7-4f0f-8032-e77bf30ad8f1}</Project>
-      <Name>KMBit.Util</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

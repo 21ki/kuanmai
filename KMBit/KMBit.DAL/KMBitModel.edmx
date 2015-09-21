@@ -30,13 +30,14 @@
           <Property Name="User_Id" Type="int" Nullable="false" />
           <Property Name="IsWebMaster" Type="bool" Nullable="false" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
+          <Property Name="IsSuperAdmin" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Admin_Users_Actions">
           <Key>
             <PropertyRef Name="User_Id" />
           </Key>
           <Property Name="User_Id" Type="int" Nullable="false" />
-          <Property Name="Action_Id" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="Action_Id" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Agent_route">
           <Key>
@@ -324,38 +325,12 @@
           <EntitySet Name="Sp" EntityType="Self.Sp" />
           <EntitySet Name="Taocan" EntityType="Self.Taocan" />
           <EntitySet Name="User_type" EntityType="Self.User_type" />
-          <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
           <EntitySet Name="Admin_Actions" EntityType="KMBitDBContextModel.Admin_Actions" />
           <EntitySet Name="Admin_Categories" EntityType="KMBitDBContextModel.Admin_Categories" />
-          <EntitySet Name="Admin_Users" EntityType="KMBitDBContextModel.Admin_Users" />
+          <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
           <EntitySet Name="Admin_Users_Actions" EntityType="KMBitDBContextModel.Admin_Users_Actions" />
+          <EntitySet Name="Admin_Users" EntityType="KMBitDBContextModel.Admin_Users" />
         </EntityContainer>
-        <EntityType Name="Users">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Type" Type="Int32" Nullable="false" />
-          <Property Name="Regtime" Type="Int64" Nullable="false" />
-          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="Update_time" Type="Int64" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="SecurityStamp" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Pay_type" Type="SByte" Nullable="false" />
-          <Property Name="Remaining_amount" Type="Single" Nullable="false" />
-          <Property Name="Credit_amount" Type="Single" Nullable="false" />
-          <Property Name="Province_id" Type="Int32" />
-          <Property Name="City_id" Type="Int32" />
-          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PhoneNumberConfirmed" Type="Boolean" />
-          <Property Name="Name" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Email" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
-          <Property Name="LockoutEndDateUtc" Type="DateTime" />
-          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
-          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
-        </EntityType>
         <EntityType Name="Admin_Actions">
           <Key>
             <PropertyRef Name="Id" />
@@ -374,6 +349,39 @@
           <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Type" Type="Int32" Nullable="false" />
+          <Property Name="Regtime" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Update_time" Type="Int64" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityStamp" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Pay_type" Type="SByte" Nullable="false" />
+          <Property Name="Remaining_amount" Type="Single" Nullable="false" />
+          <Property Name="Credit_amount" Type="Single" Nullable="false" />
+          <Property Name="Province_id" Type="Int32" Nullable="false" />
+          <Property Name="City_id" Type="Int32" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" />
+          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Admin_Users_Actions">
+          <Key>
+            <PropertyRef Name="User_Id" />
+          </Key>
+          <Property Name="User_Id" Type="Int32" Nullable="false" />
+          <Property Name="Action_Id" Type="Int32" Nullable="false" />
+        </EntityType>
         <EntityType Name="Admin_Users">
           <Key>
             <PropertyRef Name="User_Id" />
@@ -381,13 +389,7 @@
           <Property Name="User_Id" Type="Int32" Nullable="false" />
           <Property Name="IsWebMaster" Type="Boolean" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="Admin_Users_Actions">
-          <Key>
-            <PropertyRef Name="User_Id" />
-          </Key>
-          <Property Name="User_Id" Type="Int32" Nullable="false" />
-          <Property Name="Action_Id" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="IsSuperAdmin" Type="Boolean" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -519,6 +521,26 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Actions">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Actions">
+              <MappingFragment StoreEntitySet="Admin_Actions">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Category" ColumnName="Category" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Admin_Categories">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Categories">
+              <MappingFragment StoreEntitySet="Admin_Categories">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Users">
               <MappingFragment StoreEntitySet="Users">
@@ -546,39 +568,20 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Actions">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Actions">
-              <MappingFragment StoreEntitySet="Admin_Actions">
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Category" ColumnName="Category" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Categories">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Categories">
-              <MappingFragment StoreEntitySet="Admin_Categories">
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
+          <EntitySetMapping Name="Admin_Users_Actions">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Users_Actions">
+              <MappingFragment StoreEntitySet="Admin_Users_Actions">
+                <ScalarProperty Name="Action_Id" ColumnName="Action_Id" />
+                <ScalarProperty Name="User_Id" ColumnName="User_Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Admin_Users">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Users">
               <MappingFragment StoreEntitySet="Admin_Users">
+                <ScalarProperty Name="IsSuperAdmin" ColumnName="IsSuperAdmin" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="IsWebMaster" ColumnName="IsWebMaster" />
-                <ScalarProperty Name="User_Id" ColumnName="User_Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Admin_Users_Actions">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Admin_Users_Actions">
-              <MappingFragment StoreEntitySet="Admin_Users_Actions">
-                <ScalarProperty Name="Action_Id" ColumnName="Action_Id" />
                 <ScalarProperty Name="User_Id" ColumnName="User_Id" />
               </MappingFragment>
             </EntityTypeMapping>

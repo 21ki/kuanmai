@@ -17,5 +17,6 @@ namespace KMBit.DAL
         public int User_Id { get; set; }
         public bool IsWebMaster { get; set; }
         public string Description { get; set; }
+        public bool IsSuperAdmin { get; set; }
     }
 }
