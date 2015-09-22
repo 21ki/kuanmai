@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AgentManagement.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="PermissionManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -31,12 +31,18 @@ namespace KMBit.BL
                           from llpa in lpa.DefaultIfEmpty()
                           join ca in db.Area on s.City_Id equals ca.Id into lca
                           from llca in lca.DefaultIfEmpty()
+                          join cu in db.Users on s.CreatedBy equals cu.Id into lcu
+                          from llcu in lcu.DefaultIfEmpty()
+                          join uu in db.Users on s.UpdatedBy equals uu.Id into luu
+                          from lluu in luu.DefaultIfEmpty()
                           select new BResource
                           {
                               Resource = s,
                               City = llca,
                               Province = llpa,
-                              SP = llsp 
+                              SP = llsp,
+                              CreatedBy=llcu,
+                              UpdatedBy=lluu
                           };
                 if(resourceId>0)
                 {
@@ -161,9 +167,46 @@ namespace KMBit.BL
             return ret;
         }
 
-        public List<Resource_taocan> FindResourceTaocans(int sTaocanId,int resourceId,int spId)
+        public List<BResourceTaocan> FindResourceTaocans(int sTaocanId,int resourceId,int spId)
         {
-            List<Resource_taocan> sTaocans=null;
+            List<BResourceTaocan> sTaocans=null;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                var tmp = from rta in db.Resource_taocan
+                          join r in db.Resource on rta.Resource_id equals r.Id
+                          join cu in db.Users on rta.CreatedBy equals cu.Id into lcu
+                          from llcu in lcu.DefaultIfEmpty()
+                          join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
+                          from lluu in luu.DefaultIfEmpty()
+                          join city in db.Area on rta.Area_id equals city.Id into lcity
+                          from llcity in lcity.DefaultIfEmpty()
+                          join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
+                          from llsp in lsp.DefaultIfEmpty()
+                          select new BResourceTaocan
+                          {
+                              Taocan = rta,
+                              CreatedBy = llcu,
+                              UpdatedBy = lluu,
+                              City = llcity,
+                              SP = llsp
+                          };
+
+                if(sTaocanId>0)
+                {
+                    tmp = tmp.Where(r => r.Taocan.Id == sTaocanId);
+                }
+                if(resourceId>0)
+                {
+                    tmp = tmp.Where(r => r.Taocan.Resource_id == resourceId);
+                }
+                if (spId > 0)
+                {
+                    tmp = tmp.Where(r => r.Taocan.Sp_id == spId);
+                }
+
+                sTaocans = tmp.ToList<BResourceTaocan>();
+            }
+
             return sTaocans;
         }
     }
