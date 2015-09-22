@@ -13,13 +13,13 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Area" Width="1.5" PointX="4.75" PointY="4.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Charge_history" Width="1.5" PointX="6.75" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="0.75" PointY="6.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="6.75" PointY="4.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="2.75" PointY="7.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="8.75" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="8.75" PointY="3.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Taocan" Width="1.5" PointX="8.75" PointY="6.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.User_type" Width="1.5" PointX="4.75" PointY="9.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="10.75" PointY="0.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="7.375" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

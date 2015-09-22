@@ -106,6 +106,7 @@
           <Property Name="Updated_time" Type="uint" Nullable="false" />
           <Property Name="CreatedBy" Type="int" Nullable="false" />
           <Property Name="UpdatedBy" Type="int" Nullable="false" />
+          <Property Name="SP_Id" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Resource_taocan">
           <Key>
@@ -219,13 +220,13 @@
           <EntitySet Name="Area" EntityType="KMBitDBContextModel.Area" />
           <EntitySet Name="Charge_history" EntityType="KMBitDBContextModel.Charge_history" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
-          <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
           <EntitySet Name="Sp" EntityType="KMBitDBContextModel.Sp" />
           <EntitySet Name="Taocan" EntityType="KMBitDBContextModel.Taocan" />
           <EntitySet Name="User_type" EntityType="KMBitDBContextModel.User_type" />
           <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
+          <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -311,24 +312,6 @@
           <Property Name="User_id" Type="Int32" Nullable="false" />
           <Property Name="Tranfser_Type" Type="SByte" Nullable="false" />
         </EntityType>
-        <EntityType Name="Resource">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
-          <Property Name="Province_Id" Type="Int32" Nullable="false" />
-          <Property Name="City_Id" Type="Int32" />
-          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Contact" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="Created_time" Type="Int64" Nullable="false" />
-          <Property Name="Updated_time" Type="Int64" Nullable="false" />
-          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
-          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
-        </EntityType>
         <EntityType Name="Resource_taocan">
           <Key>
             <PropertyRef Name="Id" />
@@ -410,6 +393,25 @@
           <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
           <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
           <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Resource">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="Province_Id" Type="Int32" Nullable="false" />
+          <Property Name="City_Id" Type="Int32" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Contact" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="Created_time" Type="Int64" Nullable="false" />
+          <Property Name="Updated_time" Type="Int64" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
+          <Property Name="SP_Id" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -509,25 +511,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Resource">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource">
-              <MappingFragment StoreEntitySet="Resource">
-                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
-                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Contact" ColumnName="Contact" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="City_Id" ColumnName="City_Id" />
-                <ScalarProperty Name="Province_Id" ColumnName="Province_Id" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Resource_taocan">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
               <MappingFragment StoreEntitySet="Resource_taocan">
@@ -612,6 +595,26 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Regtime" ColumnName="Regtime" />
                 <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Resource">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource">
+              <MappingFragment StoreEntitySet="Resource">
+                <ScalarProperty Name="SP_Id" ColumnName="SP_Id" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
+                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City_Id" ColumnName="City_Id" />
+                <ScalarProperty Name="Province_Id" ColumnName="Province_Id" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

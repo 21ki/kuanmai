@@ -27,5 +27,6 @@ namespace KMBit.DAL
         public long Updated_time { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
+        public int SP_Id { get; set; }
     }
 }
