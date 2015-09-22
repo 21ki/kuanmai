@@ -47,6 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseManagement.cs" />
+    <Compile Include="BResource.cs" />
+    <Compile Include="BResourceTaocan.cs" />
     <Compile Include="BUser.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />
