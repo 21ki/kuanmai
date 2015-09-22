@@ -29,7 +29,6 @@ namespace KMBit.DAL
         public DbSet<Area> Area { get; set; }
         public DbSet<Charge_history> Charge_history { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
-        public DbSet<Resource> Resource { get; set; }
         public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
         public DbSet<Sp> Sp { get; set; }
         public DbSet<Taocan> Taocan { get; set; }
@@ -39,6 +38,7 @@ namespace KMBit.DAL
         public DbSet<Users> Users { get; set; }
         public DbSet<Admin_Users_Actions> Admin_Users_Actions { get; set; }
         public DbSet<Admin_Users> Admin_Users { get; set; }
+        public DbSet<Resource> Resource { get; set; }
         public DbSet<Resource_taocan> Resource_taocan { get; set; }
     }
 }
