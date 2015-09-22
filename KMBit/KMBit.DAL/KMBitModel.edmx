@@ -49,7 +49,10 @@
           <Property Name="Sale_price" Type="float" Nullable="false" />
           <Property Name="Purchase_price" Type="float" Nullable="false" />
           <Property Name="Create_time" Type="uint" Nullable="false" />
-          <Property Name="Status" Type="tinyint" Nullable="false" />
+          <Property Name="Enabled" Type="bool" Nullable="false" />
+          <Property Name="CreatedBy" Type="int" Nullable="false" />
+          <Property Name="Update_time" Type="uint" Nullable="false" />
+          <Property Name="UpdatedBy" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Area">
           <Key>
@@ -137,6 +140,13 @@
           <Property Name="Interface_classname" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Interface_assemblyname" Type="varchar" MaxLength="100" Nullable="false" />
         </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="varchar" MaxLength="128" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="256" Nullable="false" />
+        </EntityType>
         <EntityType Name="Sp">
           <Key>
             <PropertyRef Name="Id" />
@@ -162,6 +172,33 @@
           </Key>
           <Property Name="Id" Type="tinyint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="UserClaims">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="ClaimType" Type="longtext" />
+          <Property Name="ClaimValue" Type="longtext" />
+        </EntityType>
+        <EntityType Name="UserLogins">
+          <Key>
+            <PropertyRef Name="LoginProvider" />
+            <PropertyRef Name="ProviderKey" />
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="LoginProvider" Type="varchar" MaxLength="128" Nullable="false" />
+          <Property Name="ProviderKey" Type="varchar" MaxLength="128" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserRoles">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="RoleId" Type="varchar" MaxLength="128" Nullable="false" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -202,9 +239,13 @@
           <EntitySet Name="Resource" EntityType="Self.Resource" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resource_taocan" EntityType="Self.Resource_taocan" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resrouce_interface" EntityType="Self.Resrouce_interface" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="Roles" EntityType="Self.Roles" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Sp" EntityType="Self.Sp" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Taocan" EntityType="Self.Taocan" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="User_type" EntityType="Self.User_type" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="UserClaims" EntityType="Self.UserClaims" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="UserLogins" EntityType="Self.UserLogins" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="UserRoles" EntityType="Self.UserRoles" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="chargebit" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -216,7 +257,6 @@
           <EntitySet Name="Admin_Categories" EntityType="KMBitDBContextModel.Admin_Categories" />
           <EntitySet Name="Admin_Users" EntityType="KMBitDBContextModel.Admin_Users" />
           <EntitySet Name="Admin_Users_Actions" EntityType="KMBitDBContextModel.Admin_Users_Actions" />
-          <EntitySet Name="Agent_route" EntityType="KMBitDBContextModel.Agent_route" />
           <EntitySet Name="Area" EntityType="KMBitDBContextModel.Area" />
           <EntitySet Name="Charge_history" EntityType="KMBitDBContextModel.Charge_history" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
@@ -227,6 +267,11 @@
           <EntitySet Name="User_type" EntityType="KMBitDBContextModel.User_type" />
           <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
+          <EntitySet Name="Agent_route" EntityType="KMBitDBContextModel.Agent_route" />
+          <EntitySet Name="Roles" EntityType="KMBitDBContextModel.Roles" />
+          <EntitySet Name="UserClaims" EntityType="KMBitDBContextModel.UserClaims" />
+          <EntitySet Name="UserLogins" EntityType="KMBitDBContextModel.UserLogins" />
+          <EntitySet Name="UserRoles" EntityType="KMBitDBContextModel.UserRoles" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -261,18 +306,6 @@
           </Key>
           <Property Name="User_Id" Type="Int32" Nullable="false" />
           <Property Name="Action_Id" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Agent_route">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
-          <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
-          <Property Name="Sale_price" Type="Single" Nullable="false" />
-          <Property Name="Purchase_price" Type="Single" Nullable="false" />
-          <Property Name="Create_time" Type="Int64" Nullable="false" />
-          <Property Name="Status" Type="SByte" Nullable="false" />
         </EntityType>
         <EntityType Name="Area">
           <Key>
@@ -413,6 +446,55 @@
           <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
           <Property Name="SP_Id" Type="Int32" Nullable="false" />
         </EntityType>
+        <EntityType Name="Agent_route">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="User_id" Type="Int32" Nullable="false" />
+          <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
+          <Property Name="Sale_price" Type="Single" Nullable="false" />
+          <Property Name="Purchase_price" Type="Single" Nullable="false" />
+          <Property Name="Create_time" Type="Int64" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="Update_time" Type="Int64" Nullable="false" />
+          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Roles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="UserClaims">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="ClaimType" Type="String" MaxLength="1073741823" FixedLength="false" Unicode="false" />
+          <Property Name="ClaimValue" Type="String" MaxLength="1073741823" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="UserLogins">
+          <Key>
+            <PropertyRef Name="LoginProvider" />
+            <PropertyRef Name="ProviderKey" />
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="LoginProvider" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="ProviderKey" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserRoles">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="RoleId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -454,19 +536,6 @@
               <MappingFragment StoreEntitySet="Admin_Users_Actions">
                 <ScalarProperty Name="Action_Id" ColumnName="Action_Id" />
                 <ScalarProperty Name="User_Id" ColumnName="User_Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Agent_route">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Agent_route">
-              <MappingFragment StoreEntitySet="Agent_route">
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Create_time" ColumnName="Create_time" />
-                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
-                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
-                <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -616,6 +685,57 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Agent_route">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Agent_route">
+              <MappingFragment StoreEntitySet="Agent_route">
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="Update_time" ColumnName="Update_time" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Create_time" ColumnName="Create_time" />
+                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
+                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
+                <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Roles">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Roles">
+              <MappingFragment StoreEntitySet="Roles">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserClaims">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.UserClaims">
+              <MappingFragment StoreEntitySet="UserClaims">
+                <ScalarProperty Name="ClaimValue" ColumnName="ClaimValue" />
+                <ScalarProperty Name="ClaimType" ColumnName="ClaimType" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserLogins">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.UserLogins">
+              <MappingFragment StoreEntitySet="UserLogins">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ProviderKey" ColumnName="ProviderKey" />
+                <ScalarProperty Name="LoginProvider" ColumnName="LoginProvider" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserRoles">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.UserRoles">
+              <MappingFragment StoreEntitySet="UserRoles">
+                <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

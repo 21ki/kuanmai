@@ -7,7 +7,7 @@ using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.Util;
 
-namespace KMBit.BL
+namespace KMBit.BL.Admin
 {
     public class ResourceManagement:BaseManagement
     {
@@ -188,7 +188,8 @@ namespace KMBit.BL
                               CreatedBy = llcu,
                               UpdatedBy = lluu,
                               City = llcity,
-                              SP = llsp
+                              SP = llsp,
+                              Resource=new BResource() { Resource=r }
                           };
 
                 if(sTaocanId>0)

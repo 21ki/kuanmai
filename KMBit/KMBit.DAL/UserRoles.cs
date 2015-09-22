@@ -12,17 +12,9 @@ namespace KMBit.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Agent_route
+    public partial class UserRoles
     {
-        public int Id { get; set; }
-        public int User_id { get; set; }
-        public int Resource_taocan_id { get; set; }
-        public float Sale_price { get; set; }
-        public float Purchase_price { get; set; }
-        public long Create_time { get; set; }
-        public bool Enabled { get; set; }
-        public int CreatedBy { get; set; }
-        public long Update_time { get; set; }
-        public int UpdatedBy { get; set; }
+        public int UserId { get; set; }
+        public string RoleId { get; set; }
     }
 }

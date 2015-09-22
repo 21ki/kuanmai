@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BAgentRoute.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="BResource.cs" />
     <Compile Include="BResourceTaocan.cs" />

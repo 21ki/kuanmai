@@ -7,16 +7,17 @@ using System.Reflection;
 using log4net;
 using KMBit.DAL;
 using KMBit.Beans;
-namespace KMBit.BL
+namespace KMBit.BL.Admin
 {
     public class PermissionManagement:BaseManagement
     { 
         public PermissionManagement(int userId):base(userId)
+        {          
+        }
+
+        public PermissionManagement(BUser user) : base(user)
         {
-            if(this.logger==null)
-            {
-                this.logger = log4net.LogManager.GetLogger(typeof(PermissionManagement));
-            }            
+           
         }
 
         /// <summary>

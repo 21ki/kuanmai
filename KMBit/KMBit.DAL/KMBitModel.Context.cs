@@ -29,7 +29,6 @@ namespace KMBit.DAL
         public DbSet<Admin_Categories> Admin_Categories { get; set; }
         public DbSet<Admin_Users> Admin_Users { get; set; }
         public DbSet<Admin_Users_Actions> Admin_Users_Actions { get; set; }
-        public DbSet<Agent_route> Agent_route { get; set; }
         public DbSet<Area> Area { get; set; }
         public DbSet<Charge_history> Charge_history { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
@@ -40,5 +39,10 @@ namespace KMBit.DAL
         public DbSet<User_type> User_type { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Resource> Resource { get; set; }
+        public DbSet<Agent_route> Agent_route { get; set; }
+        public DbSet<Roles> Roles { get; set; }
+        public DbSet<UserClaims> UserClaims { get; set; }
+        public DbSet<UserLogins> UserLogins { get; set; }
+        public DbSet<UserRoles> UserRoles { get; set; }
     }
 }

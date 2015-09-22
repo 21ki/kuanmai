@@ -6,7 +6,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using KMBit.DAL;
-
+using KMBit.BL;
 namespace KMBit
 {
     public partial class Startup

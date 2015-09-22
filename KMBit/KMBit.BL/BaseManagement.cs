@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KMBit.Beans;
 using KMBit.DAL;
+using KMBit.BL.Admin;
 namespace KMBit.BL
 {
     public class BaseManagement
@@ -15,6 +16,7 @@ namespace KMBit.BL
         public BaseManagement(BUser user)
         {
             this.CurrentLoginUser = user;
+            this.InitializeLoggger();
         }
         public BaseManagement(Users user)
         {
@@ -22,10 +24,20 @@ namespace KMBit.BL
             {
                 this.CurrentLoginUser = this.GetUserInfo(user.Id);
             }
+            this.InitializeLoggger();
         }
         public BaseManagement(int userId)
         {
             this.CurrentLoginUser = this.GetUserInfo(userId);
+            this.InitializeLoggger();
+        }
+
+        protected virtual void InitializeLoggger()
+        {
+            if (this.logger == null)
+            {
+                this.logger = log4net.LogManager.GetLogger(this.GetType());
+            }
         }
 
         protected BUser GetUserInfo(int userId)

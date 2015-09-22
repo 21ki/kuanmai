@@ -100,10 +100,22 @@
     <Compile Include="Resrouce_interface.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Roles.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Sp.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Taocan.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserClaims.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserLogins.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserRoles.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Users.cs">
