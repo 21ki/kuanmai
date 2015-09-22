@@ -25,5 +25,7 @@ namespace KMBit.DAL
         public bool Enabled { get; set; }
         public long Created_time { get; set; }
         public long Updated_time { get; set; }
+        public int CreatedBy { get; set; }
+        public int UpdatedBy { get; set; }
     }
 }

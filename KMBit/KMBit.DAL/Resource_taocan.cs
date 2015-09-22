@@ -25,5 +25,7 @@ namespace KMBit.DAL
         public float Purchase_price { get; set; }
         public int Quantity { get; set; }
         public bool Enabled { get; set; }
+        public int CreatedBy { get; set; }
+        public int UpdatedBy { get; set; }
     }
 }
