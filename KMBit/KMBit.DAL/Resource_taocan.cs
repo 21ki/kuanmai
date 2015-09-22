@@ -23,5 +23,6 @@ namespace KMBit.DAL
         public long Updated_time { get; set; }
         public float Sale_price { get; set; }
         public float Purchase_price { get; set; }
+        public int Quantity { get; set; }
     }
 }

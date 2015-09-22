@@ -115,6 +115,7 @@
           <Property Name="Updated_time" Type="uint" Nullable="false" />
           <Property Name="Sale_price" Type="float" Nullable="false" />
           <Property Name="Purchase_price" Type="float" Nullable="false" />
+          <Property Name="Quantity" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Resrouce_interface">
           <Key>
@@ -263,20 +264,6 @@
           <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Contact" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Resource_taocan">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Resource_id" Type="Int32" Nullable="false" />
-          <Property Name="Sp_id" Type="Int32" Nullable="false" />
-          <Property Name="Area_id" Type="Int32" Nullable="false" />
-          <Property Name="Taocan_id" Type="Int32" Nullable="false" />
-          <Property Name="Created_time" Type="Int64" Nullable="false" />
-          <Property Name="Updated_time" Type="Int64" Nullable="false" />
-          <Property Name="Sale_price" Type="Single" Nullable="false" />
-          <Property Name="Purchase_price" Type="Single" Nullable="false" />
-        </EntityType>
         <EntityType Name="Resrouce_interface">
           <Key>
             <PropertyRef Name="Id" />
@@ -320,7 +307,6 @@
           <EntitySet Name="Charge_history" EntityType="Self.Charge_history" />
           <EntitySet Name="Payment_history" EntityType="Self.Payment_history" />
           <EntitySet Name="Resource" EntityType="Self.Resource" />
-          <EntitySet Name="Resource_taocan" EntityType="Self.Resource_taocan" />
           <EntitySet Name="Resrouce_interface" EntityType="Self.Resrouce_interface" />
           <EntitySet Name="Sp" EntityType="Self.Sp" />
           <EntitySet Name="Taocan" EntityType="Self.Taocan" />
@@ -330,6 +316,7 @@
           <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
           <EntitySet Name="Admin_Users_Actions" EntityType="KMBitDBContextModel.Admin_Users_Actions" />
           <EntitySet Name="Admin_Users" EntityType="KMBitDBContextModel.Admin_Users" />
+          <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -390,6 +377,21 @@
           <Property Name="IsWebMaster" Type="Boolean" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="IsSuperAdmin" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Resource_taocan">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Resource_id" Type="Int32" Nullable="false" />
+          <Property Name="Sp_id" Type="Int32" Nullable="false" />
+          <Property Name="Area_id" Type="Int32" Nullable="false" />
+          <Property Name="Taocan_id" Type="Int32" Nullable="false" />
+          <Property Name="Created_time" Type="Int64" Nullable="false" />
+          <Property Name="Updated_time" Type="Int64" Nullable="false" />
+          <Property Name="Sale_price" Type="Single" Nullable="false" />
+          <Property Name="Purchase_price" Type="Single" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -462,21 +464,6 @@
                 <ScalarProperty Name="Address" ColumnName="Address" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="Contact" ColumnName="Contact" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Resource_taocan">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
-              <MappingFragment StoreEntitySet="Resource_taocan">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
-                <ScalarProperty Name="Sp_id" ColumnName="Sp_id" />
-                <ScalarProperty Name="Area_id" ColumnName="Area_id" />
-                <ScalarProperty Name="Taocan_id" ColumnName="Taocan_id" />
-                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
-                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
-                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
-                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -583,6 +570,22 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="IsWebMaster" ColumnName="IsWebMaster" />
                 <ScalarProperty Name="User_Id" ColumnName="User_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Resource_taocan">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
+              <MappingFragment StoreEntitySet="Resource_taocan">
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
+                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
+                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
+                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
+                <ScalarProperty Name="Taocan_id" ColumnName="Taocan_id" />
+                <ScalarProperty Name="Area_id" ColumnName="Area_id" />
+                <ScalarProperty Name="Sp_id" ColumnName="Sp_id" />
+                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

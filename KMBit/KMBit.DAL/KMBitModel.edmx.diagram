@@ -10,7 +10,6 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Charge_history" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="6.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="0.75" PointY="7.75" IsExpanded="true" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Taocan" Width="1.5" PointX="2.75" PointY="7.75" IsExpanded="true" />
@@ -20,6 +19,7 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="5.375" PointY="10.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users_Actions" Width="1.5" PointX="7.375" PointY="9.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users" Width="1.5" PointX="9.375" PointY="6.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="9.375" PointY="9.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
