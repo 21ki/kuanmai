@@ -56,6 +56,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\KMBit.Beans\KMBit.Beans.csproj">
+      <Project>{416e6a8e-ade7-4475-b675-95c88f1f1c7f}</Project>
+      <Name>KMBit.Beans</Name>
+    </ProjectReference>
     <ProjectReference Include="..\KMBit.BL\KMBit.BL.csproj">
       <Project>{77c42282-41aa-4f62-b9c4-af5821f809e6}</Project>
       <Name>KMBit.BL</Name>

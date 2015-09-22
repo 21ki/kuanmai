@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.BL;
+using KMBit.Beans;
 namespace KMBitAdm
 {
     class Program
     {
         static void Main(string[] args)
         {
+            test();
+            return;
+
             if (args.Length==0)
             {
                 Console.WriteLine("Please provide the command.");
@@ -27,6 +31,12 @@ namespace KMBitAdm
                 default:
                     break;
             }
+        }
+
+        static void test()
+        {
+            ResourceManagement rmgt = new ResourceManagement(3);
+            List<BResource> resources = rmgt.FindResource(2,"xx");
         }
     }
 }

@@ -33,26 +33,10 @@ namespace KMBit.BL
                           from llca in lca.DefaultIfEmpty()
                           select new BResource
                           {
-                              Resource = new Resource()
-                              {
-                                  Address = s.Address,
-                                  City_Id = s.City_Id,
-                                  Contact = s.Contact,
-                                  CreatedBy = s.CreatedBy,
-                                  Created_time = s.Created_time,
-                                  Description = s.Description,
-                                  Email = s.Email,
-                                  Enabled = s.Enabled,
-                                  Id = s.Id,
-                                  Name = s.Name,
-                                  Province_Id = s.Province_Id,
-                                  SP_Id = s.SP_Id,
-                                  UpdatedBy = s.UpdatedBy,
-                                  Updated_time = s.Updated_time
-                              },
-                              City = new Area() { Id = s.City_Id != null ? (int)s.City_Id : 0, Name = llca != null ? llca.Name : "" },
-                              Province = new Area() { Id = s.Province_Id, Name = llpa != null ? llpa.Name : "" },
-                              SP = llsp != null ? new Sp() { Name = llsp.Name, Id = s.SP_Id } : null
+                              Resource = s,
+                              City = llca,
+                              Province = llpa,
+                              SP = llsp 
                           };
                 if(resourceId>0)
                 {

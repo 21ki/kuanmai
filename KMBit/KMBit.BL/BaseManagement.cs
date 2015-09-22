@@ -41,8 +41,18 @@ namespace KMBit.BL
                     user.IsSuperAdmin = au.IsSuperAdmin;
                     user.IsWebMaster = au.IsWebMaster;
                 }
-
-                user.Permission = PermissionManagement.GetUserPermissions(userId);
+                if (!user.IsSuperAdmin)
+                {
+                    user.Permission = PermissionManagement.GetUserPermissions(userId);
+                }else
+                {
+                    user.Permission = new Permissions();
+                    System.Reflection.FieldInfo[] fields = typeof(Permissions).GetFields();
+                    foreach(System.Reflection.FieldInfo field in fields)
+                    {
+                        field.SetValue(user.Permission, 1);
+                    }
+                }                
             }
             return user;
         }
