@@ -38,7 +38,7 @@ namespace KMBit.DAL
         public DbSet<Users> Users { get; set; }
         public DbSet<Admin_Users_Actions> Admin_Users_Actions { get; set; }
         public DbSet<Admin_Users> Admin_Users { get; set; }
-        public DbSet<Resource> Resource { get; set; }
         public DbSet<Resource_taocan> Resource_taocan { get; set; }
+        public DbSet<Resource> Resource { get; set; }
     }
 }

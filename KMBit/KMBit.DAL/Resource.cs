@@ -23,5 +23,7 @@ namespace KMBit.DAL
         public string Email { get; set; }
         public string Contact { get; set; }
         public bool Enabled { get; set; }
+        public long Created_time { get; set; }
+        public long Updated_time { get; set; }
     }
 }
