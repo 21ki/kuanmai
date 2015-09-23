@@ -122,11 +122,52 @@ namespace KMBit.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateResource(CreateResourceViewModel model)
         {
-            if(!ModelState.IsValid)
+            ResourceManagement resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            if (ModelState.IsValid)
             {
-                return View(model);
+                DAL.Resource resource = new DAL.Resource()
+                {
+                    Address = model.Address,
+                    City_Id = model.City,
+                    Contact = model.Contact,
+                    CreatedBy = User.Identity.GetUserId<int>(),
+                    Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    Description = model.Description,
+                    Email = model.Email,
+                    Enabled = true,
+                    Name = model.Name,
+                    Province_Id = model.Province,
+                    SP_Id = model.SP,
+                    UpdatedBy = User.Identity.GetUserId<int>(),
+                    Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now)
+                };
+
+                try
+                {
+                    if (resourceMgt.CreateResource(resource))
+                    {
+                        return RedirectToAction("Resources");
+                    }
+                }
+                catch (KMBitException ex)
+                {
+                    ViewBag.ErrMsg = ex.Message;
+                }
+                catch (Exception nex)
+                {
+                    ViewBag.ErrMsg = nex.Message;
+                }
+                finally
+                {
+                }
             }
 
+            provinces = resourceMgt.GetAreas(0);
+            sps = resourceMgt.GetSps();
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.SPs = new SelectList(sps, "Id", "Name");
             return View(model);
         }
 

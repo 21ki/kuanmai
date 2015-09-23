@@ -8,6 +8,10 @@ namespace KMBit.Models
     public class CreateResourceViewModel
     {
         [Required]
+        [Display(Name = "运营商")]
+        public int SP { get; set; }
+
+        [Required]
         [DataType(DataType.Text)]
         [Display(Name = "名称")]
         public string Name { get; set; }
@@ -34,18 +38,6 @@ namespace KMBit.Models
         
         [DataType(DataType.PhoneNumber)]
         [Display(Name = "联系电话")]
-        public string Contact { get; set; }
-        
-        [Display(Name = "运营商")]
-        public int SP { get; set; }
-       
-        //[Display(Name = "状态")]
-        //public int Enabled { get; set; }
-
-        //[Display(Name = "创建时间")]
-        //public int CreateTime { get; set; }
-
-        //[Display(Name = "更新时间")]
-        //public int UpdateTime { get; set; }
+        public string Contact { get; set; }        
     }
 }

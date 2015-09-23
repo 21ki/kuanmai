@@ -15,8 +15,12 @@
             $.post(
                 '../api/General/GetAreas',
                 {parentId:parentId},
-                function (res,status) {
-                    alert(res);
+                function (res, status) {
+                    $('#City').empty();
+                    $('#City').append("<option value=\"\">--选择城市--</option>");
+                    $(res.Item).each(function (index, item) {                       
+                        $('#City').append("<option value=\"" + item.Id + "\">" + item.Name + "</option>");
+                    });
                 }
             );
         });
