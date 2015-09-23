@@ -13,6 +13,11 @@ namespace KMBit.BL
     public class UserManagement : BaseManagement
     {
         private ApplicationUserManager userManager;
+
+        public UserManagement(string email):base(email)
+        {
+
+        }
         public UserManagement(int userId):base(userId)
         {
             if (this.logger == null)

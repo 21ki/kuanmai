@@ -22,3 +22,20 @@ select,
 textarea {
     max-width: 280px;
 }
+agentContainer {
+    width:100%;
+    overflow:hidden;
+}
+.agentLeftNav {
+    float:left;
+    width:20%;
+}
+    .agentLeftNav .menu {
+        padding-top:20px;
+        margin-right:20px;
+    }
+
+.agentRightNav {
+    float:left;
+    width:80%;
+}

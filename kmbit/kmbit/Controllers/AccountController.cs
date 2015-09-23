@@ -69,8 +69,6 @@ namespace KMBit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            
-
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -83,7 +81,7 @@ namespace KMBit.Controllers
             switch (result)
             {
                 case SignInStatus.Success:  
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToLocal(model.Email,returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -128,7 +126,7 @@ namespace KMBit.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(model.ReturnUrl);
+                    return RedirectToLocal(null,model.ReturnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.Failure:
@@ -339,7 +337,7 @@ namespace KMBit.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToLocal(null,returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -381,7 +379,7 @@ namespace KMBit.Controllers
                     if (result.Succeeded)
                     {
                         await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                        return RedirectToLocal(returnUrl);
+                        return RedirectToLocal(model.Email,returnUrl);
                     }
                 }
                 AddErrors(result);
@@ -449,11 +447,29 @@ namespace KMBit.Controllers
             }
         }
 
-        private ActionResult RedirectToLocal(string returnUrl)
+        private ActionResult RedirectToLocal(string loginEmail,string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
+            }
+
+            if(string.IsNullOrEmpty(loginEmail))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            
+            UserManagement umgt=new UserManagement(loginEmail);
+            if (umgt.CurrentLoginUser != null)
+            {
+                if(umgt.CurrentLoginUser.IsAdmin)
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Manage");
+                }                
             }
             return RedirectToAction("Index", "Home");
         }

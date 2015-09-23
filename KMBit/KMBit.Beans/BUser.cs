@@ -13,5 +13,6 @@ namespace KMBit.Beans
         public Permissions Permission;
         public bool IsWebMaster;
         public bool IsSuperAdmin;
+        public bool IsAdmin;
     }
 }
