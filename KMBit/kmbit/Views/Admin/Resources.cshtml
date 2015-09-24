@@ -4,7 +4,10 @@
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 }
 
-<h2>ViewBag.Title</h2>
+<h2>@ViewBag.Title</h2>
 
-@Html.ActionLink("新建资源", "CreateResource", "Admin")
+<a class="btn btn-primary" role="button" href="/Admin/CreateResource">
+    新建资源
+</a>
 
+@Html.Partial("_ResourceGrid")

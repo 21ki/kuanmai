@@ -20,7 +20,7 @@ namespace KMBit.BL
         }
         public BaseManagement(Users user)
         {
-            if(user!=null)
+            if (user != null)
             {
                 this.CurrentLoginUser = this.GetUserInfo(user.Id);
             }
@@ -47,7 +47,7 @@ namespace KMBit.BL
 
         protected BUser GetUserInfo(int userId)
         {
-            if(userId<=0)
+            if (userId <= 0)
             {
                 return null;
             }
@@ -67,22 +67,22 @@ namespace KMBit.BL
                 if (!user.IsSuperAdmin)
                 {
                     user.Permission = PermissionManagement.GetUserPermissions(userId);
-                }else
+                } else
                 {
                     user.Permission = new Permissions();
                     System.Reflection.FieldInfo[] fields = typeof(Permissions).GetFields();
-                    foreach(System.Reflection.FieldInfo field in fields)
+                    foreach (System.Reflection.FieldInfo field in fields)
                     {
                         field.SetValue(user.Permission, 1);
                     }
-                }                
+                }
             }
             return user;
         }
 
         protected BUser GetUserInfo(string email)
         {
-            if(string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
                 return null;
             }
@@ -122,9 +122,9 @@ namespace KMBit.BL
             using (chargebitEntities db = new chargebitEntities())
             {
                 var tmp = from a in db.Area select a;
-                if(parentId>0)
+                if (parentId > 0)
                 {
-                    tmp = tmp.Where(a=>a.Upid==parentId);
+                    tmp = tmp.Where(a => a.Upid == parentId);
                 }
                 else
                 {
@@ -153,7 +153,29 @@ namespace KMBit.BL
             {
                 types = (from t in db.User_type orderby t.Id select t).ToList<User_type>();
             }
-                return types;
+            return types;
+        }
+
+        protected void SyncObjectProperties(object o1, object o2)
+        {
+            if(o1==null || o2==null)
+            {
+                return;
+            }
+
+            if(o1.GetType().ToString()!=o2.GetType().ToString())
+            {
+                return;
+            }
+
+            System.Reflection.PropertyInfo[] properties = o1.GetType().GetProperties();
+            if (properties == null || properties.Length == 0) {
+                return;
+            }
+            foreach(System.Reflection.PropertyInfo property in properties)
+            {
+                property.SetValue(o1, property.GetValue(o2));
+            }
         }
     }
 }

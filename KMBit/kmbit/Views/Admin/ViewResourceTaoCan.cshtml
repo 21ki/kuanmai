@@ -1,0 +1,15 @@
+﻿
+@{
+    ViewBag.Title = "资源套餐";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    KMBit.Beans.BResource resource = null;
+    if (ViewBag.Resource != null) {
+        resource = (KMBit.Beans.BResource)ViewBag.Resource;
+    }
+}
+
+<h2>@ViewBag.Title</h2>
+
+<a class="btn btn-primary" role="button" href="/Admin/CreateResourceTaocan?resourceId=@Html.Raw(resource!=null?resource.Resource.Id:0)">
+    新建套餐
+</a>

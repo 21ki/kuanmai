@@ -8,13 +8,14 @@ namespace KMBit.Beans
 {
     public enum KMBitExceptionType {
          INFO,
-         ERROR
+         ERROR,
+         WARN
     }
 
     public class KMBitException:Exception
     {
         public KMBitExceptionType Type { get; private set; }
-        public KMBitException(KMBitExceptionType type= KMBitExceptionType.INFO)
+        public KMBitException(KMBitExceptionType type= KMBitExceptionType.WARN)
         {
             this.Type = type;
         }

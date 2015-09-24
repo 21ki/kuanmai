@@ -20,6 +20,7 @@ namespace KMBit.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ResourceManagement resourceMgt;
         public ApplicationSignInManager SignInManager
         {
             get
@@ -45,6 +46,7 @@ namespace KMBit.Controllers
         }
         public AdminController()
         {
+            
         }
 
         public AdminController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
@@ -107,53 +109,116 @@ namespace KMBit.Controllers
             return View(model);
         }
 
-
         public ActionResult CreateResource()
         {
-            ResourceManagement resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
             List<KMBit.DAL.Area> provinces = resourceMgt.GetAreas(0);
             List<KMBit.DAL.Sp> sps = resourceMgt.GetSps();
             //List<SelectListItem> selProvinces = (from p in provinces select new SelectListItem { Text=p.Name,Value=p.Id.ToString() }).ToList<SelectListItem>();            
             ViewBag.Provinces = new SelectList(provinces,"Id","Name");
+            ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
-            return View();
+            return View("CreateResource");
         }
+
+        public ActionResult EditResource(int id)
+        {
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if (id <= 0)
+            {
+                ViewBag.Message = "id格式不正确";
+                return View("Error");
+            }
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            if (resources == null)
+            {
+                ViewBag.Message = "试图编辑的资源不存在";
+                return View("Error");
+            }
+
+            BResource resouce = resources[0];
+            ResourceModel model = new ResourceModel()
+            {
+                Address = resouce.Resource.Address,
+                City = (int)resouce.Resource.City_Id,
+                Contact = resouce.Resource.Contact,
+                Description = resouce.Resource.Description,
+                Email = resouce.Resource.Email,
+                Enabled = resouce.Resource.Enabled,
+                Id = resouce.Resource.Id,
+                Name = resouce.Resource.Name,
+                Province = resouce.Resource.Province_Id,
+                SP = resouce.Resource.SP_Id
+            };
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            provinces = resourceMgt.GetAreas(0);
+            sps = resourceMgt.GetSps();
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province), "Id", "Name");
+            ViewBag.SPs = new SelectList(sps, "Id", "Name");
+            return View("CreateResource", model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateResource(CreateResourceViewModel model)
+        public ActionResult UpdateResource(ResourceModel model)
         {
-            ResourceManagement resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
             List<KMBit.DAL.Area> provinces = null;
             List<KMBit.DAL.Sp> sps = null;
             if (ModelState.IsValid)
             {
-                DAL.Resource resource = new DAL.Resource()
+                DAL.Resource resource = null;
+                if (model.Id > 0)
                 {
-                    Address = model.Address,
-                    City_Id = model.City,
-                    Contact = model.Contact,
-                    CreatedBy = User.Identity.GetUserId<int>(),
-                    Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
-                    Description = model.Description,
-                    Email = model.Email,
-                    Enabled = true,
-                    Name = model.Name,
-                    Province_Id = model.Province,
-                    SP_Id = model.SP,
-                    UpdatedBy = User.Identity.GetUserId<int>(),
-                    Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now)
-                };
+                    List<BResource> resources = resourceMgt.FindResources(model.Id, null, 0);
+                    if (resources == null)
+                    {
+                        ViewBag.Message = "试图编辑的资源不存在";
+                        return View("Error");
+                    }
+                    BResource bresouce = resources[0];
+                    resource = bresouce.Resource;
+                }
+                else
+                {                    
+                    resource = new DAL.Resource();
+                    resource.Name = model.Name;
+                    resource.CreatedBy = User.Identity.GetUserId<int>();
+                    resource.Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                }
+
+                resource.Address = model.Address;
+                resource.City_Id = model.City;
+                resource.Contact = model.Contact;               
+                resource.Description = model.Description;
+                resource.Email = model.Email;
+                resource.Enabled = model.Enabled;                
+                resource.Province_Id = model.Province;
+                resource.SP_Id = model.SP;
+                resource.UpdatedBy = User.Identity.GetUserId<int>();
+                resource.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
 
                 try
                 {
-                    if (resourceMgt.CreateResource(resource))
+                    bool result = false;
+                    if(resource.Id<=0)
+                    {
+                        result = resourceMgt.CreateResource(resource);                       
+                    }else
+                    {
+                        result = resourceMgt.UpdateResource(resource);
+                    }
+                    if (result)
                     {
                         return RedirectToAction("Resources");
                     }
+                    
                 }
                 catch (KMBitException ex)
                 {
-                    ViewBag.ErrMsg = ex.Message;
+                    ViewBag.Exception = ex;
                 }
                 catch (Exception nex)
                 {
@@ -167,12 +232,84 @@ namespace KMBit.Controllers
             provinces = resourceMgt.GetAreas(0);
             sps = resourceMgt.GetSps();
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             return View(model);
         }
 
         public ActionResult Resources()
         {
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            var resources = resourceMgt.FindResources(0, null, 0);
+            return View(resources);
+        }
+
+        [HttpGet]
+        [ValidateInput(false)]
+        public ActionResult CreateResourceTaocan()
+        {
+            int id = 0;
+            int.TryParse(Request["resourceId"], out id);
+            ResourceTaocanModel mode = new ResourceTaocanModel(); 
+            if (id <= 0)
+            {
+                ViewBag.Message = "资源信息丢失";
+                return View("Error");
+            }
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            if(resources == null || resources.Count==0)
+            {
+                ViewBag.Message = "资源信息丢失";
+                return View("Error");
+            }
+            BResource resource = resources[0];
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            provinces = resourceMgt.GetAreas(0);
+            sps = resourceMgt.GetSps();
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            ViewBag.SPs = new SelectList(sps, "Id", "Name");
+            ViewBag.Resource = resource;
+            mode.ResoucedId = id;
+            return View(mode);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateResourceTaocan(ResourceTaocanModel model)
+        {
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if (ModelState.IsValid) {
+
+            }
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            provinces = resourceMgt.GetAreas(0);
+            sps = resourceMgt.GetSps();
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province!=null?(int)model.Province:0), "Id", "Name");
+            ViewBag.SPs = new SelectList(sps, "Id", "Name");
+
+            return View(model);
+        }
+
+        [ValidateInput(false)]
+        public ActionResult ViewResourceTaoCan(int resourceId)
+        {
+            int id = resourceId;            
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            if (resources == null || resources.Count == 0)
+            {
+                ViewBag.Message = "资源信息丢失";
+                return View("Error");
+            }
+            BResource resource = resources[0];            
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            ViewBag.Resource = resource;
             return View();
         }
 

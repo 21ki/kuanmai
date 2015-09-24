@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.BL;
+using KMBit.BL.Admin;
 using KMBit.Beans;
 namespace KMBitAdm
 {
@@ -36,7 +37,7 @@ namespace KMBitAdm
         static void test()
         {
             ResourceManagement rmgt = new ResourceManagement(3);
-            List<BResource> resources = rmgt.FindResource(2,"xx");
+            List<BResource> resources = rmgt.FindResources(2,"xx",0);
         }
     }
 }

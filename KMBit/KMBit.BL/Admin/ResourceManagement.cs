@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.Util;
-
+using log4net;
 namespace KMBit.BL.Admin
 {
     public class ResourceManagement:BaseManagement
@@ -19,7 +21,7 @@ namespace KMBit.BL.Admin
             }
         }
 
-        public List<BResource> FindResource(int resourceId,string resourceName)
+        public List<BResource> FindResources(int resourceId,string resourceName,int spId)
         {
             List<BResource> resources = null;
             using (chargebitEntities db = new chargebitEntities())
@@ -44,7 +46,11 @@ namespace KMBit.BL.Admin
                               CreatedBy=llcu,
                               UpdatedBy=lluu
                           };
-                if(resourceId>0)
+                if(spId>0)
+                {
+                    tmp = tmp.Where(s => s.Resource.SP_Id == spId);
+                }                
+                if (resourceId>0)
                 {
                     tmp = tmp.Where(s=>s.Resource.Id==resourceId);
                 }
@@ -52,7 +58,6 @@ namespace KMBit.BL.Admin
                 {
                     tmp = tmp.Where(s=>s.Resource.Name.Contains(resourceName));
                 }
-
                 tmp.OrderBy(s => s.Resource.Created_time);
 
                 resources = tmp.ToList<BResource>();
@@ -80,6 +85,13 @@ namespace KMBit.BL.Admin
                 logger.Error("resource name cannot be empty");
                 throw new KMBitException("资源名称不能为空");
             }
+            List<BResource> existResources = FindResources(0, resource.Name,0);
+            if(existResources!=null && existResources.Count>0)
+            {
+                logger.Error(string.Format("Resource name:{0} is already existed", resource.Name));
+                throw new KMBitException(string.Format("资源名称:{0} 已经存在", resource.Name));
+            }
+
             resource.Enabled = true;
             resource.Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
             resource.Updated_time = resource.Created_time;
@@ -116,8 +128,9 @@ namespace KMBit.BL.Admin
             }
             using (chargebitEntities db = new chargebitEntities())
             {
-                resource.Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                db.Resource.Attach(resource);               
+                Resource dbResource = (from r in db.Resource where r.Id==resource.Id select r).FirstOrDefault<Resource>();
+                //db.Resource.Attach(dbResource);  
+                SyncObjectProperties(dbResource, resource);             
                 db.SaveChanges();
                 ret = true;
             }
