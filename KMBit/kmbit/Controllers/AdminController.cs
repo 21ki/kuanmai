@@ -241,7 +241,7 @@ namespace KMBit.Controllers
 
         public ActionResult Resources()
         {
-            int pageSize = 1;
+            int pageSize = 20;
             int requestPage = 1;
             int.TryParse(Request["page"], out requestPage);
             requestPage = requestPage == 0 ? 1 : requestPage;
@@ -298,7 +298,42 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult UpdateResourceTaocan(int taocanId)
         {
-            ResourceTaocanModel model = new ResourceTaocanModel();
+            if(taocanId<=0)
+            {
+                ViewBag.Message = "套餐信息丢失";
+                return View("Error");
+            }
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(taocanId, 0, 0, out total, 1, 1);
+            if(total==0)
+            {
+                ViewBag.Message = "编号为"+taocanId+"的套餐不存在";
+                return View("Error");
+            }
+            BResourceTaocan bTaocan = resourceTaocans[0];
+            ResourceTaocanModel model = new ResourceTaocanModel() { City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
+            ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id};
+            if(bTaocan.City!=null && bTaocan.City.Id>0)
+            {
+                model.Province = bTaocan.City.Upid;
+            }           
+
+            List<KMBit.DAL.Area> provinces = null;
+            List<KMBit.DAL.Sp> sps = null;
+            provinces = resourceMgt.GetAreas(0);
+            sps = resourceMgt.GetSps();
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            if (model.City > 0)
+            {
+                ViewBag.Cities = new SelectList(resourceMgt.GetAreas((int)model.Province), "Id", "Name");
+            }
+            else
+            {
+                ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            }
+            
+            ViewBag.SPs = new SelectList(sps, "Id", "Name");
+            ViewBag.Resource = bTaocan.Resource;
             return View("CreateResourceTaocan",model);
         }
 
@@ -335,7 +370,14 @@ namespace KMBit.Controllers
                 taocan.Sp_id = model.SP != null ? (int)model.SP : 0;               
                 taocan.UpdatedBy = User.Identity.GetUserId<int>();
                 taocan.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                ret = resourceMgt.CreateResourceTaocan(taocan);
+                if (model.Id <= 0)
+                {
+                    ret = resourceMgt.CreateResourceTaocan(taocan);
+                }else
+                {
+                    ret = resourceMgt.UpdateResourceTaocan(taocan);
+                }
+                
                 if (ret)
                 {
                     return Redirect("/Admin/ViewResourceTaoCan?resourceId=" + model.ResoucedId);
@@ -360,7 +402,7 @@ namespace KMBit.Controllers
             List<BResource> resources = resourceMgt.FindResources(id, null, 0,out total);
             if (resources == null || resources.Count == 0)
             {               
-                return View("资源信息丢失");
+                return View("Error");
             }
             int pageSize = 25;
             int requestPage = 1;

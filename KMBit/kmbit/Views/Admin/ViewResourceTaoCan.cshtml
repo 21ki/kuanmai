@@ -19,12 +19,14 @@
     columns.Add(c =>c.Resource.Resource.Name).Titled("资源名称").Filterable(true).SetWidth("20%");
     columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("15%");
     columns.Add(c => c.Taocan.Quantity).Titled("流量大小").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.Taocan.Sale_price).Titled("售价").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.Taocan.Purchase_price).Titled("成本价").Filterable(true).SetWidth("10%");
     columns.Add(c => c.City.Name).Titled("使用城市").Filterable(true).SetWidth("15%");
     columns.Add()
     .Encoded(false)
     .Sanitized(false)
     .SetWidth("10%")
-    .RenderValueAs(o => Html.ActionLink("编辑", "UpdateResourceTaocan", new { id = o.Taocan.Id }));
+    .RenderValueAs(o => Html.ActionLink("编辑", "UpdateResourceTaocan", new { taocanId = o.Taocan.Id }));
 }).Sortable(true)
 
 

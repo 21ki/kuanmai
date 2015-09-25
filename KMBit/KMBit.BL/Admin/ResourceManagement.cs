@@ -184,6 +184,33 @@ namespace KMBit.BL.Admin
             return ret;
         }
 
+        public bool UpdateResourceTaocan(Resource_taocan taocan)
+        {
+            bool ret = false;
+            if (CurrentLoginUser.Permission.UPDATE_RESOURCE_TAOCAN == 0)
+            {
+                throw new KMBitException("没有权限更新资源套餐");
+            }
+            if(taocan==null || taocan.Id<=0)
+            {
+                throw new KMBitException("输入数据不正确，不能更新套餐");
+            }
+            
+            
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Resource_taocan dbTaocan = (from t in db.Resource_taocan where t.Id==taocan.Id select t).FirstOrDefault<Resource_taocan>();
+                if(dbTaocan==null)
+                {
+                    throw new KMBitException("套餐不存在不能更新");
+                }
+                SyncObjectProperties(dbTaocan, taocan);
+                db.SaveChanges();
+                ret = true;
+            }
+            return ret;
+        }
+
         public bool CreateResourceTaocan(Resource_taocan taocan)
         {
             bool ret = false;
