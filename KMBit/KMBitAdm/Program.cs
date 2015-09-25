@@ -37,7 +37,8 @@ namespace KMBitAdm
         static void test()
         {
             ResourceManagement rmgt = new ResourceManagement(3);
-            List<BResource> resources = rmgt.FindResources(2,"xx",0);
+            int total;
+            List<BResource> resources = rmgt.FindResources(2,"xx",0,out total);
         }
     }
 }

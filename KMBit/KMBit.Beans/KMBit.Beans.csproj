@@ -52,6 +52,7 @@
     <Compile Include="BUser.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />
+    <Compile Include="PageItemsResult.cs" />
     <Compile Include="PermissionCategory.cs" />
     <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

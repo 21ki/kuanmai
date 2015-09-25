@@ -18,6 +18,7 @@ namespace KMBit.Controllers
     [Authorize]
     public class AdminController : Controller
     {
+        int total;
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
         private ResourceManagement resourceMgt;
@@ -121,6 +122,7 @@ namespace KMBit.Controllers
             return View("CreateResource");
         }
 
+        [ValidateInput(false)]
         public ActionResult EditResource(int id)
         {
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
@@ -129,7 +131,7 @@ namespace KMBit.Controllers
                 ViewBag.Message = "id格式不正确";
                 return View("Error");
             }
-            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0,out total);
             if (resources == null)
             {
                 ViewBag.Message = "试图编辑的资源不存在";
@@ -172,7 +174,7 @@ namespace KMBit.Controllers
                 DAL.Resource resource = null;
                 if (model.Id > 0)
                 {
-                    List<BResource> resources = resourceMgt.FindResources(model.Id, null, 0);
+                    List<BResource> resources = resourceMgt.FindResources(model.Id, null, 0,out total);
                     if (resources == null)
                     {
                         ViewBag.Message = "试图编辑的资源不存在";
@@ -239,25 +241,35 @@ namespace KMBit.Controllers
 
         public ActionResult Resources()
         {
-            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
-            var resources = resourceMgt.FindResources(0, null, 0);
-            return View(resources);
+            int pageSize = 1;
+            int requestPage = 1;
+            int.TryParse(Request["page"], out requestPage);
+            requestPage = requestPage == 0 ? 1 : requestPage;
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());            
+            var resources = resourceMgt.FindResources(0, null, 0,out total,requestPage,pageSize);
+            PageItemsResult<BResource> result = new PageItemsResult<BResource>() { CurrentPage = requestPage, Items = resources, PageSize = pageSize, TotalRecords = total };
+            KMBit.Grids.KMGrid<BResource> grid = new Grids.KMGrid<BResource>(result);
+            return View(grid);
         }
 
         [HttpGet]
         [ValidateInput(false)]
-        public ActionResult CreateResourceTaocan()
+        public ActionResult CreateResourceTaocan(int? resourceId)
         {
-            int id = 0;
-            int.TryParse(Request["resourceId"], out id);
-            ResourceTaocanModel mode = new ResourceTaocanModel(); 
+            if(resourceId==null)
+            {
+                ViewBag.Message = "资源信息丢失";
+                return View("Error");
+            }
+            int id = (int)resourceId;            
+            ResourceTaocanModel mode = new ResourceTaocanModel() { ResoucedId=id}; 
             if (id <= 0)
             {
                 ViewBag.Message = "资源信息丢失";
                 return View("Error");
             }
-            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
-            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());            
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0, out total);
             if(resources == null || resources.Count==0)
             {
                 ViewBag.Message = "资源信息丢失";
@@ -272,7 +284,7 @@ namespace KMBit.Controllers
             ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             ViewBag.Resource = resource;
-            mode.ResoucedId = id;
+            mode.Enabled = true;           
             return View(mode);
         }
 
@@ -280,37 +292,85 @@ namespace KMBit.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreateResourceTaocan(ResourceTaocanModel model)
         {
-            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
-            if (ModelState.IsValid) {
+            return UpdateResourceTaocan(model);
+        }
 
+        [HttpGet]
+        public ActionResult UpdateResourceTaocan(int taocanId)
+        {
+            ResourceTaocanModel model = new ResourceTaocanModel();
+            return View("CreateResourceTaocan",model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateResourceTaocan(ResourceTaocanModel model)
+        {
+            bool ret = false;
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if (ModelState.IsValid)
+            {
+                KMBit.DAL.Resource_taocan taocan = null;
+                if(model.Id>0)
+                {
+                    int total = 0;
+                    List<BResourceTaocan> ts = resourceMgt.FindResourceTaocans(model.Id, 0, 0, out total);
+                    if (total == 1)
+                    {
+                        taocan = ts[0].Taocan;
+                    }
+                }else
+                {
+                    taocan = new DAL.Resource_taocan();
+                    taocan.CreatedBy = User.Identity.GetUserId<int>();
+                    taocan.Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    taocan.Quantity = model.Quantity;
+                    taocan.Resource_id = model.ResoucedId;
+                }
+                
+                taocan.Area_id = model.City != null ? (int)model.City : 0;                            
+                taocan.Enabled = model.Enabled;
+                taocan.Purchase_price = model.PurchasePrice;
+                taocan.Sale_price = model.SalePrice;
+                taocan.Sp_id = model.SP != null ? (int)model.SP : 0;               
+                taocan.UpdatedBy = User.Identity.GetUserId<int>();
+                taocan.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                ret = resourceMgt.CreateResourceTaocan(taocan);
+                if (ret)
+                {
+                    return Redirect("/Admin/ViewResourceTaoCan?resourceId=" + model.ResoucedId);
+                }
             }
             List<KMBit.DAL.Area> provinces = null;
             List<KMBit.DAL.Sp> sps = null;
             provinces = resourceMgt.GetAreas(0);
             sps = resourceMgt.GetSps();
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
-            ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province!=null?(int)model.Province:0), "Id", "Name");
+            ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province != null ? (int)model.Province : 0), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
 
-            return View(model);
+            return View("CreateResourceTaocan",model);
         }
 
         [ValidateInput(false)]
-        public ActionResult ViewResourceTaoCan(int resourceId)
+        public ActionResult ViewResourceTaoCan(int? resourceId)
         {
-            int id = resourceId;            
+            int id = resourceId??0;            
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
-            List<BResource> resources = resourceMgt.FindResources(id, null, 0);
+            List<BResource> resources = resourceMgt.FindResources(id, null, 0,out total);
             if (resources == null || resources.Count == 0)
-            {
-                ViewBag.Message = "资源信息丢失";
-                return View("Error");
+            {               
+                return View("资源信息丢失");
             }
-            BResource resource = resources[0];            
-            List<KMBit.DAL.Area> provinces = null;
-            List<KMBit.DAL.Sp> sps = null;
-            ViewBag.Resource = resource;
-            return View();
+            int pageSize = 25;
+            int requestPage = 1;
+            int.TryParse(Request["page"], out requestPage);
+            requestPage = requestPage == 0 ? 1 : requestPage;
+            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(0, id, 0, out total, requestPage, pageSize);
+            PageItemsResult<BResourceTaocan> result = new PageItemsResult<BResourceTaocan>() { CurrentPage = requestPage, Items = resourceTaocans, PageSize = pageSize, TotalRecords = total };
+            KMBit.Grids.KMGrid<BResourceTaocan> grid = new Grids.KMGrid<BResourceTaocan>(result);
+            ViewBag.Resource = resources[0];
+            return View(grid);
         }
 
         private void AddErrors(IdentityResult result)

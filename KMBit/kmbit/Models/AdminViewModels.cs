@@ -19,6 +19,7 @@ namespace KMBit.Models
 
         [Required]
         [Display(Name = "流量大小")]
+        [Range(1, int.MaxValue, ErrorMessage = "流量大小必须为整数，单位为M")]
         public int Quantity { get; set; }
 
         [Display(Name = "省份")]
@@ -28,11 +29,13 @@ namespace KMBit.Models
         public int? City { get; set; }
 
         [Display(Name = "售价")]
-        [DataType(DataType.Currency)]
+        [Required]
+        [Range(1, float.MaxValue, ErrorMessage = "售价必须为数字，可带小数")]
         public float SalePrice { get; set; }
 
         [Display(Name = "成本价")]
-        [DataType(DataType.Currency)]
+        [Required]
+        [Range(1, float.MaxValue, ErrorMessage = "成本价必须为数字，可带小数")]
         public float PurchasePrice { get; set; }
 
         [Display(Name = "是否启用")]

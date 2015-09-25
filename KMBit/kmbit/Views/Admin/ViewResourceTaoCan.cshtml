@@ -1,15 +1,30 @@
-﻿
+﻿@model KMBit.Grids.KMGrid <KMBit.Beans.BResourceTaocan>
 @{
-    ViewBag.Title = "资源套餐";
-    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
     KMBit.Beans.BResource resource = null;
-    if (ViewBag.Resource != null) {
+    if (ViewBag.Resource != null)
+    {
         resource = (KMBit.Beans.BResource)ViewBag.Resource;
     }
-}
+    ViewBag.Title = resource.Resource.Name+" 的套餐";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 
-<h2>@ViewBag.Title</h2>
+}
+@using GridMvc.Html 
+<h3>@ViewBag.Title</h3>
 
 <a class="btn btn-primary" role="button" href="/Admin/CreateResourceTaocan?resourceId=@Html.Raw(resource!=null?resource.Resource.Id:0)">
     新建套餐
 </a>
+@Html.Grid(Model).Columns(columns=> {
+    columns.Add(c =>c.Resource.Resource.Name).Titled("资源名称").Filterable(true).SetWidth("20%");
+    columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("15%");
+    columns.Add(c => c.Taocan.Quantity).Titled("流量大小").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.City.Name).Titled("使用城市").Filterable(true).SetWidth("15%");
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth("10%")
+    .RenderValueAs(o => Html.ActionLink("编辑", "UpdateResourceTaocan", new { id = o.Taocan.Id }));
+}).Sortable(true)
+
+

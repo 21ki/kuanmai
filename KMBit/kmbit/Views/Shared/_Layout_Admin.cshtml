@@ -54,7 +54,11 @@
                     <div class="list-group">
                         <a href="/Admin/Index" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Index")){ @Html.Raw("active"); }
                             }">账户信息</a>
-                        <a href="/Admin/Resources" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Resources" || actionName=="CreateResource" || actionName=="EditResource" || actionName=="ViewResource")){ @Html.Raw("active"); }
+                        <a href="/Admin/Resources" class="list-group-item @{if(controllerName=="Admin" &&
+                                (string.IsNullOrEmpty(actionName) || actionName=="Resources" || actionName=="CreateResource"
+                                || actionName=="EditResource" || actionName=="ViewResource" || actionName=="ViewResourceTaoCan"
+                                || actionName=="CreateResourceTaocan" || actionName=="UpdateResourceTaocan"))
+                            { @Html.Raw("active"); }
                             }">资源管理</a>
                         <a href="/Admin/Agencies" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Agencies")){ @Html.Raw("active"); }
                             }">代理商管理</a>
