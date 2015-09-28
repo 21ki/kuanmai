@@ -60,7 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Agent\AgentMenagement.cs" />
+    <Compile Include="Admin\AgentAdminMenagement.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="IdentityConfig.cs" />
@@ -81,6 +81,9 @@
       <Project>{5492d2d8-54c7-4f0f-8032-e77bf30ad8f1}</Project>
       <Name>KMBit.Util</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Agent\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

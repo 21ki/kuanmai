@@ -21,6 +21,14 @@ namespace KMBit.BL.Admin
             }
         }
 
+        public ResourceManagement(string email) : base(email)
+        {
+            if (this.logger == null)
+            {
+                this.logger = log4net.LogManager.GetLogger(typeof(ResourceManagement));
+            }
+        }
+
         public IQueryable<BResource> FindResourcesE(int resourceId, string resourceName, int spId)
         {
             using (chargebitEntities db = new chargebitEntities())
@@ -62,7 +70,7 @@ namespace KMBit.BL.Admin
             }
         }
 
-        public List<BResource> FindResources(int resourceId, string resourceName, int spId, out int total,int page=1,int pageSize=20)
+        public List<BResource> FindResources(int resourceId, string resourceName, int spId, out int total,int page=1,int pageSize=20,bool paging=false)
         {
             total = 0;
             List<BResource> resources = null;
@@ -103,7 +111,11 @@ namespace KMBit.BL.Admin
                 }
                
                 total = tmp.Count();
-                tmp = tmp.OrderBy(s => s.Resource.Created_time).Skip(skip).Take(pageSize);
+                if(paging)
+                {
+                    tmp = tmp.OrderBy(s => s.Resource.Created_time).Skip(skip).Take(pageSize);
+                }
+                
                 resources = tmp.ToList<BResource>();
             }
 
@@ -261,7 +273,7 @@ namespace KMBit.BL.Admin
             return ret;
         }
 
-        public List<BResourceTaocan> FindResourceTaocans(int sTaocanId,int resourceId,int spId,out int total,int page=1,int pageSize=25)
+        public List<BResourceTaocan> FindResourceTaocans(int sTaocanId,int resourceId,int spId,out int total,int page=1,int pageSize=25,bool paging =false)
         {
             total = 0;
             List<BResourceTaocan> sTaocans=null;
@@ -300,7 +312,11 @@ namespace KMBit.BL.Admin
                     tmp = tmp.Where(r => r.Taocan.Sp_id == spId);
                 }
                 total = tmp.Count();
-                tmp = tmp.OrderBy(t => t.Taocan.Id).Skip((page - 1) * pageSize).Take(pageSize);
+                if(paging)
+                {
+                    tmp = tmp.OrderBy(t => t.Taocan.Id).Skip((page - 1) * pageSize).Take(pageSize);
+                }
+                
                 sTaocans = tmp.ToList<BResourceTaocan>();
                 foreach(BResourceTaocan t in sTaocans)
                 {

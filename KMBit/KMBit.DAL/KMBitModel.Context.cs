@@ -37,12 +37,13 @@ namespace KMBit.DAL
         public DbSet<Sp> Sp { get; set; }
         public DbSet<Taocan> Taocan { get; set; }
         public DbSet<User_type> User_type { get; set; }
-        public DbSet<Users> Users { get; set; }
         public DbSet<Resource> Resource { get; set; }
-        public DbSet<Agent_route> Agent_route { get; set; }
         public DbSet<Roles> Roles { get; set; }
         public DbSet<UserClaims> UserClaims { get; set; }
         public DbSet<UserLogins> UserLogins { get; set; }
         public DbSet<UserRoles> UserRoles { get; set; }
+        public DbSet<PayType> PayType { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<Agent_route> Agent_route { get; set; }
     }
 }

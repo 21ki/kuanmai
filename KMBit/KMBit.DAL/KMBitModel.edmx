@@ -45,6 +45,7 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
+          <Property Name="Resource_Id" Type="int" Nullable="false" />
           <Property Name="Resource_taocan_id" Type="int" Nullable="false" />
           <Property Name="Sale_price" Type="float" Nullable="false" />
           <Property Name="Purchase_price" Type="float" Nullable="false" />
@@ -91,6 +92,13 @@
           <Property Name="Pay_time" Type="uint" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
           <Property Name="Tranfser_Type" Type="tinyint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PayType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="45" Nullable="false" />
         </EntityType>
         <EntityType Name="Resource">
           <Key>
@@ -211,7 +219,7 @@
           <Property Name="Update_time" Type="uint" Nullable="false" />
           <Property Name="PasswordHash" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="SecurityStamp" Type="varchar" MaxLength="100" Nullable="false" />
-          <Property Name="Pay_type" Type="tinyint" Nullable="false" />
+          <Property Name="Pay_type" Type="int" Nullable="false" />
           <Property Name="Remaining_amount" Type="float" Nullable="false" />
           <Property Name="Credit_amount" Type="float" Nullable="false" />
           <Property Name="Province_id" Type="int" Nullable="false" />
@@ -226,6 +234,7 @@
           <Property Name="LockoutEnabled" Type="bool" Nullable="false" />
           <Property Name="AccessFailedCount" Type="int" Nullable="false" />
           <Property Name="CreatedBy" Type="int" Nullable="false" />
+          <Property Name="Enabled" Type="bool" Nullable="false" />
         </EntityType>
         <EntityContainer Name="KMBitDBContextModelStoreContainer">
           <EntitySet Name="Admin_Actions" EntityType="Self.Admin_Actions" Schema="chargebit" store:Type="Tables" />
@@ -236,6 +245,7 @@
           <EntitySet Name="Area" EntityType="Self.Area" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Charge_history" EntityType="Self.Charge_history" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Payment_history" EntityType="Self.Payment_history" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="PayType" EntityType="Self.PayType" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resource" EntityType="Self.Resource" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resource_taocan" EntityType="Self.Resource_taocan" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resrouce_interface" EntityType="Self.Resrouce_interface" Schema="chargebit" store:Type="Tables" />
@@ -265,13 +275,14 @@
           <EntitySet Name="Sp" EntityType="KMBitDBContextModel.Sp" />
           <EntitySet Name="Taocan" EntityType="KMBitDBContextModel.Taocan" />
           <EntitySet Name="User_type" EntityType="KMBitDBContextModel.User_type" />
-          <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
-          <EntitySet Name="Agent_route" EntityType="KMBitDBContextModel.Agent_route" />
           <EntitySet Name="Roles" EntityType="KMBitDBContextModel.Roles" />
           <EntitySet Name="UserClaims" EntityType="KMBitDBContextModel.UserClaims" />
           <EntitySet Name="UserLogins" EntityType="KMBitDBContextModel.UserLogins" />
           <EntitySet Name="UserRoles" EntityType="KMBitDBContextModel.UserRoles" />
+          <EntitySet Name="PayType" EntityType="KMBitDBContextModel.PayType" />
+          <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
+          <EntitySet Name="Agent_route" EntityType="KMBitDBContextModel.Agent_route" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -400,33 +411,6 @@
           <Property Name="Id" Type="SByte" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Users">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Type" Type="Int32" Nullable="false" />
-          <Property Name="Regtime" Type="Int64" Nullable="false" />
-          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="Update_time" Type="Int64" Nullable="false" />
-          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="SecurityStamp" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Pay_type" Type="SByte" Nullable="false" />
-          <Property Name="Remaining_amount" Type="Single" Nullable="false" />
-          <Property Name="Credit_amount" Type="Single" Nullable="false" />
-          <Property Name="Province_id" Type="Int32" Nullable="false" />
-          <Property Name="City_id" Type="Int32" Nullable="false" />
-          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Email" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
-          <Property Name="LockoutEndDateUtc" Type="DateTime" />
-          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
-          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
-          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
-        </EntityType>
         <EntityType Name="Resource">
           <Key>
             <PropertyRef Name="Id" />
@@ -445,21 +429,6 @@
           <Property Name="CreatedBy" Type="Int32" Nullable="false" />
           <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
           <Property Name="SP_Id" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Agent_route">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
-          <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
-          <Property Name="Sale_price" Type="Single" Nullable="false" />
-          <Property Name="Purchase_price" Type="Single" Nullable="false" />
-          <Property Name="Create_time" Type="Int64" Nullable="false" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
-          <Property Name="Update_time" Type="Int64" Nullable="false" />
-          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -494,6 +463,57 @@
           </Key>
           <Property Name="UserId" Type="Int32" Nullable="false" />
           <Property Name="RoleId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PayType">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Type" Type="Int32" Nullable="false" />
+          <Property Name="Regtime" Type="Int64" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Update_time" Type="Int64" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityStamp" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Pay_type" Type="Int32" Nullable="false" />
+          <Property Name="Remaining_amount" Type="Single" Nullable="false" />
+          <Property Name="Credit_amount" Type="Single" Nullable="false" />
+          <Property Name="Province_id" Type="Int32" Nullable="false" />
+          <Property Name="City_id" Type="Int32" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" />
+          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Agent_route">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="User_id" Type="Int32" Nullable="false" />
+          <Property Name="Resource_Id" Type="Int32" Nullable="false" />
+          <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
+          <Property Name="Sale_price" Type="Single" Nullable="false" />
+          <Property Name="Purchase_price" Type="Single" Nullable="false" />
+          <Property Name="Create_time" Type="Int64" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="Update_time" Type="Int64" Nullable="false" />
+          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -640,34 +660,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Users">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Users">
-              <MappingFragment StoreEntitySet="Users">
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="AccessFailedCount" ColumnName="AccessFailedCount" />
-                <ScalarProperty Name="LockoutEnabled" ColumnName="LockoutEnabled" />
-                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
-                <ScalarProperty Name="TwoFactorEnabled" ColumnName="TwoFactorEnabled" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="PhoneNumberConfirmed" ColumnName="PhoneNumberConfirmed" />
-                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="City_id" ColumnName="City_id" />
-                <ScalarProperty Name="Province_id" ColumnName="Province_id" />
-                <ScalarProperty Name="Credit_amount" ColumnName="Credit_amount" />
-                <ScalarProperty Name="Remaining_amount" ColumnName="Remaining_amount" />
-                <ScalarProperty Name="Pay_type" ColumnName="Pay_type" />
-                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
-                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
-                <ScalarProperty Name="Update_time" ColumnName="Update_time" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Regtime" ColumnName="Regtime" />
-                <ScalarProperty Name="Type" ColumnName="Type" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Resource">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resource">
               <MappingFragment StoreEntitySet="Resource">
@@ -684,22 +676,6 @@
                 <ScalarProperty Name="Province_Id" ColumnName="Province_Id" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Agent_route">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Agent_route">
-              <MappingFragment StoreEntitySet="Agent_route">
-                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
-                <ScalarProperty Name="Update_time" ColumnName="Update_time" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Create_time" ColumnName="Create_time" />
-                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
-                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
-                <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -736,6 +712,60 @@
               <MappingFragment StoreEntitySet="UserRoles">
                 <ScalarProperty Name="RoleId" ColumnName="RoleId" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PayType">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.PayType">
+              <MappingFragment StoreEntitySet="PayType">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Users">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="AccessFailedCount" ColumnName="AccessFailedCount" />
+                <ScalarProperty Name="LockoutEnabled" ColumnName="LockoutEnabled" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="TwoFactorEnabled" ColumnName="TwoFactorEnabled" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="PhoneNumberConfirmed" ColumnName="PhoneNumberConfirmed" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City_id" ColumnName="City_id" />
+                <ScalarProperty Name="Province_id" ColumnName="Province_id" />
+                <ScalarProperty Name="Credit_amount" ColumnName="Credit_amount" />
+                <ScalarProperty Name="Remaining_amount" ColumnName="Remaining_amount" />
+                <ScalarProperty Name="Pay_type" ColumnName="Pay_type" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="Update_time" ColumnName="Update_time" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Regtime" ColumnName="Regtime" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Agent_route">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Agent_route">
+              <MappingFragment StoreEntitySet="Agent_route">
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="Update_time" ColumnName="Update_time" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Create_time" ColumnName="Create_time" />
+                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
+                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
+                <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
+                <ScalarProperty Name="Resource_Id" ColumnName="Resource_Id" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

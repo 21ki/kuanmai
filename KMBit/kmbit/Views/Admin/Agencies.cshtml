@@ -1,0 +1,35 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BUser>
+@{
+    ViewBag.Title = "代理商管理";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+@using GridMvc.Html 
+<h2>@ViewBag.Title</h2>
+
+<a class="btn btn-primary" role="button" href="/Admin/CreateAgency">
+    新建代理商
+</a>
+@Html.Grid(Model).Columns(columns =>
+{
+    columns.Add(c => c.User.Name).Titled("名称").Filterable(true).SetWidth("15%");
+    columns.Add(c => c.User.Email).Titled("Email").Filterable(true).SetWidth("20%");
+    columns.Add(c => c.User.PhoneNumber).Titled("电话").Filterable(true).SetWidth("15%").RenderValueAs(o=>o.User.PhoneNumber!=null?o.User.PhoneNumber:"");
+    columns.Add(c => c.UserType.Name).Titled("用户类型").Filterable(true).SetWidth("8%");
+    columns.Add(c => c.PayType.Name).Titled("付款类型").Filterable(true).SetWidth("8%");
+    columns.Add(c => c.User.Regtime).Titled("注册时间").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.User.Regtime!=0?KMBit.Util.DateTimeUtil.ConvertToDateTime(o.User.Regtime).ToString("yyyy-M-dd"):"");
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth("5%")
+    .RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
+    columns.Add()
+   .Encoded(false)
+   .Sanitized(false)
+   .SetWidth("5%")
+   .RenderValueAs(o => Html.ActionLink("查看", "ViewAgency", new { agencyId = o.User.Id }));
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth("5%")
+    .RenderValueAs(o => Html.ActionLink("路由", "AgentRoutes", new { agencyId = o.User.Id }));
+}).Sortable(true)

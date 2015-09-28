@@ -21,7 +21,7 @@ namespace KMBit.DAL
         public long Update_time { get; set; }
         public string PasswordHash { get; set; }
         public string SecurityStamp { get; set; }
-        public sbyte Pay_type { get; set; }
+        public int Pay_type { get; set; }
         public float Remaining_amount { get; set; }
         public float Credit_amount { get; set; }
         public int Province_id { get; set; }
@@ -36,5 +36,6 @@ namespace KMBit.DAL
         public bool LockoutEnabled { get; set; }
         public int AccessFailedCount { get; set; }
         public int CreatedBy { get; set; }
+        public bool Enabled { get; set; }
     }
 }

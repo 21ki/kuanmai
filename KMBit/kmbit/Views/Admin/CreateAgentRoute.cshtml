@@ -1,0 +1,99 @@
+﻿@model KMBit.Models.CreateAgentRouteModel
+
+@{
+    KMBit.Beans.BUser agency = null;
+    if (ViewBag.Agency != null)
+    {
+        agency = (KMBit.Beans.BUser)ViewBag.Agency;
+    }
+
+    ViewBag.Title = "创建代理商路由";
+    if(agency!=null)
+    {
+        ViewBag.Title += "(" + agency.User.Name + ")";
+    }
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+
+<script>
+    var BASE_URL = '@Url.Content("~/")';
+    $(function () {
+        $('#ResourceId').change(function () {
+            var resourceId = $('#ResourceId').val();
+            if ($.trim(resourceId) == '') {
+                $('#ResouceTaocans').empty();
+                return;
+            }
+            $.post(
+                BASE_URL + 'api/General/GetResourceTaocans',
+                { resourceId: resourceId },
+                function (res, status) {
+                    $('#ResouceTaocans').empty();
+                    //$('#ResouceTaocans').append("<option value=\"\">--选择城市--</option>");
+                    $(res.Item).each(function (index, item) {
+                        $('#ResouceTaocans').append("<option value=\"" + item.Id + "\">" + item.Name + "</option>");
+                    });
+                }
+            );
+        });
+    })
+</script>
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+       
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group" style="display:none">
+            @Html.LabelFor(model => model.AgencyId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.AgencyId, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.AgencyId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ResourceId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ResourceId, (SelectList)ViewBag.Resources, "--选择资源--", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ResourceId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ResouceTaocans, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.ListBoxFor(model => model.ResouceTaocans, (SelectList)ViewBag.ResourceTaocans, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ResouceTaocans, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SalePrice, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.SalePrice, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.SalePrice, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Enabled, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.Enabled)
+                    @Html.ValidationMessageFor(model => model.Enabled, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="保存" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

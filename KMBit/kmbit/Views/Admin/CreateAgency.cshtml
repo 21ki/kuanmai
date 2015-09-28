@@ -1,0 +1,172 @@
+﻿@model KMBit.Models.CreateAgencyModel
+
+@{
+    KMBit.Beans.BUser agency = null;
+    if (ViewBag.Agency != null) {
+        agency = (KMBit.Beans.BUser)ViewBag.Agency;
+    }
+    ViewBag.Title = "创建代理商";
+    if (agency != null) {
+        ViewBag.Title = "修改代理商:" + agency.User.Name;
+    }
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+
+<script type="text/javascript">
+    var BASE_URL = '@Url.Content("~/")';
+
+    $(function () {
+        $('#Province').change(function () {
+            var parentId = $('#Province').val();
+            if ($.trim(parentId) == "") {
+                $('#City').empty();
+                $('#City').append("<option value=\"\">--选择城市--</option>");
+                return;
+            }
+            $.post(
+                BASE_URL+'api/General/GetAreas',
+                {parentId:parentId},
+                function (res, status) {
+                    $('#City').empty();
+                    $('#City').append("<option value=\"\">--选择城市--</option>");
+                    $(res.Item).each(function (index, item) {
+                        $('#City').append("<option value=\"" + item.Id + "\">" + item.Name + "</option>");
+                    });
+                }
+            );
+        });
+    })
+</script>
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("UpdateAgency", "Admin"))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">       
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @*<div class="form-group">
+            @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+        <div class="form-group" style="display:none;">
+            @Html.LabelFor(model => model.Id, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Id, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Id, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @if (agency == null)
+                {
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new {  @class = "form-control" } });
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @readonly = "readonly", @class = "form-control" } });
+                }
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @if (agency == null)
+                {
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } });
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @readonly = "readonly", @class = "form-control" } });
+                }
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Enabled, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.Enabled, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Enabled, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Type, (SelectList)ViewBag.UserTypes, "--选择用户类型--", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.PayType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.PayType, (SelectList)ViewBag.PayTypes, "--选择付款类型--", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.PayType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Province, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Province, (SelectList)ViewBag.Provinces, "--选择省份--", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Province, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.City, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.City, (SelectList)ViewBag.Cities, "--选择城市--", new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @if (ViewBag.Exception != null)
+        {
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <p style="color:red;">@Html.Raw(((Exception)ViewBag.Exception).Message)</p>
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="保存" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

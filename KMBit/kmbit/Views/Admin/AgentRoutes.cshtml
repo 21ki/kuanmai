@@ -1,0 +1,19 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BAgentRoute>
+@{
+    KMBit.Beans.BUser agency = null;
+    if (ViewBag.Agency != null) {
+        agency = (KMBit.Beans.BUser)ViewBag.Agency;
+    }
+    ViewBag.Title = "代理商路由";
+    if (agency != null) {
+        ViewBag.Title = "代理商 " + agency.User.Name + " 的路由";
+    }
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+
+}
+
+<h2>@ViewBag.Title</h2>
+
+<a class="btn btn-primary" role="button" href="/Admin/CreateAgentRoute?agencyId=@Html.Raw(agency.User.Id)">
+    新建代理商路由
+</a>

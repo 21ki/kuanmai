@@ -8,6 +8,7 @@ namespace KMBit.Beans
 {
     public class BResourceTaocan
     {
+        public Taocan Taocan2 { get; set; }
         public Resource_taocan Taocan { get; set; }
         public Sp SP { get; set; }       
         public Area City { get; set; }

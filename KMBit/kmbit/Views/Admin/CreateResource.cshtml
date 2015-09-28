@@ -60,7 +60,15 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @if (actionName.ToLower() == "editresource")
+                {
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new {@readonly = "readonly", @class = "form-control" } })
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                }
+                
                 @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
             </div>
         </div>

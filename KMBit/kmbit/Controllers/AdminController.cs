@@ -22,6 +22,7 @@ namespace KMBit.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
         private ResourceManagement resourceMgt;
+        private AgentAdminMenagement agentAdminMgt;
         public ApplicationSignInManager SignInManager
         {
             get
@@ -246,7 +247,7 @@ namespace KMBit.Controllers
             int.TryParse(Request["page"], out requestPage);
             requestPage = requestPage == 0 ? 1 : requestPage;
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());            
-            var resources = resourceMgt.FindResources(0, null, 0,out total,requestPage,pageSize);
+            var resources = resourceMgt.FindResources(0, null, 0,out total,requestPage,pageSize,true);
             PageItemsResult<BResource> result = new PageItemsResult<BResource>() { CurrentPage = requestPage, Items = resources, PageSize = pageSize, TotalRecords = total };
             KMBit.Grids.KMGrid<BResource> grid = new Grids.KMGrid<BResource>(result);
             return View(grid);
@@ -297,7 +298,7 @@ namespace KMBit.Controllers
 
         [HttpGet]
         public ActionResult UpdateResourceTaocan(int taocanId)
-        {
+        {           
             if(taocanId<=0)
             {
                 ViewBag.Message = "套餐信息丢失";
@@ -408,7 +409,7 @@ namespace KMBit.Controllers
             int requestPage = 1;
             int.TryParse(Request["page"], out requestPage);
             requestPage = requestPage == 0 ? 1 : requestPage;
-            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(0, id, 0, out total, requestPage, pageSize);
+            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(0, id, 0, out total, requestPage, pageSize,true);
             PageItemsResult<BResourceTaocan> result = new PageItemsResult<BResourceTaocan>() { CurrentPage = requestPage, Items = resourceTaocans, PageSize = pageSize, TotalRecords = total };
             KMBit.Grids.KMGrid<BResourceTaocan> grid = new Grids.KMGrid<BResourceTaocan>(result);
             ViewBag.Resource = resources[0];
@@ -449,6 +450,228 @@ namespace KMBit.Controllers
                 return user.PhoneNumber != null;
             }
             return false;
+        }
+
+        [HttpGet]
+        public ActionResult Agencies()
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            int pageSize = 30;
+            int requestPage = 1;
+            int.TryParse(Request["page"], out requestPage);
+            requestPage = requestPage == 0 ? 1 : requestPage;
+            List<BUser> users = agentAdminMgt.FindAgencies(0, null, null, 0, 0, out total,requestPage,pageSize);
+            PageItemsResult<BUser> result = new PageItemsResult<BUser>() { CurrentPage = requestPage, Items = users, PageSize = pageSize, TotalRecords = total };
+            KMBit.Grids.KMGrid<BUser> grid = new Grids.KMGrid<BUser>(result);
+            return View(grid);
+        }
+
+        public ActionResult CreateAgency()
+        {
+            CreateAgencyModel model = new CreateAgencyModel() {Enabled=true };
+            agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            List<KMBit.DAL.User_type> userTypes = agentAdminMgt.GetUserTypes();
+            List<KMBit.DAL.Area> provinces = agentAdminMgt.GetAreas(0);
+            List<KMBit.DAL.PayType> payTypes = agentAdminMgt.GetPayTypes();
+
+            ViewBag.UserTypes = new SelectList(userTypes, "Id", "Name");
+            ViewBag.PayTypes = new SelectList(payTypes, "Id", "Name");
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            return View(model);
+        }
+        
+        public ActionResult ViewAgency(int agencyId)
+        {
+            return View();
+        }
+
+        public ActionResult EditAgency(int agencyId)
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            List<BUser> users = agentAdminMgt.FindAgencies(agencyId, null, null, 0, 0,out total);
+            if(users==null || users.Count==0)
+            {
+                ViewBag.Message =string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+
+            BUser agency = users[0];
+            CreateAgencyModel model = new CreateAgencyModel() { Enabled = agency.User.Enabled, Address=agency.User.Address, City=agency.User.City_id, Description=agency.User.Description,
+                                                                Phone=agency.User.PhoneNumber,Email=agency.User.Email, Id=agencyId, Name=agency.User.Name, PayType=agency.User.Pay_type, Type=agency.User.Type,Province=agency.User.Province_id};           
+            List<KMBit.DAL.User_type> userTypes = agentAdminMgt.GetUserTypes();
+            List<KMBit.DAL.Area> provinces = agentAdminMgt.GetAreas(0);
+            List<KMBit.DAL.PayType> payTypes = agentAdminMgt.GetPayTypes();
+
+            ViewBag.UserTypes = new SelectList(userTypes, "Id", "Name");
+            ViewBag.PayTypes = new SelectList(payTypes, "Id", "Name");
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            if(model.Province>0)
+            {
+                ViewBag.Cities = new SelectList(agentAdminMgt.GetAreas((int)model.Province), "Id", "Name");
+            }
+            else {
+                ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            }
+            
+            ViewBag.Agency = agency;
+            return View("CreateAgency",model);
+        }
+
+        public ActionResult AgentRoutes(int? agencyId)
+        {
+            if(agencyId==null)
+            {
+                ViewBag.Message = "参数非法";
+                return View("Error");
+            }
+
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            List<BUser> users = agentAdminMgt.FindAgencies((int)agencyId, null, null, 0, 0, out total);
+            if (users == null || users.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+
+            BUser agency = users[0];
+
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes((int)agencyId, 0, 0, out total, 1, 30, true);
+            ViewBag.Agency = agency;
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult CreateAgentRoute()
+        {
+            int agencyId=0;
+            if (Request["agencyId"] == null)
+            {
+                ViewBag.Message = "参数非法";
+                return View("Error");
+            }
+            int.TryParse(Request["agencyId"], out agencyId);
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BUser> users = agentAdminMgt.FindAgencies((int)agencyId, null, null, 0, 0, out total);
+            if (users == null || users.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+
+            BUser agency = users[0];
+            ViewBag.Agency = agency;
+            CreateAgentRouteModel mode = new CreateAgentRouteModel() { Enabled = true, AgencyId = agency.User.Id };
+            List<BResource> resources = resourceMgt.FindResources(0, null, 0, out total);
+            ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<KMBit.DAL.Resource>(), "Id", "Name");
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            //taocans = resourceMgt.FindResourceTaocans(0, 1, 0, out total);
+            ViewBag.ResourceTaocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.City.Name + " " + t.SP.Name + " " + t.Taocan.Quantity }).ToList(), "Id", "Name");
+            return View(mode);
+        }
+
+        [HttpPost]
+        public ActionResult CreateAgentRoute(CreateAgentRouteModel model)
+        {
+            if (model == null)
+            {
+                ViewBag.Message = "参数非法";
+                return View("Error");
+            }
+            int agencyId = model.AgencyId;
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BUser> users = agentAdminMgt.FindAgencies((int)agencyId, null, null, 0, 0, out total);
+            if (users == null || users.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+
+            BUser agency = users[0];
+            ViewBag.Agency = agency;
+            CreateAgentRouteModel mode = new CreateAgentRouteModel() { Enabled = true, AgencyId = agency.User.Id };
+            List<BResource> resources = resourceMgt.FindResources(0, null, 0, out total);
+            ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<KMBit.DAL.Resource>(), "Id", "Name");
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            taocans = resourceMgt.FindResourceTaocans(0, mode.ResourceId, 0, out total);            
+            ViewBag.ResourceTaocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.City.Name + " " + t.SP.Name + " " + t.Taocan.Quantity }).ToList(), "Id", "Name");
+            return View(mode);
+        }
+        public async Task<ActionResult> UpdateAgency(CreateAgencyModel model)
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            bool result = false;
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    KMBit.DAL.Users dbUser = new DAL.Users();
+                    dbUser.Address = model.Address;
+                    dbUser.City_id = model.City != null ? (int)model.City : 0;
+                    dbUser.Province_id = model.Province != null ? (int)model.Province : 0;
+                    dbUser.Description = model.Description;
+                    dbUser.Enabled = model.Enabled;
+                    dbUser.Pay_type = model.PayType;
+                    dbUser.Type = model.Type;
+                    dbUser.PhoneNumber = model.Phone;
+
+                    if (model.Id > 0)
+                    {
+                        dbUser.Id = model.Id;
+                        dbUser.Update_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        result = agentAdminMgt.UpdateAgency(dbUser);
+                    }
+                    else
+                    {
+                        dbUser.Email = model.Email;
+                        dbUser.PasswordHash = "111111";
+                        dbUser.Name = model.Name;
+                        dbUser.CreatedBy = User.Identity.GetUserId<int>();
+                        dbUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                        result = await agentAdminMgt.CreateAgency(dbUser);
+                    }
+
+                    if(result)
+                    {
+                        return RedirectToAction("Agencies");
+                    }else
+                    {
+                        ViewBag.Exception = new KMBitException("创建失败");
+                    }
+                }
+            }
+            catch (KMBitException ex)
+            {
+                ViewBag.Exception = ex;
+            }
+
+            List<KMBit.DAL.User_type> userTypes = agentAdminMgt.GetUserTypes();
+            List<KMBit.DAL.Area> provinces = agentAdminMgt.GetAreas(0);
+            List<KMBit.DAL.PayType> payTypes = agentAdminMgt.GetPayTypes();
+
+            ViewBag.UserTypes = new SelectList(userTypes, "Id", "Name");
+            ViewBag.PayTypes = new SelectList(payTypes, "Id", "Name");
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
+            if (model.Province != null)
+            {
+                ViewBag.Cities = new SelectList(agentAdminMgt.GetAreas((int)model.Province), "Id", "Name");
+            }
+            else
+            {
+                ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            }
+
+            return View("CreateAgency",model);
         }
     }
 }

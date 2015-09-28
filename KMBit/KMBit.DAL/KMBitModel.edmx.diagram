@@ -17,13 +17,14 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="8.75" PointY="3.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Taocan" Width="1.5" PointX="8.75" PointY="6.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.User_type" Width="1.5" PointX="4.75" PointY="9.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="10.75" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="7.375" PointY="10.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Agent_route" Width="1.5" PointX="9.375" PointY="10.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Roles" Width="1.5" PointX="11.75" PointY="6.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.UserClaims" Width="1.5" PointX="11.75" PointY="9.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.UserLogins" Width="1.5" PointX="0.75" PointY="12.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.UserRoles" Width="1.5" PointX="2.75" PointY="12.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.PayType" Width="1.5" PointX="11.375" PointY="12.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="11.375" PointY="0.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Agent_route" Width="1.5" PointX="13.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

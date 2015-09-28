@@ -146,6 +146,16 @@ namespace KMBit.BL
             return spList;
         }
 
+        public List<PayType> GetPayTypes()
+        {
+            List<PayType> types = null;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                types = (from t in db.PayType orderby t.Id select t).ToList<PayType>();
+            }
+            return types;
+        }
+
         public List<User_type> GetUserTypes()
         {
             List<User_type> types = null;

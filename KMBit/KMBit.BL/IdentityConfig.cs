@@ -131,7 +131,7 @@ namespace KMBit.BL
 
         public Task CreateAsync(ApplicationUser user)
         {
-            Users dbUser = ApplicationUser.AppUserToDBUser(user);
+            Users dbUser = AppUserToDBUser(user);
             content.Users.Add(dbUser);
             return content.SaveChangesAsync();
         }
@@ -185,7 +185,7 @@ namespace KMBit.BL
             return task;
         }
 
-        public Task UpdateAsync(DAL.Users user)
+        public Task UpdateAsync(ApplicationUser user)
         {
             throw new NotImplementedException();
         }
@@ -291,12 +291,7 @@ namespace KMBit.BL
             content.Users.Attach(user);
             content.SaveChanges();
             return Task.FromResult(0);
-        }
-
-        public Task UpdateAsync(ApplicationUser user)
-        {
-            throw new NotImplementedException();
-        }
+        }        
 
         public Task SetPhoneNumberAsync(ApplicationUser user, string phoneNumber)
         {
@@ -410,6 +405,27 @@ namespace KMBit.BL
 
             return Task.FromResult<ApplicationUser>(null);
         }
+
+        public Users AppUserToDBUser(ApplicationUser appUser)
+        {
+            if (appUser == null)
+            {
+                return null;
+            }
+
+            Users dbUser = new Users();
+            System.Reflection.PropertyInfo[] properties = dbUser.GetType().GetProperties();
+            foreach (System.Reflection.PropertyInfo property in properties)
+            {
+                System.Reflection.PropertyInfo p = appUser.GetType().GetProperty(property.Name);
+                if (p != null)
+                {
+                    property.SetValue(dbUser, p.GetValue(appUser));
+                }
+            }
+
+            return dbUser;
+        }
     }
 
     public class ApplicationUser : KMBit.DAL.Users, IUser<int>
@@ -462,7 +478,7 @@ namespace KMBit.BL
                 System.Reflection.PropertyInfo p = appUser.GetType().GetProperty(property.Name);
                 if (p != null)
                 {
-                    property.SetValue(appUser, p.GetValue(dbUser));
+                    property.SetValue(dbUser, p.GetValue(appUser));
                 }
             }
 

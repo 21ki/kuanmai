@@ -60,7 +60,9 @@
                                 || actionName=="CreateResourceTaocan" || actionName=="UpdateResourceTaocan"))
                             { @Html.Raw("active"); }
                             }">资源管理</a>
-                        <a href="/Admin/Agencies" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Agencies")){ @Html.Raw("active"); }
+                        <a href="/Admin/Agencies" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Agencies" || actionName=="CreateAgency"
+                              || actionName == "EditAgency" || actionName == "UpdateAgency"))
+                            { @Html.Raw("active"); }
                             }">代理商管理</a>
                         <a href="/Admin/Routes" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Routes")){ @Html.Raw("active"); }
                             }">代理商路由管理</a>

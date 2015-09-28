@@ -292,6 +292,11 @@
     <Content Include="Views\Admin\Error.cshtml" />
     <Content Include="Views\Admin\CreateResourceTaocan.cshtml" />
     <Content Include="Views\Admin\ViewResourceTaoCan.cshtml" />
+    <Content Include="Views\Admin\Agencies.cshtml" />
+    <Content Include="Views\Admin\CreateAgency.cshtml" />
+    <Content Include="Views\Admin\ViewAgency.cshtml" />
+    <Content Include="Views\Admin\AgentRoutes.cshtml" />
+    <Content Include="Views\Admin\CreateAgentRoute.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
