@@ -23,6 +23,7 @@ namespace KMBit.Controllers
         private ApplicationUserManager _userManager;
         private ResourceManagement resourceMgt;
         private AgentAdminMenagement agentAdminMgt;
+        private AdministratorManagement adminMgt;
         public ApplicationSignInManager SignInManager
         {
             get
@@ -117,10 +118,11 @@ namespace KMBit.Controllers
             List<KMBit.DAL.Area> provinces = resourceMgt.GetAreas(0);
             List<KMBit.DAL.Sp> sps = resourceMgt.GetSps();
             //List<SelectListItem> selProvinces = (from p in provinces select new SelectListItem { Text=p.Name,Value=p.Id.ToString() }).ToList<SelectListItem>();            
-            ViewBag.Provinces = new SelectList(provinces,"Id","Name");
+            ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
             ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
-            return View("CreateResource");
+            ResourceModel model = new ResourceModel() { Enabled = true, Id = 0 };
+            return View("CreateResource", model);
         }
 
         [ValidateInput(false)]
@@ -175,7 +177,7 @@ namespace KMBit.Controllers
                 DAL.Resource resource = null;
                 if (model.Id > 0)
                 {
-                    List<BResource> resources = resourceMgt.FindResources(model.Id, null, 0,out total);
+                    List<BResource> resources = resourceMgt.FindResources((int)model.Id, null, 0, out total);
                     if (resources == null)
                     {
                         ViewBag.Message = "试图编辑的资源不存在";
@@ -185,7 +187,7 @@ namespace KMBit.Controllers
                     resource = bresouce.Resource;
                 }
                 else
-                {                    
+                {
                     resource = new DAL.Resource();
                     resource.Name = model.Name;
                     resource.CreatedBy = User.Identity.GetUserId<int>();
@@ -194,10 +196,10 @@ namespace KMBit.Controllers
 
                 resource.Address = model.Address;
                 resource.City_Id = model.City;
-                resource.Contact = model.Contact;               
+                resource.Contact = model.Contact;
                 resource.Description = model.Description;
                 resource.Email = model.Email;
-                resource.Enabled = model.Enabled;                
+                resource.Enabled = model.Enabled;
                 resource.Province_Id = model.Province;
                 resource.SP_Id = model.SP;
                 resource.UpdatedBy = User.Identity.GetUserId<int>();
@@ -206,10 +208,10 @@ namespace KMBit.Controllers
                 try
                 {
                     bool result = false;
-                    if(resource.Id<=0)
+                    if (resource.Id <= 0)
                     {
-                        result = resourceMgt.CreateResource(resource);                       
-                    }else
+                        result = resourceMgt.CreateResource(resource);
+                    } else
                     {
                         result = resourceMgt.UpdateResource(resource);
                     }
@@ -217,7 +219,7 @@ namespace KMBit.Controllers
                     {
                         return RedirectToAction("Resources");
                     }
-                    
+
                 }
                 catch (KMBitException ex)
                 {
@@ -231,13 +233,23 @@ namespace KMBit.Controllers
                 {
                 }
             }
+            else
+            {
+                string validationErrors = string.Join(",",
+                    ModelState.Values.Where(E => E.Errors.Count > 0)
+                    .SelectMany(E => E.Errors)
+                    .Select(E => E.ErrorMessage)
+                    .ToArray());
+
+                ViewBag.ErrMsg = validationErrors;
+            }
 
             provinces = resourceMgt.GetAreas(0);
             sps = resourceMgt.GetSps();
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
             ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
-            return View(model);
+            return View("CreateResource",model);
         }
 
         public ActionResult Resources()
@@ -469,7 +481,7 @@ namespace KMBit.Controllers
 
         public ActionResult CreateAgency()
         {
-            CreateAgencyModel model = new CreateAgencyModel() {Enabled=true };
+            CreateAgencyModel model = new CreateAgencyModel() {Enabled=true,Id=0};
             agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
             List<KMBit.DAL.User_type> userTypes = agentAdminMgt.GetUserTypes();
             List<KMBit.DAL.Area> provinces = agentAdminMgt.GetAreas(0);
@@ -479,7 +491,7 @@ namespace KMBit.Controllers
             ViewBag.PayTypes = new SelectList(payTypes, "Id", "Name");
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
             ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
-            return View(model);
+            return View("CreateAgency",model);
         }
         
         public ActionResult ViewAgency(int agencyId)
@@ -520,14 +532,19 @@ namespace KMBit.Controllers
             return View("CreateAgency",model);
         }
 
-        public ActionResult AgentRoutes(int? agencyId)
+        [HttpGet]
+       
+        public ActionResult AgentRoutes(int agencyId)
         {
-            if(agencyId==null)
+            if(agencyId<=0)
             {
                 ViewBag.Message = "参数非法";
                 return View("Error");
             }
-
+            int page = 1;
+            int.TryParse(Request["page"], out page);
+            page = page > 0 ? page : 1;
+            int pageSize = 30;
             if (agentAdminMgt == null)
                 agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
             List<BUser> users = agentAdminMgt.FindAgencies((int)agencyId, null, null, 0, 0, out total);
@@ -536,24 +553,94 @@ namespace KMBit.Controllers
                 ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
                 return View("Error");
             }
-
             BUser agency = users[0];
-
-            List<BAgentRoute> routes = agentAdminMgt.FindRoutes((int)agencyId, 0, 0, out total, 1, 30, true);
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0,(int)agencyId, 0, 0, out total, page, pageSize, true);
+            PageItemsResult<BAgentRoute> result = new PageItemsResult<BAgentRoute>() { CurrentPage=page, Items=routes, PageSize=30, TotalRecords=total };
+            KMBit.Grids.KMGrid<BAgentRoute> grid = new KMBit.Grids.KMGrid<BAgentRoute>(result);
             ViewBag.Agency = agency;
-            return View();
+            return View(grid);
         }
 
         [HttpGet]
-        public ActionResult CreateAgentRoute()
+        public ActionResult EditAgentRoute(int routeId)
         {
-            int agencyId=0;
-            if (Request["agencyId"] == null)
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(routeId, 0, 0, 0, out total);
+            if(routes==null || routes.Count==0)
             {
-                ViewBag.Message = "参数非法";
+                ViewBag.Message = string.Format("编号为 {0} 的路由不存在",routeId);
                 return View("Error");
             }
-            int.TryParse(Request["agencyId"], out agencyId);
+            BAgentRoute route = routes[0];
+            List<BUser> users = agentAdminMgt.FindAgencies(route.Route.User_id, null, null, 0, 0, out total);
+            if (users == null || users.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+
+            BUser agency = users[0];
+            CreateAgentRouteModel model = new CreateAgentRouteModel()
+            {
+                Id = route.Route.Id,
+                AgencyId = route.Route.User_id,
+                Discount = route.Route.Discount,
+                Enabled = route.Route.Enabled,
+                ResouceTaocans = new int[] { route.Route.Resource_taocan_id },
+                ResourceId = route.Route.Resource_Id
+            };
+
+            ViewBag.Agency = agency;
+            ViewBag.Ruote = route;
+            return View("EditAgentRoute", model);
+        }
+
+        [HttpPost]
+        public ActionResult EditAgentRoute(CreateAgentRouteModel model)
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            if (ModelState.IsValid)
+            {
+                if (agentAdminMgt.UpdateAgentRuote(model.Id, model.Discount, model.Enabled))
+                {
+                    return Redirect("/Admin/AgentRoutes?agencyId=" + model.AgencyId);
+                }
+                
+            }else
+            {
+                string validationErrors = string.Join(",",
+                    ModelState.Values.Where(E => E.Errors.Count > 0)
+                    .SelectMany(E => E.Errors)
+                    .Select(E => E.ErrorMessage)
+                    .ToArray());
+
+                ViewBag.ErrMsg = validationErrors;
+            }
+
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(model.Id, 0, 0, 0, out total);
+            if (routes == null || routes.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的路由不存在", model.Id);
+                return View("Error");
+            }
+            BAgentRoute route = routes[0];
+            List<BUser> users = agentAdminMgt.FindAgencies(route.Route.User_id, null, null, 0, 0, out total);
+            if (users == null || users.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为 {0} 的代理商存在");
+                return View("Error");
+            }
+            ViewBag.Agency = users[0];
+            ViewBag.Ruote = route;
+            return View("EditAgentRoute",model);
+        }
+
+        [HttpGet]
+        public ActionResult CreateAgentRoute(int agencyId)
+        {            
             if (agentAdminMgt == null)
                 agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
 
@@ -567,23 +654,20 @@ namespace KMBit.Controllers
 
             BUser agency = users[0];
             ViewBag.Agency = agency;
-            CreateAgentRouteModel mode = new CreateAgentRouteModel() { Enabled = true, AgencyId = agency.User.Id };
+            CreateAgentRouteModel model = new CreateAgentRouteModel() { Enabled = true, AgencyId = agency.User.Id,Id=0 };
             List<BResource> resources = resourceMgt.FindResources(0, null, 0, out total);
             ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<KMBit.DAL.Resource>(), "Id", "Name");
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             //taocans = resourceMgt.FindResourceTaocans(0, 1, 0, out total);
-            ViewBag.ResourceTaocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.City.Name + " " + t.SP.Name + " " + t.Taocan.Quantity }).ToList(), "Id", "Name");
-            return View(mode);
+            //ViewBag.ResourceTaocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.City.Name + " " + t.SP.Name + " " + t.Taocan.Quantity }).ToList(), "Id", "Name");
+            ViewBag.ResourceTaocans1 = taocans;
+            return View("CreateAgentRoute",model);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateAgentRoute(CreateAgentRouteModel model)
-        {
-            if (model == null)
-            {
-                ViewBag.Message = "参数非法";
-                return View("Error");
-            }
+        {            
             int agencyId = model.AgencyId;
             if (agentAdminMgt == null)
                 agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
@@ -598,14 +682,42 @@ namespace KMBit.Controllers
 
             BUser agency = users[0];
             ViewBag.Agency = agency;
-            CreateAgentRouteModel mode = new CreateAgentRouteModel() { Enabled = true, AgencyId = agency.User.Id };
+            if(ModelState.IsValid)
+            {
+                KMBit.DAL.Agent_route ruote;
+                if(model.ResouceTaocans.Length>0)
+                {
+                    foreach(int tId in model.ResouceTaocans)
+                    {
+                        ruote = new DAL.Agent_route()
+                        {
+                            CreatedBy = User.Identity.GetUserId<int>(),
+                            Create_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                            Discount = model.Discount,
+                            Enabled = model.Enabled,
+                            Resource_Id = model.ResourceId,
+                            Resource_taocan_id = tId,
+                            User_id = model.AgencyId
+                        };
+
+                        bool ret = agentAdminMgt.CreateRoute(ruote);
+                    }
+                }
+
+                return Redirect("/Admin/AgentRoutes?agencyId=" + model.AgencyId);
+            }
             List<BResource> resources = resourceMgt.FindResources(0, null, 0, out total);
             ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<KMBit.DAL.Resource>(), "Id", "Name");
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
-            taocans = resourceMgt.FindResourceTaocans(0, mode.ResourceId, 0, out total);            
-            ViewBag.ResourceTaocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.City.Name + " " + t.SP.Name + " " + t.Taocan.Quantity }).ToList(), "Id", "Name");
-            return View(mode);
+            if(model.ResourceId>0)
+            {
+                taocans = resourceMgt.FindResourceTaocans(0, model.ResourceId, 0, out total);
+            }
+            
+            ViewBag.ResourceTaocans1 = taocans;
+            return View(model);
         }
+
         public async Task<ActionResult> UpdateAgency(CreateAgencyModel model)
         {
             if (agentAdminMgt == null)
@@ -617,8 +729,8 @@ namespace KMBit.Controllers
                 {
                     KMBit.DAL.Users dbUser = new DAL.Users();
                     dbUser.Address = model.Address;
-                    dbUser.City_id = model.City != null ? (int)model.City : 0;
-                    dbUser.Province_id = model.Province != null ? (int)model.Province : 0;
+                    dbUser.City_id = model.City ;
+                    dbUser.Province_id = model.Province ;
                     dbUser.Description = model.Description;
                     dbUser.Enabled = model.Enabled;
                     dbUser.Pay_type = model.PayType;
@@ -639,6 +751,7 @@ namespace KMBit.Controllers
                         dbUser.CreatedBy = User.Identity.GetUserId<int>();
                         dbUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         result = await agentAdminMgt.CreateAgency(dbUser);
+                        //Task.Run(()=> agentAdminMgt.CreateAgency(dbUser));
                     }
 
                     if(result)
@@ -662,7 +775,7 @@ namespace KMBit.Controllers
             ViewBag.UserTypes = new SelectList(userTypes, "Id", "Name");
             ViewBag.PayTypes = new SelectList(payTypes, "Id", "Name");
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
-            if (model.Province != null)
+            if (model.Province >0)
             {
                 ViewBag.Cities = new SelectList(agentAdminMgt.GetAreas((int)model.Province), "Id", "Name");
             }
@@ -672,6 +785,92 @@ namespace KMBit.Controllers
             }
 
             return View("CreateAgency",model);
+        }
+
+        [HttpGet]
+        public ActionResult Administrators()
+        {
+            if (adminMgt == null)
+            {
+                adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
+            }
+
+            return View(adminMgt.FindAdministrators());
+        }
+
+        [HttpGet]
+        public ActionResult ChargeHistory()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult ChargeQueue()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult CreateAdmin()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CreateAdmin(CreateAdminModel model)
+        {
+            if(adminMgt==null)
+            {
+                adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
+            }
+            if(ModelState.IsValid)
+            {
+                KMBit.DAL.Users newUser = new DAL.Users() { Enabled = true, Email = model.Email, Name = model.Name, PasswordHash = "123456789" };
+                newUser = await adminMgt.CreateAdministrator(newUser);
+                if(newUser.Id>0)
+                {
+                    return Redirect("/Admin/Administrators");
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult SetAdminStatus(int userId,bool status)
+        {
+            if (adminMgt == null)
+            {
+                adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
+            }
+            adminMgt.SetAdminStatus(userId, status);
+            return Redirect("/Admin/Administrators");
+        }
+
+        [HttpGet]
+        public ActionResult AdminPermissions(int userId)
+        {     
+            if(userId==0)
+            {
+                return View("Error");
+            }
+            PermissionManagement permissionMgt = new PermissionManagement(User.Identity.GetUserId<int>());
+            Permissions permissions = PermissionManagement.GetUserPermissions(userId);
+            
+            return View(permissions);
+        }
+
+        [HttpPost]
+        public ActionResult AdminPermissions(Permissions model)
+        {
+            PermissionManagement permissionMgt = new PermissionManagement(User.Identity.GetUserId<int>());
+            if(ModelState.IsValid)
+            {
+                int id = int.Parse(Request["userId"]);
+                permissionMgt.GrantUserPermissions(id, model);
+                return Redirect("/Admin/Administrators");
+            }
+            return View(model);
         }
     }
 }

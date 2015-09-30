@@ -1,0 +1,33 @@
+﻿@model List<KMBit.Beans.BUser>
+
+@{
+    ViewBag.Title = "管理员管理";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+@using GridMvc.Html
+<h2>@ViewBag.Title</h2>
+<a class="btn btn-primary" role="button" href="/Admin/CreateAdmin">
+    新建管理员
+</a>
+
+@Html.Grid(Model).Columns(columns =>
+{
+    columns.Add(c => c.User.Name).Titled("名称").Filterable(true);
+    columns.Add(c => c.User.Email).Titled("邮箱").Filterable(true);
+    columns.Add(c => c.User.Regtime).Titled("创建日期").Filterable(true).SetWidth("15%").RenderValueAs(o=>KMBit.Util.DateTimeUtil.ConvertToDateTime(o.User.Regtime).ToString("yyyy-M-dd"));
+    columns.Add(c => c.User.Enabled).Titled("状态").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.User.Enabled?"已启用":"已禁用");
+    columns.Add()
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth("10%")
+    .RenderValueAs(o => Html.ActionLink("编辑权限", "AdminPermissions", new { userId = o.User.Id }));
+
+
+    columns.Add()
+   .Encoded(false)
+   .Sanitized(false)
+   .SetWidth("5%")
+   .RenderValueAs(o => o.User.Enabled ? Html.ActionLink("禁用", "SetAdminStatus", new { userId = o.User.Id, status = false}): Html.ActionLink("启用", "SetAdminStatus", new { userId = o.User.Id,status=true }));
+
+}).Sortable(true)
+

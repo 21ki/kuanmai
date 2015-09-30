@@ -40,36 +40,39 @@ namespace KMBit.BL.Admin
                 List<Admin_Categories> allCates = (from cate in db.Admin_Categories select cate).ToList<Admin_Categories>();
 
                 Type permission = typeof(Permissions);
-                FieldInfo[] fields = permission.GetFields();
+                PropertyInfo[] fields = permission.GetProperties();
                 if (fields == null || fields.Length <= 0)
                 {
                     return;
                 }
 
-                foreach (FieldInfo field in fields)
+                foreach (PropertyInfo field in fields)
                 {
                     AdminActionAttribute attr = field.GetCustomAttribute<AdminActionAttribute>();
-                    Admin_Actions action = (from a in allActions where a.Name == field.Name select a).FirstOrDefault<Admin_Actions>();
-                    if (action == null)
+                    if(attr!=null)
                     {
-                        action = new Admin_Actions();
-                        action.Name = field.Name;
-                        action.Enabled = true;
-                        db.Admin_Actions.Add(action);
-                    }
+                        Admin_Actions action = (from a in allActions where a.Name == field.Name select a).FirstOrDefault<Admin_Actions>();
+                        if (action == null)
+                        {
+                            action = new Admin_Actions();
+                            action.Name = field.Name;
+                            action.Enabled = true;
+                            db.Admin_Actions.Add(action);
+                        }
 
-                    if (attr != null)
-                    {
-                        action.Category = attr.ID;
-                        action.Description = attr.ActionDescription;
-                    }
-                    List<Admin_Categories> categories = (from cate in allCates where cate.Id == attr.ID select cate).ToList<Admin_Categories>();
-                    if (categories == null || categories.Count == 0)
-                    {
-                        Admin_Categories newCate = new Admin_Categories() { Id = attr.ID, Name = attr.CategoryName };
-                        db.Admin_Categories.Add(newCate);
-                        allCates.Add(newCate);
-                    }
+                        if (attr != null)
+                        {
+                            action.Category = attr.ID;
+                            action.Description = attr.ActionDescription;
+                        }
+                        List<Admin_Categories> categories = (from cate in allCates where cate.Id == attr.ID select cate).ToList<Admin_Categories>();
+                        if (categories == null || categories.Count == 0)
+                        {
+                            Admin_Categories newCate = new Admin_Categories() { Id = attr.ID, Name = attr.CategoryName };
+                            db.Admin_Categories.Add(newCate);
+                            allCates.Add(newCate);
+                        }
+                    }                    
                 }
 
                 db.SaveChanges();
@@ -87,6 +90,34 @@ namespace KMBit.BL.Admin
             }
         }
 
+        public void GrantUserPermissions(int userId,Permissions permission)
+        {
+            if(userId==0)
+            {
+                throw new KMBitException("");
+            }
+            List<Admin_Actions> actions = new List<Admin_Actions>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<Admin_Actions> allActions = (from ac in db.Admin_Actions select ac).ToList<Admin_Actions>();
+                PropertyInfo[] props = permission.GetType().GetProperties();
+                foreach(PropertyInfo prop in props)
+                {
+                    bool hasPermission = (bool)prop.GetValue(permission);
+                    if(hasPermission)
+                    {
+                        Admin_Actions ac = (from acc in allActions where acc.Name == prop.Name select acc).FirstOrDefault<Admin_Actions>();
+                        if(ac!=null)
+                        {
+                            actions.Add(ac);
+                        }
+                    }
+                }
+            }
+
+            GrantUserPermissions(userId, actions);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -95,9 +126,24 @@ namespace KMBit.BL.Admin
         /// <returns></returns>
         public bool GrantUserPermissions(int userId,List<Admin_Actions> actions)
         {
+            if(!CurrentLoginUser.IsSuperAdmin && !CurrentLoginUser.IsWebMaster)
+            {
+                if (!CurrentLoginUser.Permission.UPDATE_USER_PERMISSION)
+                {
+                    throw new KMBitException("没有权限修改管理员权限");
+                }
+            }            
+            
             bool ret = false;
             using (chargebitEntities db = new chargebitEntities())
-            {                
+            {
+                Admin_Users au = (from u in db.Admin_Users where u.User_Id == userId select u).FirstOrDefault<Admin_Users>();
+
+                if(au.IsSuperAdmin && !CurrentLoginUser.IsWebMaster)
+                {
+                    throw new KMBitException("没有权限修改超级管理员权限，只有网站管理员才能修改");
+                }
+
                 if (actions != null && actions.Count>0)
                 {
                     db.Database.ExecuteSqlCommand("delete from Admin_Users_Actions where User_Id=" + userId.ToString());
@@ -203,11 +249,20 @@ namespace KMBit.BL.Admin
         public static Permissions GetUserPermissions(int userId)
         {
             Permissions permissions = new Permissions();
-            FieldInfo[] fields = permissions.GetType().GetFields();
+            PropertyInfo[] fields = permissions.GetType().GetProperties();
             KMBit.DAL.chargebitEntities db = null;
             try
             {
                 db = new chargebitEntities();
+                Admin_Users au = (from u in db.Admin_Users where u.User_Id==userId select u).FirstOrDefault<Admin_Users>();
+                if(au!=null && au.IsSuperAdmin)
+                {
+                    foreach (PropertyInfo f in fields)
+                    {
+                        f.SetValue(permissions, true);
+                    }
+                    return permissions;
+                }   
                 List<Admin_Actions> actions = (from a in db.Admin_Actions select a).ToList<Admin_Actions>();
                 List<Admin_Users_Actions> userActions = (from ua in db.Admin_Users_Actions where ua.User_Id == userId select ua).ToList<Admin_Users_Actions>();
                 if (userActions != null && userActions.Count > 0)
@@ -217,11 +272,11 @@ namespace KMBit.BL.Admin
                         Admin_Actions action = (from a in actions where a.Id == ua.Action_Id select a).FirstOrDefault<Admin_Actions>();
                         if (action != null)
                         {
-                            foreach (FieldInfo f in fields)
+                            foreach (PropertyInfo f in fields)
                             {
-                                if (f.Name == action.Name)
+                                if (f.Name == action.Name || au.IsSuperAdmin)
                                 {
-                                    f.SetValue(permissions, 1);
+                                    f.SetValue(permissions, true);
                                 }
                             }
                         }

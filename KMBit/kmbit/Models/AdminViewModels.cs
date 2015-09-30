@@ -43,8 +43,7 @@ namespace KMBit.Models
         public bool Enabled { get; set; }
     }
     public class ResourceModel
-    {
-        [Display(Name = "编号")]
+    {       
         public int Id { get; set; }
             
         [Display(Name = "运营商")]
@@ -66,22 +65,20 @@ namespace KMBit.Models
 
         [Required]
         [Display(Name = "城市")]
-        public int City { get; set; }
+        public int City { get; set; }        
         
-        [DataType(DataType.Text)]
         [Display(Name = "地址")]
         public string Address { get; set; }
         
         [DataType(DataType.EmailAddress)]
         [Display(Name = "邮箱")]
-        public string Email { get; set; }
+        public string Email { get; set; }        
         
-        [DataType(DataType.PhoneNumber)]
         [Display(Name = "联系电话")]
         public string Contact { get; set; }
-
+        
         [Display(Name = "是否启用")]
-        public bool Enabled { get; set; }   
+        public bool Enabled { get; set; }
     }
 
     public class CreateAgencyModel
@@ -108,11 +105,11 @@ namespace KMBit.Models
         [Display(Name = "付款类型")]
         public int PayType { get; set; }
 
-        [Display(Name = "省份")]
-        public int? Province { get; set; }
-
+        [Display(Name = "省份")]       
+        public int Province { get; set; }
+      
         [Display(Name = "城市")]
-        public int? City { get; set; }
+        public int City { get; set; }
 
         [Display(Name = "地址")]
         public string Address { get; set; }
@@ -120,8 +117,7 @@ namespace KMBit.Models
         [Required]
         [Display(Name = "电话")]
         public string Phone { get; set; }
-
-        [Required]
+       
         [Display(Name = "启用")]
         public bool Enabled { get; set; }
 
@@ -130,28 +126,39 @@ namespace KMBit.Models
     }
 
     public class CreateAgentRouteModel
-    {
-       
-        [Display(Name = "路由编号")]
+    {   
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "请制定代理商")]
         [Display(Name = "代理商")]
         public int AgencyId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="请选择落地资源")]
         [Display(Name = "资源")]
         public int ResourceId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "落地资源套餐必须至少选择一个")]
         [Display(Name = "资源套餐")]
-        public int[] ResouceTaocans { get; set; }
-       
-        [Display(Name = "零售价")]
-        [Range(0.1,float.MaxValue,ErrorMessage ="零售价必须大于0")]
-        public float SalePrice { get; set; }
+        public int[] ResouceTaocans { get; set; }   
+
+        [Required(ErrorMessage = "折扣必须填写，并且必须是0-1之间的小数")]
+        [Display(Name = "折扣")]
+        [Range(0.5, 1, ErrorMessage = "折扣必须在0.5-1之间")]
+        public float Discount { get; set; }
 
         [Display(Name = "启用")]
         public bool Enabled { get; set; }
+    }
+
+    public class CreateAdminModel
+    {
+        [Required]
+        [Display(Name = "用户名")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage ="邮箱不能为空，并且邮箱不能重复，一个邮箱只能使用一次")]
+        [DataType(DataType.EmailAddress, ErrorMessage="邮箱格式不正确")]
+        [Display(Name = "邮箱")]
+        public string Email { get; set; }
     }
 }

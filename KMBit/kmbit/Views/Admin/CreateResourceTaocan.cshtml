@@ -7,6 +7,10 @@
     }
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 }
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
 
 <script type="text/javascript">
     var BASE_URL = '@Url.Content("~/")';
@@ -122,8 +126,4 @@
 </div>
         </div>
     </div>
-}
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
 }

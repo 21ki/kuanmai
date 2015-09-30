@@ -19,6 +19,7 @@
     columns.Add(c => c.Province.Name).Titled("省份").Filterable(true);
     columns.Add(c => c.City.Name).Titled("城市").Filterable(true);
     columns.Add(c => c.CreatedBy.Email).Titled("创建者").Filterable(true);
+    columns.Add(c => c.Resource.Enabled).Titled("状态").Filterable(true).RenderValueAs(o=>o.Resource.Enabled?"已启用":"已禁用");
     columns.Add()
     .Encoded(false)
     .Sanitized(false)

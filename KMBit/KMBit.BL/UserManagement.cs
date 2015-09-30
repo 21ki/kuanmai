@@ -30,7 +30,7 @@ namespace KMBit.BL
 
         public async Task<bool> CreateNewUserAsync(ApplicationUser user)
         {
-            if(CurrentLoginUser.Permission.CREATE_USER==0)
+            if(!CurrentLoginUser.Permission.CREATE_USER)
             {
                 throw new KMBitException("没有权限创建代理商");
             }
@@ -69,7 +69,7 @@ namespace KMBit.BL
             {
                 throw new KMBitException("信息不完整，不能更新");
             }
-            if (CurrentLoginUser.Permission.UPDATE_USER ==0 && CurrentLoginUser.User.Id!=user.Id && CurrentLoginUser.User.Email!=user.Email)
+            if (!CurrentLoginUser.Permission.UPDATE_USER&& CurrentLoginUser.User.Id!=user.Id && CurrentLoginUser.User.Email!=user.Email)
             {
                 throw new KMBitException("没有权限执行此操作");
             }

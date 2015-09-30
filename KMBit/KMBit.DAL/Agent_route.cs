@@ -25,5 +25,6 @@ namespace KMBit.DAL
         public int CreatedBy { get; set; }
         public long Update_time { get; set; }
         public int UpdatedBy { get; set; }
+        public float Discount { get; set; }
     }
 }

@@ -13,7 +13,8 @@ namespace KMBitAdm
     {
         static void Main(string[] args)
         {
-            test();
+            PermissionManagement pgt = new PermissionManagement(3);
+            pgt.SyncPermissionsWithDB();
             return;
 
             if (args.Length==0)

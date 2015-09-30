@@ -27,7 +27,7 @@ namespace KMBit.BL.Admin
         }
         public async Task<bool> CreateAgency(Users dbUser)
         {
-            if(CurrentLoginUser.Permission.CREATE_USER==0)
+            if(!CurrentLoginUser.Permission.CREATE_USER)
             {
                 throw new KMBitException("没有权限创建代理商");
             }
@@ -73,7 +73,7 @@ namespace KMBit.BL.Admin
 
         public bool UpdateAgency(Users dbUser)
         {
-            if(CurrentLoginUser.Permission.UPDATE_USER==0)
+            if(!CurrentLoginUser.Permission.UPDATE_USER)
             {
                 throw new KMBitException("没有权限更新用户信息");
             }
@@ -97,6 +97,7 @@ namespace KMBit.BL.Admin
                 user.Pay_type = dbUser.Pay_type;
                 user.Description = dbUser.Description;
                 user.Credit_amount = dbUser.Credit_amount;
+                user.Enabled = dbUser.Enabled;
                 //user.Remaining_amount = dbUser.Remaining_amount;
                 user.Update_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.SaveChanges();
@@ -157,8 +158,12 @@ namespace KMBit.BL.Admin
             return agencies;
         }
 
-        public bool UpdateRoutePrice(int route_id, float price)
+        public bool UpdateAgentRuote(int route_id, float discount,bool enabled)
         {
+            if(!CurrentLoginUser.Permission.UPDATE_USER_ROUTE)
+            {
+                throw new KMBitException("没有权限更新代理商路由");
+            }
             bool ret = false;
             using (chargebitEntities db = new chargebitEntities())
             {
@@ -167,15 +172,21 @@ namespace KMBit.BL.Admin
                 {
                     throw new KMBitException("此路由套餐不存在");
                 }
-
-                route.Sale_price = price;
+                if(discount<=0 || discount>1)
+                {
+                    throw new KMBitException("折扣不能等于0或者大于1，必须介于0-1之间，可以等于1");
+                }
+                route.Discount = discount;
+                route.Enabled = enabled;
+                route.UpdatedBy = CurrentLoginUser.User.Id;
+                route.Update_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 db.SaveChanges();
                 ret = true;
             }
             return ret;
         }
 
-        public List<BAgentRoute> FindRoutes(int agencyId, int resourceId, int resourceTaocanId, out int total, int page = 1, int pageSize = 30, bool paging = false)
+        public List<BAgentRoute> FindRoutes(int routeId,int agencyId, int resourceId, int resourceTaocanId, out int total, int page = 1, int pageSize = 30, bool paging = false)
         {
             total = 0;
             List<BAgentRoute> routes = new List<BAgentRoute>();
@@ -183,7 +194,8 @@ namespace KMBit.BL.Admin
             {
                 var query = from r in db.Agent_route
                             join u in db.Users on r.CreatedBy equals u.Id
-                            join uu in db.Users on r.UpdatedBy equals uu.Id
+                            join uu in db.Users on r.UpdatedBy equals uu.Id into luu
+                            from lluu in luu.DefaultIfEmpty()
                             join re in db.Resource on r.Resource_Id equals re.Id
                             join tc in db.Resource_taocan on r.Resource_taocan_id equals tc.Id
                             join city in db.Area on tc.Area_id equals city.Id into lcity
@@ -194,7 +206,7 @@ namespace KMBit.BL.Admin
                             {
                                 Route = r,
                                 CreatedBy = u,
-                                UpdatedBy = uu,
+                                UpdatedBy = lluu,
                                 Taocan = new BResourceTaocan
                                 {
                                     Taocan = tc,
@@ -204,6 +216,10 @@ namespace KMBit.BL.Admin
                                 }
                             };
 
+                if(routeId>0)
+                {
+                    query = query.Where(o=>o.Route.Id==routeId);
+                }
                 if(agencyId>0)
                 {
                     query = query.Where(o => o.Route.User_id == agencyId);
@@ -232,8 +248,45 @@ namespace KMBit.BL.Admin
 
         public bool CreateRoute(Agent_route route)
         {
+            if (route == null)
+            {
+                throw new KMBitException("路由信息不能为空");
+            }
+            if (route.User_id <= 0)
+            {
+                throw new KMBitException("代理商信息不能为空");
+            }
+            if (route.Resource_Id <= 0)
+            {
+                throw new KMBitException("落地资源信息不能为空");
+            }
+            if (route.Resource_taocan_id <= 0)
+            {
+                throw new KMBitException("落地资源套餐不能为空");
+            }
+            if (route.Discount <= 0 || route.Discount > 1)
+            {
+                throw new KMBitException("代理商路由（资源套餐）折扣必须在0-1之间");
+            }
+            if (!CurrentLoginUser.Permission.CREATE_USER_ROUTE)
+            {
+                throw new KMBitException("没有权限创建代理商路由");
+            }
+            if(route.Create_time<=0)
+            {
+                route.Create_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+            }
+            if (route.CreatedBy <= 0)
+            {
+                route.CreatedBy = CurrentLoginUser.User.Id;
+            }
             bool ret = false;
-
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                db.Agent_route.Add(route);
+                db.SaveChanges();
+                ret = true;
+            }
             return ret;
         }
 

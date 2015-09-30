@@ -201,8 +201,10 @@
     <Compile Include="Controllers\api\ApiMessage.cs" />
     <Compile Include="Controllers\api\BaseApiController.cs" />
     <Compile Include="Controllers\api\GeneralController.cs" />
+    <Compile Include="Controllers\api\ResourceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Extensions\HtmlExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -297,6 +299,12 @@
     <Content Include="Views\Admin\ViewAgency.cshtml" />
     <Content Include="Views\Admin\AgentRoutes.cshtml" />
     <Content Include="Views\Admin\CreateAgentRoute.cshtml" />
+    <Content Include="Views\Admin\EditAgentRoute.cshtml" />
+    <Content Include="Views\Admin\Administrators.cshtml" />
+    <Content Include="Views\Admin\ChargeHistory.cshtml" />
+    <Content Include="Views\Admin\ChargeQueue.cshtml" />
+    <Content Include="Views\Admin\CreateAdmin.cshtml" />
+    <Content Include="Views\Admin\AdminPermissions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

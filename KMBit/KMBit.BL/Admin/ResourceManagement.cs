@@ -11,9 +11,9 @@ using KMBit.Util;
 using log4net;
 namespace KMBit.BL.Admin
 {
-    public class ResourceManagement:BaseManagement
+    public class ResourceManagement : BaseManagement
     {
-        public ResourceManagement(int userId):base(userId)
+        public ResourceManagement(int userId) : base(userId)
         {
             if (this.logger == null)
             {
@@ -70,7 +70,7 @@ namespace KMBit.BL.Admin
             }
         }
 
-        public List<BResource> FindResources(int resourceId, string resourceName, int spId, out int total,int page=1,int pageSize=20,bool paging=false)
+        public List<BResource> FindResources(int resourceId, string resourceName, int spId, out int total, int page = 1, int pageSize = 20, bool paging = false)
         {
             total = 0;
             List<BResource> resources = null;
@@ -109,13 +109,13 @@ namespace KMBit.BL.Admin
                 {
                     tmp = tmp.Where(s => s.Resource.Name.Contains(resourceName));
                 }
-               
+
                 total = tmp.Count();
-                if(paging)
+                if (paging)
                 {
                     tmp = tmp.OrderBy(s => s.Resource.Created_time).Skip(skip).Take(pageSize);
                 }
-                
+
                 resources = tmp.ToList<BResource>();
             }
 
@@ -126,7 +126,7 @@ namespace KMBit.BL.Admin
         {
             bool ret = false;
 
-            if(CurrentLoginUser.Permission.CREATE_RESOURCE==0)
+            if (!CurrentLoginUser.Permission.CREATE_RESOURCE)
             {
                 throw new KMBitException("没有权限创建资源");
             }
@@ -143,8 +143,8 @@ namespace KMBit.BL.Admin
                 throw new KMBitException("资源名称不能为空");
             }
             int total = 0;
-            List<BResource> existResources = FindResources(0, resource.Name,0,out total);
-            if(existResources!=null && existResources.Count>0)
+            List<BResource> existResources = FindResources(0, resource.Name, 0, out total);
+            if (existResources != null && existResources.Count > 0)
             {
                 logger.Error(string.Format("Resource name:{0} is already existed", resource.Name));
                 throw new KMBitException(string.Format("资源名称:{0} 已经存在", resource.Name));
@@ -165,7 +165,7 @@ namespace KMBit.BL.Admin
 
         public bool UpdateResource(Resource resource)
         {
-            if (CurrentLoginUser.Permission.UPDATE_RESOURCE == 0)
+            if (!CurrentLoginUser.Permission.UPDATE_RESOURCE)
             {
                 throw new KMBitException("没有权限更新资源");
             }
@@ -186,9 +186,9 @@ namespace KMBit.BL.Admin
             }
             using (chargebitEntities db = new chargebitEntities())
             {
-                Resource dbResource = (from r in db.Resource where r.Id==resource.Id select r).FirstOrDefault<Resource>();
+                Resource dbResource = (from r in db.Resource where r.Id == resource.Id select r).FirstOrDefault<Resource>();
                 //db.Resource.Attach(dbResource);  
-                SyncObjectProperties(dbResource, resource);             
+                SyncObjectProperties(dbResource, resource);
                 db.SaveChanges();
                 ret = true;
             }
@@ -199,20 +199,20 @@ namespace KMBit.BL.Admin
         public bool UpdateResourceTaocan(Resource_taocan taocan)
         {
             bool ret = false;
-            if (CurrentLoginUser.Permission.UPDATE_RESOURCE_TAOCAN == 0)
+            if (!CurrentLoginUser.Permission.UPDATE_RESOURCE_TAOCAN)
             {
                 throw new KMBitException("没有权限更新资源套餐");
             }
-            if(taocan==null || taocan.Id<=0)
+            if (taocan == null || taocan.Id <= 0)
             {
                 throw new KMBitException("输入数据不正确，不能更新套餐");
             }
-            
-            
+
+
             using (chargebitEntities db = new chargebitEntities())
             {
-                Resource_taocan dbTaocan = (from t in db.Resource_taocan where t.Id==taocan.Id select t).FirstOrDefault<Resource_taocan>();
-                if(dbTaocan==null)
+                Resource_taocan dbTaocan = (from t in db.Resource_taocan where t.Id == taocan.Id select t).FirstOrDefault<Resource_taocan>();
+                if (dbTaocan == null)
                 {
                     throw new KMBitException("套餐不存在不能更新");
                 }
@@ -226,7 +226,7 @@ namespace KMBit.BL.Admin
         public bool CreateResourceTaocan(Resource_taocan taocan)
         {
             bool ret = false;
-            if (CurrentLoginUser.Permission.CREATE_RESOURCE_TAOCAN == 0)
+            if (!CurrentLoginUser.Permission.CREATE_RESOURCE_TAOCAN)
             {
                 throw new KMBitException("没有权限创建资源套餐");
             }
@@ -242,9 +242,9 @@ namespace KMBit.BL.Admin
             }
             int total = 0;
             List<BResource> resources = FindResources(taocan.Resource_id, null, 0, out total);
-            if(total==0)
+            if (total == 0)
             {
-                throw new KMBitException("资源编号为:"+taocan.Resource_id+" 的资源不存在");
+                throw new KMBitException("资源编号为:" + taocan.Resource_id + " 的资源不存在");
             }
             using (chargebitEntities db = new chargebitEntities())
             {
@@ -273,10 +273,10 @@ namespace KMBit.BL.Admin
             return ret;
         }
 
-        public List<BResourceTaocan> FindResourceTaocans(int sTaocanId,int resourceId,int spId,out int total,int page=1,int pageSize=25,bool paging =false)
+        public List<BResourceTaocan> FindResourceTaocans(int sTaocanId, int resourceId, int spId, out int total, int page = 1, int pageSize = 25, bool paging = false)
         {
             total = 0;
-            List<BResourceTaocan> sTaocans=null;
+            List<BResourceTaocan> sTaocans = null;
             using (chargebitEntities db = new chargebitEntities())
             {
                 var tmp = from rta in db.Resource_taocan
@@ -289,21 +289,23 @@ namespace KMBit.BL.Admin
                           from llcity in lcity.DefaultIfEmpty()
                           join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
                           from llsp in lsp.DefaultIfEmpty()
+                          join tt in db.Taocan on rta.Taocan_id equals tt.Id
                           select new BResourceTaocan
                           {
                               Taocan = rta,
+                              Taocan2 = tt,
                               CreatedBy = llcu,
                               UpdatedBy = lluu,
                               City = llcity,
                               SP = llsp,
-                              Resource=new BResource() { Resource=r }
+                              Resource = new BResource() { Resource = r }
                           };
 
-                if(sTaocanId>0)
+                if (sTaocanId > 0)
                 {
                     tmp = tmp.Where(r => r.Taocan.Id == sTaocanId);
                 }
-                if(resourceId>0)
+                if (resourceId > 0)
                 {
                     tmp = tmp.Where(r => r.Taocan.Resource_id == resourceId);
                 }
@@ -312,17 +314,17 @@ namespace KMBit.BL.Admin
                     tmp = tmp.Where(r => r.Taocan.Sp_id == spId);
                 }
                 total = tmp.Count();
-                if(paging)
+                if (paging)
                 {
                     tmp = tmp.OrderBy(t => t.Taocan.Id).Skip((page - 1) * pageSize).Take(pageSize);
                 }
-                
+
                 sTaocans = tmp.ToList<BResourceTaocan>();
-                foreach(BResourceTaocan t in sTaocans)
+                foreach (BResourceTaocan t in sTaocans)
                 {
-                    if(t.SP==null)
+                    if (t.SP == null)
                     {
-                        t.SP = new Sp { Id=0,Name="全网" };                        
+                        t.SP = new Sp { Id = 0, Name = "全网" };
                     }
 
                     if (t.City == null)
@@ -333,6 +335,28 @@ namespace KMBit.BL.Admin
             }
 
             return sTaocans;
+        }
+
+        public List<BResourceTaocan> FindResourceTaocans(int resourceId, int agencyId)
+        {
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<Agent_route> routes = (from r in db.Agent_route where r.User_id == agencyId && r.Resource_Id == resourceId select r).ToList<Agent_route>();
+                int total = 0;
+                List<BResourceTaocan> all = FindResourceTaocans(0, resourceId, 0, out total);
+
+                foreach (var t in all)
+                {
+                    Agent_route existed=(from er in routes where er.Resource_Id==resourceId && er.Resource_taocan_id==t.Taocan.Id select er).FirstOrDefault<Agent_route>();
+                    if(existed==null)
+                    {
+                        taocans.Add(t);
+                    }
+                }
+            }
+
+            return taocans;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@model KMBit.Models.CreateAgentRouteModel
-
+@using KMBit.Extensions;
 @{
+
     KMBit.Beans.BUser agency = null;
     if (ViewBag.Agency != null)
     {
@@ -14,25 +15,52 @@
     }
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 }
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
 
 <script>
     var BASE_URL = '@Url.Content("~/")';
+    var agencyId=@agency.User.Id;
     $(function () {
         $('#ResourceId').change(function () {
             var resourceId = $('#ResourceId').val();
             if ($.trim(resourceId) == '') {
-                $('#ResouceTaocans').empty();
+                $('#resourcetaocancontainer').html("");
                 return;
             }
             $.post(
-                BASE_URL + 'api/General/GetResourceTaocans',
-                { resourceId: resourceId },
+                BASE_URL + 'api/Resource/GetResourceTaocans',
+                { resourceId: resourceId,agencyId:agencyId },
                 function (res, status) {
-                    $('#ResouceTaocans').empty();
+                    $('#resourcetaocancontainer').html("");
                     //$('#ResouceTaocans').append("<option value=\"\">--选择城市--</option>");
+                    var ul = $('<ul style="padding-left:0px;"></ul>');
+
+                    if (res.Item.length > 0) {
+                        var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
+                        var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
+                        $('<input type="checkbox" id="chkAllResouceTaocans" name="chkAllResouceTaocans" value=""/>').appendTo(chkDiv);
+                        $("<div style=\"float:left;width:20%;\"></div>").appendTo(li).html("套餐名称");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("运营商");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("归属地");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("流量");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("价格");
+                    }
+
                     $(res.Item).each(function (index, item) {
-                        $('#ResouceTaocans').append("<option value=\"" + item.Id + "\">" + item.Name + "</option>");
+                        var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
+                        var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
+                        $('<input type="checkbox" id="ResouceTaocans" name="ResouceTaocans" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
+                        $("<div style=\"float:left;width:20%;\"></div>").appendTo(li).html(item.Taocan2.Name);
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.SP.Name);
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.City.Name);
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity);
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Sale_price);
                     });
+
+                    $(ul).appendTo($('#resourcetaocancontainer'));
                 }
             );
         });
@@ -40,12 +68,10 @@
 </script>
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("CreateAgentRoute", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "UpdateResourceForm" }))
 {
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-       
+    @Html.AntiForgeryToken()    
+    <div class="form-horizontal">       
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group" style="display:none">
@@ -67,18 +93,20 @@
         <div class="form-group">
             @Html.LabelFor(model => model.ResouceTaocans, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.ListBoxFor(model => model.ResouceTaocans, (SelectList)ViewBag.ResourceTaocans, new { htmlAttributes = new { @class = "form-control" } })
+                <div id="resourcetaocancontainer">
+                    @Html.CheckBoxListTaocanFor(model => model.ResouceTaocans, (List<KMBit.Beans.BResourceTaocan>)ViewBag.ResourceTaocans1, new { htmlAttributes = new { @class = "form-control" } })
+                </div>                
                 @Html.ValidationMessageFor(model => model.ResouceTaocans, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.SalePrice, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Discount, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.SalePrice, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.SalePrice, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.Discount, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
             </div>
-        </div>
+        </div>       
 
         <div class="form-group">
             @Html.LabelFor(model => model.Enabled, htmlAttributes: new { @class = "control-label col-md-2" })
