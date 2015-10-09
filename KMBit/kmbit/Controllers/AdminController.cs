@@ -855,8 +855,9 @@ namespace KMBit.Controllers
                 return View("Error");
             }
             PermissionManagement permissionMgt = new PermissionManagement(User.Identity.GetUserId<int>());
-            Permissions permissions = PermissionManagement.GetUserPermissions(userId);
-            
+            BUser user = permissionMgt.GetUserInfo(userId);
+            Permissions permissions = user.Permission;
+            ViewBag.User = user;
             return View(permissions);
         }
 
@@ -869,7 +870,8 @@ namespace KMBit.Controllers
                 int id = int.Parse(Request["userId"]);
                 permissionMgt.GrantUserPermissions(id, model);
                 return Redirect("/Admin/Administrators");
-            }
+            }           
+            
             return View(model);
         }
     }

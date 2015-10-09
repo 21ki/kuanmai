@@ -2,18 +2,18 @@
 
 @{
     ViewBag.Title = "AdminPermissions";
-
+    KMBit.Beans.BUser user = (KMBit.Beans.BUser)ViewBag.User;
     Layout =Request.IsAjaxRequest()?null: "~/Views/Shared/_Layout_Admin.cshtml";
 }
 
-<h2>AdminPermissions</h2>
+<h2>更新权限 - @user.User.Name (@user.User.Email)</h2>
 
 @using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>Permissions</h4>
+       
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
        

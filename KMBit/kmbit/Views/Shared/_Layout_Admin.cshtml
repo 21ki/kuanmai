@@ -75,7 +75,7 @@
                             }">流量待充值列队</a>
                        
                         <a href="/Admin/Administrators" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "Administrators")                                
-                                || actionName=="CreateAdmin" || actionName=="AddAdmin") { @Html.Raw("active") ; } }">管理员管理</a>
+                                || actionName=="CreateAdmin" || actionName=="AddAdmin" || actionName=="AdminPermissions") { @Html.Raw("active") ; } }">管理员管理</a>
 
                         <a href="/Admin/ChangePassword" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="ChangePassword")){ @Html.Raw("active"); }
                             }">修改密码</a>

@@ -14,6 +14,10 @@ namespace KMBit.BL
     {
         private ApplicationUserManager userManager;
 
+        public UserManagement(BUser user):base(user)
+        {
+
+        }
         public UserManagement(string email):base(email)
         {
 

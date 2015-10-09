@@ -45,7 +45,7 @@ namespace KMBit.BL
             }
         }
 
-        protected BUser GetUserInfo(int userId)
+        public BUser GetUserInfo(int userId)
         {
             if (userId <= 0)
             {
@@ -80,7 +80,7 @@ namespace KMBit.BL
             return user;
         }
 
-        protected BUser GetUserInfo(string email)
+        public BUser GetUserInfo(string email)
         {
             if (string.IsNullOrEmpty(email))
             {

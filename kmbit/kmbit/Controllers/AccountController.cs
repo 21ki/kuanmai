@@ -61,7 +61,12 @@ namespace KMBit.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
-
+        [AllowAnonymous]
+        public ActionResult LoginError(string message)
+        {
+            ViewBag.Message = message;
+            return View("Error");
+        }
         //
         // POST: /Account/Login
         [HttpPost]
@@ -360,7 +365,7 @@ namespace KMBit.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Manage");
+                return RedirectToAction("Index", "Agent");
             }
 
             if (ModelState.IsValid)
@@ -462,13 +467,19 @@ namespace KMBit.Controllers
             UserManagement umgt=new UserManagement(loginEmail);
             if (umgt.CurrentLoginUser != null)
             {
+                if(!umgt.CurrentLoginUser.User.Enabled)
+                {
+                    AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);                    
+                    return RedirectToAction("LoginError", "Account",new { message= "账户被锁定，不能登陆系统，请联系管理员" });
+                }
+
                 if(umgt.CurrentLoginUser.IsAdmin)
                 {
                     return RedirectToAction("Index", "Admin");
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Manage");
+                    return RedirectToAction("Index", "Agent");
                 }                
             }
             return RedirectToAction("Index", "Home");

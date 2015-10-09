@@ -129,6 +129,7 @@ namespace KMBit.BL.Admin
 
                 users = query.OrderBy(u=>u.User.Regtime).ToList<BUser>();
             }
+            users = (from u in users where u.User.Email!=CurrentLoginUser.User.Email select u).ToList<BUser>();
             return users;
         }
     }

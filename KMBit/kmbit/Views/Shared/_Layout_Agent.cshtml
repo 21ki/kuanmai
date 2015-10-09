@@ -9,6 +9,9 @@
     @{ 
         string controllerName= ViewContext.RouteData.Values["controller"].ToString();
         string actionName = ViewContext.RouteData.Values["action"].ToString();
+        if (string.IsNullOrEmpty(actionName)) {
+            actionName = "Index";
+        }
     }
 </head>
 <body>
