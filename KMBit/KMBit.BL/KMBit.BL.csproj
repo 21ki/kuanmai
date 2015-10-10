@@ -50,9 +50,13 @@
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,6 +67,11 @@
   <ItemGroup>
     <Compile Include="Admin\AdministratorManagement.cs" />
     <Compile Include="Admin\AgentAdminMenagement.cs" />
+    <Compile Include="Agent\AgentManagement.cs" />
+    <Compile Include="Charge\ChargeConstant.cs" />
+    <Compile Include="Charge\ChongBaCharge.cs" />
+    <Compile Include="HttpService.cs" />
+    <Compile Include="Charge\ICharge.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="IdentityConfig.cs" />
@@ -84,9 +93,7 @@
       <Name>KMBit.Util</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Agent\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -20,5 +20,6 @@ namespace KMBit.DAL
         public string Userpassword { get; set; }
         public string Interface_classname { get; set; }
         public string Interface_assemblyname { get; set; }
+        public string APIURL { get; set; }
     }
 }

@@ -1,0 +1,62 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BAgentRoute>
+@{
+    ViewBag.Title = "套餐管理";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+@using GridMvc.Html 
+<h2>@ViewBag.Title</h2>
+<hr />
+
+@Html.Grid(Model).Named("AgentRouteGrid").Columns(columns =>
+{   
+    columns.Add(c => c.Taocan.SP.Name).Titled("运营商").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.SP != null ? o.Taocan.SP.Name : "全网");
+    columns.Add(c => c.Taocan.City.Name).Titled("归属地").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.City != null ? o.Taocan.City.Name : "全国");
+    columns.Add(c => c.Taocan.Taocan.Quantity).Titled("流量").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Quantity + "M");
+    columns.Add(c => c.Taocan.Taocan.Sale_price).Titled("平台售价").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Sale_price.ToString());
+    columns.Add(c => c.Route.Discount).Titled("折扣").Filterable(true).SetWidth("10%");
+    columns.Add().Titled("代理价格").SetWidth("10%").RenderValueAs(o => (o.Route.Discount * o.Taocan.Taocan.Sale_price).ToString("0.00")).Filterable(true);
+    columns.Add().Titled("零售价").SetWidth("10%").RenderValueAs(o => o.Route.Sale_price.ToString("0.00")).Filterable(true);
+    columns.Add(c => c.Route.Enabled).Titled("状态").SetWidth("8%").Filterable(true).RenderValueAs(o => o.Route.Enabled ? "已启用" : "已禁用");
+    columns.Add()
+   .Titled("")
+   .Encoded(false)
+   .Sanitized(false)
+   .SetWidth("10%")
+   .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"editRuote(" + o.Route.Id + ")\">修改零售价</a>"));
+}).Sortable(true)
+
+<div class="modal fade" id="editRuoteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改套餐零售价</h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        pageGrids.AgentRouteGrid.onRowSelect(function (e) {
+            //alert(e.row);
+        });
+    });
+
+    function editRuote(routeId) {
+        $.get(
+            "/Agent/EditTaocan",
+            { routeId: routeId },
+            function (res, status) {
+                if (res != null && res != "undefined") {
+                    $('#editRuoteModal').find('.modal-body').html(res);
+                    $('#editRuoteModal').modal();
+                }
+            }
+         );
+    }
+</script>

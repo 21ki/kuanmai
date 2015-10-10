@@ -1,0 +1,13 @@
+﻿
+@{
+    ViewBag.Title = "操作错误";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+@{ 
+    if (ViewBag.Message != null) {
+        @Html.Raw((string)ViewBag.Message);
+    }
+}
+

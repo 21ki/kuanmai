@@ -309,6 +309,12 @@
     <Content Include="Views\Admin\AdminPermissions.cshtml" />
     <Content Include="Views\Agent\Index.cshtml" />
     <Content Include="Views\Account\Error.cshtml" />
+    <Content Include="Views\Agent\ChangePassword.cshtml" />
+    <Content Include="Views\Agent\Taocan.cshtml" />
+    <Content Include="Views\Agent\EditTaocan.cshtml" />
+    <Content Include="Views\Agent\Error.cshtml" />
+    <Content Include="Views\Home\Charge.cshtml" />
+    <Content Include="Views\Shared\_headPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

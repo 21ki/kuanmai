@@ -18,6 +18,7 @@ namespace KMBit.DAL
         public Nullable<int> User_id { get; set; }
         public int Resource_id { get; set; }
         public int Resource_taocan_id { get; set; }
+        public int RuoteId { get; set; }
         public string Phone_number { get; set; }
         public long Process_time { get; set; }
         public long Created_time { get; set; }
@@ -26,5 +27,6 @@ namespace KMBit.DAL
         public Nullable<sbyte> Charge_type { get; set; }
         public bool Status { get; set; }
         public string Message { get; set; }
+        public string Out_Order_Id { get; set; }
     }
 }

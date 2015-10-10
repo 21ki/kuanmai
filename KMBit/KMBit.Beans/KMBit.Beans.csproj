@@ -51,6 +51,7 @@
     <Compile Include="BResource.cs" />
     <Compile Include="BResourceTaocan.cs" />
     <Compile Include="BUser.cs" />
+    <Compile Include="ChargeOrder.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />
     <Compile Include="PageItemsResult.cs" />

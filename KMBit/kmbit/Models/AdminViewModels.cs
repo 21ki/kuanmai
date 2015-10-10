@@ -150,6 +150,14 @@ namespace KMBit.Models
         public bool Enabled { get; set; }
     }
 
+    public class EditAgentRouteModel:CreateAgentRouteModel
+    {
+        [Required(ErrorMessage = "售价不能为空")]
+        [Display(Name = "零售价")]
+        [Range(0, float.MaxValue, ErrorMessage = "售价不能为空必须为数字，可以有小数点")]
+        public float SalePrice { get; set; }
+    }
+
     public class CreateAdminModel
     {
         [Required]

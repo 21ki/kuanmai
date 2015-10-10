@@ -29,6 +29,14 @@ namespace KMBit.BL.Admin
             }
         }
 
+        public ResourceManagement(BUser user) : base(user)
+        {
+            if (this.logger == null)
+            {
+                this.logger = log4net.LogManager.GetLogger(typeof(ResourceManagement));
+            }
+        }
+
         public IQueryable<BResource> FindResourcesE(int resourceId, string resourceName, int spId)
         {
             using (chargebitEntities db = new chargebitEntities())
