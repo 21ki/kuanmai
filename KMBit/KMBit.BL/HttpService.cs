@@ -8,27 +8,15 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Threading.Tasks;
-
+using KMBit.DAL;
+using KMBit.Beans;
+using KMBit.BL.Charge;
 namespace KMBit.BL
 {
-    public class WebRequestParameters
+    public enum RequestType
     {
-        public string Name { get; set; }
-
-        public string Value { get; set; }
-
-        public bool URLEncodeParameter { get; set; }
-
-        public WebRequestParameters()
-        {
-        }
-
-        public WebRequestParameters(string name, string value, bool encode)
-        {
-            this.Name = name;
-            this.Value = value;
-            this.URLEncodeParameter = encode;
-        }
+        POST,
+        GET
     }
 
     public class HttpService
@@ -37,6 +25,10 @@ namespace KMBit.BL
         public string Response { get; private set; }
 
         private string apiUrl = "";
+        public string ApiUrl {
+            get { return this.apiUrl; }
+            protected set { this.apiUrl = value; }
+        }
         public Uri ServerUri { get; protected set; }
         public HttpService(string svrUrl)
         {
@@ -44,13 +36,18 @@ namespace KMBit.BL
             this.apiUrl = svrUrl;
         }
         public HttpService()
-        { }
+        {
+        }
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
         {
             return true;
         }
-        protected void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed)
+        protected void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed, RequestType requestType= RequestType.POST)
         {
+            if(string.IsNullOrEmpty(this.ApiUrl))
+            {
+                throw new Exception("URI 不能为空");
+            }
             string returnRes = string.Empty;
             string postData = string.Empty;
 
@@ -90,6 +87,17 @@ namespace KMBit.BL
             succeed = false;
             try
             {
+                if(requestType== RequestType.GET)
+                {
+                    this.ServerUri = new Uri(this.ApiUrl+"?"+ postData);
+                }else
+                {
+                    if(this.ServerUri==null)
+                    {
+                        this.ServerUri = new Uri(this.ApiUrl);
+                    }
+                }
+
                 request = (HttpWebRequest)WebRequest.Create(this.ServerUri);
                 request.PreAuthenticate = true;
                 //request.Credentials = new NetworkCredential(this.UserName, this.Password);
@@ -97,7 +105,7 @@ namespace KMBit.BL
                 request.Accept = "*/*";
                 request.KeepAlive = true;
                 request.Timeout = 10000 * 6 * 15;
-                request.Method = "POST";
+                request.Method = requestType.ToString();
                 request.ContentType = "application/x-www-form-urlencoded";
                 string cookieheader = string.Empty;
                 CookieContainer cookieCon = new CookieContainer();
@@ -118,16 +126,19 @@ namespace KMBit.BL
                 //Post string to the server
                 if (!postByByte)
                 {
-                    request.ContentLength = Encoding.UTF8.GetByteCount(postData);
-                    System.IO.StreamWriter sw = new System.IO.StreamWriter(request.GetRequestStream(), new UTF8Encoding(false));
-                    sw.Write(postData);
-                    sw.Close();
+                    if(requestType== RequestType.POST)
+                    {
+                        request.ContentLength = Encoding.UTF8.GetByteCount(postData);
+                        System.IO.StreamWriter sw = new System.IO.StreamWriter(request.GetRequestStream(), new UTF8Encoding(false));
+                        sw.Write(postData);
+                        sw.Close();
+                    }                   
                 }
                 else
                 {
                     //Post byte to server
                     Encoding encoding = Encoding.GetEncoding("utf-8");
-                    Byte[] bytePost = encoding.GetBytes(postData);                   
+                    Byte[] bytePost = encoding.GetBytes(postData);
                     request.ContentLength = bytePost.Length;
                     System.IO.Stream stream = request.GetRequestStream();
                     stream.Write(bytePost, 0, bytePost.Length);
@@ -140,22 +151,22 @@ namespace KMBit.BL
                     this.StatusCode = response.StatusCode;
                     Encoding res_encoding = Encoding.GetEncoding(response.CharacterSet);
                     if (response.StatusCode == HttpStatusCode.OK)
-                    {                       
-                        System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                        Response = sr.ReadToEnd();                       
+                    {
+                        System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8"));
+                        Response = sr.ReadToEnd();
                         succeed = true;
                         sr.Close();
                     }
                 }
                 else
-                {                  
+                {
                     succeed = true;
                 }
             }
             catch (WebException wex)
             {
                 HttpStatusCode status = ((HttpWebResponse)wex.Response).StatusCode;
-                this.StatusCode = status;              
+                this.StatusCode = status;
                 if (wex.Response != null)
                 {
                     response = (HttpWebResponse)wex.Response;
@@ -163,11 +174,11 @@ namespace KMBit.BL
             }
             catch (Exception ex)
             {
-               
+
             }
             finally
             {
-               
+
             }
         }
     }

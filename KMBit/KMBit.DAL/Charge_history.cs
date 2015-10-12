@@ -15,18 +15,21 @@ namespace KMBit.DAL
     public partial class Charge_history
     {
         public int Id { get; set; }
-        public Nullable<int> User_id { get; set; }
+        public int Agent_Id { get; set; }
         public int Resource_id { get; set; }
         public int Resource_taocan_id { get; set; }
         public int RuoteId { get; set; }
         public string Phone_number { get; set; }
-        public long Process_time { get; set; }
         public long Created_time { get; set; }
+        public long Process_time { get; set; }
+        public long Completed_Time { get; set; }
         public float Sale_price { get; set; }
         public float Purchase_price { get; set; }
-        public Nullable<sbyte> Charge_type { get; set; }
-        public bool Status { get; set; }
+        public sbyte Charge_type { get; set; }
+        public sbyte Status { get; set; }
         public string Message { get; set; }
         public string Out_Order_Id { get; set; }
+        public int Operate_User { get; set; }
+        public bool Payed { get; set; }
     }
 }

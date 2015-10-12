@@ -7,12 +7,17 @@ using KMBit.DAL;
 using KMBit.BL;
 using KMBit.BL.Admin;
 using KMBit.Beans;
+using KMBit.BL.MobileLocator;
 namespace KMBitAdm
 {
     class Program
     {
         static void Main(string[] args)
         {
+            TCMobileLocator locator = new TCMobileLocator();
+            BMobileLocation location= locator.GetMobileLocation("18606204852");
+            return;
+
             PermissionManagement pgt = new PermissionManagement(3);
             pgt.SyncPermissionsWithDB();
             return;

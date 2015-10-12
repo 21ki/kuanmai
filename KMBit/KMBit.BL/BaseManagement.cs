@@ -187,5 +187,27 @@ namespace KMBit.BL
                 property.SetValue(o1, property.GetValue(o2));
             }
         }
+
+        public List<BTaocan> FindBTaocans()
+        {
+            List<BTaocan> taocans = new List<BTaocan>();
+
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                var query = from t in db.Taocan
+                            join sp in db.Sp on t.Sp_id equals sp.Id into lsp
+                            from llsp in lsp.DefaultIfEmpty()
+                            orderby t.Created_time descending
+                            select new BTaocan
+                            {
+                                Taocan=t,
+                                SP =llsp
+                            };
+
+                taocans = query.ToList<BTaocan>();
+            }
+
+            return taocans;
+        }
     }
 }

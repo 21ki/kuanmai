@@ -21,6 +21,6 @@ namespace KMBit.BL.Charge
     public interface ICharge
     {
         ChargeResult Charge(ChargeOrder order);
-        ChargeResult AgencyCharge(AgencyChargeOrder order);
+        void CallBack(List<WebRequestParameters> data);
     }
 }

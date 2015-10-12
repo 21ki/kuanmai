@@ -68,10 +68,14 @@
     <Compile Include="Admin\AdministratorManagement.cs" />
     <Compile Include="Admin\AgentAdminMenagement.cs" />
     <Compile Include="Agent\AgentManagement.cs" />
+    <Compile Include="ChargeBridge.cs" />
     <Compile Include="Charge\ChargeConstant.cs" />
     <Compile Include="Charge\ChongBaCharge.cs" />
-    <Compile Include="HttpService.cs" />
+    <Compile Include="ChargeService.cs" />
     <Compile Include="Charge\ICharge.cs" />
+    <Compile Include="HttpService.cs" />
+    <Compile Include="MobileLocator\IMobileLocator.cs" />
+    <Compile Include="MobileLocator\TCMobileLocator.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="IdentityConfig.cs" />

@@ -73,19 +73,22 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="User_id" Type="int" />
+          <Property Name="Agent_Id" Type="int" Nullable="false" />
           <Property Name="Resource_id" Type="int" Nullable="false" />
           <Property Name="Resource_taocan_id" Type="int" Nullable="false" />
           <Property Name="RuoteId" Type="int" Nullable="false" />
           <Property Name="Phone_number" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="Process_time" Type="uint" Nullable="false" />
           <Property Name="Created_time" Type="uint" Nullable="false" />
+          <Property Name="Process_time" Type="uint" Nullable="false" />
+          <Property Name="Completed_Time" Type="uint" Nullable="false" />
           <Property Name="Sale_price" Type="float" Nullable="false" />
           <Property Name="Purchase_price" Type="float" Nullable="false" />
-          <Property Name="Charge_type" Type="tinyint" />
-          <Property Name="Status" Type="bool" Nullable="false" />
+          <Property Name="Charge_type" Type="tinyint" Nullable="false" />
+          <Property Name="Status" Type="tinyint" Nullable="false" />
           <Property Name="Message" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Out_Order_Id" Type="varchar" MaxLength="45" />
+          <Property Name="Operate_User" Type="int" Nullable="false" />
+          <Property Name="Payed" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Payment_history">
           <Key>
@@ -152,7 +155,8 @@
           <Property Name="Userpassword" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="Interface_classname" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Interface_assemblyname" Type="varchar" MaxLength="100" Nullable="false" />
-          <Property Name="APIURL" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="APIURL" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="CallBackUrl" Type="varchar" MaxLength="200" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -506,26 +510,30 @@
           <Property Name="Userpassword" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Interface_classname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Interface_assemblyname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="APIURL" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="APIURL" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CallBackUrl" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Charge_history">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="User_id" Type="Int32" />
+          <Property Name="Agent_Id" Type="Int32" Nullable="false" />
           <Property Name="Resource_id" Type="Int32" Nullable="false" />
           <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
           <Property Name="RuoteId" Type="Int32" Nullable="false" />
           <Property Name="Phone_number" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="Process_time" Type="Int64" Nullable="false" />
           <Property Name="Created_time" Type="Int64" Nullable="false" />
+          <Property Name="Process_time" Type="Int64" Nullable="false" />
+          <Property Name="Completed_Time" Type="Int64" Nullable="false" />
           <Property Name="Sale_price" Type="Single" Nullable="false" />
           <Property Name="Purchase_price" Type="Single" Nullable="false" />
-          <Property Name="Charge_type" Type="SByte" />
-          <Property Name="Status" Type="Boolean" Nullable="false" />
+          <Property Name="Charge_type" Type="SByte" Nullable="false" />
+          <Property Name="Status" Type="SByte" Nullable="false" />
           <Property Name="Message" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Out_Order_Id" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Operate_User" Type="Int32" Nullable="false" />
+          <Property Name="Payed" Type="Boolean" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -756,6 +764,7 @@
           <EntitySetMapping Name="Resrouce_interface">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resrouce_interface">
               <MappingFragment StoreEntitySet="Resrouce_interface">
+                <ScalarProperty Name="CallBackUrl" ColumnName="CallBackUrl" />
                 <ScalarProperty Name="APIURL" ColumnName="APIURL" />
                 <ScalarProperty Name="Interface_assemblyname" ColumnName="Interface_assemblyname" />
                 <ScalarProperty Name="Interface_classname" ColumnName="Interface_classname" />
@@ -769,19 +778,22 @@
           <EntitySetMapping Name="Charge_history">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Charge_history">
               <MappingFragment StoreEntitySet="Charge_history">
+                <ScalarProperty Name="Payed" ColumnName="Payed" />
+                <ScalarProperty Name="Operate_User" ColumnName="Operate_User" />
                 <ScalarProperty Name="Out_Order_Id" ColumnName="Out_Order_Id" />
                 <ScalarProperty Name="Message" ColumnName="Message" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Charge_type" ColumnName="Charge_type" />
                 <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
                 <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
-                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
+                <ScalarProperty Name="Completed_Time" ColumnName="Completed_Time" />
                 <ScalarProperty Name="Process_time" ColumnName="Process_time" />
+                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
                 <ScalarProperty Name="Phone_number" ColumnName="Phone_number" />
                 <ScalarProperty Name="RuoteId" ColumnName="RuoteId" />
                 <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
                 <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Agent_Id" ColumnName="Agent_Id" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

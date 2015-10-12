@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using KMBit.BL;
+using KMBit.Beans;
 namespace KMBit.Controllers
 {
     public class HomeController : Controller
@@ -22,8 +23,11 @@ namespace KMBit.Controllers
 
         public ActionResult Charge()
         {
-            ViewBag.Message = "Your contact page.";
-
+            //BaseManagement baseMgr = new BaseManagement(0);
+            //List<BTaocan> taocans = baseMgr.FindBTaocans();
+            //int total = taocans.Count();
+            //PageItemsResult<BTaocan> result = new PageItemsResult<BTaocan>() { CurrentPage = 1, Items = taocans, PageSize = total, TotalRecords = total };
+            //KMBit.Grids.KMGrid<BTaocan> grid = new KMBit.Grids.KMGrid<BTaocan>(result);
             return View();
         }
 

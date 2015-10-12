@@ -201,6 +201,7 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\api\ApiMessage.cs" />
     <Compile Include="Controllers\api\BaseApiController.cs" />
+    <Compile Include="Controllers\api\CallBackController.cs" />
     <Compile Include="Controllers\api\GeneralController.cs" />
     <Compile Include="Controllers\api\ResourceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
