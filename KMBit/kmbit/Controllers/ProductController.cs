@@ -27,6 +27,12 @@ namespace KMBit.Controllers
             {
                 ChargeBridge cb = new ChargeBridge();
                 ChargeOrder order = new ChargeOrder() { AgencyId = 0, Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                //
+                OrderManagement orderMgt = new OrderManagement();
+                order = orderMgt.GenerateOrder(order);
+                //Redirct to the payment page.
+                //TBD
+                //After the payment is done then process below steps
                 ChargeResult result = cb.Charge(order);
                 ViewBag.Message = result.Message;
             }

@@ -229,7 +229,7 @@ namespace KMBit.BL
                             cOrder.Message = result.Message;
                             break;
                     }
-
+                    cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     db.SaveChanges();
                 }
             }

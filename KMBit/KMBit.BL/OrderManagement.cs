@@ -81,9 +81,25 @@ namespace KMBit.BL
             return order;
         }
 
-        public void UpdatePaymentStatus(int orderId)
+        public bool UpdatePaymentStatus(string mobile,int orderId, bool payed)
         {
+            bool result = false;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Charge_history cOrder = (from o in db.Charge_history where o.Id==orderId && o.Phone_number==mobile select o).FirstOrDefault<Charge_history>();
+                if(cOrder!=null)
+                {
+                    cOrder.Payed = payed;
+                }else
+                {
+                    throw new KMBitException(string.Format("编号为{0}的充值记录不存在",orderId));
+                }
 
+                db.SaveChanges();
+                result = true;
+            }
+
+            return result;
         }
     }
 }

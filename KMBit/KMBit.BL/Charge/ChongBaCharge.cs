@@ -119,7 +119,7 @@ namespace KMBit.BL.Charge
                     JObject jsonResult = JObject.Parse(this.Response);
                     order.OutId = jsonResult["orderId"]!=null? jsonResult["orderId"].ToString():"";
                     string res = jsonResult["respCode"].ToString();
-
+                    corder.Process_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                     switch(res.ToLower())
                     {
                         case "jx0000":
