@@ -209,5 +209,81 @@ namespace KMBit.BL
 
             return taocans;
         }
+
+        public List<BResourceTaocan> SearchResourceTaocans(string spName, string province)
+        {
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                int spId = 0;
+                if(!string.IsNullOrEmpty(spName))
+                {
+                    spId = (from s in db.Sp where s.Name==spName select s.Id).FirstOrDefault<int>();
+                }
+                int provinceId = 0;
+                if(!string.IsNullOrEmpty(province))
+                {
+                    provinceId = (from p in db.Area where p.Name.Contains(province) select p.Id).FirstOrDefault<int>();
+                }
+
+                var tmp = from rta in db.Resource_taocan
+                          join r in db.Resource on rta.Resource_id equals r.Id
+                          join cu in db.Users on rta.CreatedBy equals cu.Id into lcu
+                          from llcu in lcu.DefaultIfEmpty()
+                          join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
+                          from lluu in luu.DefaultIfEmpty()
+                          join city in db.Area on rta.Area_id equals city.Id into lcity
+                          from llcity in lcity.DefaultIfEmpty()
+                          join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
+                          from llsp in lsp.DefaultIfEmpty()
+                          join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                          select new BResourceTaocan
+                          {
+                              Taocan = rta,
+                              Taocan2 = tt,
+                              CreatedBy = llcu,
+                              UpdatedBy = lluu,
+                              City = llcity,
+                              SP = llsp,
+                              Resource = new BResource() { Resource = r }
+                          };
+
+                if(spId>0)
+                {
+                    tmp = tmp.Where(t => t.Taocan.Sp_id == spId || t.Taocan.Sp_id == 0);
+                }else
+                {
+                    tmp = tmp.Where(t => t.Taocan.Sp_id == 0);
+                }
+
+                if (provinceId > 0)
+                {
+                    tmp = tmp.Where(t => t.Taocan.Area_id == provinceId);
+                }
+                else
+                {
+                    tmp = tmp.Where(t => t.Taocan.Area_id == 0);
+                }
+
+                List<BResourceTaocan> tmpTaocans = tmp.OrderBy(t=>t.Taocan.Quantity).ToList<BResourceTaocan>();
+                List<int> ts = (from t in tmpTaocans select t.Taocan.Quantity).Distinct<int>().ToList<int>();
+                List<BResourceTaocan> globalTaocans = (from t in tmpTaocans where t.Taocan.Area_id == 0 select t).ToList<BResourceTaocan>();
+                List<BResourceTaocan> localTaocans = (from t in tmpTaocans where t.Taocan.Area_id > 0 select t).ToList<BResourceTaocan>();
+                foreach (int t in ts)
+                {
+                    BResourceTaocan st = (from tc in globalTaocans where tc.Taocan.Quantity==t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    BResourceTaocan st2 = (from tc in localTaocans where tc.Taocan.Quantity == t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    if (st != null)
+                    {
+                        taocans.Add(st);
+                    }
+                    if (st2 != null)
+                    {
+                        taocans.Add(st2);
+                    }
+                }
+            }
+            return taocans;
+        }
     }
 }

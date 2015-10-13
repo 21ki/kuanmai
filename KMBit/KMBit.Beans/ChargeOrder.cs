@@ -13,6 +13,10 @@ namespace KMBit.Beans
         public int ResourceId { get; set; }
         public int ResourceTaocanId { get; set; }
         public string OutId { get; set; }
+        public int OperateUserId { get; set; }
+        public long CreatedTime { get; set; }
+
+        public bool Payed { get; set; }
     }
 
     public class ChargeOrder: ChargeBaseOrder

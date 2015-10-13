@@ -376,7 +376,7 @@ namespace KMBit.Controllers
                     taocan.Resource_id = model.ResoucedId;
                 }
                 
-                taocan.Area_id = model.City != null ? (int)model.City : 0;                            
+                taocan.Area_id = model.Province != null ? (int)model.Province : 0;                            
                 taocan.Enabled = model.Enabled;
                 taocan.Purchase_price = model.PurchasePrice;
                 taocan.Sale_price = model.SalePrice;
