@@ -21,8 +21,10 @@ namespace KMBit.Controllers
         }
 
         [HttpPost]
-        public ActionResult Charge(DirectChargeModel model)
+        public ActionResult Charge(ChargeModel model)
         {
+           
+
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();

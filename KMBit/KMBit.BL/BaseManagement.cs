@@ -243,7 +243,7 @@ namespace KMBit.BL
                               Taocan2 = tt,
                               CreatedBy = llcu,
                               UpdatedBy = lluu,
-                              City = llcity,
+                              Province = llcity,
                               SP = llsp,
                               Resource = new BResource() { Resource = r }
                           };

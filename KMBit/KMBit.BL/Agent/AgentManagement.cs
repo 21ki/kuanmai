@@ -15,10 +15,45 @@ namespace KMBit.BL.Agent
         {
 
         }
+
+        public AgentManagement(string email) : base(email)
+        {
+
+        }
         public AgentManagement(BUser user) : base(user)
         {
 
-        }    
+        }
+
+        public List<BAgentRoute> FindTaocans(int agencyId, string sp, string province)
+        {
+            if (agencyId <= 0)
+            {
+                if (CurrentLoginUser != null)
+                {
+                    agencyId = CurrentLoginUser.User.Id;
+                }
+            }
+            AgentAdminMenagement agentAdminMgt = new AgentAdminMenagement(this.CurrentLoginUser);
+            
+            int total = 0;
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0, agencyId, 0, 0, out total);
+            List<BAgentRoute> globalRoutes = (from r in routes where r.Taocan.SP == null select r).ToList<BAgentRoute>();
+            List<BAgentRoute> spRoutes = new List<BAgentRoute>();
+            List<BAgentRoute> returnRoutes = new List<BAgentRoute>();
+            if (!string.IsNullOrEmpty(sp))
+            {
+                spRoutes = (from r in routes where r.Taocan.SP != null && r.Taocan.SP.Name == sp select r).ToList<BAgentRoute>();
+            }
+            globalRoutes = globalRoutes.Concat<BAgentRoute>(spRoutes).ToList<BAgentRoute>();
+            returnRoutes = globalRoutes;
+            if (!string.IsNullOrEmpty(province))
+            {
+                returnRoutes = (from r in globalRoutes where r.Taocan.Province!=null && r.Taocan.Province.Name.Contains(province) select r).ToList<BAgentRoute>();
+            }
+            
+            return returnRoutes;
+        }
 
         public List<BAgentRoute> FindTaocans(int routeId)
         {

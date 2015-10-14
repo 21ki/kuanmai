@@ -33,6 +33,8 @@
                             }">账户信息</a>
                         <a href="/Agent/Taocan" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Taocan" || actionName=="EditTaocan")){ @Html.Raw("active"); }
                             }">套餐管理</a>
+                        <a href="/Agent/Charge" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }
+                            }">流量充值</a>
                         <a href="/Agent/ChargeHistories" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="ChargeHistories")){ @Html.Raw("active"); }
                             }">流量充值记录</a>
                         <a href="/Agent/PayHistories" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="PayHistories")){ @Html.Raw("active"); }

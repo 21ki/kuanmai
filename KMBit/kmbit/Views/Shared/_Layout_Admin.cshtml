@@ -31,14 +31,15 @@
                         <a href="/Admin/Resources" class="list-group-item @{if(controllerName=="Admin" &&
                                 (string.IsNullOrEmpty(actionName) || actionName=="Resources" || actionName=="CreateResource"
                                 || actionName=="EditResource" || actionName=="ViewResource" || actionName=="ViewResourceTaoCan"
-                                || actionName=="CreateResourceTaocan" || actionName=="UpdateResourceTaocan"))
+                                || actionName=="CreateResourceTaocan" || actionName=="UpdateResourceTaocan" || actionName == "ConfigureResource"))
                             { @Html.Raw("active"); }
                             }">资源管理</a>
                         <a href="/Admin/Agencies" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Agencies" || actionName=="CreateAgency"
-                              || actionName == "EditAgency" || actionName == "UpdateAgency" || actionName=="CreateAgentRoute" || actionName=="AgentRoutes" || actionName == "EditAgentRuote"))
+                              || actionName == "EditAgency" || actionName == "UpdateAgency" || actionName=="CreateAgentRoute" || actionName=="AgentRoutes" || actionName == "EditAgentRuote" ))
                             { @Html.Raw("active"); }
                             }">代理商管理</a>
-                        
+                        <a href="/Admin/Charge" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }
+                            }">手工充值流量</a>
                         <a href="/Admin/ChargeHistory" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "ChargeHistory")){ @Html.Raw("active"); }
                             }">流量充值查询</a>
 

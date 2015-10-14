@@ -77,15 +77,15 @@
           <Property Name="Resource_id" Type="int" Nullable="false" />
           <Property Name="Resource_taocan_id" Type="int" Nullable="false" />
           <Property Name="RuoteId" Type="int" Nullable="false" />
-          <Property Name="Phone_number" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="Phone_number" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="Created_time" Type="uint" Nullable="false" />
           <Property Name="Process_time" Type="uint" Nullable="false" />
           <Property Name="Completed_Time" Type="uint" Nullable="false" />
           <Property Name="Sale_price" Type="float" Nullable="false" />
           <Property Name="Purchase_price" Type="float" Nullable="false" />
-          <Property Name="Charge_type" Type="tinyint" Nullable="false" />
+          <Property Name="Charge_type" Type="int" Nullable="false" />
           <Property Name="Status" Type="tinyint" Nullable="false" />
-          <Property Name="Message" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Message" Type="varchar" MaxLength="100" />
           <Property Name="Out_Order_Id" Type="varchar" MaxLength="45" />
           <Property Name="Operate_User" Type="int" Nullable="false" />
           <Property Name="Payed" Type="bool" Nullable="false" />
@@ -522,15 +522,15 @@
           <Property Name="Resource_id" Type="Int32" Nullable="false" />
           <Property Name="Resource_taocan_id" Type="Int32" Nullable="false" />
           <Property Name="RuoteId" Type="Int32" Nullable="false" />
-          <Property Name="Phone_number" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Phone_number" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="Created_time" Type="Int64" Nullable="false" />
           <Property Name="Process_time" Type="Int64" Nullable="false" />
           <Property Name="Completed_Time" Type="Int64" Nullable="false" />
           <Property Name="Sale_price" Type="Single" Nullable="false" />
           <Property Name="Purchase_price" Type="Single" Nullable="false" />
-          <Property Name="Charge_type" Type="SByte" Nullable="false" />
+          <Property Name="Charge_type" Type="Int32" Nullable="false" />
           <Property Name="Status" Type="SByte" Nullable="false" />
-          <Property Name="Message" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Out_Order_Id" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Name="Operate_User" Type="Int32" Nullable="false" />
           <Property Name="Payed" Type="Boolean" Nullable="false" />

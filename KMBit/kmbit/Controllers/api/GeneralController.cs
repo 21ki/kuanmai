@@ -113,7 +113,7 @@ namespace KMBit.Controllers.api
                     List<BResourceTaocan> taocans = resourceMgt.FindResourceTaocans(0, resourceId, 0, out total);
                     message.Status = "OK";
                     message.Message = "成功获取用户类型数据，请使用JSON Item节点数据";
-                    message.Item = (from t in taocans select new { Id = t.Taocan.Id, Name = t.SP.Name + " " + t.City.Name + " " + t.Taocan.Quantity + "M" });
+                    message.Item = (from t in taocans select new { Id = t.Taocan.Id, Name = t.SP.Name + " " + t.Province.Name + " " + t.Taocan.Quantity + "M" });
                 }
                 else
                 {

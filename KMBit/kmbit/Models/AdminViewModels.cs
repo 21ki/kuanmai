@@ -5,6 +5,38 @@ using Microsoft.Owin.Security;
 
 namespace KMBit.Models
 {
+    public class ResourceConfigModel
+    {
+        public int Id { get; set; }
+        [Required]
+        [Display(Name = "资源编号")]
+        public int ResoucedId { get; set; }
+
+        [Required]
+        [Display(Name = "用户名")]
+        public string UserName { get; set; }
+
+        [Required]
+        [Display(Name = "密码")]
+        public string Password { get; set; }
+
+        [Required]
+        [Display(Name = "接口URL")]
+        public string ApiUrl { get; set; }
+
+        [Required]
+        [Display(Name = "平台接口名称")]
+        public string InterfaceName { get; set; }
+
+        [Required]
+        [Display(Name = "平台接口DLL名称")]
+        public string InterfaceAssemblyName { get; set; }
+
+        [Required]
+        [Display(Name = "回调URL")]
+        public string CallBack { get; set; }
+    }
+
     public class ResourceTaocanModel
     {
         [Display(Name = "编号")]

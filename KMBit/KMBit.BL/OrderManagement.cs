@@ -17,9 +17,10 @@ namespace KMBit.BL
             {
                 throw new KMBitException("充值前请先选择套餐");
             }
-
-            using (chargebitEntities db = new chargebitEntities())
+            chargebitEntities db = null;
+            try           
             {
+                db = new chargebitEntities();
                 Resource_taocan taocan = (from tc in db.Resource_taocan where tc.Id == order.ResourceTaocanId select tc).FirstOrDefault<Resource_taocan>();
                 if (!taocan.Enabled)
                 {
@@ -73,9 +74,19 @@ namespace KMBit.BL
                 history.Resource_id = resource.Id;
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
+                history.Charge_type = order.ChargeType;
                 db.Charge_history.Add(history);
                 db.SaveChanges();
                 order.Id = history.Id;
+            }catch(Exception ex)
+            {
+
+            }finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
             }
 
             return order;

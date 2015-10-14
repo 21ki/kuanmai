@@ -1,8 +1,137 @@
-﻿
+﻿@model KMBit.Models.ChargeModel
 @{
-    ViewBag.Title = "Charge";
+    ViewBag.Title = "流量充值";
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    string message = "";
+    if (ViewBag.Message != null)
+    {
+        message = (string)ViewBag.Message;
+    }
 }
 
-<h2>Charge</h2>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<script type="text/javascript">
+    var BASE_URL = '@Url.Content("~/")';
+    $(function () {
+        //GetMobileLocation("18606204852", function (data) {
+        //    alert(data.sp);
+        //});
+
+        $('#ChargeForm').find('#Mobile').blur(function () {
+            GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
+                if (data == null) {
+                    alert("请输入正确的手机号码");
+                    return;
+                } else {
+                    $('#ChargeForm').find('#SPName').val(data.sp);
+                    $('#ChargeForm').find('#Province').val(data.province);
+                    $('#ChargeForm').find('#City').val(data.city);
+                    $('#ChargeForm').find('#SPName').val(data.sp);
+                }
+            });
+        });
+
+        $('#ChargeForm').find('#global_byte').click(function () {
+            var mobileNumber = $('#ChargeForm').find('#Mobile').val();
+            if ($.trim(mobileNumber) == '') {
+                $('#ChargeForm').submit();
+                return;
+            }
+            requestTaocan($('#ChargeForm').find('#SPName').val(),"");
+        });
+        $('#ChargeForm').find('#local_byte').click(function () {
+            var mobileNumber = $('#ChargeForm').find('#Mobile').val();
+            if ($.trim(mobileNumber) == '') {
+                $('#ChargeForm').submit();
+                return;
+            }
+            requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val());
+        });
+
+        function requestTaocan(sp, province) {
+            $.post(
+                        BASE_URL + "api/Product/SearchDirectChargeTaocans",
+                        { sp: sp, province: province },
+                        function (data) {
+                            $('#taocan_container').html("");
+                            var ul = $('<ul style="padding-left:0px;"></ul>');
+                            if (data.Status == "OK" && data.Item.length > 0) {
+                                $(data.Item).each(function (index, item) {
+                                    var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
+                                    var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
+                                    $('<input type="radio" id="ResourceTaocanId" name="ResourceTaocanId" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
+                                    $("<div style=\"float:left;width:20%;\"></div>").appendTo(li).html(item.Resource.Resource.Name);
+                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html(item.Taocan2.Name);
+                                    
+                                    $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Sale_price+"元");
+                                });
+                            }
+                            $(ul).appendTo($('#taocan_container'))
+                        }
+                    );
+        }
+
+        $('#ChargeForm').find('#submit_charge').click(function () {
+            var mobileNumber = $('#ChargeForm').find('#Mobile').val();
+            if ($.trim(mobileNumber) == '') {
+                $('#ChargeForm').submit();
+                return;
+            }
+            var taocanId = $('#ChargeForm').find('#taocan_container').find('input[name="ResourceTaocanId"]:checked').val();
+            if (taocanId=="undefined" || $.trim(taocanId) == '' || taocanId == 0) {
+                alert("请选择需要充值的流量包套餐");
+                return;
+            }
+            $('#ChargeForm').submit();
+        })
+    });
+</script>
+<hr />
+@using (Html.BeginForm("Charge", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "ChargeForm" }))
+{
+    @Html.HiddenFor(model => model.SPName)
+    @Html.HiddenFor(model => model.Province)
+    @Html.HiddenFor(model => model.City)
+    <div class="form-group">
+        @Html.LabelFor(model => model.Mobile, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <div class="btn-group" role="group" aria-label="...">
+                <button id="global_byte" type="button" class="btn btn-default">全国流量</button>
+                <button id="local_byte" type="button" class="btn btn-default">本地流量</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <div id="taocan_container">
+
+            </div>
+
+        </div>
+    </div>
+
+    if (message != "")
+    {
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <p style="color:red;">@Html.Raw(message)</p>
+            </div>
+        </div>
+    }
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input id="submit_charge" type="button" value="充值" class="btn btn-default" />
+        </div>
+    </div>
+}
 

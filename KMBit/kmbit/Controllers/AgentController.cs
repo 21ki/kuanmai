@@ -145,6 +145,17 @@ namespace KMBit.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult Charge()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Charge(AgentChargeModel model)
+        {
+            return View();
+        }
         //
         // POST: /Manage/ChangePassword
         [HttpPost]

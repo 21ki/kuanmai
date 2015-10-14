@@ -54,8 +54,7 @@ namespace KMBit.BL
                     return result;
                 }
                 Assembly assembly=Assembly.LoadFrom(rInterface.Interface_assemblyname);
-                chargeMgr = (ICharge)assembly.CreateInstance(rInterface.Interface_classname);
-               
+                chargeMgr = (ICharge)assembly.CreateInstance(rInterface.Interface_classname);               
                 result = chargeMgr.Charge(order);
             }
             catch(Exception ex)

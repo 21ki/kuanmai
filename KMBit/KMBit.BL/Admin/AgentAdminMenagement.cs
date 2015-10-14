@@ -211,7 +211,7 @@ namespace KMBit.BL.Admin
                                 {
                                     Taocan = tc,
                                     Resource = new BResource { Resource = re },
-                                    City = llcity,
+                                    Province = llcity,
                                     SP = llsp
                                 }
                             };
@@ -245,6 +245,8 @@ namespace KMBit.BL.Admin
             }
             return routes;
         }
+
+        
 
         public bool CreateRoute(Agent_route route)
         {
@@ -316,7 +318,7 @@ namespace KMBit.BL.Admin
                               Taocan = new BResourceTaocan
                               {
                                   Taocan = rta,                                
-                                  City = llcity,
+                                  Province = llcity,
                                   SP = llsp,
                                   Resource = new BResource() { Resource = r }
                               } 

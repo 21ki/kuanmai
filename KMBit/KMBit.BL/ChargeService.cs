@@ -94,7 +94,7 @@ namespace KMBit.BL
                                 {
                                     Taocan = tc,
                                     Resource = new BResource { Resource = re },
-                                    City = llcity,
+                                    Province = llcity,
                                     SP = llsp
                                 }
                             };
@@ -170,7 +170,7 @@ namespace KMBit.BL
                                                 {
                                                     Taocan = tc,
                                                     Resource = new BResource { Resource = re },
-                                                    City = llcity,
+                                                    Province = llcity,
                                                     SP = llsp
                                                 }
                                             };
@@ -214,7 +214,7 @@ namespace KMBit.BL
                                               Taocan2 = tt,
                                               CreatedBy = llcu,
                                               UpdatedBy = lluu,
-                                              City = llcity,
+                                              Province = llcity,
                                               SP = llsp,
                                               Resource = new BResource() { Resource = r }
                                           };

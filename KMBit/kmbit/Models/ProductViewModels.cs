@@ -5,7 +5,7 @@ using System.Web;
 using System.ComponentModel.DataAnnotations;
 namespace KMBit.Models
 {
-    public class DirectChargeModel
+    public class ChargeModel
     {
         [Required(ErrorMessage ="请输入正确的手机号码")]
         [Display(Name = "手机号码")]
@@ -20,9 +20,16 @@ namespace KMBit.Models
 
         [Display(Name = "城市")]
         public string City { get; set; }
-
-        [Required]
+        
         [Display(Name = "落地套餐编号")]
         public int ResourceTaocanId { get; set; }
+
+        public int Operator { get; set; }
+    }
+
+    public class AgentChargeModel:ChargeModel
+    {
+        [Display(Name = "路由编号")]
+        public int RouteId { get; set; }
     }
 }

@@ -304,7 +304,7 @@ namespace KMBit.BL.Admin
                               Taocan2 = tt,
                               CreatedBy = llcu,
                               UpdatedBy = lluu,
-                              City = llcity,
+                              Province = llcity,
                               SP = llsp,
                               Resource = new BResource() { Resource = r }
                           };
@@ -335,9 +335,9 @@ namespace KMBit.BL.Admin
                         t.SP = new Sp { Id = 0, Name = "全网" };
                     }
 
-                    if (t.City == null)
+                    if (t.Province == null)
                     {
-                        t.City = new Area { Id = 0, Name = "全国" };
+                        t.Province = new Area { Id = 0, Name = "全国" };
                     }
                 }
             }
@@ -365,6 +365,49 @@ namespace KMBit.BL.Admin
             }
 
             return taocans;
+        }
+
+        public Resrouce_interface GetResrouceInterface(int resourceId)
+        {
+            if(resourceId<=0)
+            {
+                return null;
+            }
+            Resrouce_interface api = null;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Resource resource = (from r in db.Resource where r.Id==resourceId select r).FirstOrDefault<Resource>();
+                if(resource==null)
+                {
+                    throw new KMBitException(string.Format("编号为{0}的资源不存在",resourceId));
+                }
+
+                api = (from a in db.Resrouce_interface where a.Resource_id==resourceId select a).FirstOrDefault<Resrouce_interface>();
+            }
+                return api;
+        }
+
+        public bool UpdateResrouceInterface(Resrouce_interface api)
+        {
+            bool result = false;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Resrouce_interface oapi = (from a in db.Resrouce_interface where a.Resource_id == api.Resource_id select a).FirstOrDefault<Resrouce_interface>();
+                if(oapi==null)
+                {
+                    db.Resrouce_interface.Add(api);
+                }else
+                {
+                    oapi.APIURL = api.APIURL;
+                    oapi.CallBackUrl = api.CallBackUrl;
+                    oapi.Username = api.Username;
+                    oapi.Userpassword = api.Userpassword;
+                }
+
+                db.SaveChanges();
+                result = true;
+            }
+            return result;
         }
     }
 }

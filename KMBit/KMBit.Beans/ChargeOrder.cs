@@ -15,7 +15,7 @@ namespace KMBit.Beans
         public string OutId { get; set; }
         public int OperateUserId { get; set; }
         public long CreatedTime { get; set; }
-
+        public int ChargeType { get; set; }
         public bool Payed { get; set; }
     }
 

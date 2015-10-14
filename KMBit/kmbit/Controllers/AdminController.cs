@@ -13,6 +13,8 @@ using KMBit.BL.Admin;
 using KMBit.Models;
 using KMBit.Util;
 using KMBit.Beans;
+using KMBit.BL.Charge;
+using KMBit.DAL;
 namespace KMBit.Controllers
 {
     [Authorize]
@@ -126,15 +128,15 @@ namespace KMBit.Controllers
         }
 
         [ValidateInput(false)]
-        public ActionResult EditResource(int id)
+        public ActionResult EditResource(int resourceId)
         {
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
-            if (id <= 0)
+            if (resourceId <= 0)
             {
-                ViewBag.Message = "id格式不正确";
+                ViewBag.Message = "资源编号不正确";
                 return View("Error");
             }
-            List<BResource> resources = resourceMgt.FindResources(id, null, 0,out total);
+            List<BResource> resources = resourceMgt.FindResources(resourceId, null, 0,out total);
             if (resources == null)
             {
                 ViewBag.Message = "试图编辑的资源不存在";
@@ -163,6 +165,65 @@ namespace KMBit.Controllers
             ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             return View("CreateResource", model);
+        }
+
+        [HttpGet]
+        public ActionResult ConfigureResource(int resourceId)
+        {
+            if(resourceId<=0)
+            {
+                ViewBag.Message = "落地资源编号不正确";
+                return View("Error");
+            }
+
+            ResourceConfigModel model = new ResourceConfigModel() { Id=0,ResoucedId=resourceId, InterfaceAssemblyName= "KMBit.BL.dll" };
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if(!resourceMgt.CurrentLoginUser.Permission.CONFIGURE_RESOURCE)
+            {
+                ViewBag.Message = "没有权限配置落地资源接口信息";
+                return View("Error");
+            }
+
+            try
+            {
+                KMBit.DAL.Resrouce_interface api = resourceMgt.GetResrouceInterface(resourceId);
+                if (api != null)
+                {
+                    model.Id = api.Id;
+                    model.InterfaceName = api.Interface_classname;
+                    model.Password = api.Userpassword;
+                    model.UserName = api.Username;
+                    model.ResoucedId = api.Resource_id;
+                    model.ApiUrl = api.APIURL;
+                    model.CallBack = api.CallBackUrl;
+                }
+            }
+            catch (KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }
+            
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public ActionResult ConfigureResource(ResourceConfigModel model)
+        {
+            if(ModelState.IsValid)
+            {
+                resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+                Resrouce_interface api = new Resrouce_interface()
+                { Id=model.Id,Resource_id=model.ResoucedId, APIURL=model.ApiUrl, CallBackUrl=model.CallBack, Interface_classname= model.InterfaceName, Interface_assemblyname=model.InterfaceAssemblyName, Username=model.UserName,Userpassword=model.Password };
+
+                if(resourceMgt.UpdateResrouceInterface(api))
+                {
+                    return RedirectToAction("Resources");
+                }
+            }
+
+            return View();
         }
 
         [HttpPost]
@@ -326,9 +387,9 @@ namespace KMBit.Controllers
             BResourceTaocan bTaocan = resourceTaocans[0];
             ResourceTaocanModel model = new ResourceTaocanModel() { City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
             ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id};
-            if(bTaocan.City!=null && bTaocan.City.Id>0)
+            if(bTaocan.Province!=null && bTaocan.Province.Id>0)
             {
-                model.Province = bTaocan.City.Upid;
+                model.Province = bTaocan.Province.Upid;
             }           
 
             List<KMBit.DAL.Area> provinces = null;
@@ -794,6 +855,12 @@ namespace KMBit.Controllers
             {
                 adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
             }
+            
+            if (!adminMgt.CurrentLoginUser.Permission.SEARCH_USER)
+            {
+                ViewBag.Message = "没有权查询管理员";
+                return View("Error");
+            }
 
             return View(adminMgt.FindAdministrators());
         }
@@ -801,6 +868,12 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult ChargeHistory()
         {
+            BaseManagement baseMgt = new BaseManagement(User.Identity.GetUserId<int>());
+            if (!baseMgt.CurrentLoginUser.Permission.CHARGE_HISTORY)
+            {
+                ViewBag.Message = "没有权限查看流量充值记录";
+                return View("Error");
+            }
             return View();
         }
 
@@ -873,6 +946,43 @@ namespace KMBit.Controllers
             }           
             
             return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult Charge()
+        {
+            BaseManagement baseMgt = new BaseManagement(User.Identity.GetUserId<int>());
+            if (!baseMgt.CurrentLoginUser.Permission.CHARGE_BYTE)
+            {
+                ViewBag.Message = "没有权限充值流量";
+                return View("Error");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Charge(ChargeModel model)
+        {
+            BaseManagement baseMgt = new BaseManagement(User.Identity.GetUserId<int>());
+            if (!baseMgt.CurrentLoginUser.Permission.CHARGE_BYTE)
+            {
+                ViewBag.Message = "没有权限充值流量";
+                return View("Error");
+            }
+           
+            if (ModelState.IsValid)
+            {
+                ChargeBridge cb = new ChargeBridge();
+                ChargeOrder order = new ChargeOrder() {Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+              
+                OrderManagement orderMgt = new OrderManagement();
+                order = orderMgt.GenerateOrder(order);               
+                ChargeResult result = cb.Charge(order);
+                ViewBag.Message = result.Message;
+            }
+
+            return View();
         }
     }
 }

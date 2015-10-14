@@ -1,14 +1,14 @@
-﻿@model KMBit.Models.ChargeModel
+﻿@model KMBit.Models.AgentChargeModel
 @{
     ViewBag.Title = "充值";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
     string message = "";
-    if(ViewBag.Message!=null)
+    if (ViewBag.Message != null)
     {
         message = (string)ViewBag.Message;
     }
 }
-@using GridMvc.Html 
+@using GridMvc.Html
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
@@ -29,7 +29,7 @@
                     $('#ChargeForm').find('#SPName').val(data.sp);
                     $('#ChargeForm').find('#Province').val(data.province);
                     $('#ChargeForm').find('#City').val(data.city);
-                    $('#ChargeForm').find('#SPName').val(data.sp);                    
+                    $('#ChargeForm').find('#SPName').val(data.sp);
                 }
             });
         });
@@ -53,22 +53,24 @@
 
         function requestTaocan(sp, province) {
             $.post(
-                        BASE_URL + "api/Product/SearchDirectChargeTaocans",
+                        BASE_URL + "api/Agent/SearchDirectChargeTaocans",
                         { sp: sp, province: province },
                         function (data) {
                             $('#taocan_container').html("");
-                            var ul = $('<ul style="padding-left:0px;"></ul>');
-                            if (data.Status == "OK" && data.Item.length > 0) {
+                            var ul = $('<ul style="padding-left:0px;"></ul>');                           
+                            if (data.Status == "OK" && data.Item.length > 0) {                               
                                 $(data.Item).each(function (index, item) {
+                                   
                                     var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
                                     var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
-                                    $('<input type="radio" id="ResourceTaocanId" name="ResourceTaocanId" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
-                                    $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan2.Name);
-                                    //$("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity);
-                                    $("<div style=\"float:left;width:5%;\"></div>").appendTo(li).html(item.Taocan.Sale_price+"元");
+                                    $('<input type="radio" id="RouteId" name="RouteId" value="' + item.Route.Id + '"/>').appendTo(chkDiv);
+                                    $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.SP == null ? "全网" : item.Taocan.SP.Name);
+                                    $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Taocan.Quantity+"M");
+                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("售价:" + item.Route.Sale_price + "元");
+                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("代理价:" + item.Route.Discount * item.Taocan.Taocan.Sale_price + "元");
                                 });
                             }
-                            $(ul).appendTo($('#taocan_container'))
+                            $(ul).appendTo($('#taocan_container'));
                         }
                     );
         }
@@ -79,7 +81,7 @@
                 $('#ChargeForm').submit();
                 return;
             }
-            var taocanId = $('#ChargeForm').find('#taocan_container').find('input[name="ResourceTaocanId"]:checked').val();           
+            var taocanId = $('#ChargeForm').find('#taocan_container').find('input[name="RouteId"]:checked').val();
             if (taocanId=="undefined" || $.trim(taocanId) == '' || taocanId == 0) {
                 alert("请选择需要充值的流量包套餐");
                 return;
@@ -88,18 +90,18 @@
         })
     });
 </script>
-<hr/>
-@using (Html.BeginForm("Charge", "Product", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "ChargeForm" }))
+<hr />
+@using (Html.BeginForm("Charge", "Agent", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "ChargeForm" }))
 {
     @Html.HiddenFor(model => model.SPName)
     @Html.HiddenFor(model => model.Province)
-    @Html.HiddenFor(model => model.City)    
+    @Html.HiddenFor(model => model.City)
     <div class="form-group">
         @Html.LabelFor(model => model.Mobile, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })
-        </div>        
+        </div>
     </div>
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
@@ -110,11 +112,11 @@
         </div>
     </div>
     <div class="form-group">
-        <div class="col-md-offset-2 col-md-10" >
+        <div class="col-md-offset-2 col-md-10">
             <div id="taocan_container">
-                
-            </div>            
-            
+
+            </div>
+
         </div>
     </div>
 
@@ -133,4 +135,6 @@
         </div>
     </div>
 }
+
+
 

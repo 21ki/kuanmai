@@ -25,7 +25,7 @@ namespace KMBit.DAL
         public long Completed_Time { get; set; }
         public float Sale_price { get; set; }
         public float Purchase_price { get; set; }
-        public sbyte Charge_type { get; set; }
+        public int Charge_type { get; set; }
         public sbyte Status { get; set; }
         public string Message { get; set; }
         public string Out_Order_Id { get; set; }
