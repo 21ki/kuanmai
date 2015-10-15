@@ -10,17 +10,24 @@ using KMBit.Beans;
 using KMBit.BL.MobileLocator;
 namespace KMBitAdm
 {
+    public interface Itest
+    {
+        void Print(string message);
+    }
+    public class P1:Itest
+    {
+        public void Print(string message)
+        {
+            Console.WriteLine(message);
+        }
+    }
     class Program
     {
         static void Main(string[] args)
         {
-            TCMobileLocator locator = new TCMobileLocator();
-            BMobileLocation location= locator.GetMobileLocation("18606204852");
-            return;
-
-            PermissionManagement pgt = new PermissionManagement(3);
-            pgt.SyncPermissionsWithDB();
-            return;
+            object obj = System.Reflection.Assembly.GetExecutingAssembly().CreateInstance("KMBitAdm.P1");
+            Itest t = (Itest)obj;
+            t.Print("lala");
 
             if (args.Length==0)
             {
@@ -33,7 +40,8 @@ namespace KMBitAdm
             switch(command)
             {
                 case "syncpermissions":
-                    //PermissionManagement.SyncPermissionsWithDB();
+                    PermissionManagement pgt = new PermissionManagement(3);
+                    pgt.SyncPermissionsWithDB();
                     break;
                 default:
                     break;

@@ -11,7 +11,7 @@ namespace KMBit.Grids
     {
         public KMGrid(PageItemsResult<K> result):base(result.Items.AsQueryable())
         {
-            EnablePaging = true;
+            EnablePaging = result.EnablePaging;
             Pager = new KMGridPager<K>(result);
         }
     }

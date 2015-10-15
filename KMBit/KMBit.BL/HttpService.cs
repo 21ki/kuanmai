@@ -26,10 +26,10 @@ namespace KMBit.BL
 
         private string apiUrl = "";
         public string ApiUrl {
-            get { return this.apiUrl; }
-            protected set { this.apiUrl = value; }
+            get { return this.ServerUri.AbsoluteUri; }
+            protected set { this.apiUrl = value; this.ServerUri = new Uri(this.apiUrl); }
         }
-        public Uri ServerUri { get; protected set; }
+        public Uri ServerUri { get; set; }
         public HttpService(string svrUrl)
         {
             this.ServerUri = new Uri(svrUrl);
@@ -42,7 +42,7 @@ namespace KMBit.BL
         {
             return true;
         }
-        protected void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed, RequestType requestType= RequestType.POST)
+        public void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed, RequestType requestType= RequestType.POST)
         {
             if(string.IsNullOrEmpty(this.ApiUrl))
             {

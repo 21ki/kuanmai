@@ -17,7 +17,7 @@ namespace KMBit.Grids
             
             PageSize = result.PageSize;
             ParameterName = result.PageQueryParameterName;
-            CurrentPage = result.CurrentPage;     
+            CurrentPage = result.CurrentPage;                 
         }
     }
 }

@@ -21,8 +21,11 @@ namespace KMBit.Models
         public string Password { get; set; }
 
         [Required]
-        [Display(Name = "接口URL")]
+        [Display(Name = "充值接口URL")]
         public string ApiUrl { get; set; }
+
+        [Display(Name = "产品接口URL")]
+        public string ProductFetchUrl { get; set; }
 
         [Required]
         [Display(Name = "平台接口名称")]
@@ -34,7 +37,7 @@ namespace KMBit.Models
 
         [Required]
         [Display(Name = "回调URL")]
-        public string CallBack { get; set; }
+        public string CallBack { get; set; }       
     }
 
     public class ResourceTaocanModel
@@ -73,6 +76,8 @@ namespace KMBit.Models
         [Display(Name = "是否启用")]
         [Required]
         public bool Enabled { get; set; }
+
+        public string Serial { get; set; }
     }
     public class ResourceModel
     {       

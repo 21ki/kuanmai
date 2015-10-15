@@ -196,6 +196,7 @@ namespace KMBit.Controllers
                     model.ResoucedId = api.Resource_id;
                     model.ApiUrl = api.APIURL;
                     model.CallBack = api.CallBackUrl;
+                    model.ProductFetchUrl = api.ProductApiUrl;
                 }
             }
             catch (KMBitException ex)
@@ -215,7 +216,7 @@ namespace KMBit.Controllers
             {
                 resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
                 Resrouce_interface api = new Resrouce_interface()
-                { Id=model.Id,Resource_id=model.ResoucedId, APIURL=model.ApiUrl, CallBackUrl=model.CallBack, Interface_classname= model.InterfaceName, Interface_assemblyname=model.InterfaceAssemblyName, Username=model.UserName,Userpassword=model.Password };
+                { Id=model.Id,Resource_id=model.ResoucedId, APIURL=model.ApiUrl, ProductApiUrl=model.ProductFetchUrl, CallBackUrl=model.CallBack, Interface_classname= model.InterfaceName, Interface_assemblyname=model.InterfaceAssemblyName, Username=model.UserName,Userpassword=model.Password };
 
                 if(resourceMgt.UpdateResrouceInterface(api))
                 {
@@ -224,6 +225,36 @@ namespace KMBit.Controllers
             }
 
             return View();
+        }
+
+        [HttpGet]
+        public ActionResult ImportProduct(int resourceId)
+        {
+            if (resourceId <= 0)
+            {
+                ViewBag.Message = "落地资源编号不正确";
+                return View("Error");
+            }
+
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if (!resourceMgt.CurrentLoginUser.Permission.CONFIGURE_RESOURCE)
+            {
+                ViewBag.Message = "没有权限配置落地资源接口信息";
+                return View("Error");
+            }
+
+            try
+            {
+                ChargeBridge bridge = new ChargeBridge();
+                bridge.ImportResourceProducts(resourceId,User.Identity.GetUserId<int>());
+                return Redirect("/Admin/ViewResourceTaoCan?resourceId=" + resourceId);
+            }
+            catch(KMBitException ex)
+            {
+
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }
         }
 
         [HttpPost]
@@ -385,7 +416,7 @@ namespace KMBit.Controllers
                 return View("Error");
             }
             BResourceTaocan bTaocan = resourceTaocans[0];
-            ResourceTaocanModel model = new ResourceTaocanModel() { City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
+            ResourceTaocanModel model = new ResourceTaocanModel() { Serial=bTaocan.Taocan.Serial, City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
             ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id};
             if(bTaocan.Province!=null && bTaocan.Province.Id>0)
             {
@@ -478,12 +509,13 @@ namespace KMBit.Controllers
             {               
                 return View("Error");
             }
-            int pageSize = 25;
+            int pageSize = 50;
             int requestPage = 1;
             int.TryParse(Request["page"], out requestPage);
             requestPage = requestPage == 0 ? 1 : requestPage;
-            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(0, id, 0, out total, requestPage, pageSize,true);
-            PageItemsResult<BResourceTaocan> result = new PageItemsResult<BResourceTaocan>() { CurrentPage = requestPage, Items = resourceTaocans, PageSize = pageSize, TotalRecords = total };
+            List<BResourceTaocan> resourceTaocans = resourceMgt.FindResourceTaocans(0, id, 0, out total, requestPage, pageSize,false);
+            PageItemsResult<BResourceTaocan> result = new PageItemsResult<BResourceTaocan>() { CurrentPage = requestPage, Items = resourceTaocans, PageSize = resourceTaocans.Count, TotalRecords = total };
+            result.EnablePaging = false;
             KMBit.Grids.KMGrid<BResourceTaocan> grid = new Grids.KMGrid<BResourceTaocan>(result);
             ViewBag.Resource = resources[0];
             return View(grid);
@@ -616,7 +648,7 @@ namespace KMBit.Controllers
             }
             BUser agency = users[0];
             List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0,(int)agencyId, 0, 0, out total, page, pageSize, true);
-            PageItemsResult<BAgentRoute> result = new PageItemsResult<BAgentRoute>() { CurrentPage=page, Items=routes, PageSize=30, TotalRecords=total };
+            PageItemsResult<BAgentRoute> result = new PageItemsResult<BAgentRoute>() { CurrentPage=page, Items=routes, PageSize=30, TotalRecords=total,EnablePaging=true };
             KMBit.Grids.KMGrid<BAgentRoute> grid = new KMBit.Grids.KMGrid<BAgentRoute>(result);
             ViewBag.Agency = agency;
             return View(grid);

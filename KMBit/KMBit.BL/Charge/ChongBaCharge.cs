@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,7 +13,7 @@ using KMBit.BL.Charge;
 using KMBit.Util;
 namespace KMBit.BL.Charge
 {
-    public class ChongBaCharge : ChargeService, ICharge
+    public class ChongBaCharge :ChargeService, ICharge
     {
         public ChongBaCharge()
         {
@@ -89,7 +90,7 @@ namespace KMBit.BL.Charge
 
         public ChargeResult Charge(ChargeOrder order)
         {
-            ChargeResult result = new ChargeResult();   
+            ChargeResult result = new ChargeResult();
             VerifyCharge(order, out result);
             if(result.Status== ChargeStatus.FAILED)
             {
@@ -106,7 +107,13 @@ namespace KMBit.BL.Charge
                 corder.Process_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == order.ResourceId select ri).FirstOrDefault<Resrouce_interface>();
                 Resource_taocan taocan = (from t in db.Resource_taocan where t.Id==order.ResourceTaocanId select t).FirstOrDefault<Resource_taocan>();
-                this.ServerUri = new Uri(rInterface.APIURL);
+                if(string.IsNullOrEmpty(taocan.Serial))
+                {
+                    result.Message = ChargeConstant.RESOURCE_TAOCAN_NO_PDTID;
+                    result.Status = ChargeStatus.ONPROGRESS;
+                    return result;
+                }
+                ServerUri = new Uri(rInterface.APIURL);
                 parmeters.Add(new WebRequestParameters("appKey", rInterface.Username, false));
                 parmeters.Add(new WebRequestParameters("appSecret", rInterface.Userpassword, false));
                 parmeters.Add(new WebRequestParameters("phoneNo", order.MobileNumber, false));
@@ -114,9 +121,9 @@ namespace KMBit.BL.Charge
                 parmeters.Add(new WebRequestParameters("backUrl", rInterface.CallBackUrl, false));
                 parmeters.Add(new WebRequestParameters("transNo",order.Id.ToString(), false));
                 SendRequest(parmeters, false, out succeed);
-                if (!string.IsNullOrEmpty(this.Response))
+                if (!string.IsNullOrEmpty(Response))
                 {
-                    JObject jsonResult = JObject.Parse(this.Response);
+                    JObject jsonResult = JObject.Parse(Response);
                     order.OutId = jsonResult["orderId"]!=null? jsonResult["orderId"].ToString():"";
                     string res = jsonResult["respCode"].ToString();
                     corder.Process_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -170,6 +177,126 @@ namespace KMBit.BL.Charge
                 }
             }
             return result;
+        }
+
+        public void ImportProducts(int resourceId,int operate_user)
+        {
+            chargebitEntities db = null;
+            try
+            {
+                bool succeed = false;
+                List<WebRequestParameters> parmeters = new List<WebRequestParameters>();
+                db = new chargebitEntities();
+                db.Configuration.AutoDetectChangesEnabled = false;
+                KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == resourceId select ri).FirstOrDefault<Resrouce_interface>();
+                ServerUri = new Uri(rInterface.ProductApiUrl);
+                parmeters.Add(new WebRequestParameters("appKey", rInterface.Username, false));
+                parmeters.Add(new WebRequestParameters("appSecret", rInterface.Userpassword, false));
+                SendRequest(parmeters, false, out succeed);
+                if(succeed)
+                {
+                   if(!string.IsNullOrEmpty(Response))
+                    {
+                        JArray products = JArray.Parse(Response);
+                        if(products!=null && products.Count>0)
+                        {
+                            for(int i=0;i<products.Count;i++)
+                            {
+                                Resource_taocan taocan = null;
+                                string serial = products[i]["ccode"].ToString();
+                                string name = products[i]["cname"].ToString();
+                                int quantity = 0;
+                                int spId = int.Parse(products[i]["iprotypeid"].ToString());
+                                char[] names = name.ToCharArray();
+                                StringBuilder qStr = new StringBuilder();
+                                Regex regex = new Regex("[^0-9]");
+                                for (int j=0;j<names.Length;j++)
+                                {
+                                    char tmp = names[j];
+                                    if (!regex.IsMatch(tmp.ToString()))
+                                    {
+                                        qStr.Append(tmp.ToString());
+                                    }
+                                    
+                                    if(tmp.ToString().ToLower()=="g")
+                                    {
+                                        quantity = int.Parse(qStr.ToString()) * 1024;
+                                        break;
+                                    }                                    
+                                }
+                                if (quantity==0 && qStr.ToString() != "")
+                                {
+                                    quantity = int.Parse(qStr.ToString());
+                                }
+
+                                taocan = (from t in db.Resource_taocan where t.Resource_id==resourceId && t.Serial==serial select t).FirstOrDefault<Resource_taocan>();
+
+                                if (taocan==null)
+                                {
+                                    //create new product taocan
+                                    taocan = new Resource_taocan()
+                                    {
+                                        Area_id = 0,
+                                        CreatedBy = operate_user,
+                                        Serial = serial,
+                                        Purchase_price = float.Parse(products[i]["iprice"].ToString()),
+                                        Quantity = quantity,
+                                        Resource_id = resourceId,
+                                        Created_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                                        Sale_price = 0,
+                                        Enabled = false
+                                    };
+                                    if (spId == 2)
+                                    {
+                                        taocan.Sp_id = 1;
+                                    }
+                                    else if (spId == 3)
+                                    {
+                                        taocan.Sp_id = 3;
+                                    }
+                                    else if (spId == 4)
+                                    {
+                                        taocan.Sp_id = 2;
+                                    }
+
+                                    Taocan ntaocan = (from t in db.Taocan where t.Sp_id == taocan.Sp_id && t.Quantity == taocan.Quantity select t).FirstOrDefault<Taocan>();
+                                    Sp sp = (from s in db.Sp where s.Id == taocan.Sp_id select s).FirstOrDefault<Sp>();
+                                    if (ntaocan == null)
+                                    {
+                                        string taocanName = sp != null ? sp.Name + " " + taocan.Quantity.ToString() + "M" : "全网 " + taocan.Quantity.ToString() + "M";
+                                        ntaocan = new Taocan() { Created_time = taocan.Created_time, Description = taocanName, Name = taocanName, Sp_id = taocan.Sp_id, Quantity = taocan.Quantity, Updated_time = 0 };
+                                        db.Taocan.Add(ntaocan);
+                                        db.SaveChanges();
+                                    }
+                                    if (ntaocan.Id > 0)
+                                    {
+                                        taocan.Taocan_id = ntaocan.Id;
+                                        db.Resource_taocan.Add(taocan);
+                                    }
+                                    
+                                }else
+                                {
+                                    //update product taocan
+                                    taocan.Purchase_price = float.Parse(products[i]["iprice"].ToString());
+                                    taocan.UpdatedBy = operate_user;
+                                    taocan.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                }  
+                            }
+
+                            db.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch(KMBitException ex)
+            { }
+            catch(Exception ex)
+            { }
+            finally
+            {
+                if (db != null)
+                    db.Dispose();
+            }
         }
     }
 }

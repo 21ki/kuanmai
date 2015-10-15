@@ -298,6 +298,7 @@ namespace KMBit.BL.Admin
                           join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
                           from llsp in lsp.DefaultIfEmpty()
                           join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                         
                           select new BResourceTaocan
                           {
                               Taocan = rta,
@@ -324,7 +325,10 @@ namespace KMBit.BL.Admin
                 total = tmp.Count();
                 if (paging)
                 {
-                    tmp = tmp.OrderBy(t => t.Taocan.Id).Skip((page - 1) * pageSize).Take(pageSize);
+                    tmp = tmp.OrderBy(t => t.Taocan.Sp_id).ThenBy(t=>t.Taocan.Quantity).Skip((page - 1) * pageSize).Take(pageSize);
+                }else
+                {
+                    tmp = tmp.OrderBy(t => t.Taocan.Sp_id).ThenBy(t => t.Taocan.Quantity);
                 }
 
                 sTaocans = tmp.ToList<BResourceTaocan>();
@@ -345,22 +349,73 @@ namespace KMBit.BL.Admin
             return sTaocans;
         }
 
-        public List<BResourceTaocan> FindResourceTaocans(int resourceId, int agencyId)
+        public List<BResourceTaocan> FindResourceTaocans(int resourceId, int agencyId,bool availabled=true)
         {
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             using (chargebitEntities db = new chargebitEntities())
             {
-                List<Agent_route> routes = (from r in db.Agent_route where r.User_id == agencyId && r.Resource_Id == resourceId select r).ToList<Agent_route>();
-                int total = 0;
-                List<BResourceTaocan> all = FindResourceTaocans(0, resourceId, 0, out total);
-
-                foreach (var t in all)
+                if (resourceId > 0 && agencyId > 0)
                 {
-                    Agent_route existed=(from er in routes where er.Resource_Id==resourceId && er.Resource_taocan_id==t.Taocan.Id select er).FirstOrDefault<Agent_route>();
-                    if(existed==null)
-                    {
-                        taocans.Add(t);
-                    }
+                    var query = from rta in db.Resource_taocan
+                                join au in db.Agent_route on rta.Id equals au.Resource_taocan_id
+                                join r in db.Resource on rta.Resource_id equals r.Id
+                                join cu in db.Users on rta.CreatedBy equals cu.Id into lcu
+                                from llcu in lcu.DefaultIfEmpty()
+                                join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
+                                from lluu in luu.DefaultIfEmpty()
+                                join city in db.Area on rta.Area_id equals city.Id into lcity
+                                from llcity in lcity.DefaultIfEmpty()
+                                join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
+                                from llsp in lsp.DefaultIfEmpty()
+                                join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                                where rta.Enabled == availabled && r.Id==resourceId
+                                select new BResourceTaocan
+                                {
+                                    Taocan = rta,
+                                    Taocan2 = tt,
+                                    CreatedBy = llcu,
+                                    UpdatedBy = lluu,
+                                    Province = llcity,
+                                    SP = llsp,
+                                    Resource = new BResource() { Resource = r }
+                                };
+
+                    taocans = query.ToList<BResourceTaocan>();
+                }else if(resourceId>0 && agencyId <= 0)
+                {
+                    int total = 0;
+                    taocans= FindResourceTaocans(0, resourceId, 0, out total);
+                }else if(resourceId<=0 && agencyId>0)
+                {
+                    var query = from rta in db.Resource_taocan
+                                join au in db.Agent_route on rta.Id equals au.Resource_taocan_id
+                                join r in db.Resource on rta.Resource_id equals r.Id
+                                join cu in db.Users on rta.CreatedBy equals cu.Id into lcu
+                                from llcu in lcu.DefaultIfEmpty()
+                                join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
+                                from lluu in luu.DefaultIfEmpty()
+                                join city in db.Area on rta.Area_id equals city.Id into lcity
+                                from llcity in lcity.DefaultIfEmpty()
+                                join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
+                                from llsp in lsp.DefaultIfEmpty()
+                                join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                                where rta.Enabled == availabled && au.User_id==agencyId
+                                select new BResourceTaocan
+                                {
+                                    Taocan = rta,
+                                    Taocan2 = tt,
+                                    CreatedBy = llcu,
+                                    UpdatedBy = lluu,
+                                    Province = llcity,
+                                    SP = llsp,
+                                    Resource = new BResource() { Resource = r }
+                                };
+
+                    taocans = query.ToList<BResourceTaocan>();
+                }else
+                {
+                    int total = 0;
+                    taocans = FindResourceTaocans(0, resourceId, 0, out total);
                 }
             }
 
@@ -402,6 +457,7 @@ namespace KMBit.BL.Admin
                     oapi.CallBackUrl = api.CallBackUrl;
                     oapi.Username = api.Username;
                     oapi.Userpassword = api.Userpassword;
+                    oapi.ProductApiUrl = api.ProductApiUrl;
                 }
 
                 db.SaveChanges();

@@ -23,7 +23,7 @@
 {
     columns.Add(c => c.Taocan.Resource.Resource.Name).Titled("落地资源").Filterable(true).SetWidth("15%");
     columns.Add(c => c.Taocan.SP.Name).Titled("运营商").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.Taocan.SP!=null?o.Taocan.SP.Name:"全网");
-    columns.Add(c => c.Taocan.City.Name).Titled("归属地").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.City != null ? o.Taocan.City.Name : "全国");
+    columns.Add(c => c.Taocan.Province.Name).Titled("归属地").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Province != null ? o.Taocan.Province.Name : "全国");
     columns.Add(c => c.Taocan.Taocan.Quantity).Titled("流量").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Quantity+"M");
     columns.Add(c => c.Taocan.Taocan.Sale_price).Titled("零售价").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Sale_price.ToString());
     columns.Add(c => c.Route.Discount).Titled("折扣").Filterable(true).SetWidth("10%");

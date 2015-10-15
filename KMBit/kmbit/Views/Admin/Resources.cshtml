@@ -14,8 +14,8 @@
 @using GridMvc.Html
 @Html.Grid(Model).Columns(columns =>
 {
-    columns.Add(c => c.Resource.Name).Titled("名称").Filterable(true).SetWidth("20%");
-    columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("20%");
+    columns.Add(c => c.Resource.Name).Titled("名称").Filterable(true).SetWidth("18%");
+    columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("12%");
     columns.Add(c => c.Province.Name).Titled("省份").Filterable(true);
     columns.Add(c => c.City.Name).Titled("城市").Filterable(true);
     columns.Add(c => c.CreatedBy.Email).Titled("创建者").Filterable(true);
@@ -23,19 +23,25 @@
     columns.Add()
     .Encoded(false)
     .Sanitized(false)
-    .SetWidth("8%")
+    .SetWidth("5%")
     .RenderValueAs(o => Html.ActionLink("编辑", "EditResource", new { resourceId = o.Resource.Id }));
 
     columns.Add()
    .Encoded(false)
    .Sanitized(false)
-   .SetWidth("10%")
+   .SetWidth("8%")
    .RenderValueAs(o => Html.ActionLink("配置接口", "ConfigureResource", new { resourceId = o.Resource.Id }));
+
+    columns.Add()
+  .Encoded(false)
+  .Sanitized(false)
+  .SetWidth("8%")
+  .RenderValueAs(o => Html.ActionLink("导入套餐", "ImportProduct", new { resourceId = o.Resource.Id }));
 
     columns.Add()
    .Encoded(false)
    .Sanitized(false)
-   .SetWidth("10%")
+   .SetWidth("8%")
    .RenderValueAs(o => Html.ActionLink("查看套餐", "ViewResourceTaoCan", new { resourceId = o.Resource.Id }));
 
 }).Sortable(true)

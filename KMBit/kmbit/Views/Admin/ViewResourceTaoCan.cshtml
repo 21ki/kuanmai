@@ -27,7 +27,37 @@
     .Encoded(false)
     .Sanitized(false)
     .SetWidth("10%")
-    .RenderValueAs(o => Html.ActionLink("编辑", "UpdateResourceTaocan", new { taocanId = o.Taocan.Id }));
+    .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"editTaocan(" + o.Taocan.Id + ")\">修改</a>"));
 }).Sortable(true)
+
+<div class="modal fade" id="editRuoteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @*<div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改资源套餐信息</h4>
+            </div>*@
+            <div class="modal-body">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    function editTaocan(taocanId) {
+        $.get(
+            "/Admin/UpdateResourceTaocan",
+            { taocanId: taocanId },
+            function (res, status) {
+                if (res != null && res != "undefined") {
+                    $('#editRuoteModal').find('.modal-body').html(res);
+                    $('#editRuoteModal').modal();
+                }
+            }
+         );
+    }
+</script>
+
 
 

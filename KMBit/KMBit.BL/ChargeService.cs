@@ -33,7 +33,7 @@ namespace KMBit.BL
         }
     }
 
-    public abstract class ChargeService:HttpService
+    public class ChargeService:HttpService
     {
         public ChargeService(string svrUrl):base(svrUrl)
         {
@@ -43,7 +43,7 @@ namespace KMBit.BL
         {
         }      
 
-        protected virtual void VerifyCharge(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
+        public virtual void VerifyCharge(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
         {
             result = new ChargeResult();
 
@@ -128,7 +128,7 @@ namespace KMBit.BL
             }
         }
 
-        protected virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool isCallBack=false)
+        public virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool isCallBack=false)
         {
             using (chargebitEntities db = new chargebitEntities())
             {

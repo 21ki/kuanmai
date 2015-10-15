@@ -17,5 +17,6 @@ namespace KMBit.Beans
         public int CurrentPage { get; set; }
         public int TotalRecords { get; set; }
         public string PageQueryParameterName { get; set; }
+        public bool EnablePaging { get; set; }
     }
 }

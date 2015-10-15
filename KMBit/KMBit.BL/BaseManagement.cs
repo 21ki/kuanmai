@@ -237,6 +237,7 @@ namespace KMBit.BL
                           join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
                           from llsp in lsp.DefaultIfEmpty()
                           join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                          where rta.Enabled==true && rta.Sale_price>0 && r.Enabled==true
                           select new BResourceTaocan
                           {
                               Taocan = rta,

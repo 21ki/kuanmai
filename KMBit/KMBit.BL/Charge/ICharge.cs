@@ -22,5 +22,6 @@ namespace KMBit.BL.Charge
     {
         ChargeResult Charge(ChargeOrder order);
         void CallBack(List<WebRequestParameters> data);
+        void ImportProducts(int resourceId,int operate_user);
     }
 }
