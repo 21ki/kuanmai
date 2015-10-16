@@ -63,8 +63,8 @@ namespace KMBit.Extensions
 
                     li.Append("<div style=\"float:left;width:5%;\">" + checkbox.ToString(TagRenderMode.SelfClosing) + "</div>");
                     li.Append("<div style=\"float:left;width:20%;\">" + item.Taocan2.Name + "</div>");
-                    li.Append("<div style=\"float:left;width:10%;\">" + item.SP.Name + "</div>");
-                    li.Append("<div style=\"float:left;width:10%;\">" + item.Province.Name + "</div>");
+                    li.Append("<div style=\"float:left;width:10%;\">" + item.SP!=null?item.SP.Name:"全网" + "</div>");
+                    li.Append("<div style=\"float:left;width:10%;\">" + item.Province!=null?item.Province.Name:"全国" + "</div>");
                     li.Append("<div style=\"float:left;width:10%\">" + item.Taocan.Quantity + "M</div>");
                     li.Append("<div style=\"float:left;width:10%\">" + item.Taocan.Sale_price + "元</div>");
                     li.Append("</li>");

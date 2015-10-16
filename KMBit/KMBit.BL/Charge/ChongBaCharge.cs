@@ -103,7 +103,7 @@ namespace KMBit.BL.Charge
             try
             {
                 db = new chargebitEntities();
-                Charge_history corder = (from co in db.Charge_history where co.Id==order.Id select co).FirstOrDefault<Charge_history>();
+                Charge_Order corder = (from co in db.Charge_Order where co.Id==order.Id select co).FirstOrDefault<Charge_Order>();
                 corder.Process_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                 KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == order.ResourceId select ri).FirstOrDefault<Resrouce_interface>();
                 Resource_taocan taocan = (from t in db.Resource_taocan where t.Id==order.ResourceTaocanId select t).FirstOrDefault<Resource_taocan>();

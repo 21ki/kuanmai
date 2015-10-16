@@ -69,7 +69,7 @@
     <Compile Include="Area.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Charge_history.cs">
+    <Compile Include="Charge_Order.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
     <Compile Include="KMBitModel.Context.cs">

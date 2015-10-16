@@ -12,7 +12,9 @@ using KMBit.Beans;
 using KMBit.Models;
 using KMBit.DAL;
 using KMBit.BL;
+using KMBit.BL.Charge;
 using KMBit.BL.Agent;
+using KMBit.Util;
 using System.Collections.Generic;
 
 namespace KMBit.Controllers
@@ -154,7 +156,28 @@ namespace KMBit.Controllers
         [HttpPost]
         public ActionResult Charge(AgentChargeModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    ChargeBridge cb = new ChargeBridge();
+                    ChargeOrder order = new ChargeOrder() { Payed = true, OperateUserId = 0, AgencyId = User.Identity.GetUserId<int>(), Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = model.RouteId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+
+                    OrderManagement orderMgt = new OrderManagement();
+                    order = orderMgt.GenerateOrder(order);
+                    ChargeResult result = cb.Charge(order);
+                    ViewBag.Message = result.Message;                    
+                }
+                catch (KMBitException ex)
+                {
+                    ViewBag.Message = ex.Message;
+                }finally
+                {
+                    model = new AgentChargeModel();
+                }
+            }
+
+            return View(model);
         }
         //
         // POST: /Manage/ChangePassword

@@ -19,5 +19,6 @@ namespace KMBit.DAL
         public long Pay_time { get; set; }
         public int User_id { get; set; }
         public sbyte Tranfser_Type { get; set; }
+        public Nullable<int> ChargeOrderId { get; set; }
     }
 }

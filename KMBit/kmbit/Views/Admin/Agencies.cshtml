@@ -23,11 +23,11 @@
     .Sanitized(false)
     .SetWidth("5%")
     .RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
-    columns.Add()
-   .Encoded(false)
-   .Sanitized(false)
-   .SetWidth("5%")
-   .RenderValueAs(o => Html.ActionLink("查看", "ViewAgency", new { agencyId = o.User.Id }));
+    // columns.Add()
+    //.Encoded(false)
+    //.Sanitized(false)
+    //.SetWidth("5%")
+    //.RenderValueAs(o => Html.ActionLink("查看", "ViewAgency", new { agencyId = o.User.Id }));
     columns.Add()
     .Encoded(false)
     .Sanitized(false)

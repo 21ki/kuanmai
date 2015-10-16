@@ -239,6 +239,7 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Grid.mvc.readme" />
     <Fakes Include="Fakes\Microsoft.AspNet.Identity.Core.fakes" />
+    <None Include="Properties\PublishProfiles\kmbit.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\gridmvc.js" />
     <Content Include="Scripts\gridmvc.lang.ru.js" />

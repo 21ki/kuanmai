@@ -16,21 +16,14 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
-@if (!Request.IsAjaxRequest())
-{
-    <h2>@ViewBag.Title</h2>
-}
+<h2>@ViewBag.Title</h2>
 
-
-@using (Html.BeginForm())
+@using (Html.BeginForm("EditAgentRoute", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "EditAgentRouteForm" }))
 {
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal"> 
-        @if (!Request.IsAjaxRequest())
-        {
-            <hr />
-        }
+        <hr />
        
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.Id)
@@ -62,7 +55,7 @@
         <div class="form-group">
             <label class="control-label col-md-2" for="Email">归属地</label>
             <div class="col-md-10">
-                <input class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.City!=null?ruote.Taocan.City.Name:"全国")" />
+                <input class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Province!=null?ruote.Taocan.Province.Name:"全国")" />
             </div>
         </div>
 
@@ -74,10 +67,16 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="control-label col-md-2" for="Email">成本价</label>
+            <div class="col-md-10">
+                <input id="Purchase_price" class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Taocan.Purchase_price+"元")" />
+
+            </div>
+        </div>
+        <div class="form-group">
             <label class="control-label col-md-2" for="Email">零售价</label>
             <div class="col-md-10">
-                <input class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Taocan.Sale_price+"元")" />
-
+                <input id="Sale_price" class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Taocan.Sale_price+"元")" />
             </div>
         </div>
 
@@ -86,6 +85,13 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Discount, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Discount, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Email">代理价</label>
+            <div class="col-md-10">
+                <input id="agent_price" class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Taocan.Sale_price*ruote.Route.Discount+"元")" />
             </div>
         </div>
 
@@ -108,8 +114,55 @@
         }
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="保存" class="btn btn-default" />
+                <input id="submit_ruote" type="button" value="保存" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
+
+<script>
+    $(function () {
+
+        $('#EditAgentRouteForm').find('#Discount').blur(function () {
+            var discount = $('#EditAgentRouteForm').find('#Discount').val();
+            var salePrice = $('#EditAgentRouteForm').find('#Sale_price').val();
+            if (isNaN(discount)) {
+                alert("折扣必须是数字，并且在0-1之间");
+                return;
+            }
+
+            var discountN = parseFloat(discount);
+            $('#EditAgentRouteForm').find('#agent_price').val(discountN * parseFloat(salePrice))
+        });
+        $('#EditAgentRouteForm').find('#submit_ruote').click(function () {
+            var price1 = $('#EditAgentRouteForm').find('#Purchase_price').val();
+            var discount = $('#EditAgentRouteForm').find('#Discount').val();
+            var salePrice = $('#EditAgentRouteForm').find('#Sale_price').val();
+            
+            if ($.trim(discount) == "") {
+                $('#EditAgentRouteForm').submit();
+                return;
+            } else {
+                if (isNaN(discount)) {                   
+                    $('#EditAgentRouteForm').submit();
+                    return;
+                }
+                
+                var discountN = parseFloat(discount);
+                if (discountN < 0 || discountN > 1) {
+                    $('#EditAgentRouteForm').submit();
+                    return;
+                }               
+                if (discountN * parseFloat(salePrice) < parseFloat(price1)) {
+                    
+                    if (confirm("此折扣会导致代理商价格比平台的成本价还要低，会导致平台亏损，是否继续执行?")) {
+                        $('#EditAgentRouteForm').submit();
+                    } else {
+                        return;
+                    }
+                }
+                $('#EditAgentRouteForm').submit();
+            }
+        });
+    })
+</script>

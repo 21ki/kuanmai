@@ -13,7 +13,7 @@
     {
         ViewBag.Title += "(" + agency.User.Name + ")";
     }
-    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
 }
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
@@ -31,13 +31,13 @@
                 return;
             }
             $.post(
-                BASE_URL + 'api/Resource/GetResourceTaocans',
+                BASE_URL + 'api/Resource/GetEnabledResourceTaocansForAgent',
                 { resourceId: resourceId,agencyId:agencyId },
                 function (res, status) {
                     $('#resourcetaocancontainer').html("");
                     //$('#ResouceTaocans').append("<option value=\"\">--选择城市--</option>");
                     var ul = $('<ul style="padding-left:0px;"></ul>');
-
+                  
                     if (res.Item.length > 0) {
                         var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
                         var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
@@ -47,6 +47,9 @@
                         $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("归属地");
                         $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("流量");
                         $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html("价格");
+                    }else{
+                        alert("当前资源没有可用的套餐给当前的代理商");
+                        return;
                     }
 
                     $(res.Item).each(function (index, item) {
@@ -54,10 +57,10 @@
                         var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
                         $('<input type="checkbox" id="ResouceTaocans" name="ResouceTaocans" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
                         $("<div style=\"float:left;width:20%;\"></div>").appendTo(li).html(item.Taocan2.Name);
-                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.SP.Name);
-                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.City.Name);
-                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity);
-                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Sale_price);
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.SP!=null?item.SP.Name:"全网");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Province!=null?item.Province.Name:"全国");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity+"M");
+                        $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Sale_price+"元");
                     });
 
                     $(ul).appendTo($('#resourcetaocancontainer'));

@@ -16,18 +16,22 @@
 
 
 
-<a class="btn btn-primary" role="button" href="/Admin/CreateAgentRoute?agencyId=@Html.Raw(agency.User.Id)">
+@*<a class="btn btn-primary" role="button" href="/Admin/CreateAgentRoute?agencyId=@Html.Raw(agency.User.Id)">
     新建代理商路由
-</a>
+</a>*@
+
+<input id="new_agent_ruote" type="button" value="新建代理商路由" class="btn btn-primary" />
+
 @Html.Grid(Model).Named("AgentRouteGrid").Columns(columns=>
 {
-    columns.Add(c => c.Taocan.Resource.Resource.Name).Titled("落地资源").Filterable(true).SetWidth("15%");
+    columns.Add(c => c.Taocan.Resource.Resource.Name).Titled("落地资源").Filterable(true).SetWidth("10%");
     columns.Add(c => c.Taocan.SP.Name).Titled("运营商").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.Taocan.SP!=null?o.Taocan.SP.Name:"全网");
-    columns.Add(c => c.Taocan.Province.Name).Titled("归属地").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Province != null ? o.Taocan.Province.Name : "全国");
+    columns.Add(c => c.Taocan.Province.Name).Titled("归属地").Filterable(true).SetWidth("8%").RenderValueAs(o => o.Taocan.Province != null ? o.Taocan.Province.Name : "全国");
     columns.Add(c => c.Taocan.Taocan.Quantity).Titled("流量").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Quantity+"M");
+    columns.Add(c => c.Taocan.Taocan.Purchase_price).Titled("成本价").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Purchase_price.ToString());
     columns.Add(c => c.Taocan.Taocan.Sale_price).Titled("零售价").Filterable(true).SetWidth("10%").RenderValueAs(o => o.Taocan.Taocan.Sale_price.ToString());
     columns.Add(c => c.Route.Discount).Titled("折扣").Filterable(true).SetWidth("10%");
-    columns.Add().Titled("代理商价格").Filterable(true).SetWidth("15%").RenderValueAs(o => (o.Route.Discount*o.Taocan.Taocan.Sale_price).ToString("0.00"));
+    columns.Add().Titled("代理价").Filterable(true).SetWidth("10%").RenderValueAs(o => (o.Route.Discount*o.Taocan.Taocan.Sale_price).ToString("0.00"));
     columns.Add(c => c.Route.Enabled).Titled("状态").SetWidth("5%").Filterable(true).RenderValueAs(o => o.Route.Enabled ? "已启用" : "已禁用");
     columns.Add()
    .Titled("")
@@ -40,10 +44,7 @@
 <div class="modal fade" id="editRuoteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">编辑代理商路由信息</h4>
-            </div>
+          
             <div class="modal-body">
                
             </div>
@@ -54,8 +55,17 @@
 
 <script>
     $(function () {        
-        pageGrids.AgentRouteGrid.onRowSelect(function (e) {
-            //alert(e.row);
+        $('#new_agent_ruote').click(function () {
+            $.get(
+            "/Admin/CreateAgentRoute",
+            { agencyId: @agency.User.Id },
+            function (res, status) {
+                if (res != null && res != "undefined") {
+                    $('#editRuoteModal').find('.modal-body').html(res);
+                    $('#editRuoteModal').modal();
+                }
+            }
+         );
         });
     });
 

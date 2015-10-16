@@ -349,6 +349,41 @@ namespace KMBit.BL.Admin
             return sTaocans;
         }
 
+        public List<BResourceTaocan> FindEnabledResourceTaocansForAgent(int resourceId, int agencyId)
+        {
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<int> existedIds = (from au in db.Agent_route where au.User_id==agencyId && au.Resource_Id==resourceId select au.Resource_taocan_id).ToList<int>();
+                var query = from rta in db.Resource_taocan                           
+                            join r in db.Resource on rta.Resource_id equals r.Id into lr
+                            from llr in lr.DefaultIfEmpty()
+                            join cu in db.Users on rta.CreatedBy equals cu.Id into lcu
+                            from llcu in lcu.DefaultIfEmpty()
+                            join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
+                            from lluu in luu.DefaultIfEmpty()
+                            join city in db.Area on rta.Area_id equals city.Id into lcity
+                            from llcity in lcity.DefaultIfEmpty()
+                            join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
+                            from llsp in lsp.DefaultIfEmpty()
+                            join tt in db.Taocan on rta.Taocan_id equals tt.Id
+                            where rta.Enabled == true && rta.Resource_id == resourceId && !existedIds.Contains(rta.Id)
+                            select new BResourceTaocan
+                            {
+                                Taocan = rta,
+                                Taocan2 = tt,
+                                CreatedBy = llcu,
+                                UpdatedBy = lluu,
+                                Province = llcity,
+                                SP = llsp,
+                                Resource = new BResource() { Resource = llr }
+                            };
+
+                taocans = query.ToList<BResourceTaocan>();
+            }
+            return taocans;
+        }
+
         public List<BResourceTaocan> FindResourceTaocans(int resourceId, int agencyId,bool availabled=true)
         {
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();

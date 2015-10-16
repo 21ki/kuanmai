@@ -5,7 +5,7 @@
     {
         ruote = (KMBit.Beans.BAgentRoute)ViewBag.Ruote;
     }
-    ViewBag.Title = "修改套餐";
+    ViewBag.Title = "修改套餐价格";
     Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Agent.cshtml";
 }
 
@@ -30,7 +30,7 @@
         @Html.HiddenFor(model => model.ResourceId)
         @Html.HiddenFor(model => model.Discount)
         @Html.Hidden("ResouceTaocans", string.Join(",", Model.ResouceTaocans))
-             
+        @Html.HiddenFor(model => model.Enabled) 
         <div class="form-group">
             <label class="control-label col-md-2" for="Email">运营商</label>
             <div class="col-md-10">
@@ -40,7 +40,7 @@
         <div class="form-group">
             <label class="control-label col-md-2" for="Email">归属地</label>
             <div class="col-md-10">
-                <input class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.City!=null?ruote.Taocan.City.Name:"全国")" />
+                <input class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Province!=null?ruote.Taocan.Province.Name:"全国")" />
             </div>
         </div>
 
@@ -72,17 +72,9 @@
 
             </div>
         </div>
+        
         <div class="form-group">
-            @Html.LabelFor(model => model.Enabled, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.Enabled)
-                    @Html.ValidationMessageFor(model => model.Enabled, "", new { @class = "text-danger" })
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.SalePrice, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.SalePrice, htmlAttributes:new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.SalePrice, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.SalePrice, "", new { @class = "text-danger" })

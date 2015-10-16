@@ -12,7 +12,7 @@ namespace KMBit.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Charge_history
+    public partial class Charge_Order
     {
         public int Id { get; set; }
         public int Agent_Id { get; set; }

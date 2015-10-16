@@ -66,8 +66,8 @@
                                     $('<input type="radio" id="RouteId" name="RouteId" value="' + item.Route.Id + '"/>').appendTo(chkDiv);
                                     $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.SP == null ? "全网" : item.Taocan.SP.Name);
                                     $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Taocan.Quantity+"M");
-                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("售价:" + item.Route.Sale_price + "元");
-                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("代理价:" + item.Route.Discount * item.Taocan.Taocan.Sale_price + "元");
+                                    //$("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("平台零售价:" + item.Route.Sale_price.toFixed(2) + "元");
+                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html("价格:" + (item.Route.Discount * item.Taocan.Taocan.Sale_price).toFixed(2) + "元");
                                 });
                             }
                             $(ul).appendTo($('#taocan_container'));

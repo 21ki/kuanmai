@@ -448,6 +448,14 @@ namespace KMBit.Controllers
         {
             bool ret = false;
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            List<BResource> resources = resourceMgt.FindResources(model.ResoucedId, null, 0, out total);
+            if (resources == null || resources.Count == 0)
+            {
+                ViewBag.Message = "资源信息丢失";
+                return View("Error");
+            }
+            BResource resource = resources[0];
+
             if (ModelState.IsValid)
             {
                 KMBit.DAL.Resource_taocan taocan = null;
@@ -492,6 +500,7 @@ namespace KMBit.Controllers
             List<KMBit.DAL.Sp> sps = null;
             provinces = resourceMgt.GetAreas(0);
             sps = resourceMgt.GetSps();
+            ViewBag.Resource = resource;
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
             ViewBag.Cities = new SelectList(resourceMgt.GetAreas(model.Province != null ? (int)model.Province : 0), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
@@ -804,7 +813,7 @@ namespace KMBit.Controllers
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             if(model.ResourceId>0)
             {
-                taocans = resourceMgt.FindResourceTaocans(0, model.ResourceId, 0, out total);
+                taocans = resourceMgt.FindEnabledResourceTaocansForAgent(model.ResourceId,model.AgencyId);
             }
             
             ViewBag.ResourceTaocans1 = taocans;

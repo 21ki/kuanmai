@@ -13,7 +13,7 @@ namespace KMBit.Controllers.api
     {
         [HttpPost]
         [AcceptVerbs("POST")]
-        public ApiMessage GetResourceTaocans()
+        public ApiMessage GetEnabledResourceTaocansForAgent()
         {
             this.IniRequest();
             ApiMessage message = new ApiMessage() { Status = "ERROR", Message = "获取资源套餐数据失败", Item = null };
@@ -32,9 +32,8 @@ namespace KMBit.Controllers.api
 
                 if (resourceId > 0)
                 {
-                    KMBit.BL.Admin.ResourceManagement resourceMgt = new BL.Admin.ResourceManagement(User.Identity.Name);
-                    int total = 0;
-                    List<BResourceTaocan> taocans = resourceMgt.FindResourceTaocans(resourceId, agencyId);
+                    KMBit.BL.Admin.ResourceManagement resourceMgt = new BL.Admin.ResourceManagement(User.Identity.Name);                                 
+                    List<BResourceTaocan> taocans = resourceMgt.FindEnabledResourceTaocansForAgent(resourceId, agencyId);
                     message.Status = "OK";
                     message.Message = "成功获取用户类型数据，请使用JSON Item节点数据";
                     message.Item = taocans;

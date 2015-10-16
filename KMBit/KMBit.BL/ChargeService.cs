@@ -132,7 +132,7 @@ namespace KMBit.BL
         {
             using (chargebitEntities db = new chargebitEntities())
             {
-                Charge_history cOrder = (from o in db.Charge_history where o.Id== order.Id select o).FirstOrDefault<Charge_history>();
+                Charge_Order cOrder = (from o in db.Charge_Order where o.Id== order.Id select o).FirstOrDefault<Charge_Order>();
                 if(cOrder!=null)
                 {
                     switch(result.Status)
