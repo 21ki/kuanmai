@@ -20,5 +20,6 @@ namespace KMBit.DAL
         public int User_id { get; set; }
         public sbyte Tranfser_Type { get; set; }
         public Nullable<int> ChargeOrderId { get; set; }
+        public string PaymentAccount { get; set; }
     }
 }

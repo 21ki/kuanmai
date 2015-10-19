@@ -161,7 +161,7 @@ namespace KMBit.Controllers
                 try
                 {
                     ChargeBridge cb = new ChargeBridge();
-                    ChargeOrder order = new ChargeOrder() { Payed = true, OperateUserId = 0, AgencyId = User.Identity.GetUserId<int>(), Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = model.RouteId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                    ChargeOrder order = new ChargeOrder() { Payed = false, OperateUserId = 0, AgencyId = User.Identity.GetUserId<int>(), Id = 0, Province = model.Province, City = model.City, MobileSP =model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = model.RouteId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
 
                     OrderManagement orderMgt = new OrderManagement();
                     order = orderMgt.GenerateOrder(order);

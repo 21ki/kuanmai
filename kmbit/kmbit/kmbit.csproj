@@ -199,6 +199,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AgentController.cs" />
+    <Compile Include="Controllers\api\AdminController.cs" />
     <Compile Include="Controllers\api\AgentController.cs" />
     <Compile Include="Controllers\api\ApiMessage.cs" />
     <Compile Include="Controllers\api\BaseApiController.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="Controllers\PayBackController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Extensions\HtmlExtensions.cs" />
+    <Compile Include="Filters\AdminFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -219,8 +221,8 @@
     <Compile Include="Grids\KMGridExtensions.cs" />
     <Compile Include="Grids\KMGridPager.cs" />
     <Compile Include="Grids\KMGrid.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\ProductViewModels.cs" />
@@ -311,7 +313,7 @@
     <Content Include="Views\Admin\CreateAgentRoute.cshtml" />
     <Content Include="Views\Admin\EditAgentRoute.cshtml" />
     <Content Include="Views\Admin\Administrators.cshtml" />
-    <Content Include="Views\Admin\ChargeHistory.cshtml" />
+    <Content Include="Views\Admin\ChargeOrders.cshtml" />
     <Content Include="Views\Admin\ChargeQueue.cshtml" />
     <Content Include="Views\Admin\CreateAdmin.cshtml" />
     <Content Include="Views\Admin\AdminPermissions.cshtml" />
@@ -330,6 +332,9 @@
     <Content Include="Views\PayBack\Result.cshtml" />
     <Content Include="Views\Admin\ConfigureResource.cshtml" />
     <Content Include="Views\Agent\Charge.cshtml" />
+    <Content Include="Views\Admin\Reports.cshtml" />
+    <Content Include="Views\Admin\OrderDetail.cshtml" />
+    <Content Include="Views\Admin\Refound.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

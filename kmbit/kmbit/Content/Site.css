@@ -28,7 +28,7 @@ agentContainer {
 }
 .agentLeftNav {
     float:left;
-    width:20%;
+    width:15%;
 }
     .agentLeftNav .menu {
         padding-top:20px;
@@ -37,5 +37,5 @@ agentContainer {
 
 .agentRightNav {
     float:left;
-    width:80%;
+    width:85%;
 }

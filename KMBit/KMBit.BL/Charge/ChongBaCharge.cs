@@ -91,7 +91,7 @@ namespace KMBit.BL.Charge
         public ChargeResult Charge(ChargeOrder order)
         {
             ChargeResult result = new ChargeResult();
-            VerifyCharge(order, out result);
+            ProceedOrder(order, out result);
             if(result.Status== ChargeStatus.FAILED)
             {
                 return result;
@@ -125,9 +125,9 @@ namespace KMBit.BL.Charge
                 {
                     JObject jsonResult = JObject.Parse(Response);
                     order.OutId = jsonResult["orderId"]!=null? jsonResult["orderId"].ToString():"";
-                    string res = jsonResult["respCode"].ToString();
-                    corder.Process_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                    switch(res.ToLower())
+                    string res = jsonResult["respCode"]!=null?jsonResult["respCode"].ToString():"";
+                    string resMsg = jsonResult["respMsg"]!=null?jsonResult["respMsg"].ToString():"";
+                    switch (res.ToLower())
                     {
                         case "jx0000":
                             result.Message = ChargeConstant.CHARGING;
@@ -137,9 +137,7 @@ namespace KMBit.BL.Charge
                         case "00000":
                         case "000000":
                             result.Message = ChargeConstant.SUCCEED_CHARGE;
-                            result.Status = ChargeStatus.SUCCEED;
-                            //change charge status
-                            ChangeOrderStatus(order, result);
+                            result.Status = ChargeStatus.SUCCEED; 
                             break;
                         case "jx0001":
                             result.Message = ChargeConstant.AGENT_WRONG_PASSWORD;
@@ -162,8 +160,12 @@ namespace KMBit.BL.Charge
                             result.Status = ChargeStatus.FAILED;
                             break;
                         default:
+                            result.Message = resMsg;
+                            result.Status = ChargeStatus.FAILED;
                             break;
                     }
+
+                    ChangeOrderStatus(order, result);
                 }
             }
             catch(Exception ex)

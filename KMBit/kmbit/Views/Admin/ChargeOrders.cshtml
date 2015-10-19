@@ -1,0 +1,167 @@
+﻿@model KMBit.Models.BigOrderSearchModel
+@using GridMvc.Html
+@{
+    ViewBag.Title = "充值记录查询";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<script type="text/javascript">
+    var BASE_URL = '@Url.Content("~/")';
+    $(function () {
+        $('#SearchOrderForm').find('#SearchModel_AgencyId').change(function () {
+            var agencyId = $('#SearchOrderForm').find('#SearchModel_AgencyId').val();
+            if (agencyId == "") {
+                $('#SearchOrderForm').find('#SearchModel_ResourceId').empty();
+                $('#SearchOrderForm').find('#SearchModel_ResourceId').append("<option value=\"\">--选择资源--</option>");
+                return;
+            }
+            $.post(
+                BASE_URL + 'api/Admin/GetAgencyResources',
+                { agencyId: agencyId },
+                function (res, status) {
+                    $('#SearchOrderForm').find('#SearchModel_ResourceId').empty();
+                    $('#SearchOrderForm').find('#SearchModel_ResourceId').append("<option value=\"\">--选择资源--</option>");
+                    $(res.Item).each(function (index, item) {
+                        $('#SearchOrderForm').find('#SearchModel_ResourceId').append("<option value=\"" + item.Resource.Id + "\">" + item.Resource.Name + "</option>");
+                    });
+                }
+            );
+        });
+        $('#SearchOrderForm').find('#SearchModel_ResourceId').change(function () {
+            var resourceId = $('#SearchOrderForm').find('#SearchModel_ResourceId').val();
+            var agencyId = $('#SearchOrderForm').find('#SearchModel_AgencyId').val();
+            if (resourceId == '') {
+                $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').empty();
+                $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').append("<option value=\"\">--选择套餐--</option>");
+                return;
+            }
+           
+            $.post(
+                BASE_URL + 'api/Admin/GetAgencyResourceTaocans',
+                { resourceId: resourceId, agencyId: agencyId },
+                function (res, status) {
+                    $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').empty();
+                    $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').append("<option value=\"\">--选择套餐--</option>");
+                    $(res.Item).each(function (index, item) {
+                        $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').append("<option value=\"" + item.Taocan.Id + "\">" + item.Taocan2.Name + "</option>");
+                    });
+                }
+            );
+        });
+    });
+</script>
+
+<h2>@ViewBag.Title</h2>
+<hr />
+
+    @using (Html.BeginForm("ChargeOrders","Admin",FormMethod.Get, new { @class = "form-horizontal", role = "form", @id = "SearchOrderForm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">          
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.OrderId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.SearchModel.OrderId, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.OrderId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.AgencyId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.SearchModel.AgencyId, (SelectList)ViewBag.Agencies, "--选择代理商--", new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.AgencyId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.ResourceId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.SearchModel.ResourceId, (SelectList)ViewBag.Resources, "--选择资源--", new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.ResourceId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.ResourceTaocanId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.SearchModel.ResourceTaocanId, (SelectList)ViewBag.Taocans, "--选择套餐--", new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.ResourceTaocanId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            @*<div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.RuoteId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.SearchModel.RuoteId, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.RuoteId, "", new { @class = "text-danger" })
+                </div>
+            </div>*@   
+            <div class="form-group">
+                @Html.LabelFor(model => model.SearchModel.MobileNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.SearchModel.MobileNumber, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SearchModel.MobileNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+          
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="搜索" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    }
+
+<div>
+@Html.Grid(Model.OrderGrid).Columns(columns =>
+{
+    columns.Add(c => c.ReseouceName).Titled("资源").Filterable(true).SetWidth("15%");
+    columns.Add(c => c.AgentEmail).Titled("代理商").Filterable(true).SetWidth("10%").RenderValueAs(o => o.AgentEmail != null ? o.AgentEmail : "");
+    columns.Add(c => c.MobilePhone).Titled("手机号").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.PlatformCostPrice).Titled("成本价").Filterable(true).SetWidth("8%");
+    columns.Add(c => c.SalePrice).Titled("售价").Filterable(true).SetWidth("5%");
+    columns.Add(c => c.PurchasePrice).Titled("代理价").Filterable(true).SetWidth("8%");
+    columns.Add(c => c.PlatformSalePrice).Titled("代理售价").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.CreatedTime).Titled("时间").Filterable(true).SetWidth("10%").RenderValueAs(o => o.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(o.CreatedTime).ToString("yyyy-H-mm") : "");
+    columns.Add(c => c.StatusText).Titled("状态").Filterable(true).SetWidth("10%").RenderValueAs(o => o.StatusText != null ? o.StatusText : "");
+    columns.Add()
+  .Encoded(false)
+  .Sanitized(false)
+  .SetWidth("5%")
+  .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"orderDetail(" + o.Id + ")\">明细</a>"));
+}).Sortable(true)
+</div>
+
+<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-body">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function orderDetail(orderId) {
+        $.get(
+            "/Admin/OrderDetail",
+            { orderId: orderId },
+            function (res, status) {
+                if (res != null && res != "undefined") {
+                    $('#orderDetailModal').find('.modal-body').html(res);
+                    $('#orderDetailModal').modal();
+                }
+            }
+         );
+    }
+</script>
+

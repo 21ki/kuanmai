@@ -1,0 +1,174 @@
+﻿@model KMBit.Beans.BOrder
+
+@{
+    ViewBag.Title = "订单详情";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>   
+    <hr />
+    <dl class="dl-horizontal">       
+
+        @if (Model.AgentId > 0)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.AgentEmail)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.AgentEmail)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.AgentRouteId)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.AgentRouteId)
+            </dd>
+        }
+      
+        <dt>
+            @Html.DisplayNameFor(model => model.ReseouceName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReseouceName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MobileSP)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MobileSP)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MobilePhone)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MobilePhone)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PlatformCostPrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PlatformCostPrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PlatformSalePrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PlatformSalePrice)
+        </dd>
+
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PurchasePrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PurchasePrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SalePrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SalePrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Payed)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Payed)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Revenue)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Revenue)
+        </dd> 
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CreatedTime).ToString("yyyy-H-dd hh:mm"):"")
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProceedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.ProceedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.ProceedTime).ToString("yyyy-H-dd hh:mm") : "")
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CompletedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.CompletedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CompletedTime).ToString("yyyy-H-dd hh:mm") : "")
+        </dd>      
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StatusText)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StatusText)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Message)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Message)
+        </dd>
+        @if (Model.AgentId == 0 && Model.Operator > 0)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.OperatorEmail)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.OperatorEmail)
+            </dd>
+        }    
+        
+        <dt>
+            @Html.DisplayNameFor(model => model.Refound)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Refound)
+            @if (Model.Status == 3 && !Model.Refound && Model.Operator==0) {
+                @Html.ActionLink("手动退款", "Refound", "Admin");
+            }
+        </dd>    
+
+    </dl>
+</div>

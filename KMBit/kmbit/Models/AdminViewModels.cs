@@ -2,9 +2,43 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
-
+using KMBit.Beans;
 namespace KMBit.Models
 {
+
+    public class BigOrderSearchModel
+    {
+        public OrderSearchModel SearchModel { get;set;}
+        public KMBit.Grids.KMGrid<BOrder> OrderGrid { get; set; }
+    }
+
+    public class OrderSearchModel
+    {
+        [Display(Name = "订单编号")]
+        public int? OrderId { get; set; }
+
+        [Display(Name = "代理商")]
+        public int? AgencyId { get; set; }
+
+        [Display(Name = "资源")]
+        public int? ResourceId { get; set; }
+
+        [Display(Name = "套餐")]
+        public int? ResourceTaocanId { get; set; }
+        public int? RuoteId { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
+
+        [Display(Name = "手机号")]
+        public string MobileNumber { get; set; }
+        public string SPName { get; set; }
+        public int Page { get; set; }
+
+        [Display(Name = "充值状态")]
+        public int[] Status { get; set; }
+    }
+    
+
     public class ResourceConfigModel
     {
         public int Id { get; set; }

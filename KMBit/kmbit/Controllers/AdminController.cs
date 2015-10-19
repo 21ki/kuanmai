@@ -15,9 +15,11 @@ using KMBit.Util;
 using KMBit.Beans;
 using KMBit.BL.Charge;
 using KMBit.DAL;
+using KMBit.Filters;
 namespace KMBit.Controllers
 {
     [Authorize]
+    [AdminFilter(Message ="非管理员账户请不要试图访问管理界面")]    
     public class AdminController : Controller
     {
         int total;
@@ -51,7 +53,11 @@ namespace KMBit.Controllers
         }
         public AdminController()
         {
-            
+            //BaseManagement bMgr = new BaseManagement(User.Identity.GetUserId<int>());
+            //if (!bMgr.CurrentLoginUser.IsAdmin)
+            //{
+            //    Redirect("/Account/LoginError?message=" + "你不是管理员账户，请不要试图访问管理界面");
+            //}
         }
 
         public AdminController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
@@ -907,15 +913,66 @@ namespace KMBit.Controllers
         }
 
         [HttpGet]
-        public ActionResult ChargeHistory()
+        public ActionResult ChargeOrders(OrderSearchModel searchModel)
         {
-            BaseManagement baseMgt = new BaseManagement(User.Identity.GetUserId<int>());
-            if (!baseMgt.CurrentLoginUser.Permission.CHARGE_HISTORY)
+            OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());
+            agentAdminMgt = new AgentAdminMenagement(orderMgt.CurrentLoginUser);
+            if (!orderMgt.CurrentLoginUser.Permission.CHARGE_HISTORY)
             {
                 ViewBag.Message = "没有权限查看流量充值记录";
                 return View("Error");
             }
-            return View();
+            int pageSize = 3;
+            DateTime sDate = DateTime.MinValue;
+            DateTime eDate = DateTime.MinValue;
+            if(!string.IsNullOrEmpty(searchModel.StartTime))
+            {
+                DateTime.TryParse(searchModel.StartTime, out sDate);
+            }
+            if (!string.IsNullOrEmpty(searchModel.EndTime))
+            {
+                DateTime.TryParse(searchModel.EndTime, out eDate);
+            }
+            long sintDate = sDate!=DateTime.MinValue?DateTimeUtil.ConvertDateTimeToInt(sDate):0;
+            long eintDate= eDate != DateTime.MinValue ? DateTimeUtil.ConvertDateTimeToInt(eDate) : 0;
+            int page = 1;
+            if(Request["page"]!=null)
+            {
+                int.TryParse(Request["page"],out page);
+            }
+            searchModel.Page = page;
+            List<BOrder> orders = orderMgt.FindOrders(searchModel.OrderId!=null?(int)searchModel.OrderId:0, 
+                                                      searchModel.AgencyId!=null?(int)searchModel.AgencyId:0, 
+                                                      searchModel.ResourceId!=null?(int)searchModel.ResourceId:0, 
+                                                      searchModel.ResourceTaocanId!=null?(int)searchModel.ResourceTaocanId:0, 
+                                                      searchModel.RuoteId!=null?(int)searchModel.RuoteId:0, 
+                                                      searchModel.SPName, searchModel.MobileNumber,
+                                                      null,
+                                                      sintDate,
+                                                      eintDate,
+                                                      out total,
+                                                      pageSize,
+                                                      searchModel.Page, true);
+            PageItemsResult<BOrder> result = new PageItemsResult<BOrder>() { CurrentPage = searchModel.Page, Items = orders, PageSize = pageSize, TotalRecords = total,EnablePaging=true };
+            KMBit.Grids.KMGrid<BOrder> grid = new Grids.KMGrid<BOrder>(result);
+            BigOrderSearchModel model = new BigOrderSearchModel() { SearchModel = searchModel, OrderGrid = grid };
+
+            List<KMBit.Beans.BUser> agencies = agentAdminMgt.FindAgencies(0, null, null, 0, 0, out total, 0, 0, false,null);
+            List<BResource> resources = new List<BResource>();
+            if(searchModel.AgencyId!=null)
+            {
+                resources = agentAdminMgt.FindAgentResources((int)searchModel.AgencyId);
+            }
+            ViewBag.Agencies = new SelectList((from a in agencies select a.User).ToList<Users>(),"Id","Name");
+            ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<Resource>(), "Id", "Name");
+
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            if(searchModel.ResourceId!=null)
+            {
+                taocans = agentAdminMgt.FindAgencyResourceTaocans((int)searchModel.AgencyId, (int)searchModel.ResourceId);
+            }
+            ViewBag.Taocans = new SelectList((from t in taocans select new { Id=t.Taocan.Id,Name=t.Taocan2.Name}), "Id", "Name");
+            return View(model);
         }
 
         [HttpGet]
@@ -1015,7 +1072,7 @@ namespace KMBit.Controllers
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();
-                ChargeOrder order = new ChargeOrder() {Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                ChargeOrder order = new ChargeOrder() {Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
               
                 OrderManagement orderMgt = new OrderManagement();
                 order = orderMgt.GenerateOrder(order);               
@@ -1023,6 +1080,36 @@ namespace KMBit.Controllers
                 ViewBag.Message = result.Message;
             }
 
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult OrderDetail(int orderId)
+        {
+            OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());
+            if (!orderMgt.CurrentLoginUser.Permission.CHARGE_HISTORY)
+            {
+                ViewBag.Message = "没有权限查看流量充值记录";
+                return View("Error");
+            }
+            List<BOrder> orders = orderMgt.FindOrders(orderId, 0, 0, 0, 0, null, null, null, 0, 0, out total);
+            if(orders==null || orders.Count==0)
+            {
+                ViewBag.Message = string.Format("编号为:{0}的充值记录不存在",orderId);
+                return View("Error");
+            }
+            return View(orders[0]);
+        }
+
+        [HttpGet]
+        public ActionResult Reports()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult Refound()
+        {
             return View();
         }
     }

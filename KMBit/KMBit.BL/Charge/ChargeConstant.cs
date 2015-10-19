@@ -26,5 +26,6 @@ namespace KMBit.BL.Charge
         public const string RESOURCE_TAOCAN_DISABLED = "此套餐被冻结，目前不能使用此套餐充值流量，请选择其他套餐";
         public const string RESOURCE_TAOCAN_NO_PDTID = "落地资源套餐产品编码不存在（经销商平台里产品唯一识别码）";
         public const string RESOURCE_DISABLED = "落地资源被冻结，不能使用，请联系平台管理员";
+        public const string ORDER_NOT_EXIST = "充值订单不存在";
     }
 }

@@ -18,9 +18,16 @@ namespace KMBit.BL
             ChargeResult result = null;
             ICharge chargeMgr = null;
             chargebitEntities db = null;
+            Charge_Order cOrder = null;
             try
             {
-                db = new chargebitEntities();
+                db = new chargebitEntities();                
+                cOrder = (from co in db.Charge_Order where co.Id == order.Id select co).FirstOrDefault<Charge_Order>();
+                if(cOrder==null)
+                {
+                    result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = ChargeConstant.ORDER_NOT_EXIST };
+                    return result;
+                }
                 Resource_taocan taocan = (from tc in db.Resource_taocan where tc.Id == order.ResourceTaocanId select tc).FirstOrDefault<Resource_taocan>();
                 if(!taocan.Enabled)
                 {
@@ -35,11 +42,15 @@ namespace KMBit.BL
 
                 if (resource == null)
                 {
+                    db.Charge_Order.Remove(cOrder);
+                    db.SaveChanges();
                     result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = "落地资源部存在，请联系平台管理员" };
                     return result;
                 }
                 if(!resource.Enabled)
                 {
+                    db.Charge_Order.Remove(cOrder);
+                    db.SaveChanges();
                     result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = ChargeConstant.RESOURCE_DISABLED };
                     return result;
                 }                
@@ -50,6 +61,8 @@ namespace KMBit.BL
                 KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == order.ResourceId select ri).FirstOrDefault<Resrouce_interface>();
                 if (rInterface == null)
                 {
+                    db.Charge_Order.Remove(cOrder);
+                    db.SaveChanges();
                     result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = ChargeConstant.RESOURCE_INTERFACE_NOT_CONFIGURED };
                     return result;
                 }
@@ -62,7 +75,11 @@ namespace KMBit.BL
             }
             catch(Exception ex)
             {
-
+                if(cOrder!=null)
+                {
+                    db.Charge_Order.Remove(cOrder);
+                    db.SaveChanges();
+                }
             }
             finally
             {

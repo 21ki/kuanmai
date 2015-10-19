@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="BAgentRoute.cs" />
     <Compile Include="BMobileLocation.cs" />
+    <Compile Include="BOrder.cs" />
     <Compile Include="BResource.cs" />
     <Compile Include="BResourceTaocan.cs" />
     <Compile Include="BTaocan.cs" />

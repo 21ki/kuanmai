@@ -20,19 +20,19 @@
         //    alert(data.sp);
         //});
 
-        $('#ChargeForm').find('#Mobile').blur(function () {
-            GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
-                if (data == null) {
-                    alert("请输入正确的手机号码");
-                    return;
-                } else {
-                    $('#ChargeForm').find('#SPName').val(data.sp);
-                    $('#ChargeForm').find('#Province').val(data.province);
-                    $('#ChargeForm').find('#City').val(data.city);
-                    $('#ChargeForm').find('#SPName').val(data.sp);
-                }
-            });
-        });
+        //$('#ChargeForm').find('#Mobile').blur(function () {
+        //    GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
+        //        if (data == null) {
+        //            alert("请输入正确的手机号码");
+        //            return;
+        //        } else {
+        //            $('#ChargeForm').find('#SPName').val(data.sp);
+        //            $('#ChargeForm').find('#Province').val(data.province);
+        //            $('#ChargeForm').find('#City').val(data.city);
+        //            $('#ChargeForm').find('#SPName').val(data.sp);
+        //        }
+        //    });
+        //});
 
         $('#ChargeForm').find('#global_byte').click(function () {
             var mobileNumber = $('#ChargeForm').find('#Mobile').val();
@@ -40,7 +40,22 @@
                 $('#ChargeForm').submit();
                 return;
             }
-            requestTaocan($('#ChargeForm').find('#SPName').val(),"");
+            if ($('#ChargeForm').find('#SPName').val() != '') {
+                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+            } else {
+                GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
+                    if (data == null) {
+                        alert("请输入正确的手机号码");
+                        return;
+                    } else {
+                        $('#ChargeForm').find('#SPName').val(data.sp);
+                        $('#ChargeForm').find('#Province').val(data.province);
+                        $('#ChargeForm').find('#City').val(data.city);
+                        $('#ChargeForm').find('#SPName').val(data.sp);
+                        requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                    }
+                });
+            }
         });
         $('#ChargeForm').find('#local_byte').click(function () {
             var mobileNumber = $('#ChargeForm').find('#Mobile').val();
@@ -48,8 +63,26 @@
                 $('#ChargeForm').submit();
                 return;
             }
-            requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val());
+
+            if ($('#ChargeForm').find('#SPName').val() != '') {
+                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+            } else {
+                GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
+                    if (data == null) {
+                        alert("请输入正确的手机号码");
+                        return;
+                    } else {
+                        $('#ChargeForm').find('#SPName').val(data.sp);
+                        $('#ChargeForm').find('#Province').val(data.province);
+                        $('#ChargeForm').find('#City').val(data.city);
+                        $('#ChargeForm').find('#SPName').val(data.sp);
+                        requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val());
+                    }
+                });
+            }
+
         });
+
 
         function requestTaocan(sp, province) {
             $.post(
@@ -89,7 +122,10 @@
         })
     });
 </script>
+<h2>@ViewBag.Title</h2>
 <hr />
+
+
 @using (Html.BeginForm("Charge", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "ChargeForm" }))
 {
     @Html.HiddenFor(model => model.SPName)

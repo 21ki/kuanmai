@@ -15,6 +15,11 @@ namespace KMBit.BL.Admin
         {
            
         }
+
+        public AgentAdminMenagement(string email) : base(email)
+        {
+
+        }
         public AgentAdminMenagement(BUser user) : base(user)
         {
 
@@ -107,7 +112,7 @@ namespace KMBit.BL.Admin
             return ret;
         }
 
-        public List<BUser> FindAgencies(int userId, string email, string name, int provinceId, int cityId, out int total,int page = 1, int pageSize = 30)
+        public List<BUser> FindAgencies(int userId, string email, string name, int provinceId, int cityId, out int total,int page = 1, int pageSize = 30,bool paging=true,bool? enabled=null)
         {
             total = 0;
             List<BUser> agencies = new List<BUser>();
@@ -149,10 +154,18 @@ namespace KMBit.BL.Admin
                 {
                     query = query.Where(q => q.Province.Id == provinceId);
                 }
-
+                if(enabled!=null)
+                {
+                    query = query.Where(q => q.User.Enabled == (bool)enabled);
+                }
+                query = query.OrderByDescending(u => u.User.Regtime);
                 total = query.Count();
-                page = page <= 0 ? 1 : page;
-                query = query.OrderByDescending(u => u.User.Regtime).Skip((page - 1) * pageSize).Take(pageSize);
+                if(paging)
+                {
+                    page = page <= 0 ? 1 : page;
+                    query = query.Skip((page - 1) * pageSize).Take(pageSize);
+                }
+                
                 agencies = query.ToList<BUser>();
             }
             return agencies;
@@ -246,7 +259,37 @@ namespace KMBit.BL.Admin
             return routes;
         }
 
-        
+        public List<BResourceTaocan> FindAgencyResourceTaocans(int agencyId, int resourceId)
+        {
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<int> taocanIds = (from t in db.Agent_route where t.User_id== agencyId && t.Resource_Id == resourceId select t.Resource_taocan_id).ToList<int>();
+                taocans = (from t in db.Resource_taocan where taocanIds.Contains(t.Id)
+                           join tt in db.Taocan on t.Taocan_id equals tt.Id into ltt
+                           from lltt in ltt.DefaultIfEmpty()
+                           select new BResourceTaocan
+                           {
+                               Taocan = t,
+                               Taocan2=lltt
+                           }).ToList<BResourceTaocan>();
+            }
+            return taocans;
+        }
+        public List<BResource> FindAgentResources(int agencyId)
+        {
+            List<BResource> resources = new List<BResource>();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<int> resourceIds = (from au in db.Agent_route where au.User_id==agencyId select au.Resource_Id).ToList<int>();
+                resources = (from r in db.Resource where resourceIds.Contains(r.Id)
+                             select new BResource
+                             {
+                                 Resource=r
+                             }).ToList<BResource>();
+            }
+            return resources;
+        }
 
         public bool CreateRoute(Agent_route route)
         {

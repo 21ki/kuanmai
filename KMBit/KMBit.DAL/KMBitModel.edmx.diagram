@@ -23,8 +23,8 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users_Actions" Width="1.5" PointX="6.75" PointY="7" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="14.375" PointY="4.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="6.875" PointY="8.875" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="16.625" PointY="0.5" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="2.5" PointY="10.625" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="7.375" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

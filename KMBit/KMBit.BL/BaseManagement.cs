@@ -13,6 +13,10 @@ namespace KMBit.BL
         protected log4net.ILog logger;
         public BUser CurrentLoginUser { get; private set; }
 
+        public BaseManagement()
+        {
+            this.InitializeLoggger();
+        }
         public BaseManagement(BUser user)
         {
             this.CurrentLoginUser = user;

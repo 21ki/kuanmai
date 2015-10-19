@@ -28,7 +28,7 @@ namespace KMBit.Controllers
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();
-                ChargeOrder order = new ChargeOrder() { AgencyId = 0, Id = 0, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                ChargeOrder order = new ChargeOrder() { AgencyId = 0, Id = 0, Province = model.Province, City = model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
                 //
                 OrderManagement orderMgt = new OrderManagement();
                 order = orderMgt.GenerateOrder(order);

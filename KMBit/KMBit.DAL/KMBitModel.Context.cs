@@ -43,7 +43,7 @@ namespace KMBit.DAL
         public DbSet<Admin_Users_Actions> Admin_Users_Actions { get; set; }
         public DbSet<Resource_taocan> Resource_taocan { get; set; }
         public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
-        public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
+        public DbSet<Charge_Order> Charge_Order { get; set; }
     }
 }
