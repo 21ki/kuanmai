@@ -7,7 +7,8 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/modernizr")   
+    @Scripts.Render("~/bundles/jqPlot")
     @Scripts.Render("~/bundles/sitejs")
     @{ 
         string actionName = ViewContext.RouteData.Values["action"].ToString();
@@ -41,10 +42,10 @@
                         <a href="/Admin/Charge" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }
                             }">手工充值流量</a>
                         <a href="/Admin/ChargeOrders" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "ChargeOrders" || actionName=="OrderDetail")){ @Html.Raw("active"); }
-                            }">流量充值查询</a>
+                            }">充值记录查询</a>
 
                         <a href="/Admin/Reports" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "Reports")){ @Html.Raw("active"); }
-                            }">报表</a>
+                            }">流量充值报表</a>
 
                         @*<a href="/Admin/ChargeQueue" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "ChargeQueue")){ @Html.Raw("active"); }
                             }">流量待充值列队</a>*@

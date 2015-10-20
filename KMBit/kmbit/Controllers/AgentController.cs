@@ -16,7 +16,7 @@ using KMBit.BL.Charge;
 using KMBit.BL.Agent;
 using KMBit.Util;
 using System.Collections.Generic;
-
+using KMBit.BL.Admin;
 namespace KMBit.Controllers
 {
     [Authorize]
@@ -60,7 +60,8 @@ namespace KMBit.Controllers
         // GET: Agent
         public ActionResult Index()
         {
-            return View();
+            AgentManagement agentMgt = new AgentManagement(User.Identity.GetUserId<int>());          
+            return View(agentMgt.CurrentLoginUser);
         }
 
         [HttpGet]
@@ -134,9 +135,70 @@ namespace KMBit.Controllers
             return View(grid);
         }
 
-        public ActionResult ChargeHistories()
+        public ActionResult OrderDetail(int orderId)
         {
-            return View();
+            OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());            
+            List<BOrder> orders = orderMgt.FindOrders(orderId, 0, 0, 0, 0, null, null, null, 0, 0, out total);
+            if (orders == null || orders.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为:{0}的充值记录不存在", orderId);
+                return View("Error");
+            }
+
+            if(orders[0].AgentId!=orderMgt.CurrentLoginUser.User.Id)
+            {
+                ViewBag.Message = string.Format("编号为:{0}的充值记录为其他代理商的充值信息，不能查看", orderId);
+                return View("Error");
+            }
+
+            return View(orders[0]);
+        }
+
+        public ActionResult ChargeOrders(OrderSearchModel searchModel)
+        {
+            OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());  
+            int pageSize = 30;
+            DateTime sDate = DateTime.MinValue;
+            DateTime eDate = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(searchModel.StartTime))
+            {
+                DateTime.TryParse(searchModel.StartTime, out sDate);
+            }
+            if (!string.IsNullOrEmpty(searchModel.EndTime))
+            {
+                DateTime.TryParse(searchModel.EndTime, out eDate);
+            }
+            long sintDate = sDate != DateTime.MinValue ? DateTimeUtil.ConvertDateTimeToInt(sDate) : 0;
+            long eintDate = eDate != DateTime.MinValue ? DateTimeUtil.ConvertDateTimeToInt(eDate) : 0;
+            int page = 1;
+            if (Request["page"] != null)
+            {
+                int.TryParse(Request["page"], out page);
+            }
+            searchModel.Page = page;
+            searchModel.AgencyId = User.Identity.GetUserId<int>();
+            List<BOrder> orders = orderMgt.FindOrders(searchModel.OrderId != null ? (int)searchModel.OrderId : 0,
+                                                      searchModel.AgencyId != null ? (int)searchModel.AgencyId : 0,
+                                                      searchModel.ResourceId != null ? (int)searchModel.ResourceId : 0,
+                                                      searchModel.ResourceTaocanId != null ? (int)searchModel.ResourceTaocanId : 0,
+                                                      searchModel.RuoteId != null ? (int)searchModel.RuoteId : 0,
+                                                      searchModel.SPName, searchModel.MobileNumber,
+                                                      searchModel.Status,
+                                                      sintDate,
+                                                      eintDate,
+                                                      out total,
+                                                      pageSize,
+                                                      searchModel.Page, true);
+            PageItemsResult<BOrder> result = new PageItemsResult<BOrder>() { CurrentPage = searchModel.Page, Items = orders, PageSize = pageSize, TotalRecords = total, EnablePaging = true };
+            KMBit.Grids.KMGrid<BOrder> grid = new Grids.KMGrid<BOrder>(result);
+            BigOrderSearchModel model = new BigOrderSearchModel() { SearchModel = searchModel, OrderGrid = grid };  
+            List<BResourceTaocan> taocans = new List<BResourceTaocan>();
+            agentMgt = new AgentManagement(orderMgt.CurrentLoginUser);
+            List<BAgentRoute> routes = agentMgt.FindTaocans(0);
+            taocans = (from r in routes select r.Taocan).ToList<BResourceTaocan>();
+            ViewBag.Taocans = new SelectList((from t in taocans select new { Id = t.Taocan.Id, Name = t.Taocan2.Name }), "Id", "Name");
+            ViewBag.StatusList = new SelectList((from s in StaticDictionary.GetChargeStatusList() select new { Id = s.Id, Name = s.Value }), "Id", "Name");
+            return View(model);
         }
         public ActionResult PayHistories()
         {
@@ -209,6 +271,11 @@ namespace KMBit.Controllers
             {
                 ModelState.AddModelError("", error);
             }
+        }
+
+        public ActionResult ChargeReports()
+        {
+            return View();
         }
     }
 }

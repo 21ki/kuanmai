@@ -1,0 +1,120 @@
+﻿@model KMBit.Beans.BOrder
+
+@{
+    ViewBag.Title = "订单详情";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>   
+    <hr />
+    <dl class="dl-horizontal">       
+
+        @if (Model.AgentId > 0)
+        {            
+            <dt>
+                @Html.DisplayName("套餐编号")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.AgentRouteId)
+            </dd>
+        }
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MobilePhone)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MobilePhone)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MobileSP)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MobileSP)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Quantity)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PurchasePrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PurchasePrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SalePrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SalePrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Payed)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Payed)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Revenue)
+        </dt>
+        <dd>
+            @Html.Raw((Model.SalePrice - Model.PurchasePrice).ToString("0.00"))
+        </dd> 
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CreatedTime).ToString("yyyy-MM-dd HH:mm"):"")
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProceedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.ProceedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.ProceedTime).ToString("yyyy-MM-dd HH:mm") : "")
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CompletedTime)
+        </dt>
+
+        <dd>
+            @Html.Raw(Model.CompletedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CompletedTime).ToString("yyyy-MM-dd HH:mm") : "")
+        </dd>      
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StatusText)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StatusText)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Message)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Message)
+        </dd>
+    </dl>
+</div>

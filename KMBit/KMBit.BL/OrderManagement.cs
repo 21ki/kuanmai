@@ -113,7 +113,20 @@ namespace KMBit.BL
                 history.Resource_id = resource.Id;
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
-                history.Charge_type = order.AgencyId>0?1:0;
+                if(order.AgencyId>0)
+                {
+                    //代理商充值
+                    history.Charge_type = 1;
+                }else if(order.OperateUserId>0)
+                {
+                    //管理员后台充值
+                    history.Charge_type = 2;
+                }else
+                {
+                    //前台用户直冲
+                    history.Charge_type = 0;
+                }
+                
                 db.Charge_Order.Add(history);
                 db.SaveChanges();
                 order.Id = history.Id;
@@ -153,7 +166,102 @@ namespace KMBit.BL
             return result;
         }
 
-        public List<BOrder> FindOrders(int orderId,int agencyId, int resourceId, int resourceTaocanId, int routeId, string spName, string mobilePhone, List<int> status, long startTime, long endTime,out int total, int pageSize = 50, int page = 1, bool paging = false)
+        public List<ReportTemplate> SearchAgentReport(int agencyId,long startTime, long endTime)
+        {
+            List<ReportTemplate> reportList = new List<ReportTemplate>();
+            int total = 0;
+            if(agencyId==0)
+            {
+                agencyId = CurrentLoginUser.User.Id;
+            }
+            List<BOrder> orders = FindOrders(0, agencyId, 0, 0, 0, null, null, null, startTime, endTime, out total);
+            var rp = from order in orders
+                     group order by order.AgentRouteId into gOrders
+                     orderby gOrders.Key
+                     select new
+                     {
+                         ResourceId = gOrders.Key,
+                         ResourceName = gOrders.FirstOrDefault<BOrder>().TaocanName,
+                         SalesAmount = gOrders.Sum(o => o.SalePrice),
+                         CostAmount = gOrders.Sum(o => o.PurchasePrice),
+                         Revenue = gOrders.Sum(o => o.SalePrice)- gOrders.Sum(o => o.PurchasePrice)
+                     };
+
+            foreach (var rpt in rp)
+            {
+                ReportTemplate temp = new ReportTemplate() { CostAmount = rpt.CostAmount, Id = rpt.ResourceId, Name = rpt.ResourceName, Revenue = rpt.Revenue, SalesAmount = rpt.SalesAmount };
+                reportList.Add(temp);
+            }
+
+            return reportList;
+        }
+
+        public ChartReport SearchResourceAndAgentReport(long startTime, long endTime)
+        {
+            ChartReport report = new ChartReport();
+            int total = 0;
+            List<BOrder> orders = FindOrders(0, 0, 0, 0, 0, null, null, null, startTime, endTime, out total);
+            List<ReportTemplate> resourceReport = new List<ReportTemplate>();
+            List<ReportTemplate> agentReport = new List<ReportTemplate>();
+            var rp = from order in orders
+                     group order by order.ResourceId into gOrders
+                     orderby gOrders.Key
+                     select new
+                     {
+                         ResourceId = gOrders.Key,
+                         ResourceName = gOrders.FirstOrDefault<BOrder>().ReseouceName,
+                         SalesAmount = gOrders.Sum(o => o.PurchasePrice),
+                         CostAmount = gOrders.Sum(o => o.PlatformCostPrice),
+                         Revenue = gOrders.Sum(o => o.Revenue)
+                     };
+            foreach (var rpt in rp)
+            {
+                ReportTemplate temp = new ReportTemplate() { CostAmount = rpt.CostAmount, Id = rpt.ResourceId, Name = rpt.ResourceName, Revenue = rpt.Revenue, SalesAmount = rpt.SalesAmount };
+                resourceReport.Add(temp);
+            }
+            report.ResourceReport = resourceReport;
+            var rp2 = from order in orders
+                      where order.AgentId > 0 && order.Operator==0
+                      group order by order.AgentId into gOrders
+                      orderby gOrders.Key
+                      select new
+                      {
+                          AgentId = gOrders.Key,
+                          AgentName = gOrders.FirstOrDefault<BOrder>().AgentName,
+                          SalesAmount = gOrders.Sum(o => o.PurchasePrice),
+                          CostAmount = gOrders.Sum(o => o.PlatformCostPrice),
+                          Revenue = gOrders.Sum(o => o.Revenue)
+                      };
+
+            foreach (var rpt in rp2)
+            {
+                ReportTemplate temp = new ReportTemplate() { CostAmount = rpt.CostAmount, Id = rpt.AgentId, Name = rpt.AgentName, Revenue = rpt.Revenue, SalesAmount = rpt.SalesAmount };
+                agentReport.Add(temp);
+            }
+
+            var rp3 = from order in orders
+                      where order.AgentId == 0
+                      group order by order.ChargeType into gOrders
+                      orderby gOrders.Key
+                      select new
+                      {
+                          Type = gOrders.Key,
+                          Name = gOrders.FirstOrDefault<BOrder>().Operator==0?"前台直冲":"后台直冲",
+                          SalesAmount = gOrders.Sum(o => o.PurchasePrice),
+                          CostAmount = gOrders.Sum(o => o.PlatformCostPrice),
+                          Revenue = gOrders.Sum(o => o.Revenue)
+                      };
+
+            foreach (var rpt in rp3)
+            {
+                ReportTemplate temp = new ReportTemplate() { CostAmount = rpt.CostAmount, Id = rpt.Type, Name = rpt.Name, Revenue = rpt.Revenue, SalesAmount = rpt.SalesAmount };
+                agentReport.Add(temp);
+            }
+            report.UserReport = agentReport;
+            return report;
+        }
+
+        public List<BOrder> FindOrders(int orderId,int agencyId, int resourceId, int resourceTaocanId, int routeId, string spName, string mobilePhone, int[] status, long startTime, long endTime,out int total, int pageSize = 50, int page = 1, bool paging = false)
         {
             total = 0;
             List<BOrder> orders = new List<BOrder>();
@@ -168,9 +276,11 @@ namespace KMBit.BL
                             from llagency in lagency.DefaultIfEmpty()
                             join opr in db.Users on o.Operate_User equals opr.Id into lopr
                             from llopr in lopr.DefaultIfEmpty()
+                            join tcc in db.Taocan on t.Taocan_id equals tcc.Id into ltcc
+                            from lltcc in ltcc.DefaultIfEmpty()
                             select new BOrder
                             {
-                                AgentEmail = llagency != null ? llagency.Email : null,
+                                AgentName = llagency != null ? llagency.Name : null,
                                 AgentId = o.Agent_Id,
                                 AgentRouteId = o.RuoteId,
                                 CompletedTime = o.Completed_Time,
@@ -180,7 +290,7 @@ namespace KMBit.BL
                                 MobilePhone = o.Phone_number,
                                 MobileSP = o.MobileSP,
                                 Operator = o.Operate_User,
-                                OperatorEmail = llopr != null ? llopr.Email : null,
+                                OperatorName = llopr != null ? llopr.Name : null,
                                 Payed = o.Payed,
                                 PlatformCostPrice = o.Platform_Cost_Price,
                                 PlatformSalePrice = o.Platform_Sale_Price,
@@ -192,9 +302,10 @@ namespace KMBit.BL
                                 ReseouceName = r.Name,
                                 ResourceTaocanId = o.Resource_taocan_id,
                                 Status = o.Status,                                
-                                TaocanName = "",
+                                TaocanName = lltcc!=null? lltcc.Name:"",
                                 Refound=o.Refound,
-                                Revenue=o.Revenue
+                                Revenue=o.Revenue,
+                                ChargeType= o.Charge_type
                             };
 
                 if(orderId>0)
@@ -225,9 +336,12 @@ namespace KMBit.BL
                 {
                     query = query.Where(o => o.MobilePhone==mobilePhone);
                 }
-                if(status!=null && status.Count>0)
+                if(status!=null && status.Length>0)
                 {
-                    query = query.Where(o=>status.ToArray<int>().Contains(o.Status));
+                    if(status.Length>1 ||(status.Length==1 && status[0]!=0))
+                    {
+                        query = query.Where(o => status.Contains(o.Status));
+                    }                    
                 }
                 if(startTime>0)
                 {
@@ -247,26 +361,12 @@ namespace KMBit.BL
                 }
 
                 orders = query.ToList<BOrder>();
-                foreach(BOrder o in orders)
+                List<DictionaryTemplate> statusList = StaticDictionary.GetChargeStatusList();
+                List<DictionaryTemplate> chargeTypeList = StaticDictionary.GetChargeTypeList();
+                foreach (BOrder o in orders)
                 {
-                    
-                    switch(o.Status)
-                    {
-                        case 0:
-                            o.StatusText = "等待处理";
-                            break;
-                        case 1:
-                            o.StatusText = "正在充值";
-                            break;
-                        case 2:
-                            o.StatusText = "充值成功";
-                            break;
-                        case 3:
-                            o.StatusText = "充值失败";
-                            break;
-                        default:
-                            break;
-                    }
+                    o.StatusText = (from s in statusList where o.Status == s.Id select s.Value).FirstOrDefault<string>();
+                    o.ChargeTypeText = (from s in chargeTypeList where o.ChargeType == s.Id select s.Value).FirstOrDefault<string>();
                 }
             }
             return orders;

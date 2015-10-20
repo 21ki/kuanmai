@@ -82,6 +82,7 @@
     <Compile Include="PayAPI\AliPay\AlipayNotify.cs" />
     <Compile Include="PayAPI\AliPay\AlipaySubmit.cs" />
     <Compile Include="PayAPI\AliPay\MD5.cs" />
+    <Compile Include="StaticDictionary.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="BaseManagement.cs" />
     <Compile Include="IdentityConfig.cs" />

@@ -1,8 +1,97 @@
-﻿
+﻿@model KMBit.Beans.BUser
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "账户信息";
     Layout = "~/Views/Shared/_Layout_Agent.cshtml";
 }
 
-<h2>TBD,主要以仪表的形式像是代理商的充值记录信息以及账户使用信息</h2>
+<script>
+    var BASE_URL = '@Url.Content("~/")';
+    $(function () {
+        var reportGenerater = new ReportGenerater();
+        function requestData() {
+            $.post(
+                BASE_URL + 'api/Agent/GetAgentReports',
+                { startTime: $('#SearchReportForm').find('#StartTime').val(), endTime: $('#SearchReportForm').find('#EndTime').val() },
+                function (res, status) {
+                    if (res.Status == "OK") {
+
+                        if (res.Item != null && res.Item != "" && res.Item != 'undefined') {
+                            if (res.Item.length > 0) {
+                                reportGenerater.render(res.Item, 'agent_grid_report', 'agent_pie_report', false);
+                            }
+                        } else {
+                            alert("没有找到任何数据");
+                        }
+
+                    } else {
+                        alert("报表搜索失败");
+                    }
+                }
+            );
+        }
+
+        requestData();
+    });
+</script>
+<h2>@ViewBag.Title</h2>
+
+<hr>
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayName("名称")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("Email")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("创建日期")
+        </dt>
+        <dd>
+            @Html.Raw(Model.User.Regtime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.User.Regtime).ToString("yyyy-MM-dd HH:mm") : "")
+        </dd>
+
+        <dt>
+            @Html.DisplayName("付款类型")
+        </dt>
+        <dd>
+            @Html.Raw(Model.User.Pay_type ==1 ? "预付费" : "后付费")
+        </dd>
+
+        <dt>
+            @Html.DisplayName("账户余额")
+        </dt>
+        <dd>
+            @Html.Raw(Model.User.Remaining_amount.ToString("0.00"))
+        </dd>
+
+        @if (Model.User.Pay_type == 2)
+        {
+            <dt>
+                @Html.DisplayName("信用额度")
+            </dt>
+            <dd>
+                @Html.Raw(Model.User.Credit_amount.ToString("0.00"))
+            </dd>
+        }
+    </dl>
+</div>
+<hr />
+<div>
+    <div style="float:left;width:100%;" id="agent_report">
+        <div id="agent_pie_report">
+
+        </div>
+        <div style="padding-left:5px;padding-right:6px" id="agent_grid_report">
+        </div>
+    </div>
+</div>
 

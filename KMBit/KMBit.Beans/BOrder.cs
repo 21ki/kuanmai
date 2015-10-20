@@ -13,7 +13,7 @@ namespace KMBit.Beans
         [Display(Name = "代理商编号")]
         public int AgentId { get; set; }
         [Display(Name = "代理商")]
-        public string AgentEmail { get; set; }
+        public string AgentName { get; set; }
         [Display(Name = "资源编号")]
         public int ResourceId { get; set; }
         [Display(Name = "资源名称")]
@@ -38,11 +38,16 @@ namespace KMBit.Beans
         public int Status { get; set; }
         [Display(Name = "充值状态")]
         public string StatusText { get; set; }
+
+        public int ChargeType { get; set; }
+        [Display(Name = "充值类型")]
+        public string ChargeTypeText { get; set; }
+
         [Display(Name = "充值消息")]
         public string Message { get; set; }
         public int Operator { get; set; }
         [Display(Name = "操作员用户")]
-        public string OperatorEmail { get; set; }
+        public string OperatorName { get; set; }
         [Display(Name = "代理售价")]
         public float SalePrice { get; set; }
         [Display(Name = "代理价格")]

@@ -14,7 +14,7 @@ namespace KMBit.Models
 
     public class OrderSearchModel
     {
-        [Display(Name = "订单编号")]
+        [Display(Name = "订单号")]
         public int? OrderId { get; set; }
 
         [Display(Name = "代理商")]
@@ -26,15 +26,19 @@ namespace KMBit.Models
         [Display(Name = "套餐")]
         public int? ResourceTaocanId { get; set; }
         public int? RuoteId { get; set; }
+
+        [Display(Name = "开始日期")]
         public string StartTime { get; set; }
+
+        [Display(Name = "结束日期")]
         public string EndTime { get; set; }
 
-        [Display(Name = "手机号")]
+        [Display(Name = "手机号码")]
         public string MobileNumber { get; set; }
         public string SPName { get; set; }
         public int Page { get; set; }
 
-        [Display(Name = "充值状态")]
+        [Display(Name = "状态")]
         public int[] Status { get; set; }
     }
     

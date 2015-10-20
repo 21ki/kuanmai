@@ -20,15 +20,22 @@ namespace KMBit
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
-                      "~/Scripts/respond.js"));
+                      "~/Scripts/bootstrap.js",                      
+                      "~/Scripts/respond.js",
+                      "~/Scripts/bootstrap-datepicker.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/sitejs").Include(
                        "~/Scripts/kmsite.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/bootstrap-datepicker.min.css",
+                      "~/Scripts/jqPlot/jquery.jqplot.min.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/jqPlot").Include(
+                        "~/Scripts/jqPlot/jquery.jqplot.min.js",
+                        "~/Scripts/jqPlot/plugins/jqplot.pieRenderer.min.js"));
         }
     }
 }

@@ -8,6 +8,10 @@ namespace KMBit.Beans
 {
     public class ChargeBaseOrder
     {
+        public ChargeBaseOrder()
+        {
+           
+        }
         public int Id { get; set; }
         public string MobileSP { get; set; }
         public string Province { get; set; }

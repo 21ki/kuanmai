@@ -19,7 +19,7 @@ using KMBit.Filters;
 namespace KMBit.Controllers
 {
     [Authorize]
-    [AdminFilter(Message ="非管理员账户请不要试图访问管理界面")]    
+    [AdminFilter(Message ="非管理员账户请不要试图访问管理员后台界面，多次尝试，系统将自动锁定账户")]    
     public class AdminController : Controller
     {
         int total;
@@ -917,12 +917,13 @@ namespace KMBit.Controllers
         {
             OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());
             agentAdminMgt = new AgentAdminMenagement(orderMgt.CurrentLoginUser);
+            resourceMgt = new ResourceManagement(orderMgt.CurrentLoginUser);
             if (!orderMgt.CurrentLoginUser.Permission.CHARGE_HISTORY)
             {
                 ViewBag.Message = "没有权限查看流量充值记录";
                 return View("Error");
             }
-            int pageSize = 3;
+            int pageSize = 30;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
             if(!string.IsNullOrEmpty(searchModel.StartTime))
@@ -947,7 +948,7 @@ namespace KMBit.Controllers
                                                       searchModel.ResourceTaocanId!=null?(int)searchModel.ResourceTaocanId:0, 
                                                       searchModel.RuoteId!=null?(int)searchModel.RuoteId:0, 
                                                       searchModel.SPName, searchModel.MobileNumber,
-                                                      null,
+                                                      searchModel.Status,
                                                       sintDate,
                                                       eintDate,
                                                       out total,
@@ -962,6 +963,9 @@ namespace KMBit.Controllers
             if(searchModel.AgencyId!=null)
             {
                 resources = agentAdminMgt.FindAgentResources((int)searchModel.AgencyId);
+            }else
+            {
+                resources = resourceMgt.FindResources(0,null,0,out total);
             }
             ViewBag.Agencies = new SelectList((from a in agencies select a.User).ToList<Users>(),"Id","Name");
             ViewBag.Resources = new SelectList((from r in resources select r.Resource).ToList<Resource>(), "Id", "Name");
@@ -969,9 +973,17 @@ namespace KMBit.Controllers
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             if(searchModel.ResourceId!=null)
             {
-                taocans = agentAdminMgt.FindAgencyResourceTaocans((int)searchModel.AgencyId, (int)searchModel.ResourceId);
+                if(searchModel.AgencyId==null)
+                {
+                    taocans = resourceMgt.FindResourceTaocans((int)searchModel.ResourceId, 0, false);
+                }
+                else
+                {
+                    taocans = agentAdminMgt.FindAgencyResourceTaocans((int)searchModel.AgencyId, (int)searchModel.ResourceId);
+                }                
             }
             ViewBag.Taocans = new SelectList((from t in taocans select new { Id=t.Taocan.Id,Name=t.Taocan2.Name}), "Id", "Name");
+            ViewBag.StatusList = new SelectList((from s in StaticDictionary.GetChargeStatusList() select new { Id=s.Id,Name=s.Value}),"Id","Name");
             return View(model);
         }
 

@@ -55,6 +55,8 @@
     <Compile Include="BTaocan.cs" />
     <Compile Include="BUser.cs" />
     <Compile Include="ChargeOrder.cs" />
+    <Compile Include="ChartReport.cs" />
+    <Compile Include="DictionaryTemplate.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />
     <Compile Include="PageItemsResult.cs" />

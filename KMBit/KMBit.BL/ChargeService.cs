@@ -78,7 +78,7 @@ namespace KMBit.BL
                 {
                     cOrder.Payed = order.Payed;
                     cOrder.Sale_price = taocan.Sale_price;
-                    cOrder.Purchase_price = taocan.Purchase_price;
+                    cOrder.Purchase_price = taocan.Sale_price;
                     cOrder.Platform_Cost_Price = taocan.Purchase_price;
                     cOrder.Platform_Sale_Price = taocan.Sale_price;
                     cOrder.Charge_type = 0;

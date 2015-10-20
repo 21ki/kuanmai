@@ -1,0 +1,81 @@
+﻿@model KMBit.Models.OrderSearchModel
+@{
+    ViewBag.Title = "流量充值报表";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+
+<script type="text/javascript">
+    var BASE_URL = '@Url.Content("~/")';
+   
+    $(function () {
+        var reportGenerater = new ReportGenerater();
+        //alert(reportGenerater);
+        $('#SearchReportForm').find('#StartTime').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+        $('#SearchReportForm').find('#EndTime').datepicker({
+            format: 'yyyy-mm-dd',
+        });
+
+        $('#SearchReportForm').find('#search_report').click(function () {
+            requestData();
+        });
+
+        function requestData() {
+            $.post(
+                BASE_URL + 'api/Agent/GetAgentReports',
+                { startTime: $('#SearchReportForm').find('#StartTime').val(), endTime: $('#SearchReportForm').find('#EndTime').val() },
+                function (res, status) {
+                    if (res.Status == "OK") {
+
+                        if (res.Item != null && res.Item != "" && res.Item != 'undefined') {
+                            if (res.Item.length > 0) {
+                                reportGenerater.render(res.Item, 'agent_grid_report', 'agent_pie_report', false);
+                            }
+                        } else {
+                            alert("没有找到任何数据");
+                        }
+
+                    } else {
+                        alert("报表搜索失败");
+                    }
+                }
+            );
+        }
+    });
+</script>
+<h2>@ViewBag.Title</h2>
+<hr />
+<div id="SearchReportForm" class="form-horizontal">
+    <div class="form-group">
+        @Html.LabelFor(model => model.StartTime, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.StartTime, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.StartTime, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.EndTime, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-8">
+            @Html.EditorFor(model => model.EndTime, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.EndTime, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-8">
+            <input id="search_report" type="button" value="搜索" class="btn btn-default" />
+        </div>
+    </div>
+</div>
+<hr />
+
+<div style="overflow:hidden">   
+    <div style="float:left;width:100%;" id="agent_report">
+        <div id="agent_pie_report">
+
+        </div>
+        <div style="padding-left:5px;padding-right:6px" id="agent_grid_report">
+        </div>
+    </div>
+</div>
+

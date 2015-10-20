@@ -215,6 +215,8 @@ namespace KMBit.BL.Admin
                             from llcity in lcity.DefaultIfEmpty()
                             join sp in db.Sp on tc.Sp_id equals sp.Id into lsp
                             from llsp in lsp.DefaultIfEmpty()
+                            join tcc in db.Taocan on tc.Taocan_id equals tcc.Id into ltc
+                            from lltc in ltc.DefaultIfEmpty()
                             select new BAgentRoute
                             {
                                 Route = r,
@@ -225,7 +227,8 @@ namespace KMBit.BL.Admin
                                     Taocan = tc,
                                     Resource = new BResource { Resource = re },
                                     Province = llcity,
-                                    SP = llsp
+                                    SP = llsp,
+                                    Taocan2=lltc
                                 }
                             };
 

@@ -14,11 +14,11 @@
         @if (Model.AgentId > 0)
         {
             <dt>
-                @Html.DisplayNameFor(model => model.AgentEmail)
+                @Html.DisplayNameFor(model => model.AgentName)
             </dt>
 
             <dd>
-                @Html.DisplayFor(model => model.AgentEmail)
+                @Html.DisplayFor(model => model.AgentName)
             </dd>
             <dt>
                 @Html.DisplayNameFor(model => model.AgentRouteId)
@@ -114,7 +114,7 @@
         </dt>
 
         <dd>
-            @Html.Raw(Model.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CreatedTime).ToString("yyyy-H-dd hh:mm"):"")
+            @Html.Raw(Model.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CreatedTime).ToString("yyyy-MM-dd HH:mm"):"")
         </dd>
 
         <dt>
@@ -122,7 +122,7 @@
         </dt>
 
         <dd>
-            @Html.Raw(Model.ProceedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.ProceedTime).ToString("yyyy-H-dd hh:mm") : "")
+            @Html.Raw(Model.ProceedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.ProceedTime).ToString("yyyy-MM-dd HH:mm") : "")
         </dd>
 
         <dt>
@@ -130,7 +130,7 @@
         </dt>
 
         <dd>
-            @Html.Raw(Model.CompletedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CompletedTime).ToString("yyyy-H-dd hh:mm") : "")
+            @Html.Raw(Model.CompletedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.CompletedTime).ToString("yyyy-MM-dd HH:mm") : "")
         </dd>      
 
         <dt>
@@ -151,11 +151,11 @@
         @if (Model.AgentId == 0 && Model.Operator > 0)
         {
             <dt>
-                @Html.DisplayNameFor(model => model.OperatorEmail)
+                @Html.DisplayNameFor(model => model.OperatorName)
             </dt>
 
             <dd>
-                @Html.DisplayFor(model => model.OperatorEmail)
+                @Html.DisplayFor(model => model.OperatorName)
             </dd>
         }    
         
