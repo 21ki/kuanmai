@@ -68,11 +68,31 @@
         </div>
 
         <div class="form-group">
+            @Html.LabelFor(model => model.UPDATE_USER_PASSWORD, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.UPDATE_USER_PASSWORD)
+                    @Html.ValidationMessageFor(model => model.UPDATE_USER_PASSWORD, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
             @Html.LabelFor(model => model.UPDATE_USER_PERMISSION, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 <div class="checkbox">
                     @Html.EditorFor(model => model.UPDATE_USER_PERMISSION)
                     @Html.ValidationMessageFor(model => model.UPDATE_USER_PERMISSION, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.VIEW_RESOURCE, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.VIEW_RESOURCE)
+                    @Html.ValidationMessageFor(model => model.VIEW_RESOURCE, "", new { @class = "text-danger" })
                 </div>
             </div>
         </div>
@@ -133,6 +153,16 @@
                 <div class="checkbox">
                     @Html.EditorFor(model => model.DELETE_RESOURCE_TAOCAN)
                     @Html.ValidationMessageFor(model => model.DELETE_RESOURCE_TAOCAN, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IMPORT_RESOURCE_TAOCAN, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.IMPORT_RESOURCE_TAOCAN)
+                    @Html.ValidationMessageFor(model => model.IMPORT_RESOURCE_TAOCAN, "", new { @class = "text-danger" })
                 </div>
             </div>
         </div>

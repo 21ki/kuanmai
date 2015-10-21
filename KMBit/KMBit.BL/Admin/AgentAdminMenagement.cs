@@ -32,7 +32,8 @@ namespace KMBit.BL.Admin
         }
         public async Task<bool> CreateAgency(Users dbUser)
         {
-            if(!CurrentLoginUser.Permission.CREATE_USER)
+            ApplicationUserManager manager = null;
+            if (!CurrentLoginUser.Permission.CREATE_USER)
             {
                 throw new KMBitException("没有权限创建代理商");
             }
@@ -44,35 +45,47 @@ namespace KMBit.BL.Admin
             }
 
             bool ret = false;
-            ApplicationUserManager manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
-            ApplicationUser appUser = new ApplicationUser();
-            appUser.Address = dbUser.Address;
-            appUser.AccessFailedCount = 0;
-            appUser.City_id = dbUser.City_id;
-            appUser.CreatedBy = dbUser.CreatedBy;
-            appUser.Credit_amount = dbUser.Credit_amount;
-            appUser.Description = dbUser.Description;
-            appUser.Email = dbUser.Email;
-            appUser.UserName = dbUser.Email;
-            appUser.Name = dbUser.Name;
-            appUser.PasswordHash = dbUser.PasswordHash;
-            appUser.Pay_type = dbUser.Pay_type;
-            appUser.PhoneNumber = dbUser.PhoneNumber;
-            appUser.Province_id = dbUser.Province_id;
-            appUser.Regtime = dbUser.Regtime;
-            appUser.Enabled = dbUser.Enabled;
-            if(appUser.Regtime==0)
+            try
             {
-                appUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
+                ApplicationUser appUser = new ApplicationUser();
+                appUser.Address = dbUser.Address;
+                appUser.AccessFailedCount = 0;
+                appUser.City_id = dbUser.City_id;
+                appUser.CreatedBy = dbUser.CreatedBy;
+                appUser.Credit_amount = dbUser.Credit_amount;
+                appUser.Description = dbUser.Description;
+                appUser.Email = dbUser.Email;
+                appUser.UserName = dbUser.Email;
+                appUser.Name = dbUser.Name;
+                appUser.PasswordHash = dbUser.PasswordHash;
+                appUser.Pay_type = dbUser.Pay_type;
+                appUser.PhoneNumber = dbUser.PhoneNumber;
+                appUser.Province_id = dbUser.Province_id;
+                appUser.Regtime = dbUser.Regtime;
+                appUser.Enabled = dbUser.Enabled;
+                if (appUser.Regtime == 0)
+                {
+                    appUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                }
+                appUser.Type = dbUser.Type;
+                appUser.Update_time = appUser.Regtime;
+                appUser.UserName = dbUser.Email;
+                var result = await manager.CreateAsync(appUser, dbUser.PasswordHash);
+                if (result.Succeeded)
+                {
+                    ret = true;
+                }
             }
-            appUser.Type = dbUser.Type;
-            appUser.Update_time = appUser.Regtime;
-            appUser.UserName = dbUser.Email;
-            var result = await manager.CreateAsync(appUser, dbUser.PasswordHash);
-            if(result.Succeeded)
+            catch { }
+            finally
             {
-                ret = true;
+                if(manager!=null)
+                {
+                    manager.Dispose();
+                }
             }
+            
             return ret;
         }
 
@@ -376,5 +389,7 @@ namespace KMBit.BL.Admin
 
             return routes;
         }
+
+        
     }
 }

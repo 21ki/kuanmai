@@ -467,13 +467,19 @@ namespace KMBit.Controllers
             UserManagement umgt=new UserManagement(loginEmail);
             if (umgt.CurrentLoginUser != null)
             {
+                Login_Log log = new Login_Log() { UserId = umgt.CurrentLoginUser.User.Id, LoginTime = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), LoginIP = Request.UserHostAddress };
                 if(!umgt.CurrentLoginUser.User.Enabled)
                 {
-                    AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);                    
+                    AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                    log.Message = "账户被锁定，不能登陆系统，请联系管理员";
+                    log.Succeed = false;
+                    umgt.CreateLoginLog(log);
                     return RedirectToAction("LoginError", "Account",new { message= "账户被锁定，不能登陆系统，请联系管理员" });
                 }
-
-                if(umgt.CurrentLoginUser.IsAdmin)
+                log.Message = "";
+                log.Succeed = true;
+                umgt.CreateLoginLog(log);
+                if (umgt.CurrentLoginUser.IsAdmin)
                 {
                     return RedirectToAction("Index", "Admin");
                 }

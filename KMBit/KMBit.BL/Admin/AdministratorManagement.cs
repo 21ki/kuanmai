@@ -124,10 +124,21 @@ namespace KMBit.BL.Admin
                             select new BUser
                             {
                                 User = u,
-                                CreatedBy = lccu
+                                CreatedBy = lccu,
+                                IsAdmin=true,
+                                IsSuperAdmin=ua.IsSuperAdmin,
+                                IsWebMaster=ua.IsWebMaster
                             };
 
                 users = query.OrderBy(u=>u.User.Regtime).ToList<BUser>();
+                if (CurrentLoginUser.IsSuperAdmin && !CurrentLoginUser.IsWebMaster)
+                {
+                    users = (from u in users where u.IsSuperAdmin == false && u.IsWebMaster == false select u).ToList<BUser>();
+                }
+                else if (!CurrentLoginUser.IsSuperAdmin && !CurrentLoginUser.IsWebMaster)
+                {
+                    users = new List<BUser>();
+                }
             }
             users = (from u in users where u.User.Email!=CurrentLoginUser.User.Email select u).ToList<BUser>();
             return users;

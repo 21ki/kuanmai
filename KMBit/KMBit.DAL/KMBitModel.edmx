@@ -97,6 +97,17 @@
           <Property Name="Payed" Type="bool" Nullable="false" />
           <Property Name="Refound" Type="bool" Nullable="false" />
         </EntityType>
+        <EntityType Name="Login_Log">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="LoginTime" Type="uint" Nullable="false" />
+          <Property Name="LoginIP" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Message" Type="varchar" MaxLength="100" />
+          <Property Name="Succeed" Type="bool" Nullable="false" />
+        </EntityType>
         <EntityType Name="Payment_history">
           <Key>
             <PropertyRef Name="Id" />
@@ -264,6 +275,7 @@
           <EntitySet Name="Agent_route" EntityType="Self.Agent_route" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Area" EntityType="Self.Area" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Charge_Order" EntityType="Self.Charge_Order" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="Login_Log" EntityType="Self.Login_Log" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Payment_history" EntityType="Self.Payment_history" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="PayType" EntityType="Self.PayType" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resource" EntityType="Self.Resource" Schema="chargebit" store:Type="Tables" />
@@ -303,6 +315,7 @@
           <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
+          <EntitySet Name="Login_Log" EntityType="KMBitDBContextModel.Login_Log" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -554,6 +567,17 @@
           <Property Name="Operate_User" Type="Int32" Nullable="false" />
           <Property Name="Payed" Type="Boolean" Nullable="false" />
           <Property Name="Refound" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Login_Log">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="LoginTime" Type="Int64" Nullable="false" />
+          <Property Name="LoginIP" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Message" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Succeed" Type="Boolean" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -824,6 +848,18 @@
                 <ScalarProperty Name="Resource_taocan_id" ColumnName="Resource_taocan_id" />
                 <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
                 <ScalarProperty Name="Agent_Id" ColumnName="Agent_Id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Login_Log">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Login_Log">
+              <MappingFragment StoreEntitySet="Login_Log">
+                <ScalarProperty Name="Succeed" ColumnName="Succeed" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="LoginIP" ColumnName="LoginIP" />
+                <ScalarProperty Name="LoginTime" ColumnName="LoginTime" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

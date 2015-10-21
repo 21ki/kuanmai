@@ -55,16 +55,14 @@ namespace KMBit.BL.Admin
                         if (action == null)
                         {
                             action = new Admin_Actions();
-                            action.Name = field.Name;
+                            action.Name = field.Name;                                           
                             action.Enabled = true;
                             db.Admin_Actions.Add(action);
                         }
 
-                        if (attr != null)
-                        {
-                            action.Category = attr.ID;
-                            action.Description = attr.ActionDescription;
-                        }
+                        action.Category = attr.ID;
+                        action.Description = attr.ActionDescription;
+
                         List<Admin_Categories> categories = (from cate in allCates where cate.Id == attr.ID select cate).ToList<Admin_Categories>();
                         if (categories == null || categories.Count == 0)
                         {

@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "创建管理员";
-    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
 }
 
 <h2>@ViewBag.Title</h2>

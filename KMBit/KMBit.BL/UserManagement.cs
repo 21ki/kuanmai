@@ -88,5 +88,51 @@ namespace KMBit.BL
             }
             return ret;
         }
+
+        public void CreateLoginLog(Login_Log log)
+        {
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                if(log!=null)
+                {
+                    if(!string.IsNullOrEmpty(log.LoginIP) && log.UserId>0 && log.LoginTime>0)
+                    {
+                        db.Login_Log.Add(log);
+                        db.SaveChanges();
+                    }                    
+                }               
+            }
+        }
+
+        public void SetUserPassword(int userId, string password)
+        {
+            if (userId == 0)
+            {
+                throw new KMBitException("用户编号不能为0");
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                throw new KMBitException("密码不能为空");
+            }
+            if (!CurrentLoginUser.Permission.UPDATE_USER_PASSWORD)
+            {
+                throw new KMBitException("没有权限设置用户密码");
+            }
+            ApplicationUserManager manager = null;
+            try
+            {
+                BUser user = GetUserInfo(userId);
+                manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
+                manager.AddPasswordAsync(userId, password);
+            }
+            catch { }
+            finally
+            {
+                if (manager != null)
+                {
+                    manager.Dispose();
+                }
+            }
+        }
     }
 }

@@ -356,7 +356,13 @@ namespace KMBit.Controllers
             int requestPage = 1;
             int.TryParse(Request["page"], out requestPage);
             requestPage = requestPage == 0 ? 1 : requestPage;
-            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());            
+            resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
+            if(!resourceMgt.CurrentLoginUser.Permission.VIEW_RESOURCE)
+            {
+                ViewBag.Message = "没有权限查看资源";
+                return View("Error");
+            }
+            ViewBag.LoginUser = resourceMgt.CurrentLoginUser;
             var resources = resourceMgt.FindResources(0, null, 0,out total,requestPage,pageSize,true);
             PageItemsResult<BResource> result = new PageItemsResult<BResource>() { CurrentPage = requestPage, Items = resources, PageSize = pageSize, TotalRecords = total };
             KMBit.Grids.KMGrid<BResource> grid = new Grids.KMGrid<BResource>(result);
@@ -903,12 +909,12 @@ namespace KMBit.Controllers
                 adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
             }
             
-            if (!adminMgt.CurrentLoginUser.Permission.SEARCH_USER)
+            if (!adminMgt.CurrentLoginUser.IsSuperAdmin && !adminMgt.CurrentLoginUser.IsWebMaster)
             {
-                ViewBag.Message = "没有权查询管理员";
+                ViewBag.Message = "只有超级管理员和站长可以查看管理员";
                 return View("Error");
             }
-
+            ViewBag.LoginUser = adminMgt.CurrentLoginUser;
             return View(adminMgt.FindAdministrators());
         }
 
@@ -996,6 +1002,15 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult CreateAdmin()
         {
+            if (adminMgt == null)
+            {
+                adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
+            }
+            if (!adminMgt.CurrentLoginUser.IsSuperAdmin && !adminMgt.CurrentLoginUser.IsWebMaster)
+            {
+                ViewBag.Message = "只有超级管理员和站长才能新建管理员";
+                return View("Error");
+            }
             return View();
         }
 
@@ -1006,7 +1021,12 @@ namespace KMBit.Controllers
             {
                 adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
             }
-            if(ModelState.IsValid)
+            if (!adminMgt.CurrentLoginUser.IsSuperAdmin && !adminMgt.CurrentLoginUser.IsWebMaster)
+            {
+                ViewBag.Message = "只有超级管理员和站长才能新建管理员";
+                return View("Error");
+            }
+            if (ModelState.IsValid)
             {
                 KMBit.DAL.Users newUser = new DAL.Users() { Enabled = true, Email = model.Email, Name = model.Name, PasswordHash = "123456789" };
                 newUser = await adminMgt.CreateAdministrator(newUser);
@@ -1026,9 +1046,15 @@ namespace KMBit.Controllers
             {
                 adminMgt = new AdministratorManagement(User.Identity.GetUserId<int>());
             }
+            if (!adminMgt.CurrentLoginUser.IsSuperAdmin && !adminMgt.CurrentLoginUser.IsWebMaster)
+            {
+                ViewBag.Message = "只有超级管理员和站长才能禁用管理员";
+                return View("Error");
+            }
             adminMgt.SetAdminStatus(userId, status);
             return Redirect("/Admin/Administrators");
         }
+        
 
         [HttpGet]
         public ActionResult AdminPermissions(int userId)
@@ -1037,7 +1063,13 @@ namespace KMBit.Controllers
             {
                 return View("Error");
             }
+            
             PermissionManagement permissionMgt = new PermissionManagement(User.Identity.GetUserId<int>());
+            if(!permissionMgt.CurrentLoginUser.IsSuperAdmin && !permissionMgt.CurrentLoginUser.IsWebMaster)
+            {
+                ViewBag.Message = "只有超级管理员和站长才能查看或编辑管理员权限";
+                return View("Error");
+            }
             BUser user = permissionMgt.GetUserInfo(userId);
             Permissions permissions = user.Permission;
             ViewBag.User = user;
@@ -1048,7 +1080,12 @@ namespace KMBit.Controllers
         public ActionResult AdminPermissions(Permissions model)
         {
             PermissionManagement permissionMgt = new PermissionManagement(User.Identity.GetUserId<int>());
-            if(ModelState.IsValid)
+            if (!permissionMgt.CurrentLoginUser.IsSuperAdmin && !permissionMgt.CurrentLoginUser.IsWebMaster)
+            {
+                ViewBag.Message = "只有超级管理员和站长才能编辑管理员权限";
+                return View("Error");
+            }
+            if (ModelState.IsValid)
             {
                 int id = int.Parse(Request["userId"]);
                 permissionMgt.GrantUserPermissions(id, model);
@@ -1121,6 +1158,18 @@ namespace KMBit.Controllers
 
         [HttpGet]
         public ActionResult Refound()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult SetUserPassword(int userId)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult SetUserPassword(SetPasswordViewModel model)
         {
             return View();
         }

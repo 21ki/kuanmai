@@ -35,6 +35,10 @@ namespace KMBit.Beans
         [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "更新用户")]
         public bool UPDATE_USER { get; set; }
 
+        [Display(Name = "更新用户密码")]
+        [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "更新用户密码")]
+        public bool UPDATE_USER_PASSWORD { get; set; }
+
         [Display(Name = "查询用户")]
         [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "查询用户")]
         public bool SEARCH_USER { get; set; }
@@ -42,6 +46,10 @@ namespace KMBit.Beans
         [Display(Name = "修改用户权限")]
         [AdminActionAttribute(ID = 1, CategoryName = "用户管理", ActionDescription = "修改用户权限")]
         public bool UPDATE_USER_PERMISSION { get; set; }
+
+        [Display(Name = "查看资源")]
+        [AdminActionAttribute(ID = 2, CategoryName = "资源管理", ActionDescription = "查看资源")]
+        public bool VIEW_RESOURCE { get; set; }
 
         [Display(Name = "新建资源")]
         [AdminActionAttribute(ID = 2, CategoryName = "资源管理", ActionDescription = "新建资源")]
@@ -70,6 +78,10 @@ namespace KMBit.Beans
         [Display(Name = "删除资源套餐")]
         [AdminActionAttribute(ID = 2, CategoryName = "资源管理", ActionDescription = "删除资源套餐")]
         public bool DELETE_RESOURCE_TAOCAN { get; set; }
+
+        [Display(Name = "导入资源套餐")]
+        [AdminActionAttribute(ID = 2, CategoryName = "资源管理", ActionDescription = "导入资源套餐")]
+        public bool IMPORT_RESOURCE_TAOCAN { get; set; }
 
         [Display(Name = "新建代理商路由")]
         [AdminActionAttribute(ID = 3, CategoryName = "代理商路由管理", ActionDescription = "新建代理商路由")]

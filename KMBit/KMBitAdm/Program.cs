@@ -25,10 +25,6 @@ namespace KMBitAdm
     {
         static void Main(string[] args)
         {
-            object obj = System.Reflection.Assembly.GetExecutingAssembly().CreateInstance("KMBitAdm.P1");
-            Itest t = (Itest)obj;
-            t.Print("lala");
-
             if (args.Length==0)
             {
                 Console.WriteLine("Please provide the command.");

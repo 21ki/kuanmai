@@ -1,5 +1,10 @@
 ﻿
 @{
+    KMBit.Beans.BUser currentUser = null;
+    if(ViewBag.LoginUser!=null)
+    {
+        currentUser=(KMBit.Beans.BUser)ViewBag.LoginUser;
+    }
     ViewBag.Title = "资源管理";
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 }
@@ -20,28 +25,42 @@
     columns.Add(c => c.City.Name).Titled("城市").Filterable(true);
     columns.Add(c => c.CreatedBy.Email).Titled("创建者").Filterable(true);
     columns.Add(c => c.Resource.Enabled).Titled("状态").Filterable(true).RenderValueAs(o=>o.Resource.Enabled?"已启用":"已禁用");
-    columns.Add()
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth("5%")
-    .RenderValueAs(o => Html.ActionLink("编辑", "EditResource", new { resourceId = o.Resource.Id }));
+    if (currentUser != null)
+    {
+        if (currentUser.Permission.UPDATE_RESOURCE)
+        {
+            columns.Add()
+           .Encoded(false)
+           .Sanitized(false)
+           .SetWidth("5%")
+           .RenderValueAs(o => Html.ActionLink("编辑", "EditResource", new { resourceId = o.Resource.Id }));
+        }
 
-    columns.Add()
-   .Encoded(false)
-   .Sanitized(false)
-   .SetWidth("8%")
-   .RenderValueAs(o => Html.ActionLink("配置接口", "ConfigureResource", new { resourceId = o.Resource.Id }));
+        if (currentUser.Permission.CONFIGURE_RESOURCE)
+        {
+            columns.Add()
+           .Encoded(false)
+           .Sanitized(false)
+           .SetWidth("8%")
+           .RenderValueAs(o => Html.ActionLink("配置接口", "ConfigureResource", new { resourceId = o.Resource.Id }));
+        }
 
-    columns.Add()
-  .Encoded(false)
-  .Sanitized(false)
-  .SetWidth("8%")
-  .RenderValueAs(o => Html.ActionLink("导入套餐", "ImportProduct", new { resourceId = o.Resource.Id }));
 
-    columns.Add()
-   .Encoded(false)
-   .Sanitized(false)
-   .SetWidth("8%")
-   .RenderValueAs(o => Html.ActionLink("查看套餐", "ViewResourceTaoCan", new { resourceId = o.Resource.Id }));
+        if (currentUser.Permission.IMPORT_RESOURCE_TAOCAN)
+        {
+            columns.Add()
+             .Encoded(false)
+             .Sanitized(false)
+             .SetWidth("8%")
+             .RenderValueAs(o => Html.ActionLink("导入套餐", "ImportProduct", new { resourceId = o.Resource.Id }));
+        }
+
+        columns.Add()
+       .Encoded(false)
+       .Sanitized(false)
+       .SetWidth("8%")
+       .RenderValueAs(o => Html.ActionLink("查看套餐", "ViewResourceTaoCan", new { resourceId = o.Resource.Id }));
+    }
+
 
 }).Sortable(true)

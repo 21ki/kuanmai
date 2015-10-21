@@ -9,7 +9,7 @@
     if (agency != null) {
         ViewBag.Title = "修改代理商:" + agency.User.Name;
     }
-    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
 }
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

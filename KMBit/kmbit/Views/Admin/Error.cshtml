@@ -1,9 +1,10 @@
 ﻿
 @{
     ViewBag.Title = "错误";
-    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+    Layout = Request.IsAjaxRequest() ? null : "~/Views/Shared/_Layout_Admin.cshtml";
 }
 
-<h1 class="text-danger">错误.</h1>
-<h2 class="text-danger">@if (ViewBag.Message != null) { @Html.Raw(ViewBag.Message)}</h2>
+<h2>@ViewBag.Title</h2>
+<hr />
+<h1 class="text-danger">@if (ViewBag.Message != null) { @Html.Raw(ViewBag.Message)}</h1>
 

@@ -45,5 +45,6 @@ namespace KMBit.DAL
         public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
+        public DbSet<Login_Log> Login_Log { get; set; }
     }
 }
