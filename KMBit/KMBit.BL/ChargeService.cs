@@ -80,15 +80,12 @@ namespace KMBit.BL
                     cOrder.Sale_price = taocan.Sale_price;
                     cOrder.Purchase_price = taocan.Sale_price;
                     cOrder.Platform_Cost_Price = taocan.Purchase_price;
-                    cOrder.Platform_Sale_Price = taocan.Sale_price;
-                    cOrder.Charge_type = 0;
+                    cOrder.Platform_Sale_Price = taocan.Sale_price;                    
                     cOrder.Revenue = taocan.Sale_price- taocan.Purchase_price;
                     result.Status = ChargeStatus.SUCCEED;
                     db.SaveChanges();
                     return;
-                }
-
-                cOrder.Charge_type = 1;
+                }                
 
                 Users agency = (from u in db.Users where u.Id == order.AgencyId select u).FirstOrDefault<Users>();
                 Agent_route ruote = (from au in db.Agent_route where au.Id == order.RouteId select au).FirstOrDefault<Agent_route>();

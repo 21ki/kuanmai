@@ -1,14 +1,21 @@
 ﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BUser>
 @{
+    KMBit.Beans.BUser currentUser = null;
+    if (ViewBag.LoginUser!=null)
+    {
+        currentUser = (KMBit.Beans.BUser)ViewBag.LoginUser;
+    }
     ViewBag.Title = "代理商管理";
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
 }
 @using GridMvc.Html 
 <h2>@ViewBag.Title</h2>
 
-<a class="btn btn-primary" role="button" href="/Admin/CreateAgency">
+@*<a class="btn btn-primary" role="button" href="/Admin/CreateAgency">
     新建代理商
-</a>
+</a>*@
+<input type="submit" value="新建代理商" class="btn btn-default btn-primary" onclick="openModalDialog('/Admin/CreateAgency', null)" />
+
 @Html.Grid(Model).Columns(columns =>
 {
     columns.Add(c => c.User.Name).Titled("名称").Filterable(true).SetWidth("15%");
@@ -18,19 +25,36 @@
     columns.Add(c => c.PayType.Name).Titled("付款类型").Filterable(true).SetWidth("8%");
     columns.Add(c => c.User.Regtime).Titled("注册时间").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.User.Regtime!=0?KMBit.Util.DateTimeUtil.ConvertToDateTime(o.User.Regtime).ToString("yyyy-M-dd"):"");
     columns.Add(c => c.User.Enabled).Titled("状态").SetWidth("5%").Filterable(true).RenderValueAs(o => o.User.Enabled ? "已启用" : "已禁用");
-    columns.Add()
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth("5%")
-    .RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
-    // columns.Add()
-    //.Encoded(false)
-    //.Sanitized(false)
-    //.SetWidth("5%")
-    //.RenderValueAs(o => Html.ActionLink("查看", "ViewAgency", new { agencyId = o.User.Id }));
-    columns.Add()
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth("5%")
-    .RenderValueAs(o => Html.ActionLink("路由", "AgentRoutes", new { agencyId = o.User.Id }));
+    if(currentUser!=null)
+    {
+        if(currentUser.Permission.UPDATE_RESOURCE)
+        {
+            columns.Add()
+              .Encoded(false)
+              .Sanitized(false)
+              .SetWidth("5%")
+              .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/EditAgency',{agencyId:" + o.User.Id + "})\">编辑</a>"));
+              //.RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
+        }
+
+
+        if(currentUser.Permission.CREATE_USER_ROUTE)
+        {
+            columns.Add()
+           .Encoded(false)
+           .Sanitized(false)
+           .SetWidth("5%")
+           .RenderValueAs(o => Html.ActionLink("路由", "AgentRoutes", new { agencyId = o.User.Id }));
+        }
+
+        if(currentUser.Permission.UPDATE_USER_PASSWORD)
+        {
+            columns.Add()
+           .Encoded(false)
+           .Sanitized(false)
+           .SetWidth("8%")
+           .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/SetUserPassword',{userId:"+o.User.Id+"})\">重置密码</a>"));
+        }
+    }
+
 }).Sortable(true)

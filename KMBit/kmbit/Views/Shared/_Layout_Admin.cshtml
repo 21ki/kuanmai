@@ -6,16 +6,19 @@
     <title>@ViewBag.Title - 宽迈流量宝</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/modernizr")   
     @Scripts.Render("~/bundles/jqPlot")
     @Scripts.Render("~/bundles/sitejs")
+    @Scripts.Render("~/bundles/kindEditor")
     @{ 
         string actionName = ViewContext.RouteData.Values["action"].ToString();
         string controllerName = ViewContext.RouteData.Values["controller"].ToString();
     }
     <link href="@Url.Content("~/Content/Gridmvc.css")" rel="stylesheet" type="text/css" />
     <script src="@Url.Content("~/Scripts/gridmvc.min.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Scripts/kindeditor/themes/default/default.css")" rel="stylesheet" type="text/css" />
     @section Scripts {
         @Scripts.Render("~/bundles/jqueryval")
     }
@@ -52,6 +55,12 @@
                        
                         <a href="/Admin/Administrators" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "Administrators" || actionName=="UpdatePermissionList")                                
                                 || actionName=="CreateAdmin" || actionName=="AddAdmin" || actionName=="AdminPermissions") { @Html.Raw("active") ; } }">管理员管理</a>                       
+
+                        <a href="/Admin/SiteInfo" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "SiteInfo" )
+                                ) { @Html.Raw("active") ; } }">网站信息管理</a>         
+
+                        <a href="/Admin/AdminGuide" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "AdminGuide" )
+                                ) { @Html.Raw("active") ; } }">管理员使用帮助</a>
 
                         <a href="/Admin/ChangePassword" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="ChangePassword")){ @Html.Raw("active"); }
                             }">修改密码</a>

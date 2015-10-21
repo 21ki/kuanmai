@@ -42,6 +42,9 @@
                             }">流量充值报表</a>
                         <a href="/Agent/PayHistories" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="PayHistories")){ @Html.Raw("active"); }
                             }">账户充值记录</a>
+
+                        <a href="/Agent/AgentGuide" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "AgentGuide" )
+                                ) { @Html.Raw("active") ; } }">使用帮助</a>
                         <a href="/Agent/ChangePassword" class="list-group-item  @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="ChangePassword")){ @Html.Raw("active"); }
                             }">修改密码</a>
                     </div>

@@ -1,0 +1,12 @@
+﻿@model KMBit.DAL.Help_Info
+@{
+    ViewBag.Title = "代理商使用帮助";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+<hr />
+@if (Model != null)
+{
+    @Html.Raw(Model.AgentHelp)
+}

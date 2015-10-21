@@ -23,8 +23,6 @@ namespace KMBit.Controllers
         [HttpPost]
         public ActionResult Charge(ChargeModel model)
         {
-           
-
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();

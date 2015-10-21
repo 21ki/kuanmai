@@ -46,5 +46,6 @@ namespace KMBit.DAL
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Login_Log> Login_Log { get; set; }
+        public DbSet<Help_Info> Help_Info { get; set; }
     }
 }

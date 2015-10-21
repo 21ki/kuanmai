@@ -1,0 +1,12 @@
+﻿@model KMBit.DAL.Help_Info
+@{
+    ViewBag.Title = "管理员帮助";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if(Model!=null)
+{
+    @Html.Raw(Model.AdminHelp)
+}

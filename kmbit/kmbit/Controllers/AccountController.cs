@@ -53,6 +53,18 @@ namespace KMBit.Controllers
             }
         }
 
+        public ActionResult Index()
+        {
+            BaseManagement baseMgr = new BaseManagement(User.Identity.GetUserId<int>());
+            if(baseMgr.CurrentLoginUser.IsAdmin)
+            {
+                return Redirect("/Admin/Index");
+            }else
+            {
+                return Redirect("/Agent/Index");
+            }
+        }
+
         //
         // GET: /Account/Login
         [AllowAnonymous]

@@ -113,15 +113,27 @@ namespace KMBit.BL
             if (string.IsNullOrEmpty(password))
             {
                 throw new KMBitException("密码不能为空");
-            }
-            if (!CurrentLoginUser.Permission.UPDATE_USER_PASSWORD)
-            {
-                throw new KMBitException("没有权限设置用户密码");
-            }
+            }           
             ApplicationUserManager manager = null;
+            BUser requestedUser = GetUserInfo(userId);
+            if(!requestedUser.IsAdmin)
+            {
+                if (!CurrentLoginUser.Permission.UPDATE_USER_PASSWORD)
+                {
+                    throw new KMBitException("没有权限设置用户密码");
+                }
+            }else if(requestedUser.IsSuperAdmin)
+            {
+                if (!CurrentLoginUser.IsWebMaster)
+                {
+                    throw new KMBitException("只有站长可以设置超级管理员密码");
+                }
+            }else if(requestedUser.IsWebMaster)
+            {
+                throw new KMBitException("任何人都没有权限修改站长密码");
+            }
             try
             {
-                BUser user = GetUserInfo(userId);
                 manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
                 manager.AddPasswordAsync(userId, password);
             }

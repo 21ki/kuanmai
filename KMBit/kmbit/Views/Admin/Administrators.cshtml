@@ -10,10 +10,10 @@
 }
 @using GridMvc.Html
 <h2>@ViewBag.Title</h2>
-<a class="btn btn-primary" role="button" href="/Admin/CreateAdmin">
+@*<a class="btn btn-primary" role="button" href="/Admin/CreateAdmin">
     新建管理员
-</a>
-
+</a>*@
+<input type="submit" value="新建管理员" class="btn btn-default btn-primary" onclick="openModalDialog('/Admin/CreateAdmin', null)" />
 @Html.Grid(Model).Columns(columns =>
 {
     columns.Add(c => c.User.Name).Titled("名称").Filterable(true);
@@ -26,14 +26,23 @@
         columns.Add()
         .Encoded(false)
         .Sanitized(false)
-        .SetWidth("10%")
-        .RenderValueAs(o => Html.ActionLink("权限", "AdminPermissions", new { userId = o.User.Id }));
-
+        .SetWidth("5%")
+        //.RenderValueAs(o => Html.ActionLink("权限", "AdminPermissions", new { userId = o.User.Id }));
+        .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/AdminPermissions',{userId:" + o.User.Id + "})\">权限</a>"));
         columns.Add()
        .Encoded(false)
        .Sanitized(false)
        .SetWidth("5%")
        .RenderValueAs(o => o.User.Enabled ? Html.ActionLink("禁用", "SetAdminStatus", new { userId = o.User.Id, status = false }) : Html.ActionLink("启用", "SetAdminStatus", new { userId = o.User.Id, status = true }));
+
+        if (currentUser.Permission.UPDATE_USER_PASSWORD)
+        {
+            columns.Add()
+           .Encoded(false)
+           .Sanitized(false)
+           .SetWidth("8%")
+           .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/SetUserPassword',{userId:" + o.User.Id + "})\">重置密码</a>"));
+        }
     }
 
 

@@ -15,6 +15,10 @@
 <a class="btn btn-primary" role="button" href="/Admin/CreateResourceTaocan?resourceId=@Html.Raw(resource!=null?resource.Resource.Id:0)">
     新建套餐
 </a>
+
+@*<input type="submit" value="新建套餐" class="btn btn-default btn-primary" onclick="openModalDialog('/Admin/CreateResourceTaocan', { resourceId: @Html.Raw(resource!=null?resource.Resource.Id:0) })" />*@
+
+
 @Html.Grid(Model).Columns(columns=> {
     columns.Add(c =>c.Resource.Resource.Name).Titled("资源名称").Filterable(true).SetWidth("20%");
     columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("15%");

@@ -76,4 +76,20 @@ function ReportGenerater() {
     }
 }
 
+function openModalDialog(url, data) {   
+    $.get(
+            url,
+            data,
+            function (res, status) {
+                if (res != null && res != "undefined") {
+                    var modal = $('<div class="modal fade" id="editRuoteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"></div>').appendTo($('body'));
+                    var modalDiv = $('<div class="modal-dialog" role="document"></div>').appendTo($(modal));
+                    var modalContent = $('<div class="modal-content"></div>').appendTo($(modalDiv));
+                    var modalBody = $('<div class="modal-body"></div>').appendTo($(modalContent)).html(res);
+                    $(modal).modal();
+                }
+            }
+     );
+}
+
 

@@ -30,12 +30,27 @@
                 }
             );
         });
+
+        $('#btn_save_taocan').click(function () {
+            var pPrice = $('#PurchasePrice').val();
+            var sPrice = $('#SalePrice').val();
+            if (isNaN(pPrice) || isNaN(sPrice)) {
+                $('#CreateResourceTaocanForm').submit();
+            }
+            
+            if (parseFloat(pPrice) > sPrice) {
+                alert("售价必须大于或等于成本价");
+                return;
+            }
+
+            $('#CreateResourceTaocanForm').submit();
+        });
     })
 </script>
 
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("CreateResourceTaocan", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateResourceTaocanForm" }))
 {
     @Html.AntiForgeryToken()
     @Html.HiddenFor(model=>model.Serial)
@@ -120,7 +135,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="保存" class="btn btn-default" />
+                <input id="btn_save_taocan" type="button" value="保存" class="btn btn-default btn-primary" />
 </div>
         </div>
     </div>

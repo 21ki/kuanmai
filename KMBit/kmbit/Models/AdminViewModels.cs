@@ -104,6 +104,7 @@ namespace KMBit.Models
         [Display(Name = "售价")]
         [Required]
         [Range(1, float.MaxValue, ErrorMessage = "售价必须为数字，可带小数")]
+        
         public float SalePrice { get; set; }
 
         [Display(Name = "成本价")]

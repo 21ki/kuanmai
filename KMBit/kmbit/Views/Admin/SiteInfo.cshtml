@@ -1,0 +1,142 @@
+﻿@model KMBit.DAL.Help_Info
+
+@{
+    ViewBag.Title = "站点信息管理";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        var editorAbout = null;
+        var editorContact = null;
+        var editorAgentHelp = null;
+        var editorAdminHelp = null;
+        KindEditor.ready(function (K) {
+
+            editorAbout = K.create('textarea[name="About"]', {
+
+                cssPath: 'kindeditor/plugins/code/prettify.css',
+
+                uploadJson: 'kindeditor/asp.net/upload_json.ashx',
+
+                fileManagerJson: 'kindeditor/asp.net/file_manager_json.ashx',
+
+                allowFileManager: true,
+
+                afterCreate: function () {
+
+                    var self = this;
+                }
+
+            });
+        });
+
+        KindEditor.ready(function (K) {
+
+            editorContact = K.create('textarea[name="Contact"]', {
+
+                cssPath: 'kindeditor/plugins/code/prettify.css',
+
+                uploadJson: 'kindeditor/asp.net/upload_json.ashx',
+
+                fileManagerJson: 'kindeditor/asp.net/file_manager_json.ashx',
+
+                allowFileManager: true,
+
+                afterCreate: function () {
+
+                    var self = this;
+                }
+
+            });
+        });
+
+        KindEditor.ready(function (K) {
+
+            editorAgentHelp = K.create('textarea[name="AgentHelp"]', {
+
+                cssPath: 'kindeditor/plugins/code/prettify.css',
+
+                uploadJson: 'kindeditor/asp.net/upload_json.ashx',
+
+                fileManagerJson: 'kindeditor/asp.net/file_manager_json.ashx',
+
+                allowFileManager: true,
+
+                afterCreate: function () {
+
+                    var self = this;
+                }
+
+            });
+        });
+        KindEditor.ready(function (K) {
+
+            editorAdminHelp = K.create('textarea[name="AdminHelp"]', {
+
+                cssPath: 'kindeditor/plugins/code/prettify.css',
+
+                uploadJson: 'kindeditor/asp.net/upload_json.ashx',
+
+                fileManagerJson: 'kindeditor/asp.net/file_manager_json.ashx',
+
+                allowFileManager: true,
+
+                afterCreate: function () {
+
+                    var self = this;
+                }
+
+            });
+        });
+    });
+</script>
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">       
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.Label("关于我们", htmlAttributes: new { @class = "control-label col-md-2" })
+           
+            <div class="col-md-10">
+               
+                @Html.TextAreaFor(model => model.About, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.About, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("联系我们", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Contact, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Contact, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("代理商帮助", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.AgentHelp, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.AgentHelp, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("管理员帮助", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.AdminHelp, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.AdminHelp, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="保存" class="btn btn-default btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+

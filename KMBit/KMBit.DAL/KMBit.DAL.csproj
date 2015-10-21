@@ -72,6 +72,9 @@
     <Compile Include="Charge_Order.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Help_Info.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="KMBitModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

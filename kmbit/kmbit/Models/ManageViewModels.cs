@@ -27,6 +27,8 @@ namespace KMBit.Models
 
     public class SetPasswordViewModel
     {
+        public int Id { get; set; }
+
         [Required]
         [StringLength(100, ErrorMessage = "{0}长度至少为{2}位.", MinimumLength = 6)]
         [DataType(DataType.Password)]

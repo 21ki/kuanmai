@@ -11,9 +11,10 @@
 
 <h2>@ViewBag.Title</h2>
 
-<a class="btn btn-primary" role="button" href="/Admin/CreateResource">
+@*<a class="btn btn-primary" role="button" href="/Admin/CreateResource">
     新建资源
-</a>
+</a>*@
+<input type="submit" value="新建资源" class="btn btn-default btn-primary" onclick="openModalDialog('/Admin/CreateResource',null)" />
 
 @model KMBit.Grids.KMGrid<KMBit.Beans.BResource>
 @using GridMvc.Html
@@ -33,7 +34,8 @@
            .Encoded(false)
            .Sanitized(false)
            .SetWidth("5%")
-           .RenderValueAs(o => Html.ActionLink("编辑", "EditResource", new { resourceId = o.Resource.Id }));
+           //.RenderValueAs(o => Html.ActionLink("编辑", "EditResource", new { resourceId = o.Resource.Id }));
+           .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/EditResource',{resourceId:" + o.Resource.Id + "})\">编辑</a>"));
         }
 
         if (currentUser.Permission.CONFIGURE_RESOURCE)
@@ -42,7 +44,8 @@
            .Encoded(false)
            .Sanitized(false)
            .SetWidth("8%")
-           .RenderValueAs(o => Html.ActionLink("配置接口", "ConfigureResource", new { resourceId = o.Resource.Id }));
+           //.RenderValueAs(o => Html.ActionLink("配置接口", "ConfigureResource", new { resourceId = o.Resource.Id }));
+           .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/ConfigureResource',{resourceId:" + o.Resource.Id + "})\">配置接口</a>"));
         }
 
 

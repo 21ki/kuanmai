@@ -1,11 +1,89 @@
-﻿@model KMBit.Models.IndexViewModel
+﻿@model KMBit.Beans.BUser
 @{
     Layout = "~/Views/Shared/_Layout_Admin.cshtml";
     ViewBag.Title = "账户信息";
 }
-
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Text;
+@using System.Threading.Tasks;
+@using System.Reflection;
 <h2>@ViewBag.Title</h2>
-
-<p class="text-success">@ViewBag.StatusMessage</p>
-<h4>当前管理员账户信息</h4>
 <hr />
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayName("名称")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("邮箱")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("管理级别")
+        </dt>
+        <dd>
+            @if (Model.IsWebMaster)
+            {
+                @Html.Raw("站长")
+            }
+            else if (Model.IsSuperAdmin)
+            {
+                @Html.Raw("超级管理员")
+            }
+            else
+            {
+                @Html.Raw("管理员")
+            }
+        </dd>
+
+        <dt>
+            @Html.DisplayName("创建日期")
+        </dt>
+        <dd>
+            @Html.Raw(Model.User.Regtime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(Model.User.Regtime).ToString("yyyy-MM-dd HH:mm") : "")
+        </dd>
+    </dl>
+</div>
+<h2>账户权限</h2>
+<hr />
+<div class="form-horizontal">
+
+    @{
+
+
+        Type type = typeof(KMBit.Beans.Permissions);
+        System.Reflection.PropertyInfo[] properties = type.GetProperties();
+        foreach (System.Reflection.PropertyInfo p in properties)
+        {
+            bool pValue = (bool)p.GetValue(Model.Permission);
+            KMBit.Beans.AdminActionAttribute attr = p.GetCustomAttribute<KMBit.Beans.AdminActionAttribute>();
+            <div class="form-group">
+                @Html.Label(attr.ActionDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        @if (pValue)
+                        {
+                            <input class="check-box" checked disabled data-val="true" value="true" type="checkbox">
+                        }
+                        else
+                        {
+                            <input class="check-box" disabled data-val="true" value="true" type="checkbox">
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+</div>
+

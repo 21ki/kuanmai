@@ -1,7 +1,10 @@
-﻿@{
-    ViewBag.Title = "About";
+﻿@model KMBit.DAL.Help_Info
+@{
+    ViewBag.Title = "关于我们";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
-
-<p>Use this area to provide additional information.</p>
+<h2>@ViewBag.Title</h2>
+<hr />
+@if (Model != null)
+{
+    @Html.Raw(Model.About)
+}

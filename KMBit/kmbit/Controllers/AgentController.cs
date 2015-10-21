@@ -277,5 +277,13 @@ namespace KMBit.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult AgentGuide()
+        {
+            SiteManagement siteMgr = new SiteManagement(User.Identity.GetUserId<int>());
+            Help_Info info = siteMgr.GetHelpInfo();
+            return View(info);
+        }
     }
 }

@@ -97,6 +97,19 @@
           <Property Name="Payed" Type="bool" Nullable="false" />
           <Property Name="Refound" Type="bool" Nullable="false" />
         </EntityType>
+        <EntityType Name="Help_Info">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="About" Type="text" Nullable="false" />
+          <Property Name="Contact" Type="text" Nullable="false" />
+          <Property Name="AgentHelp" Type="text" Nullable="false" />
+          <Property Name="AdminHelp" Type="text" Nullable="false" />
+          <Property Name="UpdateUser" Type="int" Nullable="false" />
+          <Property Name="IsCurrent" Type="bool" Nullable="false" />
+          <Property Name="UpdateTime" Type="uint" Nullable="false" />
+        </EntityType>
         <EntityType Name="Login_Log">
           <Key>
             <PropertyRef Name="Id" />
@@ -275,6 +288,7 @@
           <EntitySet Name="Agent_route" EntityType="Self.Agent_route" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Area" EntityType="Self.Area" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Charge_Order" EntityType="Self.Charge_Order" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="Help_Info" EntityType="Self.Help_Info" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Login_Log" EntityType="Self.Login_Log" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Payment_history" EntityType="Self.Payment_history" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="PayType" EntityType="Self.PayType" Schema="chargebit" store:Type="Tables" />
@@ -316,6 +330,7 @@
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Login_Log" EntityType="KMBitDBContextModel.Login_Log" />
+          <EntitySet Name="Help_Info" EntityType="KMBitDBContextModel.Help_Info" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -578,6 +593,19 @@
           <Property Name="LoginIP" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Message" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Succeed" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Help_Info">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="About" Type="String" Nullable="false" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Name="Contact" Type="String" Nullable="false" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Name="AgentHelp" Type="String" Nullable="false" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Name="AdminHelp" Type="String" Nullable="false" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Name="UpdateUser" Type="Int32" Nullable="false" />
+          <Property Name="IsCurrent" Type="Boolean" Nullable="false" />
+          <Property Name="UpdateTime" Type="Int64" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -860,6 +888,20 @@
                 <ScalarProperty Name="LoginIP" ColumnName="LoginIP" />
                 <ScalarProperty Name="LoginTime" ColumnName="LoginTime" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Help_Info">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Help_Info">
+              <MappingFragment StoreEntitySet="Help_Info">
+                <ScalarProperty Name="UpdateTime" ColumnName="UpdateTime" />
+                <ScalarProperty Name="IsCurrent" ColumnName="IsCurrent" />
+                <ScalarProperty Name="UpdateUser" ColumnName="UpdateUser" />
+                <ScalarProperty Name="AdminHelp" ColumnName="AdminHelp" />
+                <ScalarProperty Name="AgentHelp" ColumnName="AgentHelp" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="About" ColumnName="About" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

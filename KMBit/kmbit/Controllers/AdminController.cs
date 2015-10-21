@@ -52,12 +52,7 @@ namespace KMBit.Controllers
             }
         }
         public AdminController()
-        {
-            //BaseManagement bMgr = new BaseManagement(User.Identity.GetUserId<int>());
-            //if (!bMgr.CurrentLoginUser.IsAdmin)
-            //{
-            //    Redirect("/Account/LoginError?message=" + "你不是管理员账户，请不要试图访问管理界面");
-            //}
+        {            
         }
 
         public AdminController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
@@ -67,37 +62,18 @@ namespace KMBit.Controllers
         }
 
         // GET: Admin
-        public async Task<ActionResult> Index(ManageMessageId? message)
+        public ActionResult Index()
         {
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "密码已经修改成功."
-                : message == ManageMessageId.SetPasswordSuccess ? " 密码已经被设置成功."
-                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                : message == ManageMessageId.Error ? "未知错误，请联系管理员."
-                : message == ManageMessageId.AddPhoneSuccess ? "电话号码被成功添加."
-                : message == ManageMessageId.RemovePhoneSuccess ? "电话号码被成功删除."
-                : "";
-
-            var userId = User.Identity.GetUserId<int>();
-            var model = new IndexViewModel
-            {
-                HasPassword = HasPassword(),
-                PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
-                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
-                Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId.ToString())
-            };
-            return View(model);
+            UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
+            //ViewBag.LoginUser = userMgr.CurrentLoginUser;   
+            return View(userMgr.CurrentLoginUser);
         }
-
-        // GET: /Manage/ChangePassword
+               
         public ActionResult ChangePassword()
         {
             return View();
-        }
-
-        //
-        // POST: /Manage/ChangePassword
+        }        
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -583,6 +559,7 @@ namespace KMBit.Controllers
         {
             if (agentAdminMgt == null)
                 agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+
             int pageSize = 30;
             int requestPage = 1;
             int.TryParse(Request["page"], out requestPage);
@@ -590,6 +567,7 @@ namespace KMBit.Controllers
             List<BUser> users = agentAdminMgt.FindAgencies(0, null, null, 0, 0, out total,requestPage,pageSize);
             PageItemsResult<BUser> result = new PageItemsResult<BUser>() { CurrentPage = requestPage, Items = users, PageSize = pageSize, TotalRecords = total };
             KMBit.Grids.KMGrid<BUser> grid = new Grids.KMGrid<BUser>(result);
+            ViewBag.LoginUser = agentAdminMgt.CurrentLoginUser;
             return View(grid);
         }
 
@@ -1121,7 +1099,7 @@ namespace KMBit.Controllers
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();
-                ChargeOrder order = new ChargeOrder() {Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                ChargeOrder order = new ChargeOrder() { ChargeType=2, Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
               
                 OrderManagement orderMgt = new OrderManagement();
                 order = orderMgt.GenerateOrder(order);               
@@ -1165,12 +1143,88 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult SetUserPassword(int userId)
         {
-            return View();
+            SetPasswordViewModel model = new SetPasswordViewModel() { Id = userId };
+            UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
+            BUser user = userMgr.GetUserInfo(userId);
+            if(user!=null)
+            {
+                ViewBag.User = user;
+                return View(model);
+            }else
+            {
+                ViewBag.Message = string.Format("编号为{0}的用户不存在",userId);
+                return View("Error");
+            }           
         }
 
         [HttpPost]
         public ActionResult SetUserPassword(SetPasswordViewModel model)
         {
+            UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                BUser user = userMgr.GetUserInfo(model.Id);
+                if (ModelState.IsValid)
+                {                    
+                    userMgr.SetUserPassword(model.Id, model.NewPassword);
+                    if(!user.IsAdmin)
+                    {
+                        return RedirectToAction("Agencies");
+                    }else
+                    {
+                        return RedirectToAction("Administrators");
+                    }
+                    
+                }else
+                {
+                    
+                    ViewBag.User = user;
+                    return View(model);
+                }
+                
+            }
+            catch(KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+            }
+
+            return View("Error");
+        }
+
+        [HttpGet]
+        public ActionResult AdminGuide()
+        {
+            SiteManagement siteMgr = new SiteManagement(User.Identity.GetUserId<int>());
+            Help_Info info = siteMgr.GetHelpInfo();
+            return View(info);
+        }
+
+        [HttpGet]
+        public ActionResult SiteInfo()
+        {
+            SiteManagement siteMgr = new SiteManagement(User.Identity.GetUserId<int>());
+            Help_Info info = siteMgr.GetHelpInfo();
+            if(info==null)
+            {
+                info = new Help_Info() { About = "", AdminHelp = "", AgentHelp = "", Contact = "" };
+            }
+            return View(info);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult SiteInfo(Help_Info model)
+        {
+            SiteManagement siteMgr = new SiteManagement(User.Identity.GetUserId<int>());            
+            try
+            {
+                siteMgr.CreateHelpInfo(model);
+            }
+            catch(KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+            }
+
             return View();
         }
     }

@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Admin\AdministratorManagement.cs" />
     <Compile Include="Admin\AgentAdminMenagement.cs" />
+    <Compile Include="Admin\SiteManagement.cs" />
     <Compile Include="Agent\AgentManagement.cs" />
     <Compile Include="ChargeBridge.cs" />
     <Compile Include="Charge\ChargeConstant.cs" />
