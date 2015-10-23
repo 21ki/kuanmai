@@ -1,0 +1,25 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BPaymentHistory>
+@using GridMvc.Html
+    @{
+        ViewBag.Title = "账户充值记录";
+        Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+    }
+
+    <h2>@ViewBag.Title</h2>
+<hr />
+
+<a class="btn btn-primary" role="button" href="/Agent/ChargeAccount">
+        充值
+</a>
+
+@Html.Grid(Model).Columns(columns =>
+{
+
+    columns.Add(c => c.Id).Titled("编号").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.Amount).Titled("金额").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.Tranfser_Type).Titled("支付方式").Filterable(true).SetWidth("10%").RenderValueAs(c => c.Tranfser_Type==1?"支付宝":"其他");
+    columns.Add(c => c.PaymentTradeId).Titled("交易号").Filterable(true).SetWidth("15%").RenderValueAs(c => c.PaymentTradeId!=null? c.PaymentTradeId:"");
+    columns.Add(c => c.PaymentAccount).Titled("支付账户").Filterable(true).SetWidth("15%").RenderValueAs(c => c.PaymentAccount != null ? c.PaymentAccount : "");
+    columns.Add(c => c.CreatedTime).Titled("时间").Filterable(true).SetWidth("10%").RenderValueAs(c => c.CreatedTime>0?KMBit.Util.DateTimeUtil.ConvertToDateTime(c.CreatedTime).ToString("yyyy-M-dd hh:mm"):"");
+}).Sortable(true)
+

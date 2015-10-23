@@ -125,13 +125,16 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Id" Type="int" Nullable="false" />
           <Property Name="Amount" Type="float" Nullable="false" />
           <Property Name="Pay_time" Type="uint" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
-          <Property Name="Tranfser_Type" Type="tinyint" Nullable="false" />
-          <Property Name="ChargeOrderId" Type="int" />
+          <Property Name="Tranfser_Type" Type="int" Nullable="false" />
+          <Property Name="ChargeOrderId" Type="int" Nullable="false" />
           <Property Name="PaymentAccount" Type="varchar" MaxLength="100" />
+          <Property Name="PayType" Type="int" Nullable="false" />
+          <Property Name="CreatedTime" Type="uint" Nullable="false" />
+          <Property Name="PaymentTradeId" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="PayType">
           <Key>
@@ -205,6 +208,7 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="IsAgent" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Taocan">
           <Key>
@@ -313,7 +317,6 @@
           <EntitySet Name="Admin_Categories" EntityType="KMBitDBContextModel.Admin_Categories" />
           <EntitySet Name="Admin_Users" EntityType="KMBitDBContextModel.Admin_Users" />
           <EntitySet Name="Area" EntityType="KMBitDBContextModel.Area" />
-          <EntitySet Name="Sp" EntityType="KMBitDBContextModel.Sp" />
           <EntitySet Name="Taocan" EntityType="KMBitDBContextModel.Taocan" />
           <EntitySet Name="User_type" EntityType="KMBitDBContextModel.User_type" />
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
@@ -327,10 +330,11 @@
           <EntitySet Name="Admin_Users_Actions" EntityType="KMBitDBContextModel.Admin_Users_Actions" />
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
-          <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Login_Log" EntityType="KMBitDBContextModel.Login_Log" />
           <EntitySet Name="Help_Info" EntityType="KMBitDBContextModel.Help_Info" />
+          <EntitySet Name="Sp" EntityType="KMBitDBContextModel.Sp" />
+          <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -369,13 +373,6 @@
           <Property Name="Upid" Type="Int32" Nullable="false" />
           <Property Name="List" Type="Int16" Nullable="false" />
           <Property Name="Order" Type="Byte" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Sp">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Taocan">
           <Key>
@@ -542,18 +539,6 @@
           <Property Name="CallBackUrl" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="ProductApiUrl" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Payment_history">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Amount" Type="Single" Nullable="false" />
-          <Property Name="Pay_time" Type="Int64" Nullable="false" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
-          <Property Name="Tranfser_Type" Type="SByte" Nullable="false" />
-          <Property Name="ChargeOrderId" Type="Int32" />
-          <Property Name="PaymentAccount" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Charge_Order">
           <Key>
             <PropertyRef Name="Id" />
@@ -607,6 +592,29 @@
           <Property Name="IsCurrent" Type="Boolean" Nullable="false" />
           <Property Name="UpdateTime" Type="Int64" Nullable="false" />
         </EntityType>
+        <EntityType Name="Sp">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="IsAgent" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Payment_history">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Amount" Type="Single" Nullable="false" />
+          <Property Name="Pay_time" Type="Int64" Nullable="false" />
+          <Property Name="User_id" Type="Int32" Nullable="false" />
+          <Property Name="Tranfser_Type" Type="Int32" Nullable="false" />
+          <Property Name="ChargeOrderId" Type="Int32" Nullable="false" />
+          <Property Name="PaymentAccount" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PayType" Type="Int32" Nullable="false" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+          <Property Name="PaymentTradeId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -650,14 +658,6 @@
                 <ScalarProperty Name="List" ColumnName="List" />
                 <ScalarProperty Name="Upid" ColumnName="Upid" />
                 <ScalarProperty Name="Level" ColumnName="Level" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Sp">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Sp">
-              <MappingFragment StoreEntitySet="Sp">
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
@@ -837,19 +837,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Payment_history">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Payment_history">
-              <MappingFragment StoreEntitySet="Payment_history">
-                <ScalarProperty Name="PaymentAccount" ColumnName="PaymentAccount" />
-                <ScalarProperty Name="ChargeOrderId" ColumnName="ChargeOrderId" />
-                <ScalarProperty Name="Tranfser_Type" ColumnName="Tranfser_Type" />
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
-                <ScalarProperty Name="Pay_time" ColumnName="Pay_time" />
-                <ScalarProperty Name="Amount" ColumnName="Amount" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Charge_Order">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Charge_Order">
               <MappingFragment StoreEntitySet="Charge_Order">
@@ -902,6 +889,31 @@
                 <ScalarProperty Name="AgentHelp" ColumnName="AgentHelp" />
                 <ScalarProperty Name="Contact" ColumnName="Contact" />
                 <ScalarProperty Name="About" ColumnName="About" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sp">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Sp">
+              <MappingFragment StoreEntitySet="Sp">
+                <ScalarProperty Name="IsAgent" ColumnName="IsAgent" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Payment_history">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Payment_history">
+              <MappingFragment StoreEntitySet="Payment_history">
+                <ScalarProperty Name="PaymentTradeId" ColumnName="PaymentTradeId" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="PayType" ColumnName="PayType" />
+                <ScalarProperty Name="PaymentAccount" ColumnName="PaymentAccount" />
+                <ScalarProperty Name="ChargeOrderId" ColumnName="ChargeOrderId" />
+                <ScalarProperty Name="Tranfser_Type" ColumnName="Tranfser_Type" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Pay_time" ColumnName="Pay_time" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

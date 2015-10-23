@@ -26,5 +26,13 @@ namespace KMBit.BL
             list.Add(new DictionaryTemplate() { Id = 2, Value = "后台直冲" });
             return list;
         }
+
+        public static List<DictionaryTemplate> GetTranfserTypeList()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "支付宝" });
+            list.Add(new DictionaryTemplate() { Id = 2, Value = "网银" });
+            return list;
+        }
     }
 }

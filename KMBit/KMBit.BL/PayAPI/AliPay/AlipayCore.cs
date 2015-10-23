@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace KMBit.BL.Alipay
+namespace KMBit.BL.PayAPI.AliPay
 {
     /// <summary>
     /// 类名：Core

@@ -17,6 +17,7 @@ using KMBit.BL.Agent;
 using KMBit.Util;
 using System.Collections.Generic;
 using KMBit.BL.Admin;
+using KMBit.BL.PayAPI.AliPay;
 namespace KMBit.Controllers
 {
     [Authorize]
@@ -202,7 +203,15 @@ namespace KMBit.Controllers
         }
         public ActionResult PayHistories()
         {
-            return View();
+            PaymentManagement payMgr = new PaymentManagement(User.Identity.GetUserId<int>());
+            int page = 1;
+            int pageSize = 30;
+            int.TryParse(Request["page"],out page);
+            page = page > 0 ? page : 1;
+            List<BPaymentHistory> payments = payMgr.FindPayments(0, User.Identity.GetUserId<int>(), 0, out total, true, pageSize, page);
+            PageItemsResult<BPaymentHistory> result = new PageItemsResult<BPaymentHistory>() { CurrentPage = page, Items = payments, PageSize = pageSize, TotalRecords = total, EnablePaging = true };
+            KMBit.Grids.KMGrid<BPaymentHistory> grid = new Grids.KMGrid<BPaymentHistory>(result);
+            return View(grid);
         }
         public ActionResult ChangePassword()
         {
@@ -284,6 +293,65 @@ namespace KMBit.Controllers
             SiteManagement siteMgr = new SiteManagement(User.Identity.GetUserId<int>());
             Help_Info info = siteMgr.GetHelpInfo();
             return View(info);
+        }
+
+        [HttpGet]
+        public ActionResult ChargeAccount()
+        {
+            ChargeAccountModel model = new ChargeAccountModel() { TransferType = 1 };
+            ViewBag.Message = Request["message"];         
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult ChargeAccount(ChargeAccountModel model)
+        {
+            PaymentManagement payMgr = new PaymentManagement(User.Identity.GetUserId<int>());
+            if(model.TransferType==1)
+            {
+                AlipayConfig config = new AlipayConfig(System.IO.Path.Combine(Request.PhysicalApplicationPath, "Config\\AliPayConfig.xml"));
+                Submit submit = new Submit(config);
+                BPaymentHistory payment = null;
+                try
+                {
+                    payment = payMgr.CreateChargeAccountPayment(User.Identity.GetUserId<int>(), model.Amount, model.TransferType);
+                    if (payment == null)
+                    {
+                        ViewBag.Message = "充值失败";
+                        return View(model);
+                    }
+
+                }catch(Exception ex)
+                {
+                    ViewBag.Message = "充值失败";
+                    return View(model);
+                }
+                
+                SortedDictionary<string, string> sParaTemp = new SortedDictionary<string, string>();
+                sParaTemp.Add("partner", config.Partner);
+                sParaTemp.Add("seller_email", config.Email);
+                sParaTemp.Add("_input_charset", config.Input_charset.ToLower());
+                sParaTemp.Add("service", "create_direct_pay_by_user");
+                sParaTemp.Add("payment_type", "1");
+                sParaTemp.Add("notify_url", config.Notify_Url);
+                sParaTemp.Add("return_url", config.Return_Url);
+                sParaTemp.Add("out_trade_no", payment.Id.ToString());
+                sParaTemp.Add("subject", string.Format("宽迈网络账户充值 {0} 元", model.Amount));
+                sParaTemp.Add("total_fee", model.Amount.ToString("0.00"));
+                sParaTemp.Add("body", string.Format("宽迈网络账户充值 {0} 元", model.Amount));
+                sParaTemp.Add("show_url", "");
+                sParaTemp.Add("seller_id", config.Partner);
+                //sParaTemp.Add("anti_phishing_key", "");
+                //sParaTemp.Add("exter_invoke_ip", "");
+
+                //建立请求
+                string sHtmlText = submit.BuildRequest(sParaTemp, "get", "确认");
+                //Response.Write("ok");
+                Response.Clear();
+                Response.Charset = "utf-8";
+                Response.Write(sHtmlText);
+            }
+            return View(model);
         }
     }
 }

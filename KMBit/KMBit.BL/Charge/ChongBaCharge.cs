@@ -43,49 +43,68 @@ namespace KMBit.BL.Charge
                         resMessage = param.Value;
                         break;
                     case "transNo":
-                        order.Id = int.Parse(param.Value);
+                        int oid = 0;
+                        int.TryParse(param.Value,out oid);
+                        order.Id = oid;
                         break;
                 }
             }
 
-            switch (res.ToLower())
+            if(!string.IsNullOrEmpty(res))
             {
-                case "jx0000":
-                    result.Message = ChargeConstant.CHARGING;
-                    result.Status = ChargeStatus.ONPROGRESS;
-                    break;
-                case "0000":
-                case "00000":
-                case "000000":
-                    result.Message = ChargeConstant.SUCCEED_CHARGE;
-                    result.Status = ChargeStatus.SUCCEED;
-                    //change charge status
-                    break;
-                case "jx0001":
-                    result.Message = ChargeConstant.AGENT_WRONG_PASSWORD;
-                    result.Status = ChargeStatus.FAILED;
-                    break;
-                case "jx0002":
-                    result.Message = ChargeConstant.AGENT_NOT_BIND_IP;
-                    result.Status = ChargeStatus.FAILED;
-                    break;
-                case "jx0003":
-                    result.Message = ChargeConstant.AGENT_IP_NOT_MATCH;
-                    result.Status = ChargeStatus.FAILED;
-                    break;
-                case "jx0004":
-                    result.Message = ChargeConstant.RESOURCE_PRODUCT_NOT_EXIST;
-                    result.Status = ChargeStatus.FAILED;
-                    break;
-                case "jx0005":
-                    result.Message = ChargeConstant.RESOURCE_NOT_ENOUGH_MONEY;
-                    result.Status = ChargeStatus.FAILED;
-                    break;
-                default:
-                    break;
+                switch (res.ToLower())
+                {
+                    case "jx0000":
+                        result.Message = ChargeConstant.CHARGING;
+                        result.Status = ChargeStatus.ONPROGRESS;
+                        break;
+                    case "0000":
+                    case "00000":
+                    case "000000":
+                        result.Message = ChargeConstant.SUCCEED_CHARGE;
+                        result.Status = ChargeStatus.SUCCEED;
+                        //change charge status
+                        break;
+                    case "jx0001":
+                        result.Message = ChargeConstant.AGENT_WRONG_PASSWORD;
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                    case "jx0002":
+                        result.Message = ChargeConstant.AGENT_NOT_BIND_IP;
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                    case "jx0003":
+                        result.Message = ChargeConstant.AGENT_IP_NOT_MATCH;
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                    case "jx0004":
+                        result.Message = ChargeConstant.RESOURCE_PRODUCT_NOT_EXIST;
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                    case "jx0005":
+                        result.Message = ChargeConstant.RESOURCE_NOT_ENOUGH_MONEY;
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                    default:
+                        result.Message = resMessage!=null?res:"未知错误";
+                        result.Status = ChargeStatus.FAILED;
+                        break;
+                }
+            }else
+            {
+                //回调没有传入状态，本系统默认失败
+                result.Message = "没有回调状态数据";
+                result.Status = ChargeStatus.FAILED;
             }
 
-            ChangeOrderStatus(order, result,true);
+            if (order.Id > 0)
+            {
+                ChangeOrderStatus(order, result, true);
+            }
+            else
+            {
+                throw new KMBitException("回调数据中没有本系统的订单号，所以不能更新本系统数据，此次调用为脏数据");
+            }            
         }
 
         public ChargeResult Charge(ChargeOrder order)

@@ -208,7 +208,7 @@
     <Compile Include="Controllers\api\ResourceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
-    <Compile Include="Controllers\PayBackController.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Extensions\HtmlExtensions.cs" />
     <Compile Include="Filters\AdminFilter.cs" />
@@ -230,6 +230,9 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\AliPayConfig.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\bootstrap-datepicker.css" />
     <Content Include="Content\bootstrap-datepicker.min.css" />
     <Content Include="Content\bootstrap-datepicker.standalone.css" />
@@ -245,6 +248,8 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\alipay.gif" />
+    <Content Include="Images\alipay1.png" />
     <Content Include="Scripts\bootstrap-datepicker.js" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -765,6 +770,9 @@
     <Content Include="Scripts\kindeditor\php\upload_json.php" />
     <Content Include="Views\Admin\AdminGuide.cshtml" />
     <Content Include="Views\Agent\AgentGuide.cshtml" />
+    <Content Include="Views\PayBack\Error.cshtml" />
+    <Content Include="Views\Agent\PayHistories.cshtml" />
+    <Content Include="Views\Agent\ChargeAccount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

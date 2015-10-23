@@ -5,8 +5,9 @@ using System.Net;
 using System;
 using System.Collections.Generic;
 using System.Xml;
-
-namespace KMBit.BL.Alipay
+using KMBit.BL.PayAPI.AliPay;
+using KMBit.Beans;
+namespace KMBit.BL.PayAPI.AliPay
 {
     /// <summary>
     /// 类名：Submit
@@ -22,20 +23,26 @@ namespace KMBit.BL.Alipay
     {
         #region 字段
         //支付宝网关地址（新）
-        private static string GATEWAY_NEW = "https://mapi.alipay.com/gateway.do?";
+        private string GATEWAY_NEW = "https://mapi.alipay.com/gateway.do?";
         //商户的私钥
-        private static string _key = "";
+        private string _key = "";
         //编码格式
-        private static string _input_charset = "";
+        private string _input_charset = "";
         //签名方式
-        private static string _sign_type = "";
-        #endregion
-
-        static Submit()
+        private string _sign_type = "";
+        #endregion       
+        private AlipayConfig _config;
+        public Submit(AlipayConfig config)
         {
-            _key = Config.Key.Trim();
-            _input_charset = Config.Input_charset.Trim().ToLower();
-            _sign_type = Config.Sign_type.Trim().ToUpper();
+            if (config == null)
+            {
+                throw new KMBitException("Alipay config is missing");
+            }
+            _config = config;
+            _key = config.Key.Trim();
+            _input_charset = config.Input_charset.Trim().ToLower();
+            _sign_type = config.Sign_Type.Trim().ToUpper();
+            GATEWAY_NEW = config.Gate_Url;
         }
 
         /// <summary>
@@ -43,7 +50,7 @@ namespace KMBit.BL.Alipay
         /// </summary>
         /// <param name="sPara">请求给支付宝的参数数组</param>
         /// <returns>签名结果</returns>
-        private static string BuildRequestMysign(Dictionary<string, string> sPara)
+        private string BuildRequestMysign(Dictionary<string, string> sPara)
         {
             //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
             string prestr = Core.CreateLinkString(sPara);
@@ -68,7 +75,7 @@ namespace KMBit.BL.Alipay
         /// </summary>
         /// <param name="sParaTemp">请求前的参数数组</param>
         /// <returns>要请求的参数数组</returns>
-        private static Dictionary<string, string> BuildRequestPara(SortedDictionary<string, string> sParaTemp)
+        private Dictionary<string, string> BuildRequestPara(SortedDictionary<string, string> sParaTemp)
         {
             //待签名请求参数数组
             Dictionary<string, string> sPara = new Dictionary<string, string>();
@@ -94,7 +101,7 @@ namespace KMBit.BL.Alipay
         /// <param name="sParaTemp">请求前的参数数组</param>
         /// <param name="code">字符编码</param>
         /// <returns>要请求的参数数组字符串</returns>
-        private static string BuildRequestParaToString(SortedDictionary<string, string> sParaTemp, Encoding code)
+        private string BuildRequestParaToString(SortedDictionary<string, string> sParaTemp, Encoding code)
         {
             //待签名请求参数数组
             Dictionary<string, string> sPara = new Dictionary<string, string>();
@@ -113,7 +120,7 @@ namespace KMBit.BL.Alipay
         /// <param name="strMethod">提交方式。两个值可选：post、get</param>
         /// <param name="strButtonValue">确认按钮显示文字</param>
         /// <returns>提交表单HTML文本</returns>
-        public static string BuildRequest(SortedDictionary<string, string> sParaTemp, string strMethod, string strButtonValue)
+        public string BuildRequest(SortedDictionary<string, string> sParaTemp, string strMethod, string strButtonValue)
         {
             //待请求参数数组
             Dictionary<string, string> dicPara = new Dictionary<string, string>();
@@ -129,10 +136,9 @@ namespace KMBit.BL.Alipay
             }
 
             //submit按钮控件请不要含有name属性
-            sbHtml.Append("<input type='submit' value='" + strButtonValue + "' style='display:none;'></form>");
-
-            //sbHtml.Append("<script>document.forms['alipaysubmit'].submit();</script>");
-
+            sbHtml.Append("<input type='submit' value='" + strButtonValue + "' style='display:none;'></form>");          
+            sbHtml.Append("<script>document.forms['alipaysubmit'].submit();</script>");
+            
             return sbHtml.ToString();
         }
 
@@ -142,7 +148,7 @@ namespace KMBit.BL.Alipay
         /// </summary>
         /// <param name="sParaTemp">请求参数数组</param>
         /// <returns>支付宝处理结果</returns>
-        public static string BuildRequest(SortedDictionary<string, string> sParaTemp)
+        public string BuildRequest(SortedDictionary<string, string> sParaTemp)
         {
             Encoding code = Encoding.GetEncoding(_input_charset);
 
@@ -206,7 +212,7 @@ namespace KMBit.BL.Alipay
         /// <param name="contentType">文件内容类型</param>
         /// <param name="lengthFile">文件长度</param>
         /// <returns>支付宝处理结果</returns>
-        public static string BuildRequest(SortedDictionary<string, string> sParaTemp, string strMethod, string fileName, byte[] data, string contentType, int lengthFile)
+        public string BuildRequest(SortedDictionary<string, string> sParaTemp, string strMethod, string fileName, byte[] data, string contentType, int lengthFile)
         {
 
             //待请求参数数组
@@ -286,9 +292,9 @@ namespace KMBit.BL.Alipay
         /// 注意：远程解析XML出错，与IIS服务器配置有关
         /// </summary>
         /// <returns>时间戳字符串</returns>
-        public static string Query_timestamp()
+        public string Query_timestamp()
         {
-            string url = GATEWAY_NEW + "service=query_timestamp&partner=" + Config.Partner + "&_input_charset=" + Config.Input_charset;
+            string url = GATEWAY_NEW + "service=query_timestamp&partner=" + _config.Partner + "&_input_charset=" + _config.Input_charset;
             string encrypt_key = "";
 
             XmlTextReader Reader = new XmlTextReader(url);

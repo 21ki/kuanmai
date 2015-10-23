@@ -15,15 +15,38 @@ namespace KMBit.Controllers.api
         [AcceptVerbs("POST","GET")]
         public ApiMessage Chongba()
         {
-            this.IniRequest();
-            ApiMessage message = new ApiMessage() { Status="OK",Message="成功执行回调函数" };
-            ICharge chargeMgr = new ChongBaCharge();
-            List<WebRequestParameters> paramters = new List<WebRequestParameters>();
-            paramters.Add(new WebRequestParameters("orderId",request["orderId"],false));
-            paramters.Add(new WebRequestParameters("respCode", request["respCode"], false));
-            paramters.Add(new WebRequestParameters("respMsg", request["respMsg"], false));
-            paramters.Add(new WebRequestParameters("transNo", request["transNo"], false));
-            chargeMgr.CallBack(paramters);
+            ApiMessage message = new ApiMessage() { Status = "OK", Message = "成功执行回调函数" };
+            try
+            {
+                this.IniRequest();                
+                ICharge chargeMgr = new ChongBaCharge();
+                List<WebRequestParameters> paramters = new List<WebRequestParameters>();
+                paramters.Add(new WebRequestParameters("orderId", request["orderId"], false));
+                paramters.Add(new WebRequestParameters("respCode", request["respCode"], false));
+                paramters.Add(new WebRequestParameters("respMsg", request["respMsg"], false));
+                paramters.Add(new WebRequestParameters("transNo", request["transNo"], false));
+                if (paramters.Count > 0)
+                {
+                    chargeMgr.CallBack(paramters);
+                }
+                else
+                {
+                    message.Status = "ERROE";
+                    message.Message = "经销商充值系统没有回调数据，充值失败";
+                }
+            }
+            catch(KMBitException e)
+            {
+                message.Status = "ERROE";
+                message.Message = e.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "ERROE";
+                message.Message = ex.Message;
+            }
+           
+            
             return message;
         }
     }

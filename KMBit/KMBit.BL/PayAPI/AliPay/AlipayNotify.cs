@@ -4,8 +4,9 @@ using System.IO;
 using System.Net;
 using System;
 using System.Collections.Generic;
-
-namespace KMBit.BL.Alipay
+using KMBit.BL.PayAPI.AliPay;
+using KMBit.Beans;
+namespace KMBit.BL.PayAPI.AliPay
 {
     /// <summary>
     /// 类名：Notify
@@ -29,7 +30,7 @@ namespace KMBit.BL.Alipay
         private string _sign_type = "";             //签名方式
 
         //支付宝消息验证地址
-        private string Https_veryfy_url = "https://mapi.alipay.com/gateway.do?service=notify_verify&";
+        private string Https_veryfy_url = "https://mapi.alipay.com/gateway.do?service=notify_verify";
         #endregion
 
 
@@ -39,13 +40,27 @@ namespace KMBit.BL.Alipay
         /// </summary>
         /// <param name="inputPara">通知返回参数数组</param>
         /// <param name="notify_id">通知验证ID</param>
-        public Notify()
+        //public Notify()
+        //{
+        //    //初始化基础配置信息
+        //    _partner = Config.Partner.Trim();
+        //    _key = Config.Key.Trim();
+        //    _input_charset = Config.Input_charset.Trim().ToLower();
+        //    _sign_type = Config.Sign_type.Trim().ToUpper();
+        //}
+
+        public Notify(AlipayConfig config)
         {
+            if(config==null)
+            {
+                throw new KMBitException("Alipay config is missing");
+            }
             //初始化基础配置信息
-            _partner = Config.Partner.Trim();
-            _key = Config.Key.Trim();
-            _input_charset = Config.Input_charset.Trim().ToLower();
-            _sign_type = Config.Sign_type.Trim().ToUpper();
+            _partner = config.Partner.Trim();
+            _key = config.Key.Trim();
+            _input_charset = config.Input_charset.Trim().ToLower();
+            _sign_type = config.Sign_Type.Trim().ToUpper();
+            Https_veryfy_url = config.Verify_Url;
         }
 
         /// <summary>
@@ -138,7 +153,7 @@ namespace KMBit.BL.Alipay
         /// <returns>验证结果</returns>
         private string GetResponseTxt(string notify_id)
         {
-            string veryfy_url = Https_veryfy_url + "partner=" + _partner + "&notify_id=" + notify_id;
+            string veryfy_url = Https_veryfy_url + "&partner=" + _partner + "&notify_id=" + notify_id;
 
             //获取远程服务器ATN结果，验证是否是支付宝服务器发来的请求
             string responseTxt = Get_Http(veryfy_url, 120000);

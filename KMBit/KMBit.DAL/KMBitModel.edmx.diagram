@@ -9,7 +9,6 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Categories" Width="1.5" PointX="2.75" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users" Width="1.5" PointX="0.75" PointY="3.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Area" Width="1.5" PointX="4.75" PointY="4.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="9.5" PointY="0.625" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Taocan" Width="1.5" PointX="9.5" PointY="2.25" />
         <EntityTypeShape EntityType="KMBitDBContextModel.User_type" Width="1.5" PointX="2.875" PointY="3" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="4.625" PointY="7" />
@@ -23,10 +22,11 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users_Actions" Width="1.5" PointX="6.75" PointY="7" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="7.5" PointY="0.625" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="0.625" PointY="5.625" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="0.75" PointY="9.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Login_Log" Width="1.5" PointX="7.375" PointY="9.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Help_Info" Width="1.5" PointX="9.375" PointY="9.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Login_Log" Width="1.5" PointX="6.625" PointY="8.625" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Help_Info" Width="1.5" PointX="8.5" PointY="8.5" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="11.375" PointY="6.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="3.375" PointY="11.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AliPayConfig>
+  <Partner>2088021008407280</Partner>
+  <Key>3l9pq4gzfv5wqcov3wuc05pz8rsoi6nx</Key>
+  <Input_charset>utf-8</Input_charset>
+  <Sign_type>MD5</Sign_type>
+  <GateUrl>https://mapi.alipay.com/gateway.do?</GateUrl>
+  <VerifyUrl>https://mapi.alipay.com/gateway.do?service=notify_verify</VerifyUrl>
+  <ReturnUrl>http://www.kxcall.com/Payment/AlipayBack</ReturnUrl> 
+  <NotifyUrl>http://www.kxcall.com//Payment/AlipayBack</NotifyUrl>
+  <Email>372864472@qq.com</Email>
+</AliPayConfig>

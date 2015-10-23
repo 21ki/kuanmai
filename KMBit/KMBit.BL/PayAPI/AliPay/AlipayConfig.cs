@@ -1,104 +1,104 @@
-﻿using System.Web;
-using System.Text;
-using System.IO;
-using System.Net;
-using System;
+﻿using System;
 using System.Collections.Generic;
-
-namespace KMBit.BL.Alipay
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using System.Xml;
+using KMBit.Beans;
+namespace KMBit.BL.PayAPI.AliPay
 {
-    /// <summary>
-    /// 类名：Config
-    /// 功能：基础配置类
-    /// 详细：设置帐户有关信息及返回路径
-    /// 版本：3.3
-    /// 日期：2012-07-05
-    /// 说明：
-    /// 以下代码只是为了方便商户测试而提供的样例代码，商户可以根据自己网站的需要，按照技术文档编写,并非一定要使用该代码。
-    /// 该代码仅供学习和研究支付宝接口使用，只是提供一个参考。
-    /// 
-    /// 如何获取安全校验码和合作身份者ID
-    /// 1.用您的签约支付宝账号登录支付宝网站(www.alipay.com)
-    /// 2.点击“商家服务”(https://b.alipay.com/order/myOrder.htm)
-    /// 3.点击“查询合作者身份(PID)”、“查询安全校验码(Key)”
-    /// </summary>
-    public class Config
+    public class AlipayConfig
     {
-        #region 字段
-        private static string partner = "";
-        private static string seller_email = "";
-        private static string key = "";
-        private static string input_charset = "";
-        private static string sign_type = "";
-        #endregion
-
-        static Config()
+        public string Partner { get; private set; }              //合作身份者ID
+        public string Key { get; private set; }                  //商户的私钥
+        public string Input_charset { get; private set; }         //编码格式
+        public string Sign_Type { get; private set; }          //签名方式
+        public string Gate_Url { get; private set; }
+        public string Verify_Url { get; private set; }
+        public string Notify_Url { get; private set; }
+        public string Return_Url { get; private set; }
+        public string Email { get; private set; }
+        public AlipayConfig(string configFilePath)
         {
-            //↓↓↓↓↓↓↓↓↓↓请在这里配置您的基本信息↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-
-            //合作身份者ID，以2088开头由16位纯数字组成的字符串
-            partner = "";
-			
-            //收款支付宝账号
-            seller_email = "";
-
-            //交易安全检验码，由数字和字母组成的32位字符串
-            key = "";
-
-            //↑↑↑↑↑↑↑↑↑↑请在这里配置您的基本信息↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-
-
-
-            //字符编码格式 目前支持 gbk 或 utf-8
-            input_charset = "utf-8";
-
-            //签名方式，选择项：RSA、DSA、MD5
-            sign_type = "MD5";
+            Initialize(configFilePath);
         }
 
-        #region 属性
-        /// <summary>
-        /// 获取或设置合作者身份ID
-        /// </summary>
-        public static string Partner
+        private void Initialize(string configFilePath)
         {
-            get { return partner; }
-            set { partner = value; }
-        }
+            if(string.IsNullOrEmpty(configFilePath))
+            {
+                throw new KMBitException("Alipay config file must be provided");
+            }
 
-        /// <summary>
-        /// 获取或设置合作者身份ID
-        /// </summary>
-        public static string Seller_email
-        {
-            get { return seller_email; }
-            set { seller_email = value; }
-        }
+            if(!File.Exists(configFilePath))
+            {
+                throw new KMBitException(string.Format("Alipay config file:{0} doesn't exit", configFilePath));
+            }
+           
+            XmlDocument dom = null;
+            try
+            {
+                dom = new XmlDocument();
+                dom.Load(configFilePath);
+                XmlNode partner = dom.SelectSingleNode("/AliPayConfig/Partner");
+                if(partner!=null && partner.InnerText!=null)
+                {
+                    this.Partner = partner.InnerText;
+                }
+                XmlNode Key = dom.SelectSingleNode("/AliPayConfig/Key");
+                if (Key != null && Key.InnerText != null)
+                {
+                    this.Key= Key.InnerText;
+                }
+                XmlNode input_charset = dom.SelectSingleNode("/AliPayConfig/Input_charset");
+                if (input_charset != null && input_charset.InnerText != null)
+                {
+                    this.Input_charset = input_charset.InnerText;
+                }
+                XmlNode sign_type = dom.SelectSingleNode("/AliPayConfig/Sign_type");
+                if (sign_type != null && sign_type.InnerText != null)
+                {
+                    this.Sign_Type = sign_type.InnerText;
+                }
+                XmlNode gateUrl = dom.SelectSingleNode("/AliPayConfig/GateUrl");
+                if (gateUrl != null && gateUrl.InnerText != null)
+                {
+                    this.Gate_Url = gateUrl.InnerText;
+                }
+                XmlNode verify_url = dom.SelectSingleNode("/AliPayConfig/VerifyUrl");
+                if (verify_url != null && verify_url.InnerText != null)
+                {
+                    this.Verify_Url = verify_url.InnerText;
+                }
 
-        /// <summary>
-        /// 获取或设交易安全校验码
-        /// </summary>
-        public static string Key
-        {
-            get { return key; }
-            set { key = value; }
-        }
+                XmlNode notifyUrl = dom.SelectSingleNode("/AliPayConfig/NotifyUrl");
+                if (notifyUrl != null && notifyUrl.InnerText != null)
+                {
+                    this.Notify_Url = notifyUrl.InnerText;
+                }
+                XmlNode returnUrl = dom.SelectSingleNode("/AliPayConfig/ReturnUrl");
+                if (returnUrl != null && returnUrl.InnerText != null)
+                {
+                    this.Return_Url = returnUrl.InnerText;
+                }
+                XmlNode email = dom.SelectSingleNode("/AliPayConfig/Email");
+                if (email != null && email.InnerText != null)
+                {
+                    this.Email = email.InnerText;
+                }
+            }
+            catch(Exception ex)
+            {
 
-        /// <summary>
-        /// 获取字符编码格式
-        /// </summary>
-        public static string Input_charset
-        {
-            get { return input_charset; }
+            }
+            finally
+            {
+                if(dom!=null)
+                {
+                    dom = null;
+                }
+            }
         }
-
-        /// <summary>
-        /// 获取签名方式
-        /// </summary>
-        public static string Sign_type
-        {
-            get { return sign_type; }
-        }
-        #endregion
     }
 }

@@ -83,7 +83,8 @@ namespace KMBit.BL.Admin
             total = 0;
             List<BResource> resources = null;
             int skip = (page - 1) * pageSize;
-            using (chargebitEntities db = new chargebitEntities())
+            chargebitEntities db = new chargebitEntities();
+            try
             {
                 var tmp = from s in db.Resource
                           join sp in db.Sp on s.SP_Id equals sp.Id into lsp
@@ -125,6 +126,15 @@ namespace KMBit.BL.Admin
                 }
 
                 resources = tmp.ToList<BResource>();
+            }catch(Exception ex)
+            {
+
+            }finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
             }
 
             return resources;

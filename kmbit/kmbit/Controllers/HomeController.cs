@@ -13,6 +13,7 @@ namespace KMBit.Controllers
     {
         public ActionResult Index()
         {
+            string filePath = System.IO.Path.Combine(Request.PhysicalPath,"Config\\AlipayConfig.xml");
             return View();
         }
 

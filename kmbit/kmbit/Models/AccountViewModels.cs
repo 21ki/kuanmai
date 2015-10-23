@@ -109,4 +109,15 @@ namespace KMBit.Models
         [Display(Name = "邮箱")]
         public string Email { get; set; }
     }
+
+    public class ChargeAccountModel
+    {
+        [Required]
+        [Display(Name = "充值金额")]
+        public float Amount { get; set; }
+
+        [Required]
+        [Display(Name = "支付类型")]
+        public int TransferType { get; set; }
+    }
 }

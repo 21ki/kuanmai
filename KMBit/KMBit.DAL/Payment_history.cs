@@ -18,8 +18,11 @@ namespace KMBit.DAL
         public float Amount { get; set; }
         public long Pay_time { get; set; }
         public int User_id { get; set; }
-        public sbyte Tranfser_Type { get; set; }
-        public Nullable<int> ChargeOrderId { get; set; }
+        public int Tranfser_Type { get; set; }
+        public int ChargeOrderId { get; set; }
         public string PaymentAccount { get; set; }
+        public int PayType { get; set; }
+        public long CreatedTime { get; set; }
+        public string PaymentTradeId { get; set; }
     }
 }

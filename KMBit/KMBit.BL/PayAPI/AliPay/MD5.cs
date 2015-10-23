@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace KMBit.BL.Alipay
+namespace KMBit.BL.PayAPI.AliPay
 {
     /// <summary>
     /// 类名：MD5

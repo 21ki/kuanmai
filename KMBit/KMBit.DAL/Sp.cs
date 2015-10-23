@@ -16,5 +16,6 @@ namespace KMBit.DAL
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool IsAgent { get; set; }
     }
 }

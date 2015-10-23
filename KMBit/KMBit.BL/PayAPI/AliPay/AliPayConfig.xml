@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AliPayConfig>
+  <Partner>2008523453452345345</Partner>
+  <Key></Key>
+  <Input_charset>utf-8</Input_charset>
+  <Sign_type>MD5</Sign_type>
+  <GateUrl>https://mapi.alipay.com/gateway.do?</GateUrl>
+  <VerifyUrl>https://mapi.alipay.com/gateway.do?service=notify_verify</VerifyUrl>
+</AliPayConfig>

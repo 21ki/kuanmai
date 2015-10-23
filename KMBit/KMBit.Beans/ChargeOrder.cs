@@ -24,6 +24,7 @@ namespace KMBit.Beans
         public long CreatedTime { get; set; }
         public int ChargeType { get; set; }
         public bool Payed { get; set; }
+        public int PaymentId { get; set; }
     }
 
     public class ChargeOrder: ChargeBaseOrder

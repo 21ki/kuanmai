@@ -40,6 +40,50 @@ namespace KMBit.BL
             }
         }
 
+        /// <summary>
+        /// This method is only applied to platform direct charge
+        /// </summary>
+        /// <param name="orderId"></param>
+        public ChargeResult ProcessOrderAfterPaid(int paymentId,string tradeNo,string buyerAccount)
+        {
+            ChargeResult result = new ChargeResult();
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Payment_history payment = (from p in db.Payment_history where p.Id==paymentId select p).FirstOrDefault<Payment_history>();
+                if(payment==null)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = string.Format("编号为:{0}的支付编号不存在", paymentId);
+                    return result;
+                }
+                payment.Pay_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                payment.PaymentAccount = buyerAccount!=null?buyerAccount:"";
+                payment.PaymentTradeId = tradeNo != null ? tradeNo : "";
+                db.SaveChanges();
+                //前台用户直充网络支付成功之后，提交订单到资源充值
+                if (payment.PayType==0)
+                {
+                    if(payment.ChargeOrderId<=0)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = string.Format("编号为:{0}的支付编号没有相关充值订单", paymentId);
+                        return result;
+                    }
+
+                    Charge_Order corder = (from o in db.Charge_Order where o.Id==payment.ChargeOrderId select o).FirstOrDefault<Charge_Order>();
+                    corder.Payed = true;
+                    db.SaveChanges();
+
+                    ChargeOrder order = new ChargeOrder()
+                    { Payed=true, ChargeType = corder.Charge_type, AgencyId = corder.Agent_Id, Id = corder.Id, Province = corder.Province, City = corder.City, MobileSP = corder.MobileSP, MobileNumber = corder.Phone_number, OutId = "", ResourceId = 0, ResourceTaocanId = corder.Resource_taocan_id, RouteId = corder.RuoteId, CreatedTime = corder.Created_time };
+                    ChargeBridge cb = new ChargeBridge();
+                    result = cb.Charge(order);                   
+                }
+            }
+
+            return result;
+        }
+
         public ChargeOrder GenerateOrder(ChargeOrder order)
         {            
             if (order.ResourceTaocanId<=0 && order.RouteId<=0)
@@ -113,6 +157,7 @@ namespace KMBit.BL
                 history.Resource_id = resource.Id;
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
+                history.Status = 11;
                 if(order.AgencyId>0)
                 {
                     //代理商充值
@@ -130,6 +175,16 @@ namespace KMBit.BL
                 db.Charge_Order.Add(history);
                 db.SaveChanges();
                 order.Id = history.Id;
+
+                //Create Payment record for direct charge
+                if(history.Charge_type==0)
+                {
+                    Payment_history payment = new Payment_history() { PaymentAccount="", Amount=taocan.Sale_price, ChargeOrderId=history.Id, CreatedTime=DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), PayType=0, Tranfser_Type=1 };
+                    db.Payment_history.Add(payment);
+                    db.SaveChanges();
+                    order.PaymentId = payment.Id;
+                }
+
             }catch(Exception ex)
             {
                 throw new KMBitException(ex.Message);
