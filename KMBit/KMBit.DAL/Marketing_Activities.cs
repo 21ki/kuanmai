@@ -12,22 +12,19 @@ namespace KMBit.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Resource
+    public partial class Marketing_Activities
     {
         public int Id { get; set; }
+        public long CreatedTime { get; set; }
+        public long StartedTime { get; set; }
+        public long ExpiredTime { get; set; }
+        public int UserId { get; set; }
+        public int CustomerId { get; set; }
+        public int RuoteId { get; set; }
+        public int ResourceId { get; set; }
+        public int ResourceTaocanId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int Province_Id { get; set; }
-        public Nullable<int> City_Id { get; set; }
-        public string Address { get; set; }
-        public string Email { get; set; }
-        public string Contact { get; set; }
         public bool Enabled { get; set; }
-        public long Created_time { get; set; }
-        public long Updated_time { get; set; }
-        public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
-        public int SP_Id { get; set; }
-        public float CreditAmount { get; set; }
     }
 }

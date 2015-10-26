@@ -245,4 +245,33 @@ namespace KMBit.Models
         [Display(Name = "邮箱")]
         public string Email { get; set; }
     }
+
+    public class CreateCustomerModel
+    {
+        [Required(ErrorMessage ="客户名称不能为空")]
+        [Display(Name = "客户名称")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "外部账户类型不能空")]
+        [Display(Name = "账号类型")]
+        public string OpenType { get; set; }
+
+        [Required(ErrorMessage = "外部账户号不能为空")]
+        [Display(Name = "账号")]
+        public string OpenAccount { get; set; }
+
+        [Required(ErrorMessage = "联系人不能为空")]
+        [Display(Name = "联系人")]
+        public string ContactPeople { get; set; }
+
+        [Required(ErrorMessage = "联系电话不能为空")]
+        [Display(Name = "联系电话")]
+        public string ContactPhone { get; set; }
+
+        [Display(Name = "联系地址")]
+        public string ContactAddress { get; set; }
+
+        [Display(Name = "备注")]
+        public string Description { get; set; }
+    }
 }

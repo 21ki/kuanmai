@@ -34,6 +34,10 @@
                             }">账户信息</a>
                         <a href="/Agent/Taocan" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Taocan" || actionName=="EditTaocan")){ @Html.Raw("active"); }
                             }">套餐管理</a>
+                        <a href="/Agent/Customers" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Customers" || actionName=="CreateCustomer" || actionName=="CustomerActivities" || actionName=="CustomerActivityOrders"
+|| actionName=="CreateCustomerActivity" || actionName== "EditCustomerActivity"
+)){ @Html.Raw("active"); }
+                            }">客户管理</a>
                         <a href="/Agent/Charge" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }
                             }">流量充值</a>
                         <a href="/Agent/ChargeOrders" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="ChargeOrders")){ @Html.Raw("active"); }
@@ -43,7 +47,7 @@
                         <a href="/Agent/PayHistories" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="PayHistories" || actionName=="ChargeAccount")){ @Html.Raw("active"); }
                             }">账户充值记录</a>
 
-                        <a href="/Agent/AgentGuide" class="list-group-item @{if (controllerName == "Admin" && (string.IsNullOrEmpty(actionName) || actionName == "AgentGuide" )
+                        <a href="/Agent/AgentGuide" class="list-group-item @{if (controllerName == "Agent" && (string.IsNullOrEmpty(actionName) || actionName == "AgentGuide" )
                                 ) { @Html.Raw("active") ; } }">使用帮助</a>
                         <a href="/Agent/ChangePassword" class="list-group-item  @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="ChangePassword")){ @Html.Raw("active"); }
                             }">修改密码</a>

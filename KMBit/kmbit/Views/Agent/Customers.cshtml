@@ -1,0 +1,21 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BCustomer>
+@{
+    ViewBag.Title = "客户管理";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+@using GridMvc.Html 
+<h2>@ViewBag.Title</h2>
+<hr />
+<input type="submit" value="新建客户" class="btn btn-default btn-primary" onclick="openModalDialog('/Agent/CreateCustomer', null)" />
+
+@Html.Grid(Model).Named("AgentCustomers").Columns(columns =>
+{
+    columns.Add().Titled("编号").Filterable(true).SetWidth("8%");   
+    columns.Add()
+   .Titled("")
+   .Encoded(false)
+   .Sanitized(false)
+   .SetWidth("10%")
+   .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/EditCustomer',{customerId:" + o.Id + "})\">修改</a>"));
+}).Sortable(true)
+

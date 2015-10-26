@@ -74,6 +74,7 @@
     <Compile Include="Charge\ChongBaCharge.cs" />
     <Compile Include="ChargeService.cs" />
     <Compile Include="Charge\ICharge.cs" />
+    <Compile Include="CustomerManagement.cs" />
     <Compile Include="HttpService.cs" />
     <Compile Include="MobileLocator\IMobileLocator.cs" />
     <Compile Include="MobileLocator\TCMobileLocator.cs" />

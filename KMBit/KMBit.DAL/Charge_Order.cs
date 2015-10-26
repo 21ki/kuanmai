@@ -32,6 +32,7 @@ namespace KMBit.DAL
         public float Platform_Sale_Price { get; set; }
         public float Revenue { get; set; }
         public int Charge_type { get; set; }
+        public int SourceId { get; set; }
         public sbyte Status { get; set; }
         public string Message { get; set; }
         public string Out_Order_Id { get; set; }

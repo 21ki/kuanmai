@@ -353,5 +353,53 @@ namespace KMBit.Controllers
             }
             return View(model);
         }
+
+        public ActionResult Customers()
+        {
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            int page = 1;
+            int pageSize = 20;
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), out total,true,page,pageSize);
+            PageItemsResult<BCustomer> result = new PageItemsResult<BCustomer>() { CurrentPage=page, EnablePaging=true, Items=customers, PageSize=pageSize, TotalRecords=total };
+            KMBit.Grids.KMGrid<KMBit.Beans.BCustomer> grid = new KMBit.Grids.KMGrid<KMBit.Beans.BCustomer>(result);
+            return View(grid);
+        }
+
+        [HttpGet]
+        public ActionResult CreateCustomer()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult EditCustomer(int customerId)
+        {
+            return View();
+        }
+
+        private bool EditCustomer()
+        {
+            return false;
+        }
+
+
+        public ActionResult CustomerActivities()
+        {
+            return View();
+        }
+
+        public ActionResult CustomerActivityOrders()
+        {
+            return View();
+        }
+        public ActionResult CreateCustomerActivity()
+        {
+            return View();
+        }
+
+        public ActionResult EditCustomerActivity()
+        {
+            return View();
+        }
     }
 }

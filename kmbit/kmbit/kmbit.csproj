@@ -773,6 +773,7 @@
     <Content Include="Views\PayBack\Error.cshtml" />
     <Content Include="Views\Agent\PayHistories.cshtml" />
     <Content Include="Views\Agent\ChargeAccount.cshtml" />
+    <Content Include="Views\Agent\Customers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
