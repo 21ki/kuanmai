@@ -75,6 +75,9 @@
     <Compile Include="Customer.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Customer_Recharge.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Help_Info.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
@@ -96,10 +99,10 @@
     <Compile Include="Login_Log.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Marketing.cs">
+    <Compile Include="Marketing_Activities.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Marketing_Activities.cs">
+    <Compile Include="Marketing_Orders.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Payment_history.cs">

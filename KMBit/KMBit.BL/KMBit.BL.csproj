@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivityManagement.cs" />
     <Compile Include="Admin\AdministratorManagement.cs" />
     <Compile Include="Admin\AgentAdminMenagement.cs" />
     <Compile Include="Admin\SiteManagement.cs" />

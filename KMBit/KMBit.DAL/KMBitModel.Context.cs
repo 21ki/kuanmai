@@ -46,9 +46,10 @@ namespace KMBit.DAL
         public DbSet<Sp> Sp { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
-        public DbSet<Marketing> Marketing { get; set; }
-        public DbSet<Marketing_Activities> Marketing_Activities { get; set; }
-        public DbSet<Customer> Customer { get; set; }
         public DbSet<Resource> Resource { get; set; }
+        public DbSet<Customer_Recharge> Customer_Recharge { get; set; }
+        public DbSet<Customer> Customer { get; set; }
+        public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
+        public DbSet<Marketing_Activities> Marketing_Activities { get; set; }
     }
 }

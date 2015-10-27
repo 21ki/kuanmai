@@ -104,16 +104,27 @@
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="AgentId" Type="int" Nullable="false" />
-          <Property Name="OpenId" Type="varchar" MaxLength="45" Nullable="false" />
-          <Property Name="OpenType" Type="int" Nullable="false" />
+          <Property Name="OpenId" Type="varchar" MaxLength="45" />
+          <Property Name="OpenType" Type="int" />
           <Property Name="CreatedTime" Type="uint" Nullable="false" />
           <Property Name="Name" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="ContactEmail" Type="varchar" MaxLength="45" />
           <Property Name="ContactPeople" Type="varchar" MaxLength="45" />
           <Property Name="ContactPhone" Type="varchar" MaxLength="45" />
           <Property Name="ContactAddress" Type="varchar" MaxLength="100" />
           <Property Name="Description" Type="varchar" MaxLength="200" />
           <Property Name="RemainingAmount" Type="float" Nullable="false" />
           <Property Name="CreditAmount" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer_Recharge">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CustomerId" Type="int" Nullable="false" />
+          <Property Name="AgentId" Type="int" Nullable="false" />
+          <Property Name="Amount" Type="float" Nullable="false" />
+          <Property Name="CreatedTime" Type="uint" Nullable="false" />
         </EntityType>
         <EntityType Name="Help_Info">
           <Key>
@@ -139,7 +150,26 @@
           <Property Name="Message" Type="varchar" MaxLength="100" />
           <Property Name="Succeed" Type="bool" Nullable="false" />
         </EntityType>
-        <EntityType Name="Marketing">
+        <EntityType Name="Marketing_Activities">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CreatedTime" Type="uint" Nullable="false" />
+          <Property Name="StartedTime" Type="uint" Nullable="false" />
+          <Property Name="ExpiredTime" Type="uint" Nullable="false" />
+          <Property Name="AgentId" Type="int" Nullable="false" />
+          <Property Name="CustomerId" Type="int" Nullable="false" />
+          <Property Name="RuoteId" Type="int" Nullable="false" />
+          <Property Name="ResourceId" Type="int" Nullable="false" />
+          <Property Name="ResourceTaocanId" Type="int" Nullable="false" />
+          <Property Name="Name" Type="varchar" MaxLength="45" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="1000" />
+          <Property Name="Enabled" Type="bool" Nullable="false" />
+          <Property Name="UnitPrice" Type="float" Nullable="false" />
+          <Property Name="Quantity" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Marketing_Orders">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
@@ -156,23 +186,6 @@
           <Property Name="Used" Type="bool" Nullable="false" />
           <Property Name="PhoneNumber" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="MacAddress" Type="varchar" MaxLength="50" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Marketing_Activities">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="CreatedTime" Type="uint" Nullable="false" />
-          <Property Name="StartedTime" Type="uint" Nullable="false" />
-          <Property Name="ExpiredTime" Type="uint" Nullable="false" />
-          <Property Name="UserId" Type="int" Nullable="false" />
-          <Property Name="CustomerId" Type="int" Nullable="false" />
-          <Property Name="RuoteId" Type="int" Nullable="false" />
-          <Property Name="ResourceId" Type="int" Nullable="false" />
-          <Property Name="ResourceTaocanId" Type="int" Nullable="false" />
-          <Property Name="Name" Type="varchar" MaxLength="45" Nullable="false" />
-          <Property Name="Description" Type="varchar" MaxLength="1000" />
-          <Property Name="Enabled" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Payment_history">
           <Key>
@@ -347,10 +360,11 @@
           <EntitySet Name="Area" EntityType="Self.Area" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Charge_Order" EntityType="Self.Charge_Order" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Customer" EntityType="Self.Customer" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="Customer_Recharge" EntityType="Self.Customer_Recharge" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Help_Info" EntityType="Self.Help_Info" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Login_Log" EntityType="Self.Login_Log" Schema="chargebit" store:Type="Tables" />
-          <EntitySet Name="Marketing" EntityType="Self.Marketing" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Marketing_Activities" EntityType="Self.Marketing_Activities" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="Marketing_Orders" EntityType="Self.Marketing_Orders" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Payment_history" EntityType="Self.Payment_history" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="PayType" EntityType="Self.PayType" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Resource" EntityType="Self.Resource" Schema="chargebit" store:Type="Tables" />
@@ -391,10 +405,11 @@
           <EntitySet Name="Sp" EntityType="KMBitDBContextModel.Sp" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
-          <EntitySet Name="Marketing" EntityType="KMBitDBContextModel.Marketing" />
-          <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
-          <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
+          <EntitySet Name="Customer_Recharge" EntityType="KMBitDBContextModel.Customer_Recharge" />
+          <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
+          <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
+          <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -657,7 +672,55 @@
           <Property Name="Payed" Type="Boolean" Nullable="false" />
           <Property Name="Refound" Type="Boolean" Nullable="false" />
         </EntityType>
-        <EntityType Name="Marketing">
+        <EntityType Name="Resource">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="Province_Id" Type="Int32" Nullable="false" />
+          <Property Name="City_Id" Type="Int32" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Contact" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="Created_time" Type="Int64" Nullable="false" />
+          <Property Name="Updated_time" Type="Int64" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
+          <Property Name="SP_Id" Type="Int32" Nullable="false" />
+          <Property Name="CreditAmount" Type="Single" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer_Recharge">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="CustomerId" Type="Int32" Nullable="false" />
+          <Property Name="AgentId" Type="Int32" Nullable="false" />
+          <Property Name="Amount" Type="Single" Nullable="false" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AgentId" Type="Int32" Nullable="false" />
+          <Property Name="OpenId" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="OpenType" Type="Int32" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactEmail" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactPeople" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactPhone" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactAddress" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="RemainingAmount" Type="Single" Nullable="false" />
+          <Property Name="CreditAmount" Type="Single" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Marketing_Orders">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
@@ -683,7 +746,7 @@
           <Property Name="CreatedTime" Type="Int64" Nullable="false" />
           <Property Name="StartedTime" Type="Int64" Nullable="false" />
           <Property Name="ExpiredTime" Type="Int64" Nullable="false" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="AgentId" Type="Int32" Nullable="false" />
           <Property Name="CustomerId" Type="Int32" Nullable="false" />
           <Property Name="RuoteId" Type="Int32" Nullable="false" />
           <Property Name="ResourceId" Type="Int32" Nullable="false" />
@@ -691,43 +754,8 @@
           <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Customer">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AgentId" Type="Int32" Nullable="false" />
-          <Property Name="OpenId" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="OpenType" Type="Int32" Nullable="false" />
-          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactPeople" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactPhone" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactAddress" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="RemainingAmount" Type="Single" Nullable="false" />
-          <Property Name="CreditAmount" Type="Single" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Resource">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
-          <Property Name="Province_Id" Type="Int32" Nullable="false" />
-          <Property Name="City_Id" Type="Int32" />
-          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Contact" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="Created_time" Type="Int64" Nullable="false" />
-          <Property Name="Updated_time" Type="Int64" Nullable="false" />
-          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
-          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
-          <Property Name="SP_Id" Type="Int32" Nullable="false" />
-          <Property Name="CreditAmount" Type="Single" Nullable="false" />
+          <Property Name="UnitPrice" Type="Single" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1013,9 +1041,60 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Marketing">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing">
-              <MappingFragment StoreEntitySet="Marketing">
+          <EntitySetMapping Name="Resource">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource">
+              <MappingFragment StoreEntitySet="Resource">
+                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
+                <ScalarProperty Name="SP_Id" ColumnName="SP_Id" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
+                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Contact" ColumnName="Contact" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="City_Id" ColumnName="City_Id" />
+                <ScalarProperty Name="Province_Id" ColumnName="Province_Id" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customer_Recharge">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Customer_Recharge">
+              <MappingFragment StoreEntitySet="Customer_Recharge">
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customer">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
+                <ScalarProperty Name="RemainingAmount" ColumnName="RemainingAmount" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ContactAddress" ColumnName="ContactAddress" />
+                <ScalarProperty Name="ContactPhone" ColumnName="ContactPhone" />
+                <ScalarProperty Name="ContactPeople" ColumnName="ContactPeople" />
+                <ScalarProperty Name="ContactEmail" ColumnName="ContactEmail" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="OpenType" ColumnName="OpenType" />
+                <ScalarProperty Name="OpenId" ColumnName="OpenId" />
+                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Marketing_Orders">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Orders">
+              <MappingFragment StoreEntitySet="Marketing_Orders">
                 <ScalarProperty Name="MacAddress" ColumnName="MacAddress" />
                 <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
                 <ScalarProperty Name="Used" ColumnName="Used" />
@@ -1035,6 +1114,8 @@
           <EntitySetMapping Name="Marketing_Activities">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activities">
               <MappingFragment StoreEntitySet="Marketing_Activities">
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="UnitPrice" ColumnName="UnitPrice" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
@@ -1042,49 +1123,10 @@
                 <ScalarProperty Name="ResourceId" ColumnName="ResourceId" />
                 <ScalarProperty Name="RuoteId" ColumnName="RuoteId" />
                 <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
                 <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
                 <ScalarProperty Name="StartedTime" ColumnName="StartedTime" />
                 <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Customer">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Customer">
-              <MappingFragment StoreEntitySet="Customer">
-                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
-                <ScalarProperty Name="RemainingAmount" ColumnName="RemainingAmount" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ContactAddress" ColumnName="ContactAddress" />
-                <ScalarProperty Name="ContactPhone" ColumnName="ContactPhone" />
-                <ScalarProperty Name="ContactPeople" ColumnName="ContactPeople" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
-                <ScalarProperty Name="OpenType" ColumnName="OpenType" />
-                <ScalarProperty Name="OpenId" ColumnName="OpenId" />
-                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Resource">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource">
-              <MappingFragment StoreEntitySet="Resource">
-                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
-                <ScalarProperty Name="SP_Id" ColumnName="SP_Id" />
-                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
-                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Contact" ColumnName="Contact" />
-                <ScalarProperty Name="Email" ColumnName="Email" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="City_Id" ColumnName="City_Id" />
-                <ScalarProperty Name="Province_Id" ColumnName="Province_Id" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

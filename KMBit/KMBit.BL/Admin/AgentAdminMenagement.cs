@@ -212,7 +212,7 @@ namespace KMBit.BL.Admin
             return ret;
         }
 
-        public List<BAgentRoute> FindRoutes(int routeId,int agencyId, int resourceId, int resourceTaocanId, out int total, int page = 1, int pageSize = 30, bool paging = false)
+        public List<BAgentRoute> FindRoutes(int routeId,int agencyId, int resourceId, int resourceTaocanId, out int total,bool? enable=null, int page = 1, int pageSize = 30, bool paging = false)
         {
             total = 0;
             List<BAgentRoute> routes = new List<BAgentRoute>();
@@ -262,7 +262,10 @@ namespace KMBit.BL.Admin
                 {
                     query = query.Where(o => o.Route.Resource_taocan_id == resourceTaocanId);
                 }
-
+                if(enable!=null)
+                {
+                    query = query.Where(o => (o.Route.Enabled == (bool)enable && o.Taocan.Taocan.Enabled == (bool)enable));
+                }
                 total = query.Count();
                 if(paging)
                 {

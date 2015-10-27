@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BActivity.cs" />
     <Compile Include="BAgentRoute.cs" />
     <Compile Include="BCustomer.cs" />
     <Compile Include="BMobileLocation.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="BUser.cs" />
     <Compile Include="ChargeOrder.cs" />
     <Compile Include="ChartReport.cs" />
+    <Compile Include="CustomerReChargeHistory.cs" />
     <Compile Include="DictionaryTemplate.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />

@@ -37,5 +37,12 @@ namespace KMBit.BL
             list.Add(new DictionaryTemplate() { Id = 2, Value = "网银" });
             return list;
         }
+
+        public static List<DictionaryTemplate> GetOpenTypeList()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "微信" });
+            return list;
+        }
     }
 }

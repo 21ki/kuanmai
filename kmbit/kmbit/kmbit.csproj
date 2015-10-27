@@ -774,6 +774,11 @@
     <Content Include="Views\Agent\PayHistories.cshtml" />
     <Content Include="Views\Agent\ChargeAccount.cshtml" />
     <Content Include="Views\Agent\Customers.cshtml" />
+    <Content Include="Views\Agent\CreateCustomer.cshtml" />
+    <Content Include="Views\Agent\CustomerRechargeHistories.cshtml" />
+    <Content Include="Views\Agent\CustomerRecharge.cshtml" />
+    <Content Include="Views\Agent\CustomerAcivities.cshtml" />
+    <Content Include="Views\Agent\CreateCustomerActivity.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -12,20 +12,12 @@ namespace KMBit.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Marketing
+    public partial class Customer_Recharge
     {
         public int Id { get; set; }
-        public int ActivityId { get; set; }
-        public float PlatformSalePrice { get; set; }
-        public float PlatformPurchasePrice { get; set; }
-        public float AgentSalePrice { get; set; }
-        public float AgentPurchasePrice { get; set; }
+        public int CustomerId { get; set; }
+        public int AgentId { get; set; }
+        public float Amount { get; set; }
         public long CreatedTime { get; set; }
-        public long StartTime { get; set; }
-        public long ExpiredTime { get; set; }
-        public long UsedTime { get; set; }
-        public bool Used { get; set; }
-        public string PhoneNumber { get; set; }
-        public string MacAddress { get; set; }
     }
 }

@@ -646,7 +646,7 @@ namespace KMBit.Controllers
                 return View("Error");
             }
             BUser agency = users[0];
-            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0,(int)agencyId, 0, 0, out total, page, pageSize, true);
+            List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0,(int)agencyId, 0, 0, out total,null, page, pageSize, true);
             PageItemsResult<BAgentRoute> result = new PageItemsResult<BAgentRoute>() { CurrentPage=page, Items=routes, PageSize=30, TotalRecords=total,EnablePaging=true };
             KMBit.Grids.KMGrid<BAgentRoute> grid = new KMBit.Grids.KMGrid<BAgentRoute>(result);
             ViewBag.Agency = agency;

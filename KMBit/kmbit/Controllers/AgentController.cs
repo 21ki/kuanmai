@@ -358,8 +358,10 @@ namespace KMBit.Controllers
         {
             CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
             int page = 1;
+            int.TryParse(Request["page"],out page);
+            page = page > 0 ? page : 1;
             int pageSize = 20;
-            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), out total,true,page,pageSize);
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(),0, out total,true,page,pageSize);
             PageItemsResult<BCustomer> result = new PageItemsResult<BCustomer>() { CurrentPage=page, EnablePaging=true, Items=customers, PageSize=pageSize, TotalRecords=total };
             KMBit.Grids.KMGrid<KMBit.Beans.BCustomer> grid = new KMBit.Grids.KMGrid<KMBit.Beans.BCustomer>(result);
             return View(grid);
@@ -368,36 +370,193 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult CreateCustomer()
         {
-            return View();
+            CreateCustomerModel model = new CreateCustomerModel();
+            model.Id = 0;
+            List<DictionaryTemplate> types = StaticDictionary.GetOpenTypeList();          
+            ViewBag.OpenTypes = new SelectList(types,"Id","Value");
+            model.OpenType = 1;
+            return View(model);
         }
 
         [HttpGet]
         public ActionResult EditCustomer(int customerId)
         {
-            return View();
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), customerId, out total);
+            if(customers==null || customers.Count<=0)
+            {
+                ViewBag.Message = string.Format("编号为{0}的客户不存在",customerId);
+                return View("Error");
+            }
+            BCustomer customer = customers[0];
+            CreateCustomerModel model = new CreateCustomerModel()
+            {
+                 Amount= customer.RemainingAmount,
+                 ContactAddress=customer.ContactAddress,
+                 ContactEmail=customer.ContactEmail,
+                 ContactPeople=customer.ContactPeople,
+                 ContactPhone=customer.ContactPhone,
+                 CreditAmount=customer.CreditAmount,
+                 Description=customer.Description,
+                 Id=customer.Id,
+                 Name=customer.Name,
+                 OpenAccount=customer.OpenId,
+                 OpenType=customer.OpenType
+            };
+            List<DictionaryTemplate> types = StaticDictionary.GetOpenTypeList();
+            ViewBag.OpenTypes = new SelectList(types, "Id", "Value");
+            return View("CreateCustomer", model);
         }
 
-        private bool EditCustomer()
+        [HttpPost]
+        public ActionResult SaveCustomer(CreateCustomerModel model)
         {
-            return false;
+            if(ModelState.IsValid)
+            {
+                CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+                BCustomer customer = new BCustomer()
+                {
+                    AgentId = User.Identity.GetUserId<int>(),
+                    ContactAddress = model.ContactAddress,
+                    ContactEmail = model.ContactEmail,
+                    ContactPeople = model.ContactPeople,
+                    ContactPhone = model.ContactPhone,
+                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    CreditAmount = model.CreditAmount,
+                    Description = model.Description,
+                    Id = model.Id,
+                    Name = model.Name,
+                    OpenId = model.OpenAccount,
+                    OpenType = model.OpenType,
+                    RemainingAmount = model.Amount
+                };
+
+                try
+                {
+                    if (customerMgr.SaveCustomer(customer))
+                    {
+                        return RedirectToAction("Customers");
+                    }
+                }catch(KMBitException ex)
+                {
+                    ViewBag.Message = ex.Message;
+                }               
+            }
+            List<DictionaryTemplate> types = StaticDictionary.GetOpenTypeList();
+            ViewBag.OpenTypes = new SelectList(types, "Id", "Value");
+            return View("CreateCustomer",model);
         }
 
-
-        public ActionResult CustomerActivities()
+        [HttpGet]
+        public ActionResult CustomerRechargeHistories(int customerId)
         {
-            return View();
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            int page = 1;
+            int.TryParse(Request["page"],out page);
+            page = page > 0 ? page : 0;
+            int pageSize = 20;
+            List<BCustomerReChargeHistory> histories = customerMgr.FindCustomerChargeHistoies(User.Identity.GetUserId<int>(), customerId, out total, true, page, pageSize);
+            PageItemsResult<BCustomerReChargeHistory> result = new PageItemsResult<BCustomerReChargeHistory>() { CurrentPage=page,EnablePaging=true, Items=histories, PageSize=pageSize, TotalRecords=total };
+            KMBit.Grids.KMGrid<BCustomerReChargeHistory> grid = new Grids.KMGrid<BCustomerReChargeHistory>(result);
+            return View(grid);
+        }
+
+        [HttpGet]
+        public ActionResult CustomerRecharge(int customerId)
+        {
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), customerId, out total);
+            if (customers == null || customers.Count <= 0)
+            {
+                ViewBag.Message = string.Format("编号为{0}的客户不存在", customerId);
+                return View("Error");
+            }
+            CustomerRechargeModel model = new CustomerRechargeModel() {CurrentAmount=customers[0].RemainingAmount,ChargeAmount=0, CustomerId=customers[0].Id, CustomerName= customers[0].Name };
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult CustomerRecharge(CustomerRechargeModel model)
+        {
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            customerMgr.CustomerRecharge(model.CustomerId, User.Identity.GetUserId<int>(),model.ChargeAmount);
+            return Redirect("/Agent/CustomerRechargeHistories?customerId="+model.CustomerId);
+            //return View(model);
+        }
+        public ActionResult CustomerAcivities(int customerId)
+        {
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), customerId, out total);
+            if(customers.Count==0)
+            {
+                ViewBag.Message = string.Format("编号为:{0}的客户不是你的客户");
+                return View("Error");
+            }
+            BCustomer customer = customers[0];
+            ActivityManagement activityMgr = new ActivityManagement(customerMgr.CurrentLoginUser);
+            int page = 1;
+            int pageSize = 20;
+            int.TryParse(Request["page"], out page);
+            page = page > 0 ? page : 1;
+            List<BActivity> activities = activityMgr.FindActivities(User.Identity.GetUserId<int>(), customerId, out total, true, page, pageSize);
+            PageItemsResult<BActivity> result = new PageItemsResult<BActivity>() { CurrentPage = page, EnablePaging = true, Items = activities, PageSize = pageSize, TotalRecords = total };
+            KMBit.Grids.KMGrid<BActivity> grid = new Grids.KMGrid<BActivity>(result);
+            ViewBag.Customer = customer;
+            return View("CustomerAcivities",grid);
         }
 
         public ActionResult CustomerActivityOrders()
         {
             return View();
         }
-        public ActionResult CreateCustomerActivity()
+
+        [HttpGet]
+        public ActionResult CreateCustomerActivity(int customerId)
         {
-            return View();
+            CustomerManagement customerMgr = new CustomerManagement(User.Identity.GetUserId<int>());
+            List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), customerId, out total);
+            if (customers.Count == 0)
+            {
+                ViewBag.Message = string.Format("编号为:{0}的客户不是你的客户");
+                return View("Error");
+            }
+            AgentManagement agentMgr = new AgentManagement(customerMgr.CurrentLoginUser);
+            List<BAgentRoute> routes = agentMgr.FindTaocans(0,true);
+            ViewBag.Customer = customers[0];
+            ViewBag.Routes = new SelectList((from r in routes select new {Id=r.Route.Id,Name=r.Taocan.Taocan2.Name+" - "+(r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00")+"元" }),"Id","Name");
+            CustomerActivityModel model = new CustomerActivityModel() {CustomerId=customerId };
+            return View(model);
         }
 
-        public ActionResult EditCustomerActivity()
+        [HttpPost]
+        public ActionResult CreateCustomerActivity(CustomerActivityModel model)
+        {            
+            if(ModelState.IsValid)
+            {
+                ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+                Marketing_Activities activity = new Marketing_Activities()
+                {
+                    AgentId = User.Identity.GetUserId<int>(),
+                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    CustomerId = model.CustomerId,
+                    Description = model.Description,
+                    Enabled = true,
+                    RuoteId = model.RouteId,
+                    Name = model.Name,
+                    Quantity = model.Quantity,
+                    UnitPrice = model.Price,
+                };
+
+                activity = activityMgr.CreateNewActivity(activity,true);
+                if(activity.Id>0)
+                {
+                    return Redirect("Agent/CustomerAcivities?customerId="+model.CustomerId);
+                }
+            }
+            return View(model);
+        }
+
+        public ActionResult EditCustomerActivity(int activityId)
         {
             return View();
         }

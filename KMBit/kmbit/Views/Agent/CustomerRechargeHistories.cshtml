@@ -1,0 +1,17 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BCustomerReChargeHistory>
+@{
+    ViewBag.Title = "客户充值记录";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+@using GridMvc.Html 
+@using KMBit.Util
+<h2>@ViewBag.Title</h2>
+<hr>
+@Html.Grid(Model).Named("AgentCustomers").Columns(columns =>
+{
+    //columns.Add(o=>o.Id).Titled("编号").Filterable(true).SetWidth("8%");
+    columns.Add(o=>o.Customer.Name).Titled("客户名称").Filterable(true).SetWidth("10%").RenderValueAs(o=>o.Customer.Name);
+    columns.Add(o => o.History.Amount).Titled("充值金额").Filterable(true).SetWidth("5%");
+    columns.Add(o=>o.History.CreatedTime).Titled("充值时间").Filterable(true).SetWidth("20%").RenderValueAs(o => o.History.CreatedTime>0?DateTimeUtil.ConvertToDateTime(o.History.CreatedTime).ToString("yyyy-M-dd hh:mm"):"");
+}).Sortable(true)
+

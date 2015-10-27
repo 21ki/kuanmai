@@ -1,0 +1,33 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BActivity>
+@{
+    KMBit.Beans.BCustomer customer = null;
+    customer = (KMBit.Beans.BCustomer)ViewBag.Customer;
+    ViewBag.Title = "营销活动";
+    if(customer!=null)
+    {
+        ViewBag.Title += "(客户:" + customer.Name + ")";
+    }
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+@using GridMvc.Html
+@using KMBit.Util
+<h2>@ViewBag.Title</h2>
+<hr/>
+<a class="btn btn-primary" role="button" href="/Agent/CreateCustomerActivity?customerId=@Html.Raw(customer.Id)">
+    新建活动
+</a>
+@Html.Grid(Model).Named("CustomerActivities").Columns(columns =>
+{
+    columns.Add(o => o.Activity.Name).Titled("名称").Filterable(true).SetWidth("10%");
+    columns.Add(o => o.Customer.Name).Titled("客户").Filterable(true).SetWidth("10%");
+    columns.Add(o => o.Ruote.Taocan.Taocan.Quantity).Titled("流量").Filterable(true).SetWidth("3%");
+    columns.Add(o => o.Activity.UnitPrice).Titled("价格").Filterable(true).SetWidth("3%");
+    columns.Add(o => o.Activity.Quantity).Titled("数量").Filterable(true).SetWidth("4%");
+    columns.Add(o => o.UsedCount).Titled("已用").Filterable(true).SetWidth("3%");
+    columns.Add(o => o.Activity.StartedTime).Titled("开始时间").Filterable(true).SetWidth("5%").RenderValueAs(o => o.Activity.StartedTime > 0 ? DateTimeUtil.ConvertToDateTime(o.Activity.StartedTime).ToString("yyyy-M-dd") : "");
+    columns.Add(o => o.Activity.ExpiredTime).Titled("结束时间").Filterable(true).SetWidth("5%").RenderValueAs(o=>o.Activity.CreatedTime>0?DateTimeUtil.ConvertToDateTime(o.Activity.CreatedTime).ToString("yyyy-M-dd"):"");
+
+}).Sortable(true)
+
+
+

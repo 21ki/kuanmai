@@ -248,16 +248,16 @@ namespace KMBit.Models
 
     public class CreateCustomerModel
     {
+        public int Id { get; set; }
+
         [Required(ErrorMessage ="客户名称不能为空")]
         [Display(Name = "客户名称")]
         public string Name { get; set; }
-
-        [Required(ErrorMessage = "外部账户类型不能空")]
-        [Display(Name = "账号类型")]
-        public string OpenType { get; set; }
-
-        [Required(ErrorMessage = "外部账户号不能为空")]
-        [Display(Name = "账号")]
+       
+        [Display(Name = "公众号类型")]
+        public int? OpenType { get; set; }
+        
+        [Display(Name = "公众号")]
         public string OpenAccount { get; set; }
 
         [Required(ErrorMessage = "联系人不能为空")]
@@ -265,13 +265,74 @@ namespace KMBit.Models
         public string ContactPeople { get; set; }
 
         [Required(ErrorMessage = "联系电话不能为空")]
-        [Display(Name = "联系电话")]
+        [Display(Name = "手机号码")]
+        [StringLength(13, ErrorMessage = "最多只能13个字")]
         public string ContactPhone { get; set; }
 
         [Display(Name = "联系地址")]
+        [StringLength(45, ErrorMessage = "最多只能45个字")]
         public string ContactAddress { get; set; }
 
+        [Display(Name = "电子邮件")]
+        [DataType(DataType.EmailAddress,ErrorMessage ="邮箱地址无效")]
+        [StringLength(45, ErrorMessage = "最多只能45个字")]
+        public string ContactEmail { get; set; }
+
+        [Display(Name = "备注")]
+        [StringLength(200,ErrorMessage ="描述最多只能200个字")]
+        public string Description { get; set; }
+
+        [Display(Name = "额度")]
+        public float CreditAmount { get; set; }
+
+        [Display(Name = "余额")]
+        public float Amount { get; set; }
+    }
+
+    public class CustomerRechargeModel
+    {
+        public string CustomerName { get; set; }
+        public int CustomerId { get; set; }
+        [Required]
+        [Display(Name = "当前余额")]
+        public float CurrentAmount { get; set; }
+
+        [Required]
+        [Display(Name = "充值金额")]
+        [Range(1,float.MaxValue,ErrorMessage ="充值金额必须是大于1的数字")]
+        public float ChargeAmount { get; set; }
+    }
+
+    public class CustomerActivityModel
+    {
+        public int CustomerId { get; set; }
+
+        [Required(ErrorMessage = "活动名称不能为空")]
+        [Display(Name = "活动名称")]
+        public string Name { get; set; }
+
+        [StringLength(300,ErrorMessage ="描述最大只能300个字")]
         [Display(Name = "备注")]
         public string Description { get; set; }
+
+        [Display(Name = "价格")]
+        [Required(ErrorMessage = "价格不能为空")]
+        [Range(0.1,float.MaxValue,ErrorMessage ="价格必须是大于0的数字")]
+        public float Price { get; set; }
+
+        [Display(Name = "数量")]
+        [Required(ErrorMessage = "数量不能为空")]
+        [Range(1, int.MaxValue, ErrorMessage = "数量必须是大于1的数字")]
+        public int Quantity { get; set; }
+
+        [Display(Name = "套餐")]
+        [Required(ErrorMessage = "套餐不能为空")]
+        public int RouteId { get; set; }
+
+        [Display(Name = "开始日期")]
+        public string StartTime { get; set; }
+
+        [Display(Name = "结束日期")]
+        public string ExpiredTime { get; set; }
     }
 }

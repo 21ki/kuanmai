@@ -35,7 +35,7 @@
                         <a href="/Agent/Taocan" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Taocan" || actionName=="EditTaocan")){ @Html.Raw("active"); }
                             }">套餐管理</a>
                         <a href="/Agent/Customers" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Customers" || actionName=="CreateCustomer" || actionName=="CustomerActivities" || actionName=="CustomerActivityOrders"
-|| actionName=="CreateCustomerActivity" || actionName== "EditCustomerActivity"
+|| actionName=="CreateCustomerActivity" || actionName== "EditCustomerActivity" || actionName=="SaveCustomer" || actionName=="CustomerRechargeHistories" || actionName=="EditCustomer" || actionName== "CustomerAcivities"
 )){ @Html.Raw("active"); }
                             }">客户管理</a>
                         <a href="/Agent/Charge" class="list-group-item @{if(controllerName=="Agent" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }

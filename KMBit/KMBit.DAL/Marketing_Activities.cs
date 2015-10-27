@@ -18,7 +18,7 @@ namespace KMBit.DAL
         public long CreatedTime { get; set; }
         public long StartedTime { get; set; }
         public long ExpiredTime { get; set; }
-        public int UserId { get; set; }
+        public int AgentId { get; set; }
         public int CustomerId { get; set; }
         public int RuoteId { get; set; }
         public int ResourceId { get; set; }
@@ -26,5 +26,7 @@ namespace KMBit.DAL
         public string Name { get; set; }
         public string Description { get; set; }
         public bool Enabled { get; set; }
+        public float UnitPrice { get; set; }
+        public int Quantity { get; set; }
     }
 }
