@@ -12,17 +12,16 @@ namespace KMBit.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Marketing_Activities
+    public partial class Marketing_Activity_Taocan
     {
         public int Id { get; set; }
+        public int ActivityId { get; set; }
+        public int ResourceId { get; set; }
+        public int ResourceTaocanId { get; set; }
+        public int RouteId { get; set; }
+        public float Price { get; set; }
+        public int Quantity { get; set; }
         public long CreatedTime { get; set; }
-        public long StartedTime { get; set; }
-        public long ExpiredTime { get; set; }
-        public int AgentId { get; set; }
-        public int CustomerId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public bool Enabled { get; set; }
         public bool Generated { get; set; }
     }
 }

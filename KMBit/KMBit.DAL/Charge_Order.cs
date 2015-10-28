@@ -39,5 +39,6 @@ namespace KMBit.DAL
         public int Operate_User { get; set; }
         public bool Payed { get; set; }
         public bool Refound { get; set; }
+        public int MarketOrderId { get; set; }
     }
 }

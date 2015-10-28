@@ -311,28 +311,38 @@ namespace KMBit.Models
         [Display(Name = "活动名称")]
         public string Name { get; set; }
 
-        [StringLength(300,ErrorMessage ="描述最大只能300个字")]
-        [Display(Name = "备注")]
-        public string Description { get; set; }
-
-        [Display(Name = "价格")]
-        [Required(ErrorMessage = "价格不能为空")]
-        [Range(0.1,float.MaxValue,ErrorMessage ="价格必须是大于0的数字")]
-        public float Price { get; set; }
-
-        [Display(Name = "数量")]
-        [Required(ErrorMessage = "数量不能为空")]
-        [Range(1, int.MaxValue, ErrorMessage = "数量必须是大于1的数字")]
-        public int Quantity { get; set; }
-
-        [Display(Name = "套餐")]
-        [Required(ErrorMessage = "套餐不能为空")]
-        public int RouteId { get; set; }
-
         [Display(Name = "开始日期")]
         public string StartTime { get; set; }
 
         [Display(Name = "结束日期")]
         public string ExpiredTime { get; set; }
+
+        [StringLength(300, ErrorMessage = "描述最大只能300个字")]
+        [Display(Name = "备注")]
+        public string Description { get; set; }
+    }
+
+    public class ActivityTaocanModel
+    {
+        public int Id { get; set; }
+
+        public int CustomerId { get; set; }
+
+        [Required]
+        public int ActivityId { get; set; }
+
+        [Required(ErrorMessage ="套餐必须选择")]
+        [Display(Name = "套餐")]
+        public int RouteId { get; set; }
+
+        [Required(ErrorMessage ="数量不能为空，并且只能是数字")]
+        [Display(Name = "数量")]
+        [Range(1,int.MaxValue,ErrorMessage ="数量必须大于1")]
+        public int Quantity { get; set; }
+
+        [Required(ErrorMessage = "价格不能为空，并且只能是数字")]
+        [Display(Name = "价格")]
+        [Range(0.1, int.MaxValue, ErrorMessage = "价格必须大于0，推荐大于您的代理成本价")]
+        public float Price { get; set; }
     }
 }

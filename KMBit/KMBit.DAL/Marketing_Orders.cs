@@ -16,6 +16,7 @@ namespace KMBit.DAL
     {
         public int Id { get; set; }
         public int ActivityId { get; set; }
+        public int ActivityTaocanId { get; set; }
         public float PlatformSalePrice { get; set; }
         public float PlatformPurchasePrice { get; set; }
         public float AgentSalePrice { get; set; }
@@ -24,8 +25,9 @@ namespace KMBit.DAL
         public long StartTime { get; set; }
         public long ExpiredTime { get; set; }
         public long UsedTime { get; set; }
-        public bool Used { get; set; }
         public string PhoneNumber { get; set; }
         public string MacAddress { get; set; }
+        public bool Used { get; set; }
+        public bool Sent { get; set; }
     }
 }

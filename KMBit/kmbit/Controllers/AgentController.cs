@@ -489,7 +489,7 @@ namespace KMBit.Controllers
             List<BCustomer> customers = customerMgr.FindCustomers(User.Identity.GetUserId<int>(), customerId, out total);
             if(customers.Count==0)
             {
-                ViewBag.Message = string.Format("编号为:{0}的客户不是你的客户");
+                ViewBag.Message = string.Format("编号为:{0}的客户不是你的客户", customerId);
                 return View("Error");
             }
             BCustomer customer = customers[0];
@@ -498,7 +498,7 @@ namespace KMBit.Controllers
             int pageSize = 20;
             int.TryParse(Request["page"], out page);
             page = page > 0 ? page : 1;
-            List<BActivity> activities = activityMgr.FindActivities(User.Identity.GetUserId<int>(), customerId, out total, true, page, pageSize);
+            List<BActivity> activities = activityMgr.FindActivities(0,User.Identity.GetUserId<int>(), customerId, out total, true, page, pageSize);
             PageItemsResult<BActivity> result = new PageItemsResult<BActivity>() { CurrentPage = page, EnablePaging = true, Items = activities, PageSize = pageSize, TotalRecords = total };
             KMBit.Grids.KMGrid<BActivity> grid = new Grids.KMGrid<BActivity>(result);
             ViewBag.Customer = customer;
@@ -540,14 +540,11 @@ namespace KMBit.Controllers
                     CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
                     CustomerId = model.CustomerId,
                     Description = model.Description,
-                    Enabled = true,
-                    RuoteId = model.RouteId,
-                    Name = model.Name,
-                    Quantity = model.Quantity,
-                    UnitPrice = model.Price,
+                    Enabled = true,                  
+                    Name = model.Name                   
                 };
 
-                activity = activityMgr.CreateNewActivity(activity,true);
+                activity = activityMgr.CreateNewActivity(activity);
                 if(activity.Id>0)
                 {
                     return Redirect("Agent/CustomerAcivities?customerId="+model.CustomerId);
@@ -559,6 +556,61 @@ namespace KMBit.Controllers
         public ActionResult EditCustomerActivity(int activityId)
         {
             return View();
+        }
+
+        [HttpGet]
+        public ActionResult CreateActivityTaocan(int activityId,int customerId)
+        {
+            ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+            List<BActivity> activities = activityMgr.FindActivities(activityId, User.Identity.GetUserId<int>(), 0, out total);
+            if(activities==null || activities.Count==0)
+            {
+                ViewBag.Message = string.Format("编号为{0}的活动不是你的客户的活动",activityId);
+                return View("Error");
+            }
+
+            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), activityId);
+            ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - " + (r.Taocan.Taocan.Sale_price * r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
+            ActivityTaocanModel model = new ActivityTaocanModel() { ActivityId= activityId,CustomerId= customerId };
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult ActivityTaocan(int activityId, int customerId)
+        {
+            ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                List<BActivityTaocan> taocans = activityMgr.FindActivityTaocans(activityId, customerId, User.Identity.GetUserId<int>());
+                PageItemsResult<BActivityTaocan> result = new PageItemsResult<BActivityTaocan>() { CurrentPage=1, EnablePaging=true, Items=taocans, PageSize=taocans.Count, TotalRecords=taocans.Count };
+                KMBit.Grids.KMGrid<BActivityTaocan> grid = new Grids.KMGrid<BActivityTaocan>(result);
+                return View(grid);
+            }catch(KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CreateActivityTaocan(ActivityTaocanModel model)
+        {
+            if(ModelState.IsValid)
+            {
+                try
+                {
+                    ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+                    Marketing_Activity_Taocan taocan = new Marketing_Activity_Taocan() { ActivityId=model.ActivityId, Price=model.Price, Quantity=model.Quantity, RouteId=model.RouteId};
+                    activityMgr.CreateActivityTaocan(taocan);
+                    return Redirect("/Agent/CustomerAcivities?customerId="+model.CustomerId);
+                }
+                catch (KMBitException ex)
+                {
+                    ViewBag.Message = ex.Message;
+                }
+                finally { }
+            }
+            return View(model);
         }
     }
 }

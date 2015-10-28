@@ -102,6 +102,9 @@
     <Compile Include="Marketing_Activities.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Marketing_Activity_Taocan.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Marketing_Orders.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>

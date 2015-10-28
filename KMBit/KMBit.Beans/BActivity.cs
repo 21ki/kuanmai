@@ -10,9 +10,7 @@ namespace KMBit.Beans
 {
     public class BActivity
     {
-        public Marketing_Activities Activity { get; set; }
-        public BAgentRoute Ruote { get; set; }
+        public Marketing_Activities Activity { get; set; }       
         public BCustomer Customer { get; set; }
-        public int UsedCount { get; set; }
     }
 }

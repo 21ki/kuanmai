@@ -28,5 +28,7 @@ namespace KMBit.DAL
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }
         public string Serial { get; set; }
+        public float Resource_Discount { get; set; }
+        public bool EnableDiscount { get; set; }
     }
 }
