@@ -29,5 +29,6 @@ namespace KMBit.DAL
         public string MacAddress { get; set; }
         public bool Used { get; set; }
         public bool Sent { get; set; }
+        public string CodePath { get; set; }
     }
 }

@@ -77,11 +77,11 @@ namespace KMBit.BL
                 if (order.AgencyId == 0)
                 {
                     cOrder.Payed = order.Payed;
-                    cOrder.Sale_price = taocan.Sale_price;
-                    cOrder.Purchase_price = taocan.Sale_price;
-                    cOrder.Platform_Cost_Price = taocan.Purchase_price;
-                    cOrder.Platform_Sale_Price = taocan.Sale_price;                    
-                    cOrder.Revenue = taocan.Sale_price- taocan.Purchase_price;
+                    //cOrder.Sale_price = taocan.Sale_price;
+                    //cOrder.Purchase_price = taocan.Sale_price;
+                    //cOrder.Platform_Cost_Price = taocan.Purchase_price;
+                    //cOrder.Platform_Sale_Price = taocan.Sale_price;                    
+                    //cOrder.Revenue = taocan.Sale_price- taocan.Purchase_price;
                     cOrder.Status = 10;//等待充值
                     result.Status = ChargeStatus.SUCCEED;
                     db.SaveChanges();
@@ -91,57 +91,79 @@ namespace KMBit.BL
                 Users agency = (from u in db.Users where u.Id == order.AgencyId select u).FirstOrDefault<Users>();
                 Agent_route ruote = (from au in db.Agent_route where au.Id == order.RouteId select au).FirstOrDefault<Agent_route>();
                 if (ruote != null)
-                {                   
-                    float price = taocan.Sale_price * ruote.Discount;
-                    if (agency.Pay_type == 1)
+                {   
+                    //no need to verify agent remaining amount or credit amount if the charge is marketing order 
+                    if(cOrder.MarketOrderId<=0)
                     {
-                        if (agency.Remaining_amount < price)
+                        float price = taocan.Sale_price * ruote.Discount;
+                        if (agency.Pay_type == 1)
                         {
-                            result.Message = ChargeConstant.AGENT_NOT_ENOUGH_MONEY;
-                            result.Status = ChargeStatus.FAILED;
-                            db.Charge_Order.Remove(cOrder);
-                            db.SaveChanges();
-                            return;
-                        }else
-                        {                            
-                            agency.Remaining_amount = agency.Remaining_amount - price;
-                            result.Status = ChargeStatus.SUCCEED;
-                        }
-                    }
-                    else if(agency.Pay_type==2)
-                    {
-                        if (agency.Remaining_amount < price)
-                        {
-                            if(agency.Remaining_amount+agency.Credit_amount<price)
+                            if (agency.Remaining_amount < price)
                             {
-                                result.Message = ChargeConstant.AGENT_NOT_ENOUGH_CREDIT;
+                                result.Message = ChargeConstant.AGENT_NOT_ENOUGH_MONEY;
                                 result.Status = ChargeStatus.FAILED;
                                 db.Charge_Order.Remove(cOrder);
                                 db.SaveChanges();
                                 return;
-                            }else
+                            }
+                            else
                             {
-                                agency.Remaining_amount = agency.Remaining_amount-price;
-                                agency.Credit_amount = agency.Credit_amount-(price-agency.Remaining_amount);
+                                agency.Remaining_amount = agency.Remaining_amount - price;
                                 result.Status = ChargeStatus.SUCCEED;
-                            }                           
-                        }else
-                        {
-                            agency.Remaining_amount = agency.Remaining_amount - price;
-                            result.Status = ChargeStatus.SUCCEED;
+                            }
                         }
-                    }
+                        else if (agency.Pay_type == 2)
+                        {
+                            if (agency.Remaining_amount < price)
+                            {
+                                if (agency.Remaining_amount + agency.Credit_amount < price)
+                                {
+                                    result.Message = ChargeConstant.AGENT_NOT_ENOUGH_CREDIT;
+                                    result.Status = ChargeStatus.FAILED;
+                                    db.Charge_Order.Remove(cOrder);
+                                    db.SaveChanges();
+                                    return;
+                                }
+                                else
+                                {
+                                    agency.Remaining_amount = agency.Remaining_amount - price;
+                                    agency.Credit_amount = agency.Credit_amount - (price - agency.Remaining_amount);
+                                    result.Status = ChargeStatus.SUCCEED;
+                                }
+                            }
+                            else
+                            {
+                                agency.Remaining_amount = agency.Remaining_amount - price;
+                                result.Status = ChargeStatus.SUCCEED;
+                            }
+                        }
+                    }             
+                   
                     cOrder.Status = 10;
                     cOrder.Payed = true;
-                    cOrder.Sale_price = ruote.Sale_price;
-                    cOrder.Purchase_price = price;
-                    cOrder.Platform_Cost_Price = taocan.Purchase_price;
-                    cOrder.Platform_Sale_Price = taocan.Sale_price;
-                    cOrder.Revenue = price - taocan.Purchase_price;
+                    //cOrder.Sale_price = ruote.Sale_price;
+                    //cOrder.Purchase_price = price;
+                    //cOrder.Platform_Cost_Price = taocan.Purchase_price;
+                    //cOrder.Platform_Sale_Price = taocan.Sale_price;
+                    //cOrder.Revenue = price - taocan.Purchase_price;
                 }
                 if(result.Status== ChargeStatus.FAILED)
                 {
                     db.Charge_Order.Remove(cOrder);
+                }else
+                {
+                    if(cOrder.MarketOrderId>0)
+                    {
+                        Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                        if(mOrder!=null)
+                        {
+                            mOrder.Used = true;
+                            mOrder.Sent = true;
+                            mOrder.UsedTime = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                            mOrder.PhoneNumber = cOrder.Phone_number;
+                            mOrder.MacAddress = cOrder.DeviceMacAddress;
+                        }
+                    }
                 }
                 db.SaveChanges();
             }

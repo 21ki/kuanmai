@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BActivity.cs" />
+    <Compile Include="BActivityOrders.cs" />
     <Compile Include="BActivityTaocan.cs" />
     <Compile Include="BAgentRoute.cs" />
     <Compile Include="BCustomer.cs" />

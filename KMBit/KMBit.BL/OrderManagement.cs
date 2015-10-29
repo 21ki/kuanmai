@@ -86,14 +86,60 @@ namespace KMBit.BL
 
         public ChargeOrder GenerateOrder(ChargeOrder order)
         {            
-            if (order.ResourceTaocanId<=0 && order.RouteId<=0)
+            if(order==null)
             {
-                throw new KMBitException("充值前请先选择套餐");
+                throw new KMBitException("订单对象不能为NULL");
+            }
+            if(string.IsNullOrEmpty(order.MobileNumber))
+            {
+                throw new KMBitException("充值的手机号码不能为空");
             }
             chargebitEntities db = null;
             try           
             {
                 db = new chargebitEntities();
+                Marketing_Orders mOrder = null;
+                Marketing_Activity_Taocan mTaocan = null;
+
+                if (order.IsMarket && order.MarketOrderId>0)
+                {   
+                    if (string.IsNullOrEmpty(order.MacAddress))
+                    {
+                        throw new KMBitException("活动充值时必须获取终端的MAC地址");
+                    }
+                    mOrder = (from o in db.Marketing_Orders where o.Id == order.MarketOrderId select o).FirstOrDefault<Marketing_Orders>();
+                    if (mOrder == null)
+                    {
+                        throw new KMBitException(string.Format("编号为{0}的活动充值记录不存在", order.MarketOrderId));
+                    }
+                    if(mOrder.Used || mOrder.Sent)
+                    {
+                        throw new KMBitException("已经只用过，不能重复使用");
+                    }
+                    mTaocan = (from m in db.Marketing_Activity_Taocan where m.Id == mOrder.ActivityTaocanId select m).FirstOrDefault<Marketing_Activity_Taocan>();
+                    if (mTaocan == null)
+                    {
+                        throw new KMBitException(string.Format("编号为{0}的活动充值记录的套餐信息不存在", order.MarketOrderId));
+                    }
+                    //check if the device or the number is already charged
+                    int count = (from mo in db.Marketing_Orders where (mo.MacAddress == order.MacAddress || mo.PhoneNumber == order.MobileNumber) && mo.ActivityId == mTaocan.ActivityId select mo.Id).Count();
+                    if (count > 0)
+                    {
+                        throw new KMBitException("同一个营销活动每个手机或者每个号码只能扫描一次");
+                    }
+
+                    order.ResourceId = mTaocan.ResourceId;
+                    order.ResourceTaocanId = mTaocan.ResourceTaocanId;
+                    order.RouteId = mTaocan.RouteId;
+                    if (order.AgencyId == 0)
+                    {
+                        order.AgencyId = (from a in db.Marketing_Activities
+                                          where a.Id == mTaocan.ActivityId
+                                          select a.AgentId
+                                          ).FirstOrDefault<int>();
+                    }
+                    
+                }
                 Resource_taocan taocan = null;
                 if(order.ResourceTaocanId<=0 && order.RouteId>0)
                 {
@@ -128,10 +174,10 @@ namespace KMBit.BL
                 {
                     throw new KMBitException(ChargeConstant.RESOURCE_DISABLED);
                 }
-
-                if(order.AgencyId>0 && order.RouteId>0)
+                Agent_route route = null;
+                if (order.AgencyId>0 && order.RouteId>0)
                 {
-                    Agent_route route = (from r in db.Agent_route where r.Id== order.RouteId select r).FirstOrDefault<Agent_route>();
+                    route = (from r in db.Agent_route where r.Id== order.RouteId select r).FirstOrDefault<Agent_route>();
                     if(route==null)
                     {
                         throw new KMBitException("代理商路由不存在");
@@ -141,6 +187,10 @@ namespace KMBit.BL
                     {
                         throw new KMBitException("当前代理商没有此路由");
                     }
+                }
+                if(!route.Enabled)
+                {
+                    throw new KMBitException(string.Format("编号为{0}代理商路由已被管理员停用",route.Id));
                 }
 
                 Charge_Order history = new Charge_Order();                
@@ -158,19 +208,52 @@ namespace KMBit.BL
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
                 history.Status = 11;
-                if(order.AgencyId>0)
+
+                history.Platform_Sale_Price = taocan.Sale_price;
+                if (taocan.EnableDiscount)
                 {
-                    //代理商充值
-                    history.Charge_type = 1;
-                }else if(order.OperateUserId>0)
-                {
-                    //管理员后台充值
-                    history.Charge_type = 2;
+                    history.Platform_Cost_Price = taocan.Purchase_price * taocan.Resource_Discount;
                 }else
                 {
-                    //前台用户直冲
-                    history.Charge_type = 0;
+                    history.Platform_Cost_Price = taocan.Purchase_price;
                 }
+
+                if (order.IsMarket && order.MarketOrderId>0)
+                {
+                    //营销充值
+                    history.Charge_type = 1;
+                    history.MarketOrderId = order.MarketOrderId;                   
+                    history.Sale_price = mTaocan.Price;
+                    history.Purchase_price = history.Platform_Sale_Price * route.Discount;
+                    history.Payed = true;
+                }
+                else
+                {
+                    if (order.AgencyId > 0)
+                    {
+                        //代理商充值
+                        history.Charge_type = 1;                      
+                        history.Purchase_price = taocan.Sale_price * route.Discount;
+                        history.Sale_price = route.Sale_price;
+                        history.Revenue = history.Purchase_price - history.Platform_Cost_Price;
+                    }
+                    else if (order.OperateUserId > 0)
+                    {
+                        //管理员后台充值
+                        history.Charge_type = 2;                       
+                        history.Purchase_price = taocan.Sale_price;
+                        history.Sale_price = taocan.Sale_price;
+                        history.Revenue = history.Platform_Sale_Price - history.Platform_Cost_Price;
+                    }
+                    else
+                    {
+                        //前台用户直冲
+                        history.Charge_type = 0;                      
+                        history.Purchase_price = taocan.Sale_price;
+                        history.Sale_price = taocan.Sale_price;
+                        history.Revenue = history.Platform_Sale_Price - history.Platform_Cost_Price;
+                    }
+                }                
                 
                 db.Charge_Order.Add(history);
                 db.SaveChanges();

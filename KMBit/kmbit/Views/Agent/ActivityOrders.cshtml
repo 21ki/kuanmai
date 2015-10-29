@@ -1,0 +1,21 @@
+﻿@model KMBit.Grids.KMGrid<KMBit.Beans.BActivityOrder>
+@{
+    ViewBag.Title = "活动二维码";
+    Layout = "~/Views/Shared/_Layout_Agent.cshtml";
+}
+@using GridMvc.Html
+@using KMBit.Util
+<h3>@ViewBag.Title</h3>
+<hr/>
+
+@Html.Grid(Model).Named("ActivityOrders").Columns(columns =>
+{
+    columns.Add(o => o.ActivityName).Titled("活动名称").Filterable(false).SetWidth("15%");
+    columns.Add(o => o.TaocanName).Titled("套餐名称").Filterable(false).SetWidth("15%");
+    columns.Add(o => o.Order.Sent).Titled("已发送").RenderValueAs(o=>o.Order.Sent?"是":"否");
+    columns.Add(o => o.Order.Used).Titled("已扫描").RenderValueAs(o => o.Order.Used ? "是" : "否");
+    columns.Add(o => o.Order.UsedTime).Titled("扫描时间").RenderValueAs(o => o.Order.UsedTime > 0 ? DateTimeUtil.ConvertToDateTime(o.Order.UsedTime).ToString("yyyy-M-dd hh:mm") : "");
+    columns.Add(o => o.Order.PhoneNumber).Titled("号码").SetWidth("8%");
+
+}).Sortable(true)
+

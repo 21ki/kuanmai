@@ -107,10 +107,18 @@ namespace KMBit.Models
         
         public float SalePrice { get; set; }
 
-        [Display(Name = "成本价")]
+        [Display(Name = "原价")]
         [Required]
-        [Range(1, float.MaxValue, ErrorMessage = "成本价必须为数字，可带小数")]
+        [Range(1, float.MaxValue, ErrorMessage = "代理价必须为数字，可带小数")]
         public float PurchasePrice { get; set; }
+
+        [Display(Name = "使用折扣")]
+        [Required]        
+        public bool EnabledDiscount { get; set; }
+
+        [Display(Name = "代理折扣")]
+        [Range(0.1, 1, ErrorMessage = "代理折扣必须在0-1之间的数字可带小数")]
+        public float Discount { get; set; }
 
         [Display(Name = "是否启用")]
         [Required]

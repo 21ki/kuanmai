@@ -24,7 +24,7 @@
     columns.Add(c => c.SP.Name).Titled("运营商").Filterable(true).SetWidth("15%");
     columns.Add(c => c.Taocan.Quantity).Titled("流量大小").Filterable(true).SetWidth("10%");
     columns.Add(c => c.Taocan.Sale_price).Titled("售价").Filterable(true).SetWidth("10%");
-    columns.Add(c => c.Taocan.Purchase_price).Titled("成本价").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.Taocan.Purchase_price).Titled("成本价").Filterable(true).SetWidth("10%").RenderValueAs(c => (c.Taocan.Purchase_price * c.Taocan.Resource_Discount).ToString("0.00"));
     columns.Add(c => c.Province.Name).Titled("使用城市").Filterable(true).SetWidth("15%");
     columns.Add(c => c.Taocan.Enabled).Titled("状态").Filterable(true).RenderValueAs(o => o.Taocan.Enabled ? "已启用" : "已禁用");
     columns.Add()

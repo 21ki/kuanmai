@@ -25,6 +25,11 @@ namespace KMBit.Beans
         public int ChargeType { get; set; }
         public bool Payed { get; set; }
         public int PaymentId { get; set; }
+
+        public int MarketOrderId { get; set; }
+        public bool IsMarket { get; set; }
+
+        public string MacAddress { get; set; }
     }
 
     public class ChargeOrder: ChargeBaseOrder

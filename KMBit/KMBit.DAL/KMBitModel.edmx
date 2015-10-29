@@ -98,6 +98,7 @@
           <Property Name="Payed" Type="bool" Nullable="false" />
           <Property Name="Refound" Type="bool" Nullable="false" />
           <Property Name="MarketOrderId" Type="int" Nullable="false" />
+          <Property Name="DeviceMacAddress" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -165,6 +166,7 @@
           <Property Name="Description" Type="varchar" MaxLength="1000" />
           <Property Name="Enabled" Type="bool" Nullable="false" />
           <Property Name="Generated" Type="bool" Nullable="false" />
+          <Property Name="CodePath" Type="varchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="Marketing_Activity_Taocan">
           <Key>
@@ -199,6 +201,7 @@
           <Property Name="MacAddress" Type="varchar" MaxLength="50" />
           <Property Name="Used" Type="bool" Nullable="false" />
           <Property Name="Sent" Type="bool" Nullable="false" />
+          <Property Name="CodePath" Type="varchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="Payment_history">
           <Key>
@@ -422,10 +425,10 @@
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
           <EntitySet Name="Customer_Recharge" EntityType="KMBitDBContextModel.Customer_Recharge" />
           <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
+          <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
           <EntitySet Name="Marketing_Activity_Taocan" EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" />
-          <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
@@ -688,6 +691,27 @@
           <Property Name="RemainingAmount" Type="Single" Nullable="false" />
           <Property Name="CreditAmount" Type="Single" Nullable="false" />
         </EntityType>
+        <EntityType Name="Resource_taocan">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Resource_id" Type="Int32" Nullable="false" />
+          <Property Name="Sp_id" Type="Int32" Nullable="false" />
+          <Property Name="Area_id" Type="Int32" Nullable="false" />
+          <Property Name="Taocan_id" Type="Int32" Nullable="false" />
+          <Property Name="Created_time" Type="Int64" Nullable="false" />
+          <Property Name="Updated_time" Type="Int64" Nullable="false" />
+          <Property Name="Sale_price" Type="Single" Nullable="false" />
+          <Property Name="Purchase_price" Type="Single" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
+          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
+          <Property Name="Serial" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Resource_Discount" Type="Single" Nullable="false" />
+          <Property Name="EnableDiscount" Type="Boolean" Nullable="false" />
+        </EntityType>
         <EntityType Name="Charge_Order">
           <Key>
             <PropertyRef Name="Id" />
@@ -718,6 +742,7 @@
           <Property Name="Payed" Type="Boolean" Nullable="false" />
           <Property Name="Refound" Type="Boolean" Nullable="false" />
           <Property Name="MarketOrderId" Type="Int32" Nullable="false" />
+          <Property Name="DeviceMacAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Marketing_Activities">
           <Key>
@@ -733,6 +758,7 @@
           <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <Property Name="Generated" Type="Boolean" Nullable="false" />
+          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Marketing_Activity_Taocan">
           <Key>
@@ -747,27 +773,6 @@
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="CreatedTime" Type="Int64" Nullable="false" />
           <Property Name="Generated" Type="Boolean" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Resource_taocan">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Resource_id" Type="Int32" Nullable="false" />
-          <Property Name="Sp_id" Type="Int32" Nullable="false" />
-          <Property Name="Area_id" Type="Int32" Nullable="false" />
-          <Property Name="Taocan_id" Type="Int32" Nullable="false" />
-          <Property Name="Created_time" Type="Int64" Nullable="false" />
-          <Property Name="Updated_time" Type="Int64" Nullable="false" />
-          <Property Name="Sale_price" Type="Single" Nullable="false" />
-          <Property Name="Purchase_price" Type="Single" Nullable="false" />
-          <Property Name="Quantity" Type="Int32" Nullable="false" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="CreatedBy" Type="Int32" Nullable="false" />
-          <Property Name="UpdatedBy" Type="Int32" Nullable="false" />
-          <Property Name="Serial" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Resource_Discount" Type="Single" Nullable="false" />
-          <Property Name="EnableDiscount" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="Marketing_Orders">
           <Key>
@@ -788,6 +793,7 @@
           <Property Name="MacAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Used" Type="Boolean" Nullable="false" />
           <Property Name="Sent" Type="Boolean" Nullable="false" />
+          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1073,9 +1079,32 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Resource_taocan">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
+              <MappingFragment StoreEntitySet="Resource_taocan">
+                <ScalarProperty Name="EnableDiscount" ColumnName="EnableDiscount" />
+                <ScalarProperty Name="Resource_Discount" ColumnName="Resource_Discount" />
+                <ScalarProperty Name="Serial" ColumnName="Serial" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
+                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
+                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
+                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
+                <ScalarProperty Name="Taocan_id" ColumnName="Taocan_id" />
+                <ScalarProperty Name="Area_id" ColumnName="Area_id" />
+                <ScalarProperty Name="Sp_id" ColumnName="Sp_id" />
+                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Charge_Order">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Charge_Order">
               <MappingFragment StoreEntitySet="Charge_Order">
+                <ScalarProperty Name="DeviceMacAddress" ColumnName="DeviceMacAddress" />
                 <ScalarProperty Name="MarketOrderId" ColumnName="MarketOrderId" />
                 <ScalarProperty Name="Refound" ColumnName="Refound" />
                 <ScalarProperty Name="Payed" ColumnName="Payed" />
@@ -1108,6 +1137,7 @@
           <EntitySetMapping Name="Marketing_Activities">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activities">
               <MappingFragment StoreEntitySet="Marketing_Activities">
+                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
                 <ScalarProperty Name="Generated" ColumnName="Generated" />
                 <ScalarProperty Name="Enabled" ColumnName="Enabled" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
@@ -1136,31 +1166,10 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Resource_taocan">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
-              <MappingFragment StoreEntitySet="Resource_taocan">
-                <ScalarProperty Name="EnableDiscount" ColumnName="EnableDiscount" />
-                <ScalarProperty Name="Resource_Discount" ColumnName="Resource_Discount" />
-                <ScalarProperty Name="Serial" ColumnName="Serial" />
-                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
-                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Purchase_price" ColumnName="Purchase_price" />
-                <ScalarProperty Name="Sale_price" ColumnName="Sale_price" />
-                <ScalarProperty Name="Updated_time" ColumnName="Updated_time" />
-                <ScalarProperty Name="Created_time" ColumnName="Created_time" />
-                <ScalarProperty Name="Taocan_id" ColumnName="Taocan_id" />
-                <ScalarProperty Name="Area_id" ColumnName="Area_id" />
-                <ScalarProperty Name="Sp_id" ColumnName="Sp_id" />
-                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Marketing_Orders">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Orders">
               <MappingFragment StoreEntitySet="Marketing_Orders">
+                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
                 <ScalarProperty Name="Sent" ColumnName="Sent" />
                 <ScalarProperty Name="Used" ColumnName="Used" />
                 <ScalarProperty Name="MacAddress" ColumnName="MacAddress" />

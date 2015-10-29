@@ -24,5 +24,6 @@ namespace KMBit.DAL
         public string Description { get; set; }
         public bool Enabled { get; set; }
         public bool Generated { get; set; }
+        public string CodePath { get; set; }
     }
 }

@@ -34,7 +34,19 @@
      .Encoded(false)
      .Sanitized(false)
      .SetWidth("5%")
-     .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/ActivityTaocan',{activityId:" + o.Activity.Id + ",customerId:" + o.Activity.CustomerId + "})\">套餐明细</a>"));
+     .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/ActivityTaocans',{activityId:" + o.Activity.Id + ",customerId:" + o.Activity.CustomerId + "})\">套餐明细</a>"));
+    columns.Add()
+     .Titled("")
+     .Encoded(false)
+     .Sanitized(false)
+     .SetWidth("5%")
+     .RenderValueAs(o => Html.Raw("<a target=\"_blank\" href=\"/Agent/ActivityOrders?activityId="+o.Activity.Id+ "&customerId="+o.Activity.CustomerId+"\">扫码明细</a>"));
+    columns.Add()
+    .Titled("")
+    .Encoded(false)
+    .Sanitized(false)
+    .SetWidth("5%")
+    .RenderValueAs(o => Html.Raw("<a target=\"_blank\" href=\"/Agent/GetActivityCode?activityId=" + o.Activity.Id + "&customerId=" + o.Activity.CustomerId + "\">二维码</a>"));
 
 }).Sortable(true)
 

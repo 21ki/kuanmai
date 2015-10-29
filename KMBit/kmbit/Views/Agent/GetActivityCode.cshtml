@@ -1,0 +1,9 @@
+﻿
+@{
+    ViewBag.Title = "GetActivityCode";
+    Layout =Request.IsAjaxRequest()?null: "~/Views/Shared/_Layout_Agent.cshtml";
+}
+
+<h2>GetActivityCode</h2>
+<img src="@Html.Raw(ViewBag.CodePath)"/>
+

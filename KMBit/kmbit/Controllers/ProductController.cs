@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -10,6 +11,7 @@ using KMBit.BL.Charge;
 using KMBit.Util;
 using KMBit.BL.PayAPI.AliPay;
 using KMBit.BL.Admin;
+using KMBit.Filters;
 namespace KMBit.Controllers
 {
     public class ProductController : Controller
@@ -19,6 +21,12 @@ namespace KMBit.Controllers
         public ActionResult Charge(string message)
         {
             ViewBag.Message = message!=null?message: "";
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult Case(string message)
+        {
             return View();
         }
 
@@ -80,6 +88,22 @@ namespace KMBit.Controllers
             return View();
         }
 
+        [IsPhoneFilter(Message ="只能通过手机访问")]
+        [HttpGet]
+        public ActionResult SaoMa()
+        {            
+            SortedDictionary<string, string> paras = GetRequestGet();
+            ViewBag.Paras = paras;
+            return View();
+        }
+
+        [IsPhoneFilter(Message = "只能通过手机访问")]
+        [HttpGet]
+        public ActionResult GuanzhuSaoMa()
+        {
+            return View();
+        }
+
         public ActionResult Agent()
         {
             return View();
@@ -87,6 +111,31 @@ namespace KMBit.Controllers
 
         public ActionResult Code()
         {
+            return View();
+        }
+
+        public SortedDictionary<string, string> GetRequestGet()
+        {
+            int i = 0;
+            SortedDictionary<string, string> sArray = new SortedDictionary<string, string>();
+            NameValueCollection coll;
+            //Load Form variables into NameValueCollection variable.
+            coll = Request.QueryString;
+
+            // Get names of all forms into a string array.
+            String[] requestItem = coll.AllKeys;
+
+            for (i = 0; i < requestItem.Length; i++)
+            {
+                sArray.Add(requestItem[i], Request.QueryString[requestItem[i]]);
+            }
+
+            return sArray;
+        }
+
+        public ActionResult Error(string message)
+        {
+            ViewBag.Message = message != null ? message : "";
             return View();
         }
     }

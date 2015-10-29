@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using KMBit.Beans;
 using KMBit.Util;
 using KMBit.DAL;
@@ -21,6 +22,46 @@ namespace KMBit.BL
         {
 
         }
+
+        public string GenerateActivityQRCode(int agendId, int customerId, int activityId, string rootPath,string webRootUrl)
+        {
+            string codePath = string.Empty;
+            agendId = agendId > 0 ? agendId : CurrentLoginUser.User.Id;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Marketing_Activities activity = (from a in db.Marketing_Activities where a.Id==activityId select a).FirstOrDefault<Marketing_Activities>();
+                if(activity==null)
+                {
+                    throw new KMBitException(string.Format("编号为:{0}的活动不存在",activityId));
+                }
+                if(activity.CustomerId!=customerId)
+                {
+                    throw new KMBitException(string.Format("编号为{0}的活动不属于编号为{1}的客户", activityId,customerId));
+                }
+                if(activity.AgentId!=agendId)
+                {
+                    throw new KMBitException(string.Format("编号为{0}的活动不属于编号为{1}的代理的客户的活动", activityId, agendId));
+                }
+              
+                codePath = agendId + "\\"+customerId;
+                string fileName = +activityId + ".png";
+                string absPath = agendId + "/" + customerId + "/" + fileName;
+                string fullDirectory = Path.Combine(rootPath + "QRCode", codePath);
+                if (!string.IsNullOrEmpty(activity.CodePath) && File.Exists(Path.Combine(fullDirectory,fileName)))
+                {
+                    return absPath;
+                }
+                string codeContent = string.Format("{0}/Product/SaoMa?agentId={1}&customerId={2}&activityId={3}",webRootUrl,agendId,customerId,activityId);
+                CodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
+                if(File.Exists(Path.Combine(fullDirectory, fileName)))
+                {
+                    activity.CodePath = absPath;
+                }
+
+                db.SaveChanges();
+                return absPath;
+            }            
+        }        
 
         public Marketing_Activities CreateNewActivity(Marketing_Activities activity)
         {            
@@ -180,6 +221,13 @@ namespace KMBit.BL
                 taocan.ResourceId = route.Taocan.Resource.Resource.Id;
                 taocan.ResourceTaocanId = route.Taocan.Taocan.Id;
                 taocan.Generated = true;
+
+                Users agency = (from a in db.Users where activity.AgentId == a.Id select a).FirstOrDefault<Users>();
+                if (agency.Remaining_amount < taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount))
+                {
+                    throw new KMBitException("代理商账户没有足够的余额");
+                }
+
                 db.Marketing_Activity_Taocan.Add(taocan);
                 db.SaveChanges();
                 if(taocan.Id>0)
@@ -213,6 +261,8 @@ namespace KMBit.BL
                         db.Marketing_Orders.Add(order);
                     }
 
+                    db.SaveChanges();
+                    agency.Remaining_amount -= taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount);
                     db.SaveChanges();
                     result = true;
                 }
@@ -284,18 +334,62 @@ namespace KMBit.BL
             {
                 using (chargebitEntities db = new chargebitEntities())
                 {
-                    List<Marketing_Activity_Taocan> taocans = (from t in db.Marketing_Activity_Taocan where t.ActivityId==activityId select t).ToList<Marketing_Activity_Taocan>();
-                    foreach(BAgentRoute route in routes)
-                    {
-                        Marketing_Activity_Taocan t = (from tc in taocans where tc.RouteId == route.Route.Id select tc).FirstOrDefault<Marketing_Activity_Taocan>();
-                        if(t==null)
-                        {
-                            tmp.Add(route);
-                        }
-                    }
+
+                    List<Resource_taocan> rtaocans = (from t in db.Resource_taocan
+                                                     join mt in db.Marketing_Activity_Taocan on t.Id equals mt.ResourceTaocanId
+                                                     where mt.ActivityId==activityId select t).ToList<Resource_taocan>();
+
+                    int[] rts = (from rt in rtaocans select rt.Id).ToArray<int>();
+                    int[] spIds = (from rt in rtaocans select rt.Sp_id).ToArray<int>();
+                    tmp = (from t in routes where !rts.Contains(t.Taocan.Taocan.Id) && !spIds.Contains(t.Taocan.Taocan.Sp_id) select t).ToList<BAgentRoute>();
                 }
             }           
             return tmp;
+        }
+
+        public List<BActivityOrder> FindMarketingOrders(int agentId,int customerId,int activityId, int activityTaocanId,out int total,bool paging=false, int page=1, int pagesize=30)
+        {
+            total = 0;
+            List<BActivityOrder> orders = new List<BActivityOrder>();
+            agentId = agentId > 0 ? agentId : CurrentLoginUser.User.Id;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                var query = from o in db.Marketing_Orders
+                            join t in db.Marketing_Activity_Taocan on o.ActivityTaocanId equals t.Id into lt
+                            from llt in lt.DefaultIfEmpty()
+                            join a in db.Marketing_Activities on o.ActivityId equals a.Id into lo
+                            from llo in lo.DefaultIfEmpty()
+                            join tc in db.Resource_taocan on llt.ResourceTaocanId equals tc.Id
+                            join tcc in db.Taocan on tc.Taocan_id equals tcc.Id into ltcc
+                            from lltcc in ltcc.DefaultIfEmpty()                             
+                            select new BActivityOrder
+                            {
+                                 Order=o,
+                                 ActivityName=llo!=null?llo.Name:"",
+                                 TaocanName=lltcc!=null?lltcc.Name:""
+                            };
+                
+                if(activityId>0)
+                {
+                    query = query.Where(o=>o.Order.ActivityId == activityId);
+                }
+                if (activityTaocanId > 0)
+                {
+                    query = query.Where(o => o.Order.ActivityTaocanId == activityTaocanId);
+                }
+
+                query = query.OrderBy(o => o.Order.ActivityTaocanId);
+                total = query.Count();
+                if(paging)
+                {
+                    page = page > 0 ? page : 1;
+                    pagesize = pagesize > 0 ? pagesize : 30;
+                    query = query.Skip((page-1)*pagesize).Take(pagesize);
+                }
+
+                orders = query.ToList<BActivityOrder>();
+            }
+            return orders;
         }
     }
 }

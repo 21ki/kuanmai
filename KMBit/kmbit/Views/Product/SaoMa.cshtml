@@ -1,0 +1,59 @@
+﻿@using System.Collections.Generic
+@using System.Collections.Specialized
+@{
+    ViewBag.Title = "扫码充流量";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SortedDictionary<string, string> paras = null;
+    if(ViewBag.Paras!=null)
+    {
+        paras = (SortedDictionary<string, string>)ViewBag.Paras;
+    }
+}
+<script>
+    $(function () {   
+        $('#submit_charge').click(function () {
+            var phone = $('#mobile_number').val();
+            if ($.trim(phone) == '') {
+                return;
+            }
+
+            GetMobileLocation(phone, function (data) {
+                if (data == null) {
+                    alert("请输入正确的手机号码");
+                    return;
+                } else {
+                    $('#ChargeForm').find('#SPName').val(data.sp);
+                    $('#ChargeForm').find('#Province').val(data.province);
+                    $('#ChargeForm').submit();
+                }
+            });
+
+        });
+    });
+</script>
+<hr/>
+@using (Html.BeginForm("SaoMa", "Product", FormMethod.Get, new { @class = "form-horizontal", role = "form", @id = "ChargeForm" }))
+{
+   if (paras != null)
+   {
+        foreach (KeyValuePair<string, string> parameter in paras)
+        {
+            @Html.Hidden(parameter.Key, parameter.Value)
+        }
+   }
+
+   <input type="hidden" id="SPName" name="SPName" value="" />
+   <input type="hidden" id="Province" name="Province" value="" />
+   <div class="form-group">
+    <label class="control-label col-md-2" for="Name">手机号码</label>
+    <div class="col-md-10">
+        <input class="form-control text-box single-line" id="mobile_number" name="mobile_number" type="text" value=""><span class="field-validation-valid text-danger" data-valmsg-for="mobile_number" data-valmsg-replace="true"></span>
+    </div>
+   </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input id="submit_charge" type="button" value="充值" class="btn btn-default" />
+        </div>
+    </div>
+}
+

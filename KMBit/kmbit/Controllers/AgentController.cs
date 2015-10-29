@@ -576,7 +576,7 @@ namespace KMBit.Controllers
         }
 
         [HttpGet]
-        public ActionResult ActivityTaocan(int activityId, int customerId)
+        public ActionResult ActivityTaocans(int activityId, int customerId)
         {
             ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
             try
@@ -586,6 +586,24 @@ namespace KMBit.Controllers
                 KMBit.Grids.KMGrid<BActivityTaocan> grid = new Grids.KMGrid<BActivityTaocan>(result);
                 return View(grid);
             }catch(KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ActivityOrders(int activityId, int customerId)
+        {
+            ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                List<BActivityOrder> mOrders = activityMgr.FindMarketingOrders(User.Identity.GetUserId<int>(), customerId,activityId,0 ,out total);
+                PageItemsResult<BActivityOrder> result = new PageItemsResult<BActivityOrder>() { CurrentPage = 1, EnablePaging = true, Items = mOrders, PageSize = mOrders.Count, TotalRecords = mOrders.Count };
+                KMBit.Grids.KMGrid<BActivityOrder> grid = new Grids.KMGrid<BActivityOrder>(result);
+                return View(grid);
+            }
+            catch (KMBitException ex)
             {
                 ViewBag.Message = ex.Message;
                 return View("Error");
@@ -611,6 +629,26 @@ namespace KMBit.Controllers
                 finally { }
             }
             return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult GetActivityCode(int activityId, int customerId)
+        {
+            ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                string webroot ="http://"+ Request.Url.Authority;
+                string codePath = activityMgr.GenerateActivityQRCode(User.Identity.GetUserId<int>(), customerId, activityId, Request.PhysicalApplicationPath, webroot);
+                //string fullCodeUrl = webroot + "/QRCode/" + codePath;
+                ViewBag.CodePath = "/QRCode/" + codePath;
+                return Redirect(webroot+ "/QRCode/" + codePath);
+                //return View();
+            }
+            catch (KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }
         }
     }
 }

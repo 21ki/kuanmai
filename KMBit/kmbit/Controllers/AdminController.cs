@@ -355,7 +355,7 @@ namespace KMBit.Controllers
                 return View("Error");
             }
             int id = (int)resourceId;            
-            ResourceTaocanModel mode = new ResourceTaocanModel() { ResoucedId=id}; 
+            ResourceTaocanModel mode = new ResourceTaocanModel() { ResoucedId=id,EnabledDiscount=true}; 
             if (id <= 0)
             {
                 ViewBag.Message = "资源信息丢失";
@@ -405,7 +405,7 @@ namespace KMBit.Controllers
             }
             BResourceTaocan bTaocan = resourceTaocans[0];
             ResourceTaocanModel model = new ResourceTaocanModel() { Serial=bTaocan.Taocan.Serial, City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
-            ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id};
+            ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id,Discount=bTaocan.Taocan.Resource_Discount,EnabledDiscount=bTaocan.Taocan.EnableDiscount};
             if(bTaocan.Province!=null && bTaocan.Province.Id>0)
             {
                 model.Province = bTaocan.Province.Upid;
@@ -467,6 +467,8 @@ namespace KMBit.Controllers
                 taocan.Area_id = model.Province != null ? (int)model.Province : 0;                            
                 taocan.Enabled = model.Enabled;
                 taocan.Purchase_price = model.PurchasePrice;
+                taocan.EnableDiscount = model.EnabledDiscount;
+                taocan.Resource_Discount = model.Discount;
                 taocan.Sale_price = model.SalePrice;
                 taocan.Sp_id = model.SP != null ? (int)model.SP : 0;               
                 taocan.UpdatedBy = User.Identity.GetUserId<int>();

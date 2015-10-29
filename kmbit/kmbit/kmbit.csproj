@@ -213,6 +213,7 @@
     <Compile Include="Extensions\HtmlExtensions.cs" />
     <Compile Include="Filters\AdminFilter.cs" />
     <Compile Include="Filters\AgentFilter.cs" />
+    <Compile Include="Filters\IsPhoneFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -248,8 +249,33 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Images\alipay.gif" />
-    <Content Include="Images\alipay1.png" />
+    <Content Include="Images\advantage.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\alipay.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\alipay1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\banner1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\banner2.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\banner3.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\cases.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\pots.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\products.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\bootstrap-datepicker.js" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -780,10 +806,16 @@
     <Content Include="Views\Agent\CustomerAcivities.cshtml" />
     <Content Include="Views\Agent\CreateCustomerActivity.cshtml" />
     <Content Include="Views\Agent\CreateActivityTaocan.cshtml" />
-    <Content Include="Views\Agent\ActivityTaocan.cshtml" />
+    <Content Include="Views\Agent\ActivityTaocans.cshtml" />
+    <Content Include="Views\Agent\ActivityOrders.cshtml" />
+    <Content Include="Views\Product\Case.cshtml" />
+    <Content Include="Views\Product\SaoMa.cshtml" />
+    <Content Include="Views\Product\Error.cshtml" />
+    <Content Include="Views\Agent\GetActivityCode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="QRCode\" />
     <Folder Include="Views\General\" />
   </ItemGroup>
   <ItemGroup>

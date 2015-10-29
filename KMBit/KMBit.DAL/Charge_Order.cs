@@ -40,5 +40,6 @@ namespace KMBit.DAL
         public bool Payed { get; set; }
         public bool Refound { get; set; }
         public int MarketOrderId { get; set; }
+        public string DeviceMacAddress { get; set; }
     }
 }
