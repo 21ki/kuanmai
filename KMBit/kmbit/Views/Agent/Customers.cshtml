@@ -34,17 +34,17 @@
   .Sanitized(false)
   .SetWidth("7%")
    .RenderValueAs(o => Html.Raw("<a href=\"/Agent/CustomerAcivities?customerId=" + o.Id + "\">营销活动</a>"));
-    columns.Add()
-    .Titled("")
-    .Encoded(false)
-    .Sanitized(false)
-    .SetWidth("7%")
-    .RenderValueAs(o => Html.Raw("<a href=\"/Agent/CustomerRechargeHistories?customerId="+o.Id+"\">充值记录</a>"));
-    columns.Add()
-  .Titled("")
-  .Encoded(false)
-  .Sanitized(false)
-  .SetWidth("5%")
-  .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/CustomerRecharge',{customerId:" + o.Id + "})\">充值</a>"));
+    //  columns.Add()
+    //  .Titled("")
+    //  .Encoded(false)
+    //  .Sanitized(false)
+    //  .SetWidth("7%")
+    //  .RenderValueAs(o => Html.Raw("<a href=\"/Agent/CustomerRechargeHistories?customerId="+o.Id+"\">充值记录</a>"));
+    //  columns.Add()
+    //.Titled("")
+    //.Encoded(false)
+    //.Sanitized(false)
+    //.SetWidth("5%")
+    //.RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/CustomerRecharge',{customerId:" + o.Id + "})\">充值</a>"));
 }).Sortable(true)
 

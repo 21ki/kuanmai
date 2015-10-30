@@ -8,6 +8,7 @@ using KMBit.Beans;
 using KMBit.Util;
 using KMBit.DAL;
 using KMBit.BL.Agent;
+using KMBit.BL.Charge;
 namespace KMBit.BL
 {
     public class ActivityManagement:BaseManagement
@@ -21,6 +22,192 @@ namespace KMBit.BL
         public ActivityManagement(BUser user):base(user)
         {
 
+        }
+
+        public ChargeResult MarketingCharge(BMarketOrderCharge orderCharge)
+        {
+            ChargeResult result = new ChargeResult();
+            if (orderCharge == null)
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "参数不正确";
+                return result;
+            }
+            if (orderCharge.AgentId == 0 || orderCharge.CustomerId == 0 || orderCharge.ActivityId == 0)
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "参数不正确";
+                return result;
+            }
+            if (string.IsNullOrEmpty(orderCharge.SPName))
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "参数不正确";
+                return result;
+            }
+            if (string.IsNullOrEmpty(orderCharge.Phone))
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "参数不正确";
+                return result;
+            }
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Marketing_Activities activity = (from a in db.Marketing_Activities where a.Id==orderCharge.ActivityId select a).FirstOrDefault<Marketing_Activities>();
+                if(activity==null)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数不正确";
+                    return result;
+                }
+                if(activity.CustomerId!=orderCharge.CustomerId)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数不正确";
+                    return result;
+                }
+                if (activity.AgentId != orderCharge.AgentId)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数不正确";
+                    return result;
+                }
+                //非直接扫码活动，必须传入特定的marketing order id
+                if(activity.ScanType!=1 && orderCharge.ActivityOrderId==0)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数不正确";
+                    return result;
+                }
+                ChargeOrder order = new ChargeOrder()
+                {
+                    AgencyId = orderCharge.AgentId,
+                    ChargeType = 1,
+                    City = orderCharge.City,
+                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    IsMarket = true,
+                    MacAddress = orderCharge.MacAddress,
+                    MobileNumber = orderCharge.Phone,
+                    MobileSP = orderCharge.SPName,
+                    Payed = true,
+                    Province = orderCharge.Province,
+
+                };
+                Marketing_Activity_Taocan mtaocan = null;
+                Marketing_Orders mOrder = null;
+                if (activity.ScanType==1 && orderCharge.ActivityOrderId<=0)
+                {
+                    //判断是否还有可用marketing order
+                    int sp = 0;
+                    if (orderCharge.SPName.Contains("联通"))
+                    {
+                        sp = 3;
+                    }else if(orderCharge.SPName.Contains("移动"))
+                    {
+                        sp = 1;
+                    }
+                    else if (orderCharge.SPName.Contains("电信"))
+                    {
+                        sp = 2;
+                    }
+
+                    List<Marketing_Activity_Taocan> rTaocans = (from mt in db.Marketing_Activity_Taocan
+                                                                join t in db.Resource_taocan on mt.ResourceTaocanId equals t.Id
+                                                                where mt.ActivityId == orderCharge.ActivityId && t.Sp_id == sp
+                                                                select mt).ToList<Marketing_Activity_Taocan>();
+
+                    if (rTaocans.Count==0)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "本次活动" + orderCharge.SPName + "不能扫码充值";
+                        return result;
+                    }
+
+                    mtaocan = rTaocans[0];      
+                    mOrder = (from o in db.Marketing_Orders where o.ActivityId== orderCharge.ActivityId && o.Sent==false && o.Used==false && o.ActivityTaocanId== mtaocan.Id select o).FirstOrDefault<Marketing_Orders>();
+                    if(mOrder==null)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
+                        return result;
+                    }
+                    if(mOrder.Used || mOrder.Sent)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
+                        return result;
+                    }
+                    mOrder.Used = true;
+                    mOrder.Sent = true;
+                    //db.SaveChanges();
+                    order.MarketOrderId = mOrder.Id;
+                    order.ResourceTaocanId = mtaocan.ResourceTaocanId;
+                }
+                else if(activity.ScanType==2 && orderCharge.ActivityOrderId>0)
+                {
+                    mOrder = (from o in db.Marketing_Orders where o.Id==orderCharge.ActivityOrderId select o).FirstOrDefault<Marketing_Orders>();
+                    if (mOrder == null)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "参数有误";
+                        return result;
+                    }
+                    if(mOrder.Used || mOrder.Sent)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
+                        return result;
+                    }
+                    mtaocan = (from mt in db.Marketing_Activity_Taocan where mt.Id==mOrder.ActivityTaocanId select mt).FirstOrDefault<Marketing_Activity_Taocan>();
+                    if(mtaocan == null)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "参数有误";
+                        return result;
+                    }
+                    order.ResourceTaocanId = mtaocan.ResourceTaocanId;
+                    order.MarketOrderId = orderCharge.ActivityOrderId;
+                    mOrder.Used = true;
+                    mOrder.Sent = true;
+                }else if(activity.ScanType==1 && orderCharge.ActivityOrderId>0)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数有误";
+                    return result;
+                }
+                else if(activity.ScanType==2 && orderCharge.ActivityOrderId<=0)
+                {
+                    result.Status = ChargeStatus.FAILED;
+                    result.Message = "参数有误";
+                    return result;
+                }
+
+                OrderManagement orderMgr = new OrderManagement(CurrentLoginUser);
+                order=orderMgr.GenerateOrder(order);                
+                ChargeBridge chargeBridge = new ChargeBridge();
+                if(order.Id>0)
+                {
+                    db.SaveChanges();
+                    result=chargeBridge.Charge(order);
+                    if(result.Status== ChargeStatus.FAILED)
+                    {
+                        //Rollback, the order cannot be used next time
+                        mOrder.UsedTime = 0;
+                        mOrder.Used = false;
+                        if(activity.ScanType==1)
+                        {
+                            mOrder.Sent = false;
+                        }
+
+                        db.SaveChanges();
+                    }else
+                    {
+                        mOrder.UsedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    }
+                    db.SaveChanges();
+                }                
+            }
+            return result;
         }
 
         public string GenerateActivityQRCode(int agendId, int customerId, int activityId, string rootPath,string webRootUrl)
@@ -44,15 +231,18 @@ namespace KMBit.BL
                 }
               
                 codePath = agendId + "\\"+customerId;
-                string fileName = +activityId + ".png";
+                string fileName = Guid.NewGuid().ToString() + ".png";
                 string absPath = agendId + "/" + customerId + "/" + fileName;
                 string fullDirectory = Path.Combine(rootPath + "QRCode", codePath);
                 if (!string.IsNullOrEmpty(activity.CodePath) && File.Exists(Path.Combine(fullDirectory,fileName)))
                 {
                     return absPath;
                 }
-                string codeContent = string.Format("{0}/Product/SaoMa?agentId={1}&customerId={2}&activityId={3}",webRootUrl,agendId,customerId,activityId);
-                CodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
+                string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}", agendId, customerId, activityId);
+                parameter = KMEncoder.Encode(parameter);                
+                string codeContent = string.Format("{0}/Product/SaoMa?p={1}",webRootUrl, parameter);
+                
+                QRCodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
                 if(File.Exists(Path.Combine(fullDirectory, fileName)))
                 {
                     activity.CodePath = absPath;
@@ -128,6 +318,88 @@ namespace KMBit.BL
                 activities = query.ToList<BActivity>();
             }
             return activities;
+        }
+
+        public string GetOneRandomMarketOrderQrCodeUrl(string spName,string openId,int agentId,int customerId,int activityId)
+        {
+            string url = string.Empty;
+            if(string.IsNullOrEmpty(spName))
+            {
+                throw new KMBitException("获取客户活动随机二维码时候，必须输入运营商名称");
+            }
+            if(!spName.Contains("联通") || !spName.Contains("移动") || !spName.Contains("电信"))
+            {
+                throw new KMBitException("运营商名称只能是，中国联通，中国移动，中国电信");
+            }
+            if(agentId==0)
+            {
+                throw new KMBitException("代理商编号不能为空");
+            }
+            if (customerId == 0)
+            {
+                throw new KMBitException("客户编号不能为空");
+            }
+            if (activityId == 0)
+            {
+                throw new KMBitException("活动编号不能为空");
+            }
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                int sp = 0;
+                if (spName.Contains("联通"))
+                {
+                    sp = 3;
+                }
+                else if (spName.Contains("移动"))
+                {
+                    sp = 1;
+                }
+                else if (spName.Contains("电信"))
+                {
+                    sp = 2;
+                }
+
+            }
+            return url;
+        }
+
+        public void GenerateQRCodeForMarketingOrders(int activityTaocanId)
+        {
+            AppSettings settings = AppSettings.GetAppSettings();
+            string qrfolder = System.IO.Path.Combine(settings.RootDirectory,settings.QRFolder);
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Marketing_Activities activity = null;
+                List<Marketing_Orders> orders = (from o in db.Marketing_Orders where o.ActivityTaocanId == activityTaocanId select o).ToList<Marketing_Orders>();
+                if(orders.Count>0)
+                {
+                    foreach(Marketing_Orders order in orders)
+                    {
+                        if(activity==null)
+                        {
+                            activity = (from a in db.Marketing_Activities where a.Id==order.ActivityId select a).FirstOrDefault<Marketing_Activities>();
+                            if(activity==null)
+                            {
+                                continue;
+                            }
+                        }
+                        string midPhysicalPath = string.Format("{0}\\{1}",activity.AgentId,activity.CustomerId);
+                        string fileName = Guid.NewGuid().ToString() + ".png";
+                        string urlAbsPath= string.Format("{0}/{1}/{2}", activity.AgentId, activity.CustomerId, fileName);
+                        string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}&activityOrderId={3}", activity.AgentId, activity.CustomerId,activity.Id,order.Id);
+                        parameter = KMEncoder.Encode(parameter);
+                        string codeContent = string.Format("{0}/Product/SaoMa?p={1}", settings.WebURL, parameter);
+                        string fullFolder = Path.Combine(qrfolder, midPhysicalPath);
+                        QRCodeUtil.CreateQRCode(fullFolder, fileName, codeContent);
+                        if (File.Exists(Path.Combine(fullFolder, fileName)))
+                        {
+                            order.CodePath = urlAbsPath;
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+            }
         }
 
         public bool CreateActivityTaocan(Marketing_Activity_Taocan taocan)
@@ -232,7 +504,9 @@ namespace KMBit.BL
                 db.SaveChanges();
                 if(taocan.Id>0)
                 {
-                    for(int i=0;i<taocan.Quantity;i++)
+                    agency.Remaining_amount -= taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount);
+                    db.SaveChanges();
+                    for (int i=0;i<taocan.Quantity;i++)
                     {
                         Marketing_Orders order = new Marketing_Orders()
                         {
@@ -257,13 +531,13 @@ namespace KMBit.BL
 
                         order.AgentPurchasePrice = order.PlatformSalePrice * route.Route.Discount;
                         order.AgentSalePrice = taocan.Price;
-
                         db.Marketing_Orders.Add(order);
                     }
-
                     db.SaveChanges();
-                    agency.Remaining_amount -= taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount);
-                    db.SaveChanges();
+                    if(activity.ScanType==2)
+                    {
+                        GenerateQRCodeForMarketingOrders(taocan.Id);
+                    }                    
                     result = true;
                 }
             }catch(Exception ex)

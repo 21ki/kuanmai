@@ -524,7 +524,9 @@ namespace KMBit.Controllers
             List<BAgentRoute> routes = agentMgr.FindTaocans(0,true);
             ViewBag.Customer = customers[0];
             ViewBag.Routes = new SelectList((from r in routes select new {Id=r.Route.Id,Name=r.Taocan.Taocan2.Name+" - "+(r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00")+"元" }),"Id","Name");
-            CustomerActivityModel model = new CustomerActivityModel() {CustomerId=customerId };
+            List<DictionaryTemplate> scanTypes = StaticDictionary.GetScanTypeList();
+            ViewBag.ScanTypes = new SelectList(from st in scanTypes select new { Id=st.Id,Name=st.Value},"Id","Name");
+            CustomerActivityModel model = new CustomerActivityModel() {CustomerId=customerId,Enable=true };
             return View(model);
         }
 
@@ -540,7 +542,8 @@ namespace KMBit.Controllers
                     CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
                     CustomerId = model.CustomerId,
                     Description = model.Description,
-                    Enabled = true,                  
+                    ScanType=model.ScanType,
+                    Enabled = model.Enable,                  
                     Name = model.Name                   
                 };
 
@@ -550,6 +553,8 @@ namespace KMBit.Controllers
                     return Redirect("Agent/CustomerAcivities?customerId="+model.CustomerId);
                 }
             }
+            List<DictionaryTemplate> scanTypes = StaticDictionary.GetScanTypeList();
+            ViewBag.ScanTypes = new SelectList(from st in scanTypes select new { Id = st.Id, Name = st.Value }, "Id", "Name");
             return View(model);
         }
 

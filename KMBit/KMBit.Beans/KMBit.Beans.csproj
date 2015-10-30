@@ -47,11 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="BActivity.cs" />
     <Compile Include="BActivityOrders.cs" />
     <Compile Include="BActivityTaocan.cs" />
     <Compile Include="BAgentRoute.cs" />
     <Compile Include="BCustomer.cs" />
+    <Compile Include="BMarketOrderCharge.cs" />
     <Compile Include="BMobileLocation.cs" />
     <Compile Include="BOrder.cs" />
     <Compile Include="BPaymentHistory.cs" />

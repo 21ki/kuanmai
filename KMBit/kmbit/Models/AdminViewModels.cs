@@ -319,6 +319,10 @@ namespace KMBit.Models
         [Display(Name = "活动名称")]
         public string Name { get; set; }
 
+        [Required(ErrorMessage = "扫码类型不能为空")]
+        [Display(Name = "扫码类型")]
+        public int ScanType { get; set; }
+
         [Display(Name = "开始日期")]
         public string StartTime { get; set; }
 
@@ -328,6 +332,9 @@ namespace KMBit.Models
         [StringLength(300, ErrorMessage = "描述最大只能300个字")]
         [Display(Name = "备注")]
         public string Description { get; set; }
+        
+        [Display(Name = "是否启用")]
+        public bool Enable { get; set; }
     }
 
     public class ActivityTaocanModel

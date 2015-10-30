@@ -167,6 +167,7 @@
           <Property Name="Enabled" Type="bool" Nullable="false" />
           <Property Name="Generated" Type="bool" Nullable="false" />
           <Property Name="CodePath" Type="varchar" MaxLength="200" />
+          <Property Name="ScanType" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Marketing_Activity_Taocan">
           <Key>
@@ -427,9 +428,9 @@
           <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
-          <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
           <EntitySet Name="Marketing_Activity_Taocan" EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" />
           <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
+          <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -744,22 +745,6 @@
           <Property Name="MarketOrderId" Type="Int32" Nullable="false" />
           <Property Name="DeviceMacAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Marketing_Activities">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
-          <Property Name="StartedTime" Type="Int64" Nullable="false" />
-          <Property Name="ExpiredTime" Type="Int64" Nullable="false" />
-          <Property Name="AgentId" Type="Int32" Nullable="false" />
-          <Property Name="CustomerId" Type="Int32" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="Enabled" Type="Boolean" Nullable="false" />
-          <Property Name="Generated" Type="Boolean" Nullable="false" />
-          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Marketing_Activity_Taocan">
           <Key>
             <PropertyRef Name="Id" />
@@ -794,6 +779,23 @@
           <Property Name="Used" Type="Boolean" Nullable="false" />
           <Property Name="Sent" Type="Boolean" Nullable="false" />
           <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Marketing_Activities">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+          <Property Name="StartedTime" Type="Int64" Nullable="false" />
+          <Property Name="ExpiredTime" Type="Int64" Nullable="false" />
+          <Property Name="AgentId" Type="Int32" Nullable="false" />
+          <Property Name="CustomerId" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Enabled" Type="Boolean" Nullable="false" />
+          <Property Name="Generated" Type="Boolean" Nullable="false" />
+          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ScanType" Type="Int32" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1134,23 +1136,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Marketing_Activities">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activities">
-              <MappingFragment StoreEntitySet="Marketing_Activities">
-                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
-                <ScalarProperty Name="Generated" ColumnName="Generated" />
-                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
-                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
-                <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
-                <ScalarProperty Name="StartedTime" ColumnName="StartedTime" />
-                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Marketing_Activity_Taocan">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activity_Taocan">
               <MappingFragment StoreEntitySet="Marketing_Activity_Taocan">
@@ -1184,6 +1169,24 @@
                 <ScalarProperty Name="PlatformSalePrice" ColumnName="PlatformSalePrice" />
                 <ScalarProperty Name="ActivityTaocanId" ColumnName="ActivityTaocanId" />
                 <ScalarProperty Name="ActivityId" ColumnName="ActivityId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Marketing_Activities">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activities">
+              <MappingFragment StoreEntitySet="Marketing_Activities">
+                <ScalarProperty Name="ScanType" ColumnName="ScanType" />
+                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
+                <ScalarProperty Name="Generated" ColumnName="Generated" />
+                <ScalarProperty Name="Enabled" ColumnName="Enabled" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
+                <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
+                <ScalarProperty Name="StartedTime" ColumnName="StartedTime" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

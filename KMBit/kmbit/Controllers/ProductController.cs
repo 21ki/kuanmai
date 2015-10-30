@@ -92,9 +92,80 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult SaoMa()
         {            
-            SortedDictionary<string, string> paras = GetRequestGet();
+            Dictionary<string, string> paras = new Dictionary<string, string>();
             ViewBag.Paras = paras;
+            string p = Request.QueryString["p"];
+            paras.Add("p", p);
             return View();
+        }
+
+        [IsPhoneFilter(Message = "只能通过手机访问")]
+        [HttpPost]
+        public ActionResult DoSaoMa()
+        {
+            string p = Request["p"];
+            string number = Request["mobile_number"];
+            string spName = Request["SPName"];
+            string province= Request["Province"];
+            string city = Request["City"];
+            if (string.IsNullOrEmpty(p))
+            {
+                ViewBag.Message = "参数错误，请正确扫码，输入手机号码点充值";
+            }
+            else
+            {
+                int agentId = 0;
+                int customerId = 0;
+                int activityId = 0;
+                int activityOrderId = 0;
+                string parameters = KMEncoder.Decode(p);
+                if(!string.IsNullOrEmpty(parameters))
+                {
+                    Dictionary<string, string> pvs = parseParameters(parameters);
+                    if(pvs.Count>0)
+                    {
+                        foreach(KeyValuePair<string,string> pair in pvs)
+                        {
+                            switch(pair.Key)
+                            {
+                                case "agentId":
+                                    int.TryParse(pair.Value,out agentId);
+                                    break;
+                                case "customerId":
+                                    int.TryParse(pair.Value, out customerId);
+                                    break;
+                                case "activityId":
+                                    int.TryParse(pair.Value, out activityId);
+                                    break;
+                                case "activityOrderId":
+                                    int.TryParse(pair.Value, out activityOrderId);
+                                    break;
+                            }
+                        }
+
+                        ActivityManagement activityMgr = new ActivityManagement(0);
+                        BMarketOrderCharge order = new BMarketOrderCharge()
+                        {
+                            ActivityId = activityId,
+                            ActivityOrderId = activityOrderId,
+                            AgentId = agentId,
+                            CustomerId = customerId,
+                            City = city,
+                            Province = province,
+                            MacAddress = "",
+                            Phone = number,
+                            SPName = spName
+                        };
+                        KMBit.BL.Charge.ChargeResult result = activityMgr.MarketingCharge(order);
+                        ViewBag.Message = result.Message;
+                    }
+                }else
+                {
+                    ViewBag.Message = "参数错误，请正确扫码，输入手机号码点充值";
+                }
+            }
+           
+            return View("SaoMa");
         }
 
         [IsPhoneFilter(Message = "只能通过手机访问")]
@@ -137,6 +208,27 @@ namespace KMBit.Controllers
         {
             ViewBag.Message = message != null ? message : "";
             return View();
+        }
+
+        public Dictionary<string,string> parseParameters(string paras)
+        {
+            Dictionary<string, string> ps = new Dictionary<string, string>();
+            if(!string.IsNullOrEmpty(paras))
+            {
+                string[] array = paras.Split('&');
+                if(array!=null && array.Length>0)
+                {
+                    foreach(string p in array)
+                    {
+                        string[] pv = p.Split('=');
+                        if(pv!=null && pv.Length==2)
+                        {
+                            ps[pv[0]] = pv[1];
+                        }
+                    }
+                }
+            }
+            return ps;
         }
     }
 }

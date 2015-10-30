@@ -38,6 +38,15 @@ namespace KMBit.BL
             return list;
         }
 
+        public static List<DictionaryTemplate> GetScanTypeList()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "直接扫码" });
+            list.Add(new DictionaryTemplate() { Id = 2, Value = "关注推送扫码" });
+            return list;
+        }
+
+
         public static List<DictionaryTemplate> GetOpenTypeList()
         {
             List<DictionaryTemplate> list = new List<DictionaryTemplate>();

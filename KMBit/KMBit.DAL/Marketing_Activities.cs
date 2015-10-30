@@ -25,5 +25,6 @@ namespace KMBit.DAL
         public bool Enabled { get; set; }
         public bool Generated { get; set; }
         public string CodePath { get; set; }
+        public int ScanType { get; set; }
     }
 }

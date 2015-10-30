@@ -103,10 +103,10 @@ namespace KMBit.BL
 
                 if (order.IsMarket && order.MarketOrderId>0)
                 {   
-                    if (string.IsNullOrEmpty(order.MacAddress))
-                    {
-                        throw new KMBitException("活动充值时必须获取终端的MAC地址");
-                    }
+                    //if (string.IsNullOrEmpty(order.MacAddress))
+                    //{
+                    //    throw new KMBitException("活动充值时必须获取终端的MAC地址");
+                    //}
                     mOrder = (from o in db.Marketing_Orders where o.Id == order.MarketOrderId select o).FirstOrDefault<Marketing_Orders>();
                     if (mOrder == null)
                     {
@@ -122,10 +122,10 @@ namespace KMBit.BL
                         throw new KMBitException(string.Format("编号为{0}的活动充值记录的套餐信息不存在", order.MarketOrderId));
                     }
                     //check if the device or the number is already charged
-                    int count = (from mo in db.Marketing_Orders where (mo.MacAddress == order.MacAddress || mo.PhoneNumber == order.MobileNumber) && mo.ActivityId == mTaocan.ActivityId select mo.Id).Count();
+                    int count = (from mo in db.Marketing_Orders where mo.PhoneNumber == order.MobileNumber && mo.ActivityId == mTaocan.ActivityId select mo.Id).Count();
                     if (count > 0)
                     {
-                        throw new KMBitException("同一个营销活动每个手机或者每个号码只能扫描一次");
+                        throw new KMBitException("同一次营销活动每个手机每个号码只能扫描使用一次");
                     }
 
                     order.ResourceId = mTaocan.ResourceId;

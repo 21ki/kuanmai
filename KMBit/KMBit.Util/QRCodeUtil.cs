@@ -8,7 +8,7 @@ using System.IO;
 using System.Drawing;
 namespace KMBit.Util
 {
-    public class CodeUtil
+    public class QRCodeUtil
     {
         public static Bitmap Create_ImgCode(string codeNumber, int size)
         {
