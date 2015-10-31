@@ -16,6 +16,6 @@ namespace KMBit.Beans
         public string SPName { get; set; }
         public string Province { get; set; }
         public string City { get; set; }
-        public string MacAddress { get; set; }
+        public string OpenId { get; set; }
     }
 }

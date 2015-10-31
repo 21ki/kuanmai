@@ -26,7 +26,7 @@ namespace KMBit.DAL
         public long ExpiredTime { get; set; }
         public long UsedTime { get; set; }
         public string PhoneNumber { get; set; }
-        public string MacAddress { get; set; }
+        public string OpenId { get; set; }
         public bool Used { get; set; }
         public bool Sent { get; set; }
         public string CodePath { get; set; }

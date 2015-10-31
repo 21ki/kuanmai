@@ -161,7 +161,7 @@ namespace KMBit.BL
                             mOrder.Sent = true;
                             mOrder.UsedTime = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                             mOrder.PhoneNumber = cOrder.Phone_number;
-                            mOrder.MacAddress = cOrder.DeviceMacAddress;
+                            mOrder.OpenId = cOrder.DeviceMacAddress;
                         }
                     }
                 }
@@ -200,9 +200,13 @@ namespace KMBit.BL
                                 Users agency = (from u in db.Users where u.Id == cOrder.Agent_Id select u).FirstOrDefault<Users>();
                                 if (agency != null)
                                 {
-                                    cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
-                                    agency.Remaining_amount += cOrder.Purchase_price;
-                                    cOrder.Refound = true;
+                                    //marketing scan, no need to refound, just re-enable the scan
+                                    if(cOrder.MarketOrderId==0)
+                                    {
+                                        cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
+                                        agency.Remaining_amount += cOrder.Purchase_price;
+                                        cOrder.Refound = true;
+                                    }                                   
                                 }
                             }else
                             {

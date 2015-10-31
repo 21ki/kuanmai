@@ -86,7 +86,7 @@ namespace KMBit.BL
                     City = orderCharge.City,
                     CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
                     IsMarket = true,
-                    MacAddress = orderCharge.MacAddress,
+                    MacAddress = orderCharge.OpenId,
                     MobileNumber = orderCharge.Phone,
                     MobileSP = orderCharge.SPName,
                     Payed = true,
@@ -210,10 +210,11 @@ namespace KMBit.BL
             return result;
         }
 
-        public string GenerateActivityQRCode(int agendId, int customerId, int activityId, string rootPath,string webRootUrl)
+        public string GenerateActivityQRCode(int agendId, int customerId, int activityId)
         {
             string codePath = string.Empty;
             agendId = agendId > 0 ? agendId : CurrentLoginUser.User.Id;
+            AppSettings settings = AppSettings.GetAppSettings();
             using (chargebitEntities db = new chargebitEntities())
             {
                 Marketing_Activities activity = (from a in db.Marketing_Activities where a.Id==activityId select a).FirstOrDefault<Marketing_Activities>();
@@ -233,14 +234,14 @@ namespace KMBit.BL
                 codePath = agendId + "\\"+customerId;
                 string fileName = Guid.NewGuid().ToString() + ".png";
                 string absPath = agendId + "/" + customerId + "/" + fileName;
-                string fullDirectory = Path.Combine(rootPath + "QRCode", codePath);
+                string fullDirectory = Path.Combine(settings.RootDirectory + settings.QRFolder, codePath);
                 if (!string.IsNullOrEmpty(activity.CodePath) && File.Exists(Path.Combine(fullDirectory,fileName)))
                 {
                     return absPath;
                 }
                 string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}", agendId, customerId, activityId);
                 parameter = KMEncoder.Encode(parameter);                
-                string codeContent = string.Format("{0}/Product/SaoMa?p={1}",webRootUrl, parameter);
+                string codeContent = string.Format("{0}/Product/SaoMa?p={1}",settings.WebURL, parameter);
                 
                 QRCodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
                 if(File.Exists(Path.Combine(fullDirectory, fileName)))
