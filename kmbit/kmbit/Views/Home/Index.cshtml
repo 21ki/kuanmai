@@ -2,12 +2,29 @@
     ViewBag.Title = "主页";
 }
 
+<script type="text/javascript">
+    var timeInterval = 4000;
+    var images = new Array();
+    var curIndex = 0
+    images[0] = "/Images/banner1.jpg";
+    images[1] = "/Images/banner2.jpg";
+    images[2] = "/Images/banner3.jpg";
+    setInterval(changeImg, timeInterval);
+    function changeImg() {
+        var obj = document.getElementById("banner_obj");
+        if (curIndex == images.length - 1) {
+            curIndex = 0;
+        }
+        else {
+            curIndex += 1;
+        }
+        obj.src = images[curIndex];
+    }
+</script>
 <div class="homeBar">
-    <div>
-        <div class="homeBar"><img style="width:100%" src="~/Images/banner1.jpg" /></div>
-        <div class="homeBar"><img style="width:100%" src="~/Images/banner2.jpg" /></div>
-        <div class="homeBar"><img style="width:100%" src="~/Images/banner3.jpg" /></div> 
-    </div>
+    <div style="width:100%">
+        <img id="banner_obj" style="width:100%" src="/Images/banner1.jpg" />
+   </div>
     <div>
         <div class="homeBar"><img style="width:100%" src="~/Images/pots.jpg" /></div>
         <div class="homeBar"><img style="width:100%" src="~/Images/products.jpg" /></div>

@@ -16,12 +16,12 @@
     columns.Add().Titled("成本价").Filterable(false).SetWidth("5%").RenderValueAs(o=>(o.Route.Taocan.Taocan.Sale_price * o.Route.Route.Discount).ToString("0.00"));
     columns.Add(o => o.UsedCount).Titled("已扫").Filterable(false).SetWidth("5%");
     columns.Add(o => o.SentOutCount).Titled("已发").Filterable(false).SetWidth("5%");
-    columns.Add()
-      .Titled("")
-      .Encoded(false)
-      .Sanitized(false)
-      .SetWidth("5%")
-      .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/CreateActivityTaocan',{activityId:" + o.ATaocan.ActivityId +"})\">明细</a>"));
+    //columns.Add()
+    //  .Titled("")
+    //  .Encoded(false)
+    //  .Sanitized(false)
+    //  .SetWidth("5%")
+    //  .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Agent/CreateActivityTaocan',{activityId:" + o.ATaocan.ActivityId +"})\">明细</a>"));
 
 }).Sortable(false)
 

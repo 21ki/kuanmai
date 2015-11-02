@@ -152,7 +152,7 @@ namespace KMBit.Controllers
                             CustomerId = customerId,
                             City = city,
                             Province = province,
-                            MacAddress = "",
+                            OpenId = "",
                             Phone = number,
                             SPName = spName
                         };

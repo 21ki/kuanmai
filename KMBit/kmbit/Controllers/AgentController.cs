@@ -526,7 +526,7 @@ namespace KMBit.Controllers
             ViewBag.Routes = new SelectList((from r in routes select new {Id=r.Route.Id,Name=r.Taocan.Taocan2.Name+" - "+(r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00")+"元" }),"Id","Name");
             List<DictionaryTemplate> scanTypes = StaticDictionary.GetScanTypeList();
             ViewBag.ScanTypes = new SelectList(from st in scanTypes select new { Id=st.Id,Name=st.Value},"Id","Name");
-            CustomerActivityModel model = new CustomerActivityModel() {CustomerId=customerId,Enable=true };
+            CustomerActivityModel model = new CustomerActivityModel() { Id=0,CustomerId=customerId,Enable=true };
             return View(model);
         }
 
@@ -542,25 +542,57 @@ namespace KMBit.Controllers
                     CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
                     CustomerId = model.CustomerId,
                     Description = model.Description,
-                    ScanType=model.ScanType,
-                    Enabled = model.Enable,                  
-                    Name = model.Name                   
+                    ScanType = model.ScanType,
+                    Enabled = model.Enable,
+                    Name = model.Name,
+                    Id=model.Id
                 };
 
-                activity = activityMgr.CreateNewActivity(activity);
-                if(activity.Id>0)
+                if (model.Id==0)
+                {                   
+                    activity = activityMgr.CreateNewActivity(activity);
+                    if (activity.Id > 0)
+                    {
+                        return Redirect("/Agent/CustomerAcivities?customerId=" + model.CustomerId);
+                    }
+                }else
                 {
-                    return Redirect("Agent/CustomerAcivities?customerId="+model.CustomerId);
-                }
+                    activityMgr.UpdateActivity(activity);
+                    return Redirect("/Agent/CustomerAcivities?customerId=" + model.CustomerId);
+                } 
             }
             List<DictionaryTemplate> scanTypes = StaticDictionary.GetScanTypeList();
             ViewBag.ScanTypes = new SelectList(from st in scanTypes select new { Id = st.Id, Name = st.Value }, "Id", "Name");
             return View(model);
-        }
+        }       
 
-        public ActionResult EditCustomerActivity(int activityId)
+        [HttpGet]
+        public ActionResult EditCustomerActivity(int activityId, int customerId)
         {
-            return View();
+            ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+            List<BActivity> activities = activityMgr.FindActivities(activityId, User.Identity.GetUserId<int>(), customerId, out total, true, 1, 1);
+            CustomerActivityModel model = new CustomerActivityModel();
+            if (activities.Count == 1)
+            {                
+                BActivity activity = activities[0];
+                model.Id = activity.Activity.Id;
+                model.CustomerId = customerId;
+                model.Description = activity.Activity.Description;
+                model.Enable = activity.Activity.Enabled;
+                model.ExpiredTime = activity.Activity.ExpiredTime > 0 ? DateTimeUtil.ConvertToDateTime(activity.Activity.ExpiredTime).ToString("yyyy-M-dd") : "";
+                model.Name = activity.Activity.Name;
+                model.ScanType = activity.Activity.ScanType;
+                model.StartTime = activity.Activity.ExpiredTime > 0 ? DateTimeUtil.ConvertToDateTime(activity.Activity.StartedTime).ToString("yyyy-M-dd") : "";
+            }
+            else
+            {
+                ViewBag.Message = "不能修改不属于自己客户的活动";
+                return View("Error");
+            }
+
+            List<DictionaryTemplate> scanTypes = StaticDictionary.GetScanTypeList();
+            ViewBag.ScanTypes = new SelectList(from st in scanTypes select new { Id = st.Id, Name = st.Value }, "Id", "Name");
+            return View("CreateCustomerActivity",model);
         }
 
         [HttpGet]
@@ -639,14 +671,15 @@ namespace KMBit.Controllers
         [HttpGet]
         public ActionResult GetActivityCode(int activityId, int customerId)
         {
+            AppSettings settings = AppSettings.GetAppSettings();
             ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
             try
             {
-                string webroot ="http://"+ Request.Url.Authority;
-                string codePath = activityMgr.GenerateActivityQRCode(User.Identity.GetUserId<int>(), customerId, activityId, Request.PhysicalApplicationPath, webroot);
+                string webroot = settings.WebURL;
+                string codePath = activityMgr.GenerateActivityQRCode(User.Identity.GetUserId<int>(), customerId, activityId);
                 //string fullCodeUrl = webroot + "/QRCode/" + codePath;
-                ViewBag.CodePath = "/QRCode/" + codePath;
-                return Redirect(webroot+ "/QRCode/" + codePath);
+                ViewBag.CodePath = settings.QRFolder+"/" + codePath;
+                return Redirect(webroot+ "/"+settings.QRFolder+"/" + codePath);
                 //return View();
             }
             catch (KMBitException ex)

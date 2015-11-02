@@ -14,18 +14,23 @@ namespace KMBit.BL
     public class ActivityManagement:BaseManagement
     {
         public ActivityManagement(int userId):base(userId)
-        { }
+        {
+            this.logger = log4net.LogManager.GetLogger(this.GetType());
+        }
 
         public ActivityManagement(string email):base(email)
-        { }
+        {
+            this.logger = log4net.LogManager.GetLogger(this.GetType());
+        }
 
         public ActivityManagement(BUser user):base(user)
         {
-
+            this.logger = log4net.LogManager.GetLogger(this.GetType());
         }
 
         public ChargeResult MarketingCharge(BMarketOrderCharge orderCharge)
         {
+            logger.Info("MarketingCharge");
             ChargeResult result = new ChargeResult();
             if (orderCharge == null)
             {
@@ -131,7 +136,7 @@ namespace KMBit.BL
                         result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
                         return result;
                     }
-                    if(mOrder.Used || mOrder.Sent)
+                    if(mOrder.Used)
                     {
                         result.Status = ChargeStatus.FAILED;
                         result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
@@ -152,7 +157,7 @@ namespace KMBit.BL
                         result.Message = "参数有误";
                         return result;
                     }
-                    if(mOrder.Used || mOrder.Sent)
+                    if(mOrder.Used)
                     {
                         result.Status = ChargeStatus.FAILED;
                         result.Message = "本次活动的流量充值额度已经全部被扫完，尽请期待下次活动";
@@ -207,6 +212,7 @@ namespace KMBit.BL
                     db.SaveChanges();
                 }                
             }
+            logger.Info("Finished MarketingCharge");
             return result;
         }
 
@@ -252,7 +258,39 @@ namespace KMBit.BL
                 db.SaveChanges();
                 return absPath;
             }            
-        }        
+        }
+
+        public bool UpdateActivity(Marketing_Activities activity)
+        {
+            bool result = false;
+            if (activity == null || activity.Id <= 0)
+            {
+                throw new KMBitException("参数错误");
+            }
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Marketing_Activities dbac = (from a in db.Marketing_Activities where a.Id == activity.Id select a).FirstOrDefault<Marketing_Activities>();
+                if (dbac == null)
+                {
+                    throw new KMBitException("参数错误");
+                }
+
+                if (!string.IsNullOrEmpty(activity.Name))
+                {
+                    dbac.Name = activity.Name;
+                }
+                if (!string.IsNullOrEmpty(activity.Description))
+                {
+                    dbac.Description = activity.Description;
+                }
+
+                dbac.Enabled = activity.Enabled;
+                db.SaveChanges();
+                result = true;
+            }
+
+            return result;
+        }
 
         public Marketing_Activities CreateNewActivity(Marketing_Activities activity)
         {            
@@ -323,14 +361,19 @@ namespace KMBit.BL
 
         public string GetOneRandomMarketOrderQrCodeUrl(string spName,string openId,int agentId,int customerId,int activityId)
         {
-            string url = string.Empty;
+            logger.Info("OpenId:"+openId);
+            AppSettings settings = AppSettings.GetAppSettings();
+            if(string.IsNullOrEmpty(openId))
+            {
+                throw new KMBitException("用户的微信号不能为空，用户必须通过关注微信公众号来获取二维码");
+            }
             if(string.IsNullOrEmpty(spName))
             {
                 throw new KMBitException("获取客户活动随机二维码时候，必须输入运营商名称");
             }
-            if(!spName.Contains("联通") || !spName.Contains("移动") || !spName.Contains("电信"))
+            if(!spName.Contains("+联通") && !spName.Contains("+移动") && !spName.Contains("+电信"))
             {
-                throw new KMBitException("运营商名称只能是，中国联通，中国移动，中国电信");
+                throw new KMBitException("运营商名称只能是，+联通，+移动，+电信,+号为英文键盘下的+号");
             }
             if(agentId==0)
             {
@@ -339,11 +382,7 @@ namespace KMBit.BL
             if (customerId == 0)
             {
                 throw new KMBitException("客户编号不能为空");
-            }
-            if (activityId == 0)
-            {
-                throw new KMBitException("活动编号不能为空");
-            }
+            }           
             using (chargebitEntities db = new chargebitEntities())
             {
                 int sp = 0;
@@ -359,9 +398,73 @@ namespace KMBit.BL
                 {
                     sp = 2;
                 }
+                Marketing_Activities activity = null;
+                if (activityId==0)
+                {
+                    //get the latest activity
+                    activity = (from a in db.Marketing_Activities where a.CustomerId==customerId && a.AgentId==agentId && a.Enabled==true && a.ScanType==2 orderby a.Id descending select a).FirstOrDefault<Marketing_Activities>();
+                }else
+                {
+                    activity = (from a in db.Marketing_Activities where a.Id==activityId select a).FirstOrDefault<Marketing_Activities>();
+                }
 
+                if(activity==null)
+                {
+                    throw new KMBitException("输入参数不正确，请不要试图偷换URL参数来获取数据");
+                }
+
+                if(activity.AgentId!=agentId)
+                {
+                    throw new KMBitException("输入参数不正确，请不要试图偷换URL参数来获取数据");
+                }
+                if(activity.CustomerId!=customerId)
+                {
+                    throw new KMBitException("输入参数不正确，请不要试图偷换URL参数来获取数据");
+                }
+                if(activity.ScanType!=2)
+                {
+                    throw new KMBitException("此活动为直接扫码活动，不能分个推送二维码");
+                }
+                List<Marketing_Activity_Taocan> rTaocans = (from mt in db.Marketing_Activity_Taocan
+                                                            join t in db.Resource_taocan on mt.ResourceTaocanId equals t.Id
+                                                            where mt.ActivityId == activity.Id && t.Sp_id == sp
+                                                            select mt).ToList<Marketing_Activity_Taocan>();
+
+                if (rTaocans.Count == 0)
+                {
+                    throw new KMBitException(string.Format("此次活动{0}的手机号码不能扫码充流量,请联系活动方",spName));
+                }
+                Marketing_Activity_Taocan mTaocan = rTaocans[0];
+                Marketing_Orders returnOrder = null;
+                List<Marketing_Orders> existedOrders = (from mo in db.Marketing_Orders where mo.ActivityId==activity.Id && mo.ActivityTaocanId==mTaocan.Id && mo.OpenId==openId select mo).ToList<Marketing_Orders>();
+                if(existedOrders.Count>0)
+                {
+                    returnOrder = existedOrders[0];
+                    if(!returnOrder.Used && returnOrder.Sent)
+                    {
+                        logger.Info("Already sent but not used, sent again");                      
+                        return settings.WebURL + "/" + settings.QRFolder + "/" + returnOrder.CodePath;
+                    }else
+                    {
+                        logger.Info("Already sent but and used");
+                        throw new KMBitException(string.Format("微信号{0}已经获取过二维码，并且已经扫码使用过二维码，不能重复获取",openId));
+                    }
+                }
+
+                logger.Info("not sent and not used");
+                returnOrder = (from mo in db.Marketing_Orders where mo.ActivityTaocanId==mTaocan.Id && mo.ActivityId==activity.Id && mo.Used==false && mo.Sent==false orderby mo.Id descending
+                               select mo).FirstOrDefault<Marketing_Orders>();
+
+                if(returnOrder==null)
+                {
+                    throw new KMBitException(string.Format("本次活动的二维码全部送完"));
+                }
+
+                returnOrder.OpenId = openId;
+                returnOrder.Sent = true;
+                db.SaveChanges();
+                return settings.WebURL + "/" + settings.QRFolder + "/" + returnOrder.CodePath;
             }
-            return url;
         }
 
         public void GenerateQRCodeForMarketingOrders(int activityTaocanId)
@@ -582,6 +685,7 @@ namespace KMBit.BL
                             join route in db.Agent_route on at.RouteId equals route.Id
                             join taocan in db.Resource_taocan on route.Resource_taocan_id equals taocan.Id
                             join taocan2 in db.Taocan on taocan.Taocan_id equals taocan2.Id
+                            where at.ActivityId==actityId
                             select new BActivityTaocan
                             {
                                 ATaocan = at,
@@ -627,7 +731,8 @@ namespace KMBit.BL
             total = 0;
             List<BActivityOrder> orders = new List<BActivityOrder>();
             agentId = agentId > 0 ? agentId : CurrentLoginUser.User.Id;
-            using (chargebitEntities db = new chargebitEntities())
+            chargebitEntities db = new chargebitEntities();
+            try
             {
                 var query = from o in db.Marketing_Orders
                             join t in db.Marketing_Activity_Taocan on o.ActivityTaocanId equals t.Id into lt
@@ -663,6 +768,15 @@ namespace KMBit.BL
                 }
 
                 orders = query.ToList<BActivityOrder>();
+            }catch(Exception ex)
+            {
+                logger.Error(ex);
+            }finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
             }
             return orders;
         }

@@ -313,6 +313,7 @@ namespace KMBit.Models
 
     public class CustomerActivityModel
     {
+        public int Id { get; set; }
         public int CustomerId { get; set; }
 
         [Required(ErrorMessage = "活动名称不能为空")]

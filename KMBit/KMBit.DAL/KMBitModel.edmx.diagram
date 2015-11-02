@@ -30,8 +30,8 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="0.75" PointY="12.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="11.375" PointY="9.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" Width="1.5" PointX="7.375" PointY="13.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Orders" Width="1.5" PointX="13.375" PointY="11.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Activities" Width="1.5" PointX="13.375" PointY="7.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Orders" Width="1.5" PointX="13.375" PointY="11.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

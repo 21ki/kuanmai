@@ -199,7 +199,7 @@
           <Property Name="ExpiredTime" Type="uint" Nullable="false" />
           <Property Name="UsedTime" Type="uint" Nullable="false" />
           <Property Name="PhoneNumber" Type="varchar" MaxLength="20" />
-          <Property Name="MacAddress" Type="varchar" MaxLength="50" />
+          <Property Name="OpenId" Type="varchar" MaxLength="50" />
           <Property Name="Used" Type="bool" Nullable="false" />
           <Property Name="Sent" Type="bool" Nullable="false" />
           <Property Name="CodePath" Type="varchar" MaxLength="200" />
@@ -429,8 +429,8 @@
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Marketing_Activity_Taocan" EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" />
-          <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
           <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
+          <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -759,27 +759,6 @@
           <Property Name="CreatedTime" Type="Int64" Nullable="false" />
           <Property Name="Generated" Type="Boolean" Nullable="false" />
         </EntityType>
-        <EntityType Name="Marketing_Orders">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ActivityId" Type="Int32" Nullable="false" />
-          <Property Name="ActivityTaocanId" Type="Int32" Nullable="false" />
-          <Property Name="PlatformSalePrice" Type="Single" Nullable="false" />
-          <Property Name="PlatformPurchasePrice" Type="Single" Nullable="false" />
-          <Property Name="AgentSalePrice" Type="Single" Nullable="false" />
-          <Property Name="AgentPurchasePrice" Type="Single" Nullable="false" />
-          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
-          <Property Name="StartTime" Type="Int64" Nullable="false" />
-          <Property Name="ExpiredTime" Type="Int64" Nullable="false" />
-          <Property Name="UsedTime" Type="Int64" Nullable="false" />
-          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="MacAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Used" Type="Boolean" Nullable="false" />
-          <Property Name="Sent" Type="Boolean" Nullable="false" />
-          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Marketing_Activities">
           <Key>
             <PropertyRef Name="Id" />
@@ -796,6 +775,27 @@
           <Property Name="Generated" Type="Boolean" Nullable="false" />
           <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="ScanType" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Marketing_Orders">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ActivityId" Type="Int32" Nullable="false" />
+          <Property Name="ActivityTaocanId" Type="Int32" Nullable="false" />
+          <Property Name="PlatformSalePrice" Type="Single" Nullable="false" />
+          <Property Name="PlatformPurchasePrice" Type="Single" Nullable="false" />
+          <Property Name="AgentSalePrice" Type="Single" Nullable="false" />
+          <Property Name="AgentPurchasePrice" Type="Single" Nullable="false" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+          <Property Name="StartTime" Type="Int64" Nullable="false" />
+          <Property Name="ExpiredTime" Type="Int64" Nullable="false" />
+          <Property Name="UsedTime" Type="Int64" Nullable="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="OpenId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Used" Type="Boolean" Nullable="false" />
+          <Property Name="Sent" Type="Boolean" Nullable="false" />
+          <Property Name="CodePath" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1151,28 +1151,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Marketing_Orders">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Orders">
-              <MappingFragment StoreEntitySet="Marketing_Orders">
-                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
-                <ScalarProperty Name="Sent" ColumnName="Sent" />
-                <ScalarProperty Name="Used" ColumnName="Used" />
-                <ScalarProperty Name="MacAddress" ColumnName="MacAddress" />
-                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
-                <ScalarProperty Name="UsedTime" ColumnName="UsedTime" />
-                <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
-                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
-                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
-                <ScalarProperty Name="AgentPurchasePrice" ColumnName="AgentPurchasePrice" />
-                <ScalarProperty Name="AgentSalePrice" ColumnName="AgentSalePrice" />
-                <ScalarProperty Name="PlatformPurchasePrice" ColumnName="PlatformPurchasePrice" />
-                <ScalarProperty Name="PlatformSalePrice" ColumnName="PlatformSalePrice" />
-                <ScalarProperty Name="ActivityTaocanId" ColumnName="ActivityTaocanId" />
-                <ScalarProperty Name="ActivityId" ColumnName="ActivityId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Marketing_Activities">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Activities">
               <MappingFragment StoreEntitySet="Marketing_Activities">
@@ -1187,6 +1165,28 @@
                 <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
                 <ScalarProperty Name="StartedTime" ColumnName="StartedTime" />
                 <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Marketing_Orders">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Marketing_Orders">
+              <MappingFragment StoreEntitySet="Marketing_Orders">
+                <ScalarProperty Name="CodePath" ColumnName="CodePath" />
+                <ScalarProperty Name="Sent" ColumnName="Sent" />
+                <ScalarProperty Name="Used" ColumnName="Used" />
+                <ScalarProperty Name="OpenId" ColumnName="OpenId" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="UsedTime" ColumnName="UsedTime" />
+                <ScalarProperty Name="ExpiredTime" ColumnName="ExpiredTime" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="AgentPurchasePrice" ColumnName="AgentPurchasePrice" />
+                <ScalarProperty Name="AgentSalePrice" ColumnName="AgentSalePrice" />
+                <ScalarProperty Name="PlatformPurchasePrice" ColumnName="PlatformPurchasePrice" />
+                <ScalarProperty Name="PlatformSalePrice" ColumnName="PlatformSalePrice" />
+                <ScalarProperty Name="ActivityTaocanId" ColumnName="ActivityTaocanId" />
+                <ScalarProperty Name="ActivityId" ColumnName="ActivityId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

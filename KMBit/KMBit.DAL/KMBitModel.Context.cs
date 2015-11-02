@@ -50,7 +50,7 @@ namespace KMBit.DAL
         public DbSet<Resource_taocan> Resource_taocan { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Marketing_Activity_Taocan> Marketing_Activity_Taocan { get; set; }
-        public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
         public DbSet<Marketing_Activities> Marketing_Activities { get; set; }
+        public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
     }
 }
