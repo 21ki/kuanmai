@@ -16,11 +16,11 @@
 
 
 
-@*<a class="btn btn-primary" role="button" href="/Admin/CreateAgentRoute?agencyId=@Html.Raw(agency.User.Id)">
+<a class="btn btn-primary" target="_blank" role="button" href="/Admin/CreateAgentRoute?agencyId=@Html.Raw(agency.User.Id)">
     新建代理商路由
-</a>*@
+</a>
 
-<input id="new_agent_ruote" type="button" value="新建代理商路由" class="btn btn-primary" />
+@*<input id="new_agent_ruote" type="button" value="新建代理商路由" class="btn btn-primary" />*@
 
 @Html.Grid(Model).Named("AgentRouteGrid").Columns(columns=>
 {
@@ -55,7 +55,7 @@
 
 <script>
     $(function () {        
-        $('#new_agent_ruote').click(function () {
+        @*$('#new_agent_ruote').click(function () {
             $.get(
             "/Admin/CreateAgentRoute",
             { agencyId: @agency.User.Id },
@@ -66,7 +66,7 @@
                 }
             }
          );
-        });
+        });*@
     });
 
     function editRuote(routeId) {

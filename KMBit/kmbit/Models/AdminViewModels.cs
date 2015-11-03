@@ -173,11 +173,12 @@ namespace KMBit.Models
         [Display(Name = "密码")]
         public string Password { get; set; }
 
+        [Required(ErrorMessage ="代理商名称不能为空")]
         [Display(Name = "名称")]
         public string Name { get; set; }
 
-        [Required]
-        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "邮件不能为空")]
+        [DataType(DataType.EmailAddress,ErrorMessage ="邮件地址格式不正确")]
         [Display(Name = "邮箱")]
         public string Email { get; set; }
 
@@ -198,7 +199,7 @@ namespace KMBit.Models
         [Display(Name = "地址")]
         public string Address { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "代理商电话不能为空")]
         [Display(Name = "电话")]
         public string Phone { get; set; }
        
@@ -213,7 +214,7 @@ namespace KMBit.Models
     {   
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "请制定代理商")]
+        [Required(ErrorMessage = "请指定代理商")]
         [Display(Name = "代理商")]
         public int AgencyId { get; set; }
 

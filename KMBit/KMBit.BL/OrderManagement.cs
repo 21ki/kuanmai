@@ -100,7 +100,7 @@ namespace KMBit.BL
                 db = new chargebitEntities();
                 Marketing_Orders mOrder = null;
                 Marketing_Activity_Taocan mTaocan = null;
-
+                Marketing_Activities activity = null;
                 if (order.IsMarket && order.MarketOrderId>0)
                 {   
                     //if (string.IsNullOrEmpty(order.MacAddress))
@@ -112,21 +112,36 @@ namespace KMBit.BL
                     {
                         throw new KMBitException(string.Format("编号为{0}的活动充值记录不存在", order.MarketOrderId));
                     }
-                    if(mOrder.Used || mOrder.Sent)
+                    if(mOrder.Used)
                     {
-                        throw new KMBitException("已经只用过，不能重复使用");
+                        throw new KMBitException("此二维码已经只用过，不能重复使用");
                     }
                     mTaocan = (from m in db.Marketing_Activity_Taocan where m.Id == mOrder.ActivityTaocanId select m).FirstOrDefault<Marketing_Activity_Taocan>();
                     if (mTaocan == null)
                     {
                         throw new KMBitException(string.Format("编号为{0}的活动充值记录的套餐信息不存在", order.MarketOrderId));
                     }
-                    //check if the device or the number is already charged
-                    int count = (from mo in db.Marketing_Orders where mo.PhoneNumber == order.MobileNumber && mo.ActivityId == mTaocan.ActivityId select mo.Id).Count();
-                    if (count > 0)
+
+                    activity = (from a in db.Marketing_Activities where a.Id == mTaocan.ActivityId select a).FirstOrDefault<Marketing_Activities>();
+                    if(activity==null)
                     {
-                        throw new KMBitException("同一次营销活动每个手机每个号码只能扫描使用一次");
+                        throw new KMBitException(string.Format("编号为{0}的活动不存在", mTaocan.ActivityId));
                     }
+                    //check if the device or the number is already charged
+                    if(activity.ScanType==1)
+                    {
+                        int[] acos = (from mo in db.Marketing_Orders where mo.ActivityId==activity.Id select mo.Id).ToArray<int>();
+                        if(acos==null || acos.Length<=0)
+                        {
+                            throw new KMBitException(string.Format("编号为{0}的活动还没有任何可用的充值套餐", mTaocan.ActivityId));
+                        }
+                        //验证电话号码是否在某个直扫活动里已经成功充值过
+                        int count = (from o in db.Charge_Order where o.Phone_number==order.MobileNumber && o.Status!=3 && acos.Contains(o.MarketOrderId) select o.Id).Count();
+                        if (count > 0)
+                        {
+                            throw new KMBitException("同一次营销活动每个手机每个号码只能扫描一次");
+                        }
+                    }     
 
                     order.ResourceId = mTaocan.ResourceId;
                     order.ResourceTaocanId = mTaocan.ResourceTaocanId;
@@ -443,7 +458,8 @@ namespace KMBit.BL
                                 TaocanName = lltcc!=null? lltcc.Name:"",
                                 Refound=o.Refound,
                                 Revenue=o.Revenue,
-                                ChargeType= o.Charge_type
+                                ChargeType= o.Charge_type,
+                                MarketOrderId=o.MarketOrderId
                             };
 
                 if(orderId>0)

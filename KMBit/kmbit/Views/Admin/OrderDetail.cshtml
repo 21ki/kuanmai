@@ -165,7 +165,7 @@
 
         <dd>
             @Html.DisplayFor(model => model.Refound)
-            @if (Model.Status == 3 && !Model.Refound && Model.Operator==0) {
+            @if (Model.Status == 3 && !Model.Refound && Model.Operator==0 && Model.MarketOrderId<=0) {
                 @Html.ActionLink("手动退款", "Refound", "Admin");
             }
         </dd>    

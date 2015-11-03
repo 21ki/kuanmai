@@ -64,5 +64,7 @@ namespace KMBit.Beans
 
         [Display(Name = "收益")]
         public float Revenue { get; set; }
+
+        public int MarketOrderId { get; set; }
     }
 }

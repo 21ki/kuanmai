@@ -607,7 +607,7 @@ namespace KMBit.Controllers
             }
 
             List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), activityId);
-            ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - " + (r.Taocan.Taocan.Sale_price * r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
+            ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - 代理价格" + (r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
             ActivityTaocanModel model = new ActivityTaocanModel() { ActivityId= activityId,CustomerId= customerId };
             return View(model);
         }
@@ -650,11 +650,13 @@ namespace KMBit.Controllers
         [HttpPost]
         public ActionResult CreateActivityTaocan(ActivityTaocanModel model)
         {
-            if(ModelState.IsValid)
+            ActivityManagement activityMgr = null;
+            if (ModelState.IsValid)
             {
+               
                 try
                 {
-                    ActivityManagement activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
+                    activityMgr = new ActivityManagement(User.Identity.GetUserId<int>());
                     Marketing_Activity_Taocan taocan = new Marketing_Activity_Taocan() { ActivityId=model.ActivityId, Price=model.Price, Quantity=model.Quantity, RouteId=model.RouteId};
                     activityMgr.CreateActivityTaocan(taocan);
                     return Redirect("/Agent/CustomerAcivities?customerId="+model.CustomerId);
@@ -663,8 +665,12 @@ namespace KMBit.Controllers
                 {
                     ViewBag.Message = ex.Message;
                 }
+
                 finally { }
             }
+
+            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), model.ActivityId);
+            ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - 代理价格" + (r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
             return View(model);
         }
 

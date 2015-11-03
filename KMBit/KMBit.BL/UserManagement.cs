@@ -4,6 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using System.Security;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.DataProtection;
 
 using KMBit.DAL;
 using KMBit.Beans;
@@ -104,7 +108,7 @@ namespace KMBit.BL
             }
         }
 
-        public void SetUserPassword(int userId, string password)
+        public async Task<bool> SetUserPassword(int userId, string password)
         {
             if (userId == 0)
             {
@@ -132,12 +136,26 @@ namespace KMBit.BL
             {
                 throw new KMBitException("任何人都没有权限修改站长密码");
             }
+            bool ret = false;
             try
             {
+                var provider = new DpapiDataProtectionProvider("Sample");
                 manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
-                manager.AddPasswordAsync(userId, password);
+                manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser,int>(provider.Create("usertoken"));
+                string code = manager.GeneratePasswordResetToken(userId);
+                var result = await manager.ResetPasswordAsync(userId, code, password);
+                if(result.Succeeded)
+                {
+                    ret= true;
+                }else
+                {
+                    ret= false;
+                }
             }
-            catch { }
+            catch(Exception ex)
+            {
+
+            }
             finally
             {
                 if (manager != null)
@@ -145,6 +163,8 @@ namespace KMBit.BL
                     manager.Dispose();
                 }
             }
+
+            return ret;
         }
     }
 }

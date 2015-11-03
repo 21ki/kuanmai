@@ -80,6 +80,11 @@ namespace KMBit.Controllers.api
                 resp.Content = new StringContent("false", System.Text.Encoding.UTF8, "text/plain");
                 return resp;               
             }
+            if(!string.IsNullOrEmpty(echostr))
+            {
+                resp.Content = new StringContent(echostr, System.Text.Encoding.UTF8, "text/plain");
+                return resp;
+            }
 
             try
             {               

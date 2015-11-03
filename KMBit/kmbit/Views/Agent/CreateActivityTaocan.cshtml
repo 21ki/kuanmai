@@ -42,7 +42,14 @@
                 @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
             </div>
         </div>
-
+        @if (ViewBag.Message != null)
+        {
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <p style="color:red;">@Html.Raw(ViewBag.Message)</p>
+                </div>
+            </div>
+        }
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="保存" class="btn btn-default" />

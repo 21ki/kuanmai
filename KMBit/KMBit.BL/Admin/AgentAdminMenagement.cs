@@ -230,6 +230,7 @@ namespace KMBit.BL.Admin
                             from llsp in lsp.DefaultIfEmpty()
                             join tcc in db.Taocan on tc.Taocan_id equals tcc.Id into ltc
                             from lltc in ltc.DefaultIfEmpty()
+                            where r.Sale_price>0
                             select new BAgentRoute
                             {
                                 Route = r,

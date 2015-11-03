@@ -377,7 +377,8 @@ namespace KMBit.Controllers
             ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             ViewBag.Resource = resource;
-            mode.Enabled = true;           
+            mode.Enabled = true;
+            mode.EnabledDiscount = true;          
             return View(mode);
         }
 
@@ -1160,7 +1161,7 @@ namespace KMBit.Controllers
         }
 
         [HttpPost]
-        public ActionResult SetUserPassword(SetPasswordViewModel model)
+        public async Task<ActionResult> SetUserPassword(SetPasswordViewModel model)
         {
             UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
             try
@@ -1168,8 +1169,9 @@ namespace KMBit.Controllers
                 BUser user = userMgr.GetUserInfo(model.Id);
                 if (ModelState.IsValid)
                 {                    
-                    userMgr.SetUserPassword(model.Id, model.NewPassword);
-                    if(!user.IsAdmin)
+                    bool ret= await userMgr.SetUserPassword(model.Id, model.NewPassword);                    
+                    //var result = await userMgr.AddPasswordAsync(User.Identity.GetUserId<int>(), model.NewPassword);
+                    if (!user.IsAdmin)
                     {
                         return RedirectToAction("Agencies");
                     }else

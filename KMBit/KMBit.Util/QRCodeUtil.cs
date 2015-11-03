@@ -46,7 +46,7 @@ namespace KMBit.Util
             finally { }            
         }
 
-        public static void CreateQRCode(string path,string fileName,string codeContent,int size=6)
+        public static void CreateQRCode(string path,string fileName,string codeContent,int size=3)
         {
             Bitmap bit = Create_ImgCode(codeContent, size);
             SaveImg(path,fileName,bit);

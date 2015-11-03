@@ -187,7 +187,14 @@ namespace KMBit.BL
 
         public Task UpdateAsync(ApplicationUser user)
         {
-            throw new NotImplementedException();
+            Users dbUser=(from u in content.Users where u.Id==user.Id select u).FirstOrDefault<Users>();
+            if(dbUser!=null)
+            {
+                dbUser.PasswordHash = user.PasswordHash;
+                Task task=content.SaveChangesAsync();
+                return task;
+            }
+            return null;         
         }
 
         private static void SetApplicationUser(ApplicationUser user, IdentityUser identityUser)

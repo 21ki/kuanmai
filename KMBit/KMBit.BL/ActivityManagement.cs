@@ -56,7 +56,23 @@ namespace KMBit.BL
                 result.Message = "参数不正确";
                 return result;
             }
-            using (chargebitEntities db = new chargebitEntities())
+            int sp = 0;
+            if (orderCharge.SPName.Contains("联通"))
+            {
+                sp = 3;
+            }
+            else if (orderCharge.SPName.Contains("移动"))
+            {
+                sp = 1;
+            }
+            else if (orderCharge.SPName.Contains("电信"))
+            {
+                sp = 2;
+            }
+            chargebitEntities db = new chargebitEntities();
+            Marketing_Activity_Taocan mtaocan = null;
+            Marketing_Orders mOrder = null;
+            try
             {
                 Marketing_Activities activity = (from a in db.Marketing_Activities where a.Id==orderCharge.ActivityId select a).FirstOrDefault<Marketing_Activities>();
                 if(activity==null)
@@ -98,23 +114,11 @@ namespace KMBit.BL
                     Province = orderCharge.Province,
 
                 };
-                Marketing_Activity_Taocan mtaocan = null;
-                Marketing_Orders mOrder = null;
+               
+                //direct scan
                 if (activity.ScanType==1 && orderCharge.ActivityOrderId<=0)
                 {
-                    //判断是否还有可用marketing order
-                    int sp = 0;
-                    if (orderCharge.SPName.Contains("联通"))
-                    {
-                        sp = 3;
-                    }else if(orderCharge.SPName.Contains("移动"))
-                    {
-                        sp = 1;
-                    }
-                    else if (orderCharge.SPName.Contains("电信"))
-                    {
-                        sp = 2;
-                    }
+                    //判断是否还有可用marketing order                   
 
                     List<Marketing_Activity_Taocan> rTaocans = (from mt in db.Marketing_Activity_Taocan
                                                                 join t in db.Resource_taocan on mt.ResourceTaocanId equals t.Id
@@ -147,7 +151,7 @@ namespace KMBit.BL
                     //db.SaveChanges();
                     order.MarketOrderId = mOrder.Id;
                     order.ResourceTaocanId = mtaocan.ResourceTaocanId;
-                }
+                }//weichat push
                 else if(activity.ScanType==2 && orderCharge.ActivityOrderId>0)
                 {
                     mOrder = (from o in db.Marketing_Orders where o.Id==orderCharge.ActivityOrderId select o).FirstOrDefault<Marketing_Orders>();
@@ -168,6 +172,31 @@ namespace KMBit.BL
                     {
                         result.Status = ChargeStatus.FAILED;
                         result.Message = "参数有误";
+                        return result;
+                    }
+                    Resource_taocan rT = (from r in db.Resource_taocan where r.Id == mtaocan.ResourceTaocanId select r).FirstOrDefault<Resource_taocan>();
+                    if(rT==null)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = "参数有误";
+                        return result;
+                    }
+                    if(rT.Sp_id!=sp)
+                    {
+                        string tmpSPName = "";
+                        if(rT.Sp_id==1)
+                        {
+                            tmpSPName = "中国移动";
+                        }else if(rT.Sp_id==2)
+                        {
+                            tmpSPName = "中国电信";
+                        }
+                        else if (rT.Sp_id == 3)
+                        {
+                            tmpSPName = "中国联通";
+                        }
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = string.Format("此二维码链接不能充值{0}的手机号码的流量，只能充值{1}的号码的流量",orderCharge.SPName,tmpSPName);
                         return result;
                     }
                     order.ResourceTaocanId = mtaocan.ResourceTaocanId;
@@ -212,6 +241,35 @@ namespace KMBit.BL
                     db.SaveChanges();
                 }                
             }
+            catch (KMBitException kex)
+            {
+                logger.Warn(kex);
+                result.Status = ChargeStatus.FAILED;
+                result.Message = kex.Message;
+                if(mOrder!=null)
+                {
+                    mOrder.Used = false;
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Fatal(ex);
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "系统错误，稍后再试";
+                if (mOrder != null)
+                {
+                    mOrder.Used = false;
+                    db.SaveChanges();
+                }
+            }
+            finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
+            }
             logger.Info("Finished MarketingCharge");
             return result;
         }
@@ -238,17 +296,16 @@ namespace KMBit.BL
                 }
               
                 codePath = agendId + "\\"+customerId;
-                string fileName = Guid.NewGuid().ToString() + ".png";
+                string fileName = Guid.NewGuid().ToString() + ".png";                
                 string absPath = agendId + "/" + customerId + "/" + fileName;
-                string fullDirectory = Path.Combine(settings.RootDirectory + settings.QRFolder, codePath);
-                if (!string.IsNullOrEmpty(activity.CodePath) && File.Exists(Path.Combine(fullDirectory,fileName)))
+                string fullDirectory = Path.Combine(settings.RootDirectory + "\\"+settings.QRFolder, codePath);
+                if (!string.IsNullOrEmpty(activity.CodePath) && File.Exists(Path.Combine(settings.RootDirectory + "\\" + settings.QRFolder, activity.CodePath.Replace('/','\\'))))
                 {
-                    return absPath;
+                    return activity.CodePath;
                 }
                 string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}", agendId, customerId, activityId);
                 parameter = KMEncoder.Encode(parameter);                
-                string codeContent = string.Format("{0}/Product/SaoMa?p={1}",settings.WebURL, parameter);
-                
+                string codeContent = string.Format("{0}/Product/SaoMa?p={1}",settings.WebURL, parameter);                
                 QRCodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
                 if(File.Exists(Path.Combine(fullDirectory, fileName)))
                 {
@@ -347,7 +404,7 @@ namespace KMBit.BL
                 {
                     query = query.Where(o => o.Activity.CustomerId == customerId);
                 }
-                query = query.OrderBy(o=>o.Customer.Name).OrderByDescending(o=>o.Activity.CreatedTime);
+                query = query.OrderBy(o=>o.Customer.Name).OrderByDescending(o=>o.Activity.Id);
                 if(paging)
                 {
                     page = page > 0 ? page : 1;
@@ -436,7 +493,7 @@ namespace KMBit.BL
                 }
                 Marketing_Activity_Taocan mTaocan = rTaocans[0];
                 Marketing_Orders returnOrder = null;
-                List<Marketing_Orders> existedOrders = (from mo in db.Marketing_Orders where mo.ActivityId==activity.Id && mo.ActivityTaocanId==mTaocan.Id && mo.OpenId==openId select mo).ToList<Marketing_Orders>();
+                List<Marketing_Orders> existedOrders = (from mo in db.Marketing_Orders where mo.ActivityId==activity.Id && mo.OpenId==openId select mo).ToList<Marketing_Orders>();
                 if(existedOrders.Count>0)
                 {
                     returnOrder = existedOrders[0];
@@ -603,12 +660,17 @@ namespace KMBit.BL
                 {
                     throw new KMBitException("代理商账户没有足够的余额");
                 }
+                if(customer.RemainingAmount<taocan.Quantity * taocan.Price)
+                {
+                    throw new KMBitException("客户账户没有足够的余额");
+                }
 
                 db.Marketing_Activity_Taocan.Add(taocan);
                 db.SaveChanges();
                 if(taocan.Id>0)
                 {
                     agency.Remaining_amount -= taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount);
+                    customer.RemainingAmount-= taocan.Quantity * taocan.Price;
                     db.SaveChanges();
                     for (int i=0;i<taocan.Quantity;i++)
                     {

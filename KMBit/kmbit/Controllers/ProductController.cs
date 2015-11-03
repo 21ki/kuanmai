@@ -108,10 +108,11 @@ namespace KMBit.Controllers
             string spName = Request["SPName"];
             string province= Request["Province"];
             string city = Request["City"];
+            Dictionary<string, string> paras = new Dictionary<string, string>();           
             if (string.IsNullOrEmpty(p))
             {
                 ViewBag.Message = "参数错误，请正确扫码，输入手机号码点充值";
-            }
+            }           
             else
             {
                 int agentId = 0;
@@ -158,6 +159,11 @@ namespace KMBit.Controllers
                         };
                         KMBit.BL.Charge.ChargeResult result = activityMgr.MarketingCharge(order);
                         ViewBag.Message = result.Message;
+                        if(result.Status == ChargeStatus.FAILED)
+                        {
+                            ViewBag.Paras = paras;
+                            paras.Add("p", p);
+                        }
                     }
                 }else
                 {

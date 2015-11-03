@@ -206,7 +206,18 @@ namespace KMBit.BL
                                         cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
                                         agency.Remaining_amount += cOrder.Purchase_price;
                                         cOrder.Refound = true;
-                                    }                                   
+                                    }else
+                                    {
+                                        //no need to refound for scanning
+                                        cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
+                                        cOrder.Refound = false;
+                                        Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                                        if(mOrder!=null)
+                                        {
+                                            mOrder.Used = false;
+                                            db.SaveChanges();
+                                        }
+                                    }                                  
                                 }
                             }else
                             {

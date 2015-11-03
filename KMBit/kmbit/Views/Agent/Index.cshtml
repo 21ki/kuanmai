@@ -39,6 +39,12 @@
 <div>
     <dl class="dl-horizontal">
         <dt>
+            @Html.DisplayName("编号")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.Id)
+        </dd>
+        <dt>
             @Html.DisplayName("名称")
         </dt>
         <dd>
