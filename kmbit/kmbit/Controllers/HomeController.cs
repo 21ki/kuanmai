@@ -30,5 +30,10 @@ namespace KMBit.Controllers
             Help_Info info = siteMgr.GetHelpInfo();
             return View(info);
         }
+
+        public ActionResult Test()
+        {
+            return View();
+        }
     }
 }

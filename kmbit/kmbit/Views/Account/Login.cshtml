@@ -3,15 +3,42 @@
 @{
     ViewBag.Title = "登录";
 }
-
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script type="text/javascript">
+    $(function () {
+        $('#btn_Login').click(function () {
+            var userName = $('#Email').val();
+            var password = $('#Password').val();
+            var salt = $('#Salt').val();
+            if ($.trim(userName) == '' || $.trim(password) == '') {
+                $('#LoginForm').submit();
+            }            
+            var str = salt + password;                    
+            var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+            var iv = CryptoJS.enc.Utf8.parse('8080808080808080');            
+            var encryptedEmail = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(userName), key, { keySize: 128 / 8, iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+            var encryptedPassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(str), key, { keySize: 128 / 8, iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });           
+            $('#EncryptedEmail').val(encryptedEmail);
+            $('#EncryptedPassword').val(encryptedPassword);
+            $('#Email').val('kuanmaibit@kxcall.com');
+            $('#Password').val('kuanmaibit')
+            $('#Salt').val("");
+            $('#LoginForm').submit();
+        });
+    });
+</script>
 <h2>@ViewBag.Title</h2>
 <div class="row">
     <div class="col-md-8">
         <section id="loginForm">
-            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form",@id="LoginForm" }))
             {
                 @Html.AntiForgeryToken()
-               
+                @Html.HiddenFor(model=>model.Salt)
+                @Html.HiddenFor(model => model.EncryptedEmail)
+                @Html.HiddenFor(model => model.EncryptedPassword)
                 <hr />
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
@@ -38,7 +65,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" value="登录" class="btn btn-default" />
+                        <input id="btn_Login" name="btn_Login" type="button" value="登录" class="btn btn-default" />
                     </div>
                 </div>
                 <!--
@@ -61,7 +88,3 @@
     </div>
         -->
 </div>
-
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-}

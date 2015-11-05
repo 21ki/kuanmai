@@ -285,6 +285,7 @@
     <Fakes Include="Fakes\Microsoft.AspNet.Identity.Core.fakes" />
     <None Include="Properties\PublishProfiles\kmbit.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\Crypto\aes.js" />
     <Content Include="Scripts\gridmvc.js" />
     <Content Include="Scripts\gridmvc.lang.ru.js" />
     <Content Include="Scripts\gridmvc.min.js" />
@@ -813,6 +814,7 @@
     <Content Include="Views\Product\SaoMa.cshtml" />
     <Content Include="Views\Product\Error.cshtml" />
     <Content Include="Views\Agent\GetActivityCode.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -57,9 +57,11 @@ namespace KMBit.Models
         [DataType(DataType.Password)]
         [Display(Name = "密码")]
         public string Password { get; set; }
-
+        public string EncryptedEmail { get; set; }
+        public string EncryptedPassword { get; set; }
         [Display(Name = "下次自动登录?")]
         public bool RememberMe { get; set; }
+        public string Salt { get; set; }
     }
 
     public class RegisterViewModel

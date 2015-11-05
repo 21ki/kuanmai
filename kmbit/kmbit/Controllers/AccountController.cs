@@ -71,7 +71,10 @@ namespace KMBit.Controllers
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-            return View();
+            LoginViewModel model = new LoginViewModel();
+            model.Salt = Guid.NewGuid().ToString().Substring(0,6);
+            Session["LoginSalt"] = model.Salt;
+            return View(model);
         }
         [AllowAnonymous]
         public ActionResult LoginError(string message)
@@ -90,8 +93,17 @@ namespace KMBit.Controllers
             {
                 return View(model);
             }
-            //PasswordHasher ph = new PasswordHasher();
-            //PasswordVerificationResult results = ph.VerifyHashedPassword("ACvYkgryHPtgvEVbgvSOzhqGDR1gNqAL0SdThqJUChcFyvFBfsPGP+x9C8nOWe6IzA==", model.Password);
+
+            model.Email = KMBit.Util.KMAes.DecryptStringAES(model.EncryptedEmail);
+            model.Password= KMBit.Util.KMAes.DecryptStringAES(model.EncryptedPassword).Substring(6);
+            string salt = Session["LoginSalt"].ToString();
+            string postedSalt= KMBit.Util.KMAes.DecryptStringAES(model.EncryptedPassword).Substring(0,6);
+            if(salt!=postedSalt)
+            {
+                ModelState.AddModelError("", "用户或者密码错误");
+                return View(model);
+            }
+            Session["LoginSalt"] = null;
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
@@ -105,7 +117,7 @@ namespace KMBit.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
                 default:
-                    ModelState.AddModelError("", "Invalid login attempt.");
+                    ModelState.AddModelError("", "用户或者密码错误");
                     return View(model);
             }
         }

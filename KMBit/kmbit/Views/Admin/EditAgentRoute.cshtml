@@ -69,7 +69,7 @@
         <div class="form-group">
             <label class="control-label col-md-2" for="Email">成本价</label>
             <div class="col-md-10">
-                <input id="Purchase_price" class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw(ruote.Taocan.Taocan.Purchase_price+"元")" />
+                <input id="Purchase_price" class="form-control text-box single-line valid" data-val="true" readonly="readonly" value="@Html.Raw((ruote.Taocan.Taocan.Purchase_price*ruote.Taocan.Taocan.Resource_Discount).ToString("0.00")+"元")" />
 
             </div>
         </div>

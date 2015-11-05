@@ -134,7 +134,7 @@ namespace KMBit.BL.Charge
                 }
                 ServerUri = new Uri(rInterface.APIURL);
                 parmeters.Add(new WebRequestParameters("appKey", rInterface.Username, false));
-                parmeters.Add(new WebRequestParameters("appSecret", rInterface.Userpassword, false));
+                parmeters.Add(new WebRequestParameters("appSecret", KMAes.DecryptStringAES(rInterface.Userpassword), false));
                 parmeters.Add(new WebRequestParameters("phoneNo", order.MobileNumber, false));
                 parmeters.Add(new WebRequestParameters("prodCode", taocan.Serial, false));
                 parmeters.Add(new WebRequestParameters("backUrl", rInterface.CallBackUrl, false));

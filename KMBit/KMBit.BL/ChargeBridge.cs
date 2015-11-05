@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,5 +143,32 @@ namespace KMBit.BL
 
             return result;
         }
+
+        public ChargeResult ChargeCallBack(SortedDictionary<string, string> parameters)
+        {
+            ChargeResult result = new ChargeResult();
+            if(parameters==null)
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "回调参数错误";
+                return result;
+            }
+
+            string orderStrId = null;
+            if(parameters.ContainsKey("transNo"))
+            {
+                orderStrId = parameters["transNo"];
+                ICharge chargeMgr = new ChongBaCharge();
+                List<WebRequestParameters> paramters = new List<WebRequestParameters>();
+                paramters.Add(new WebRequestParameters("orderId", parameters["orderId"], false));
+                paramters.Add(new WebRequestParameters("respCode", parameters["respCode"], false));
+                paramters.Add(new WebRequestParameters("respMsg", parameters["respMsg"], false));
+                paramters.Add(new WebRequestParameters("transNo", parameters["transNo"], false));
+                chargeMgr.CallBack(paramters);
+                result.Status = ChargeStatus.SUCCEED;
+                result.Message = "回调成功";
+            }
+            return result;
+        }        
     }
 }

@@ -28,7 +28,8 @@ namespace KMBit
                       "~/Scripts/bootstrap-datepicker.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/sitejs").Include(
-                       "~/Scripts/kmsite.js"));
+                       "~/Scripts/kmsite.js",                       
+                       "~/Scripts/Crypto/aes.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",

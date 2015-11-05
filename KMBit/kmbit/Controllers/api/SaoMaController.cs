@@ -80,12 +80,12 @@ namespace KMBit.Controllers.api
                 resp.Content = new StringContent("false", System.Text.Encoding.UTF8, "text/plain");
                 return resp;               
             }
+            //For weixin URL verification
             if(!string.IsNullOrEmpty(echostr))
             {
                 resp.Content = new StringContent(echostr, System.Text.Encoding.UTF8, "text/plain");
                 return resp;
             }
-
             try
             {               
                 ActivityManagement activityMgr = new ActivityManagement(0);
@@ -101,7 +101,6 @@ namespace KMBit.Controllers.api
                 sream.Close();
                 //strXML = "<xml><ToUserName><![CDATA[gh_3f1c1268428a]]></ToUserName><FromUserName><![CDATA[oNEHRsogX4seVvYK5v3S-veFUkEk]]></FromUserName><CreateTime>1446455044</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[+联通]]></Content><MsgId>6212477109514836427</MsgId></xml>";
                 logger.Info(string.Format("Message pushed by Weichat server:{0}", strXML));
-
                 WeiChatReceivedContentMessage weiChatMessage = WeiChatMessageUtil.ParseWeichatXML(strXML,logger);
                 if (weiChatMessage != null)
                 {
@@ -109,8 +108,12 @@ namespace KMBit.Controllers.api
                     openId = weiChatMessage.FromUserName;
                     openPublic = weiChatMessage.ToUserName;
                 }
-
-                if (spName.Contains("+联通") && spName.Contains("+移动") && spName.Contains("+电信"))
+                if(string.IsNullOrEmpty(spName))
+                {
+                    resp.Content = new StringContent("success", System.Text.Encoding.UTF8, "text/plain");
+                    return resp;
+                }
+                if (!spName.Contains("+联通") && !spName.Contains("+移动") && !spName.Contains("+电信"))
                 {
                     resp.Content = new StringContent("success", System.Text.Encoding.UTF8, "text/plain");
                     return resp;
@@ -136,41 +139,37 @@ namespace KMBit.Controllers.api
 
             logger.Info(string.Format("GetOneRandomMarketOrderQrCodeUrl Status:{0}, Message:{1}",message.Status,message.Message));
             string returnXml = "";
-            if (spName.Contains("+联通") || spName.Contains("+移动") || spName.Contains("+电信"))
+            if (message.Status == "OK")
             {
-                if (message.Status == "OK")
+                WeiChatNewsMessage news = new WeiChatNewsMessage();
+                news.ToUserName = openId;
+                news.FromUserName = openPublic;
+                news.MsgType = "news";
+                List<WeiChatArticle> articles = new List<WeiChatArticle>();
+                news.Articles = articles;
+                WeiChatArticle article = new WeiChatArticle()
                 {
-                    WeiChatNewsMessage news = new WeiChatNewsMessage();
-                    news.ToUserName = openId;
-                    news.FromUserName = openPublic;
-                    news.MsgType = "news";
-                    List<WeiChatArticle> articles = new List<WeiChatArticle>();
-                    news.Articles = articles;
-                    WeiChatArticle article = new WeiChatArticle()
-                    {
-                        Description = "",
-                        Title = "将二维码保存到相册,微信->发现->扫一扫->相册，选择刚刚保存的二维码",
-                        PicUrl = message.Item.ToString(),
-                        Url = message.Item.ToString()
-                    };                    
-                    articles.Add(article);
-                    returnXml = WeiChatMessageUtil.PrepareWeiChatNewsXml(news);                    
-                }
-                else
-                {
-                    WeiChatContentMessage msg = new WeiChatContentMessage()
-                    {
-                        Content = message.Message,
-                        CreateTime = 0,
-                        FromUserName = openPublic,
-                        MsgType = "text",
-                        ToUserName = openId
-                    };
-                    returnXml = WeiChatMessageUtil.PrepareWeiChatXml(msg);
-                }
+                    Description = "",
+                    Title = "将二维码保存到相册,微信->发现->扫一扫->相册，选择刚刚保存的二维码",
+                    PicUrl = message.Item.ToString(),
+                    Url = message.Item.ToString()
+                };
+                articles.Add(article);
+                returnXml = WeiChatMessageUtil.PrepareWeiChatNewsXml(news);
             }
-
-            logger.Info(returnXml);
+            else
+            {
+                WeiChatContentMessage msg = new WeiChatContentMessage()
+                {
+                    Content = message.Message,
+                    CreateTime = 0,
+                    FromUserName = openPublic,
+                    MsgType = "text",
+                    ToUserName = openId
+                };
+                returnXml = WeiChatMessageUtil.PrepareWeiChatXml(msg);
+            }
+            //logger.Info(returnXml);
             resp.Content = new StringContent(returnXml, System.Text.Encoding.UTF8, "text/plain");
             return resp;
         }

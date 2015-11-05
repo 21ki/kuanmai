@@ -173,7 +173,7 @@ namespace KMBit.Controllers
                 {
                     model.Id = api.Id;
                     model.InterfaceName = api.Interface_classname;
-                    model.Password = api.Userpassword;
+                    model.Password = KMAes.DecryptStringAES(api.Userpassword);
                     model.UserName = api.Username;
                     model.ResoucedId = api.Resource_id;
                     model.ApiUrl = api.APIURL;

@@ -39,7 +39,7 @@ namespace KMBit.Util
                     byte[] result = desencrypt.TransformFinalBlock(data, 0, data.Length);
                     return BitConverter.ToString(result);
                 }
-                catch(Exception ex)
+                catch
                 { }
                
             }

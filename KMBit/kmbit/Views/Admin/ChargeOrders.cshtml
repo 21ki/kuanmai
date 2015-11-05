@@ -85,7 +85,7 @@
                     <div class="form-group">
                         @Html.LabelFor(model => model.SearchModel.AgencyId, htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.SearchModel.AgencyId, (SelectList)ViewBag.Agencies, "--选择代理商--", new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.DropDownListFor(model => model.SearchModel.AgencyId, (SelectList)ViewBag.Agencies, "--选择代理商--", new { @class = "form-control" } )
                             @Html.ValidationMessageFor(model => model.SearchModel.AgencyId, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                     <div class="form-group">
                         @Html.LabelFor(model => model.SearchModel.ResourceId, htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.SearchModel.ResourceId, (SelectList)ViewBag.Resources, "--选择资源--", new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.DropDownListFor(model => model.SearchModel.ResourceId, (SelectList)ViewBag.Resources, "--选择资源--", new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.SearchModel.ResourceId, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -101,14 +101,14 @@
                     <div class="form-group">
                         @Html.LabelFor(model => model.SearchModel.ResourceTaocanId, htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.SearchModel.ResourceTaocanId, (SelectList)ViewBag.Taocans, "--选择套餐--", new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.DropDownListFor(model => model.SearchModel.ResourceTaocanId, (SelectList)ViewBag.Taocans, "--选择套餐--", new { @class = "form-control" } )
                             @Html.ValidationMessageFor(model => model.SearchModel.ResourceTaocanId, "", new { @class = "text-danger" })
                         </div>
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(model => model.SearchModel.Status, htmlAttributes: new { @class = "control-label col-md-2" })
                         <div class="col-md-8">
-                            @Html.DropDownListFor(model => model.SearchModel.Status, (SelectList)ViewBag.StatusList, "--选择状态--", new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.DropDownListFor(model => model.SearchModel.Status, (SelectList)ViewBag.StatusList, "--选择状态--", new { @class = "form-control" } )
                             @Html.ValidationMessageFor(model => model.SearchModel.Status, "", new { @class = "text-danger" })
                         </div>
                     </div>

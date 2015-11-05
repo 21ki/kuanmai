@@ -30,14 +30,14 @@ namespace KMBit.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "{0}长度至少为{2}位.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "密码长度至少为6位", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "新密码")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "确认密码")]
-        [Compare("NewPassword", ErrorMessage = "两次密码不一致.")]
+        [Compare("NewPassword", ErrorMessage = "两次密码输入不一致")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -45,18 +45,18 @@ namespace KMBit.Models
     {
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "当前密码")]
+        [Display(Name = "旧密码")]
         public string OldPassword { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "{0}长度至少为{2}位.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "密码长度至少为6位", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "新密码")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "确认新密码")]
-        [Compare("NewPassword", ErrorMessage = "两次密码不一致.")]
+        [Compare("NewPassword", ErrorMessage = "两次密码输入不一致")]
         public string ConfirmPassword { get; set; }
     }
 

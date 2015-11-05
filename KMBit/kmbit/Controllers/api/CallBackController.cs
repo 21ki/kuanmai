@@ -18,22 +18,14 @@ namespace KMBit.Controllers.api
             ApiMessage message = new ApiMessage() { Status = "OK", Message = "成功执行回调函数" };
             try
             {
-                this.IniRequest();                
+                this.IniRequest();
                 ICharge chargeMgr = new ChongBaCharge();
                 List<WebRequestParameters> paramters = new List<WebRequestParameters>();
                 paramters.Add(new WebRequestParameters("orderId", request["orderId"], false));
                 paramters.Add(new WebRequestParameters("respCode", request["respCode"], false));
                 paramters.Add(new WebRequestParameters("respMsg", request["respMsg"], false));
                 paramters.Add(new WebRequestParameters("transNo", request["transNo"], false));
-                if (paramters.Count > 0)
-                {
-                    chargeMgr.CallBack(paramters);
-                }
-                else
-                {
-                    message.Status = "ERROE";
-                    message.Message = "经销商充值系统没有回调数据，充值失败";
-                }
+                chargeMgr.CallBack(paramters);
             }
             catch(KMBitException e)
             {
@@ -44,10 +36,41 @@ namespace KMBit.Controllers.api
             {
                 message.Status = "ERROE";
                 message.Message = ex.Message;
-            }
-           
+            }          
             
             return message;
         }
+
+        [AcceptVerbs("POST", "GET")]
+        public ApiMessage ChargeBack()
+        {
+            ApiMessage message = new ApiMessage();
+            try
+            {
+                this.IniRequest();
+                SortedDictionary<string, string> sArray = GetRequestParameters();
+                ChargeBridge bridge = new ChargeBridge();
+                ChargeResult result = bridge.ChargeCallBack(sArray);
+                message.Message = result.Message;
+                message.Status = "OK";
+                if (result.Status!=  ChargeStatus.SUCCEED)
+                {
+                    message.Status = "ERROR";
+                }
+            }
+            catch (KMBitException kex)
+            {
+                message.Status = "ERROR";
+                message.Message = kex.Message;
+            }
+            catch (Exception ex)
+            {
+                message.Status = "ERROR";
+                message.Message = "未知错误";
+            }
+
+            return message;
+        }
+
     }
 }

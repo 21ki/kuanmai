@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Encoder.cs" />
+    <Compile Include="KMAes.cs" />
     <Compile Include="QRCodeUtil.cs" />
     <Compile Include="DateTimeUtil.cs" />
     <Compile Include="PasswordUtil.cs" />

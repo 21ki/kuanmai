@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,6 +23,34 @@ namespace KMBit.Controllers.api
         {
             this.context = (HttpContextBase)Request.Properties["MS_HttpContext"];
             this.request = context.Request;
-        }    
+        }
+
+        public SortedDictionary<string, string> GetRequestParameters()
+        {
+            int i = 0;
+            SortedDictionary<string, string> sArray = new SortedDictionary<string, string>();
+            NameValueCollection coll;
+            //Load Form variables into NameValueCollection variable.
+            coll = request.QueryString;
+
+            // Get names of all forms into a string array.
+            String[] requestItem = coll.AllKeys;
+
+            for (i = 0; i < requestItem.Length; i++)
+            {
+                sArray.Add(requestItem[i], request[requestItem[i]]);
+            }
+
+            string[] formKeys = request.Form.AllKeys;
+            if(formKeys!=null)
+            {
+                for(int j=0;j<formKeys.Length;j++)
+                {
+                    sArray.Add(formKeys[j], request[formKeys[j]]);
+                }
+            }
+
+            return sArray;
+        }
     }
 }

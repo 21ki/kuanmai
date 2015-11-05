@@ -7,11 +7,26 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+<script>
+    $(function () {        
+        $('#ConfigureResourceForm').find('#btn_Save').click(function () {
+            var password = $('#ConfigureResourceForm').find('#Password').val();
+            if ($.trim(password) != null) {
+                var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+                var iv = CryptoJS.enc.Utf8.parse('8080808080808080');               
+                var encryptedPassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(password), key, { keySize: 128 / 8, iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+               
+                $('#ConfigureResourceForm').find('#Password').val(encryptedPassword);
+            }
+            $('#ConfigureResourceForm').submit();
+        });
+    });
+</script>
 <h2>@ViewBag.Title</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("ConfigureResource","Admin",FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "ConfigureResourceForm" }))
 {
-    
+
     @Html.AntiForgeryToken()
     @Html.HiddenFor(model => model.ResoucedId)
     @Html.HiddenFor(model => model.Id)
@@ -29,7 +44,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextBoxFor(model => model.Password, new { @class = "form-control" })              
                 @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -77,7 +92,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="保存" class="btn btn-default btn-primary" />
+                <input type="button" id="btn_Save" name="btn_Save" value="保存" class="btn btn-default btn-primary" />
             </div>
         </div>
     </div>
