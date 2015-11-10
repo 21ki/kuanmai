@@ -490,7 +490,8 @@ namespace KMBit.BL.Admin
         public bool UpdateResrouceInterface(Resrouce_interface api)
         {
             bool result = false;
-            using (chargebitEntities db = new chargebitEntities())
+            chargebitEntities db = new chargebitEntities();
+            try
             {
                 Resrouce_interface oapi = (from a in db.Resrouce_interface where a.Resource_id == api.Resource_id select a).FirstOrDefault<Resrouce_interface>();
                 if(oapi==null)
@@ -507,6 +508,15 @@ namespace KMBit.BL.Admin
 
                 db.SaveChanges();
                 result = true;
+            }catch(Exception ex)
+            {
+
+            }finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
             }
             return result;
         }

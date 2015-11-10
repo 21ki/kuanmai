@@ -202,11 +202,12 @@ namespace KMBit.BL
                     {
                         throw new KMBitException("当前代理商没有此路由");
                     }
-                }
-                if(!route.Enabled)
-                {
-                    throw new KMBitException(string.Format("编号为{0}代理商路由已被管理员停用",route.Id));
-                }
+
+                    if (!route.Enabled)
+                    {
+                        throw new KMBitException(string.Format("编号为{0}代理商路由已被管理员停用", route.Id));
+                    }
+                }                
 
                 Charge_Order history = new Charge_Order();                
                 history.Agent_Id = order.AgencyId;               

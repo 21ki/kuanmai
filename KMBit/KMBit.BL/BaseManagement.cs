@@ -276,8 +276,8 @@ namespace KMBit.BL
                 List<BResourceTaocan> localTaocans = (from t in tmpTaocans where t.Taocan.Area_id > 0 select t).ToList<BResourceTaocan>();
                 foreach (int t in ts)
                 {
-                    BResourceTaocan st = (from tc in globalTaocans where tc.Taocan.Quantity==t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
-                    BResourceTaocan st2 = (from tc in localTaocans where tc.Taocan.Quantity == t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    BResourceTaocan st = (from tc in globalTaocans where tc.Taocan.Quantity==t orderby tc.Taocan.Resource_Discount ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    BResourceTaocan st2 = (from tc in localTaocans where tc.Taocan.Quantity == t orderby tc.Taocan.Resource_Discount ascending select tc).FirstOrDefault<BResourceTaocan>();
                     if (st != null)
                     {
                         taocans.Add(st);

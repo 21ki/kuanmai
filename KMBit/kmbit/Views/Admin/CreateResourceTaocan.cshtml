@@ -54,6 +54,7 @@
 {
     @Html.AntiForgeryToken()
     @Html.HiddenFor(model=>model.Serial)
+    @Html.HiddenFor(model => model.EnabledDiscount)
     <div class="form-horizontal">       
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -138,6 +139,8 @@
                 </div>
             </div>
         </div>
+
+      
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

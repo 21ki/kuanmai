@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.BL.Charge;
+using log4net;
 namespace KMBit.BL
 {
     public class WebRequestParameters
@@ -19,7 +20,7 @@ namespace KMBit.BL
 
         public string Value { get; set; }
 
-        public bool URLEncodeParameter { get; set; }
+        public bool URLEncodeParameter { get; set; }        
 
         public WebRequestParameters()
         {
@@ -35,6 +36,7 @@ namespace KMBit.BL
 
     public class ChargeService:HttpService
     {
+
         public ChargeService(string svrUrl):base(svrUrl)
         {
 

@@ -19,7 +19,6 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="11.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Agent_route" Width="1.5" PointX="13.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Admin_Users_Actions" Width="1.5" PointX="6.75" PointY="7" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Login_Log" Width="1.5" PointX="4.75" PointY="7.125" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Help_Info" Width="1.5" PointX="8.5" PointY="8.5" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="11.375" PointY="6.75" />
@@ -32,6 +31,7 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" Width="1.5" PointX="7.375" PointY="13.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Activities" Width="1.5" PointX="13.375" PointY="7.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Orders" Width="1.5" PointX="13.375" PointY="11.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

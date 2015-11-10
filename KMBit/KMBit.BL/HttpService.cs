@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.BL.Charge;
+using log4net;
 namespace KMBit.BL
 {
     public enum RequestType
@@ -21,6 +22,7 @@ namespace KMBit.BL
 
     public class HttpService
     {
+        public ILog Logger { get; protected set; }
         public HttpStatusCode StatusCode { get; private set; }
         public string Response { get; private set; }
 

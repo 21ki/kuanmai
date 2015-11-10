@@ -73,7 +73,7 @@ namespace KMBit.Models
         [Display(Name = "平台接口DLL名称")]
         public string InterfaceAssemblyName { get; set; }
 
-        [Required]
+       
         [Display(Name = "回调URL")]
         public string CallBack { get; set; }       
     }
