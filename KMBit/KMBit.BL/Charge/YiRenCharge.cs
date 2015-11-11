@@ -207,6 +207,13 @@ namespace KMBit.BL.Charge
                                 Charge_Order order = (from o in orders where o.Out_Order_Id==taskId && o.Phone_number==phone select o).FirstOrDefault<Charge_Order>();
                                 if(order!=null && !string.IsNullOrEmpty(taskId) && !string.IsNullOrEmpty(phone) && !string.IsNullOrEmpty(status))
                                 {
+
+                                    DateTime cTime = DateTime.MinValue;
+                                    DateTime.TryParse(time,out cTime);
+                                    if(cTime!=DateTime.MinValue)
+                                    {
+                                        order.Completed_Time = DateTimeUtil.ConvertDateTimeToInt(cTime);
+                                    }
                                     if (status == "4")
                                     {
                                         order.Status = 2;
