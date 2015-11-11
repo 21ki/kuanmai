@@ -18,13 +18,15 @@ namespace KMBit.BL
     {
         private ApplicationUserManager userManager;
 
+        public IDataProtectionProvider DataProtectionProvider { get; set; }
+
         public UserManagement(BUser user):base(user)
         {
-
+            this.logger = log4net.LogManager.GetLogger(this.GetType());
         }
         public UserManagement(string email):base(email)
         {
-
+            this.logger = log4net.LogManager.GetLogger(this.GetType());
         }
         public UserManagement(int userId):base(userId)
         {
@@ -110,6 +112,7 @@ namespace KMBit.BL
 
         public async Task<bool> SetUserPassword(int userId, string password)
         {
+            logger.Info("SetUserPassword");
             if (userId == 0)
             {
                 throw new KMBitException("用户编号不能为0");
@@ -139,22 +142,28 @@ namespace KMBit.BL
             bool ret = false;
             try
             {
-                var provider = new DpapiDataProtectionProvider("Sample");
+                var provider = DataProtectionProvider!=null? DataProtectionProvider: new DpapiDataProtectionProvider("Sample");
+                logger.Info("provider is created");
                 manager = new ApplicationUserManager(new ApplicationUserStore(new chargebitEntities()));
                 manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser,int>(provider.Create("usertoken"));
+                logger.Info("DataProtectorTokenProvider is created");
                 string code = manager.GeneratePasswordResetToken(userId);
+                logger.Info("code:"+ code);
+                logger.Info("newpassword:" + password);
                 var result = await manager.ResetPasswordAsync(userId, code, password);
                 if(result.Succeeded)
                 {
-                    ret= true;
+                    logger.Info("SetUserPassword succeed");
+                    ret = true;
                 }else
                 {
-                    ret= false;
+                    logger.Info("SetUserPassword failure");
+                    ret = false;
                 }
             }
             catch(Exception ex)
             {
-
+                logger.Fatal(ex);
             }
             finally
             {
@@ -163,7 +172,7 @@ namespace KMBit.BL
                     manager.Dispose();
                 }
             }
-
+            logger.Info("Leaving SetUserPassword");
             return ret;
         }
     }

@@ -22,9 +22,9 @@
             var encryptedPassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(str), key, { keySize: 128 / 8, iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });           
             $('#EncryptedEmail').val(encryptedEmail);
             $('#EncryptedPassword').val(encryptedPassword);
-            $('#Email').val('kuanmaibit@kxcall.com');
-            $('#Password').val('kuanmaibit')
-            $('#Salt').val("");
+            //$('#Email').val('kuanmaibit@kxcall.com');
+            $('#Password').val('bitcharge')
+            $('#Salt').val("bitcharge");
             $('#LoginForm').submit();
         });
     });

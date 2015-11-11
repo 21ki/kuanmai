@@ -1168,7 +1168,8 @@ namespace KMBit.Controllers
             {
                 BUser user = userMgr.GetUserInfo(model.Id);
                 if (ModelState.IsValid)
-                {                    
+                {
+                    userMgr.DataProtectionProvider = Startup.DataProtectionProvider;
                     bool ret= await userMgr.SetUserPassword(model.Id, model.NewPassword);                    
                     //var result = await userMgr.AddPasswordAsync(User.Identity.GetUserId<int>(), model.NewPassword);
                     if (!user.IsAdmin)

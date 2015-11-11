@@ -11,6 +11,7 @@ using Microsoft.Owin.Security;
 using KMBit.Models;
 using KMBit.DAL;
 using KMBit.BL;
+using log4net;
 namespace KMBit.Controllers
 {
     [Authorize]
@@ -18,9 +19,10 @@ namespace KMBit.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-
+        ILog logger = null;
         public AccountController()
         {
+            logger= log4net.LogManager.GetLogger(this.GetType());
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -93,12 +95,16 @@ namespace KMBit.Controllers
             {
                 return View(model);
             }
-
+            logger.Info("Login");
             model.Email = KMBit.Util.KMAes.DecryptStringAES(model.EncryptedEmail);
             model.Password= KMBit.Util.KMAes.DecryptStringAES(model.EncryptedPassword).Substring(6);
             string salt = Session["LoginSalt"].ToString();
+            logger.Info("User:"+model.Email);
+            //logger.Info("Password:" + model.Password);
+            logger.Info("salt:" + salt);            
             string postedSalt= KMBit.Util.KMAes.DecryptStringAES(model.EncryptedPassword).Substring(0,6);
-            if(salt!=postedSalt)
+            logger.Info("postedsalt:" + postedSalt);
+            if (salt.Trim().ToLower()!=postedSalt.Trim().ToLower())
             {
                 ModelState.AddModelError("", "用户或者密码错误");
                 return View(model);
@@ -117,6 +123,7 @@ namespace KMBit.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
                 default:
+                    logger.Warn("Password or Email is not correct");
                     ModelState.AddModelError("", "用户或者密码错误");
                     return View(model);
             }
