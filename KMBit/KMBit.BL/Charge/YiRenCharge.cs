@@ -15,17 +15,18 @@ using System.Security.Cryptography;
 
 namespace KMBit.BL.Charge
 {
-    public class YiRenCharge : ChargeService, ICharge
+    public class YiRenCharge : ChargeService, ICharge,IStatus
     {
         private string version = "1.1";
-
+        private int statusCount = 1000;
         public YiRenCharge()
         {
             Logger = log4net.LogManager.GetLogger(this.GetType());
         }
+
         public void CallBack(List<WebRequestParameters> data)
         {
-            
+            throw new NotImplementedException();
         }
 
         public ChargeResult Charge(ChargeOrder order)
@@ -139,6 +140,128 @@ namespace KMBit.BL.Charge
                 }
             }
             return result;
+        }
+
+        public void GetChargeStatus(int resourceId)
+        {
+            chargebitEntities db = new chargebitEntities();
+            try
+            {
+                List<Charge_Order> orders = (from o in db.Charge_Order where o.Status == 1 select o).ToList<Charge_Order>();
+                if(orders.Count<=0)
+                {
+                    Logger.Info("No orders need to sync status of resourceId:"+resourceId);
+                    return;
+                }
+                Logger.Info(string.Format("{0} orders need to sync status",orders.Count));
+                KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == resourceId select ri).FirstOrDefault<Resrouce_interface>();
+                ServerUri = new Uri(rInterface.APIURL);
+                List<WebRequestParameters> parmeters = new List<WebRequestParameters>();
+                parmeters.Add(new WebRequestParameters("V", version, false));
+                parmeters.Add(new WebRequestParameters("Action", "getReports", false));
+                SortedDictionary<string, string> paras = new SortedDictionary<string, string>();
+                paras["Account"] = rInterface.Username;
+                paras["Count"] = statusCount.ToString();
+                string signStr = "";
+                foreach (KeyValuePair<string, string> p in paras)
+                {
+                    if (signStr == string.Empty)
+                    {
+                        signStr += p.Key.ToLower() + "=" + p.Value;
+                    }
+                    else
+                    {
+                        signStr += "&" + p.Key.ToLower() + "=" + p.Value;
+                    }
+                }
+                signStr += "&key=" + KMAes.DecryptStringAES(rInterface.Userpassword);
+                paras["Sign"] = GetMD5(signStr);
+
+                foreach (KeyValuePair<string, string> p in paras)
+                {
+                    parmeters.Add(new WebRequestParameters(p.Key, p.Value, false));
+                }
+                bool succeed = false;
+                SendRequest(parmeters, false, out succeed);
+                if(succeed && !string.IsNullOrEmpty(Response))
+                {
+                    JObject jsonRes = JObject.Parse(Response);
+                    string code = jsonRes["Code"] != null ? jsonRes["Code"].ToString() : "";
+                    string message= jsonRes["Message"] != null ? jsonRes["Message"].ToString() : "";
+                    Logger.Info(string.Format("Code:{0}, Message:{1}",code,message));
+                    if(!string.IsNullOrEmpty(code) && code=="0" && !string.IsNullOrEmpty(message) && message=="OK")
+                    {
+                        JArray charges = (JArray)jsonRes["Reports"];
+                        if(charges!=null)
+                        {
+                            Logger.Info(string.Format("Get {0} reports from resource",charges.Count));
+                            for(int i=0;i<charges.Count;i++)
+                            {
+                                JObject report = (JObject)charges[i];
+                                string taskId = report["TaskID"]!=null? report["TaskID"].ToString():"";
+                                string phone= report["Mobile"]!=null? report["Mobile"].ToString():"";
+                                string status = report["Status"]!=null? report["Status"].ToString():"";
+                                string time = report["ReportTime"]!=null?report["ReportTime"].ToString():"";
+                                string rptCode= report["ReportCode"]!=null? report["ReportCode"].ToString():"";
+                                Logger.Info(string.Format("TaskId:{0}, MobilePhone:{1}, Status:{2}, Time:{3}",taskId,phone,status,time));
+                                Charge_Order order = (from o in orders where o.Out_Order_Id==taskId && o.Phone_number==phone select o).FirstOrDefault<Charge_Order>();
+                                if(order!=null && !string.IsNullOrEmpty(taskId) && !string.IsNullOrEmpty(phone) && !string.IsNullOrEmpty(status))
+                                {
+                                    if (status == "4")
+                                    {
+                                        order.Status = 2;
+                                        order.Message ="充值成功，"+ rptCode;
+                                    }
+                                    else if (status == "5") {
+                                        order.Status = 3;
+                                        order.Message = "充值失败，" + rptCode;
+                                        if(order.Agent_Id>0)
+                                        {
+                                            if(order.MarketOrderId<=0)
+                                            {
+                                                Users agency = (from u in db.Users where u.Id == order.Agent_Id select u).FirstOrDefault<Users>();
+                                                if (agency != null)
+                                                {
+                                                    agency.Remaining_amount += order.Purchase_price;
+                                                    order.Refound = true;
+                                                }
+                                            }else
+                                            {
+                                                order.Message = "充值失败" + ",二维码可以重复扫码使用直到充值成功";
+                                                order.Refound = false;
+                                                Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id == order.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                                                if (mOrder != null)
+                                                {
+                                                    mOrder.Used = false;
+                                                }
+                                            }
+
+                                            db.SaveChanges();
+                                        }
+                                    }                                    
+                                }
+                            }
+                            if(charges!=null && charges.Count>0)
+                            {
+                                db.SaveChanges();
+                            }                            
+                        }
+                    }
+                }
+            }
+            catch (KMBitException kex)
+            {
+                Logger.Error(kex);
+            }catch(Exception ex)
+            {
+                Logger.Fatal(ex);
+            }finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
+            }
         }
 
         public void ImportProducts(int resourceId, int operate_user)
