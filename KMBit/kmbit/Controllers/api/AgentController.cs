@@ -12,8 +12,7 @@ using KMBit.Filters;
 using KMBit.Util;
 namespace KMBit.Controllers.api
 {
-    [Authorize]
-    [AgentFilter(Message ="管理员账户请不要试图访问代理商后台页面")]
+    [Authorize]    
     public class AgentController : BaseApiController
     {
         [AcceptVerbs("POST", "GET")]
@@ -22,7 +21,7 @@ namespace KMBit.Controllers.api
             this.IniRequest();
             ApiMessage message = new ApiMessage();
             AgentManagement baseMgt = new AgentManagement(User.Identity.Name);
-            List<BAgentRoute> tcs = baseMgt.FindTaocans(0,request["sp"],request["province"]);
+            List<BAgentRoute> tcs = baseMgt.FindTaocans(0,request["sp"],request["province"],true);
             message.Status = "OK";
             message.Item = tcs;
             return message;

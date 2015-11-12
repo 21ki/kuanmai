@@ -117,6 +117,7 @@
           <Property Name="Description" Type="varchar" MaxLength="200" />
           <Property Name="RemainingAmount" Type="float" Nullable="false" />
           <Property Name="CreditAmount" Type="float" Nullable="false" />
+          <Property Name="Token" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="Customer_Recharge">
           <Key>
@@ -424,13 +425,13 @@
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="Resource" EntityType="KMBitDBContextModel.Resource" />
           <EntitySet Name="Customer_Recharge" EntityType="KMBitDBContextModel.Customer_Recharge" />
-          <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Marketing_Activity_Taocan" EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" />
           <EntitySet Name="Marketing_Activities" EntityType="KMBitDBContextModel.Marketing_Activities" />
           <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
           <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
+          <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -660,24 +661,6 @@
           <Property Name="Amount" Type="Single" Nullable="false" />
           <Property Name="CreatedTime" Type="Int64" Nullable="false" />
         </EntityType>
-        <EntityType Name="Customer">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="AgentId" Type="Int32" Nullable="false" />
-          <Property Name="OpenId" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="OpenType" Type="Int32" />
-          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactEmail" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactPeople" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactPhone" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="ContactAddress" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="RemainingAmount" Type="Single" Nullable="false" />
-          <Property Name="CreditAmount" Type="Single" Nullable="false" />
-        </EntityType>
         <EntityType Name="Resource_taocan">
           <Key>
             <PropertyRef Name="Id" />
@@ -796,6 +779,25 @@
           <Property Name="APIURL" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="CallBackUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="ProductApiUrl" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AgentId" Type="Int32" Nullable="false" />
+          <Property Name="OpenId" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="OpenType" Type="Int32" />
+          <Property Name="CreatedTime" Type="Int64" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactEmail" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactPeople" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactPhone" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="ContactAddress" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="RemainingAmount" Type="Single" Nullable="false" />
+          <Property Name="CreditAmount" Type="Single" Nullable="false" />
+          <Property Name="Token" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1047,25 +1049,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Customer">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Customer">
-              <MappingFragment StoreEntitySet="Customer">
-                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
-                <ScalarProperty Name="RemainingAmount" ColumnName="RemainingAmount" />
-                <ScalarProperty Name="Description" ColumnName="Description" />
-                <ScalarProperty Name="ContactAddress" ColumnName="ContactAddress" />
-                <ScalarProperty Name="ContactPhone" ColumnName="ContactPhone" />
-                <ScalarProperty Name="ContactPeople" ColumnName="ContactPeople" />
-                <ScalarProperty Name="ContactEmail" ColumnName="ContactEmail" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
-                <ScalarProperty Name="OpenType" ColumnName="OpenType" />
-                <ScalarProperty Name="OpenId" ColumnName="OpenId" />
-                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Resource_taocan">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
               <MappingFragment StoreEntitySet="Resource_taocan">
@@ -1187,6 +1170,26 @@
                 <ScalarProperty Name="Userpassword" ColumnName="Userpassword" />
                 <ScalarProperty Name="Username" ColumnName="Username" />
                 <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customer">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="CreditAmount" ColumnName="CreditAmount" />
+                <ScalarProperty Name="RemainingAmount" ColumnName="RemainingAmount" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ContactAddress" ColumnName="ContactAddress" />
+                <ScalarProperty Name="ContactPhone" ColumnName="ContactPhone" />
+                <ScalarProperty Name="ContactPeople" ColumnName="ContactPeople" />
+                <ScalarProperty Name="ContactEmail" ColumnName="ContactEmail" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreatedTime" ColumnName="CreatedTime" />
+                <ScalarProperty Name="OpenType" ColumnName="OpenType" />
+                <ScalarProperty Name="OpenId" ColumnName="OpenId" />
+                <ScalarProperty Name="AgentId" ColumnName="AgentId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -235,7 +235,7 @@ namespace KMBit.BL.Admin
                     throw new KMBitException("套餐不存在不能更新");
                 }
                 SyncObjectProperties(dbTaocan, taocan);
-                db.SaveChanges();
+                db.SaveChanges();               
                 ret = true;
             }
             return ret;

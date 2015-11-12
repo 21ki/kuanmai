@@ -99,7 +99,7 @@ namespace KMBit.Controllers
             return View();
         }
 
-        [IsPhoneFilter(Message = "只能通过手机访问")]
+        //[IsPhoneFilter(Message = "只能通过手机访问")]
         [HttpPost]
         public ActionResult DoSaoMa()
         {
@@ -122,12 +122,28 @@ namespace KMBit.Controllers
                 string parameters = KMEncoder.Decode(p);
                 if(!string.IsNullOrEmpty(parameters))
                 {
-                    Dictionary<string, string> pvs = parseParameters(parameters);
+                    string signature = string.Empty;                    
+                    SortedDictionary<string, string> pvs = parseParameters(parameters,out signature);
+                    if (string.IsNullOrEmpty(signature))
+                    {
+                        ViewBag.Message = "URL参数不正确，请重新扫码";
+                        return View("SaoMa");
+                    }
+                    System.Text.StringBuilder pBuilder = new System.Text.StringBuilder();
                     if(pvs.Count>0)
                     {
+                        int count = 0;
                         foreach(KeyValuePair<string,string> pair in pvs)
                         {
-                            switch(pair.Key)
+                            pBuilder.Append(pair.Key);
+                            pBuilder.Append("=");
+                            pBuilder.Append(pair.Value);
+                            if(count==0)
+                            {
+                                pBuilder.Append("&");
+                            }
+                            count++;                            
+                            switch (pair.Key)
                             {
                                 case "agentId":
                                     int.TryParse(pair.Value,out agentId);
@@ -143,7 +159,25 @@ namespace KMBit.Controllers
                                     break;
                             }
                         }
-
+                        CustomerManagement customerMgr = new CustomerManagement(0);
+                        int total;
+                        List<BCustomer> customers = customerMgr.FindCustomers(0, customerId, out total);
+                        if(total<=0 || total>1)
+                        {
+                            ViewBag.Message = "URL参数不正确，请重新扫码";
+                            return View("SaoMa");
+                        }
+                        pBuilder.Append("&key=");
+                        pBuilder.Append(customers[0].Token);
+                        string sign = UrlSignUtil.GetMD5(pBuilder.ToString());
+                        if(sign!=signature)
+                        {
+                            if (total <= 0 || total > 1)
+                            {
+                                ViewBag.Message = "URL参数不正确，请重新扫码";
+                                return View("SaoMa");
+                            }
+                        }
                         ActivityManagement activityMgr = new ActivityManagement(0);
                         BMarketOrderCharge order = new BMarketOrderCharge()
                         {
@@ -162,12 +196,12 @@ namespace KMBit.Controllers
                         if(result.Status == ChargeStatus.FAILED)
                         {
                             ViewBag.Paras = paras;
-                            paras.Add("p", p);
+                            //paras.Add("p", p);
                         }
                     }
                 }else
                 {
-                    ViewBag.Message = "参数错误，请正确扫码，输入手机号码点充值";
+                    ViewBag.Message = "不能重复扫码，或者修改扫码后的URL地址";
                 }
             }
            
@@ -216,9 +250,10 @@ namespace KMBit.Controllers
             return View();
         }
 
-        public Dictionary<string,string> parseParameters(string paras)
+        public SortedDictionary<string,string> parseParameters(string paras,out string signature)
         {
-            Dictionary<string, string> ps = new Dictionary<string, string>();
+            signature = string.Empty;
+            SortedDictionary<string, string> ps = new SortedDictionary<string, string>();
             if(!string.IsNullOrEmpty(paras))
             {
                 string[] array = paras.Split('&');
@@ -229,7 +264,14 @@ namespace KMBit.Controllers
                         string[] pv = p.Split('=');
                         if(pv!=null && pv.Length==2)
                         {
-                            ps[pv[0]] = pv[1];
+                            if(pv[0]== "signature")
+                            {
+                                signature = pv[1];
+                            }
+                            else
+                            {
+                                ps[pv[0]] = pv[1];
+                            }                            
                         }
                     }
                 }

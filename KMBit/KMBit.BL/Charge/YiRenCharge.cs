@@ -68,7 +68,7 @@ namespace KMBit.BL.Charge
                     }
                 }
                 signStr += "&key=" + KMAes.DecryptStringAES(rInterface.Userpassword);
-                paras["Sign"] = GetMD5(signStr);
+                paras["Sign"] = UrlSignUtil.GetMD5(signStr);
 
                 foreach (KeyValuePair<string, string> p in paras)
                 {
@@ -175,7 +175,7 @@ namespace KMBit.BL.Charge
                     }
                 }
                 signStr += "&key=" + KMAes.DecryptStringAES(rInterface.Userpassword);
-                paras["Sign"] = GetMD5(signStr);
+                paras["Sign"] = UrlSignUtil.GetMD5(signStr);
 
                 foreach (KeyValuePair<string, string> p in paras)
                 {
@@ -299,7 +299,7 @@ namespace KMBit.BL.Charge
                     }                    
                 }
                 signStr += "&key="+KMAes.DecryptStringAES(rInterface.Userpassword);
-                paras["Sign"] = GetMD5(signStr);
+                paras["Sign"] = UrlSignUtil.GetMD5(signStr);
                 foreach (KeyValuePair<string, string> p in paras)
                 {
                     parmeters.Add(new WebRequestParameters(p.Key,p.Value,false));
@@ -410,16 +410,6 @@ namespace KMBit.BL.Charge
             }
         }
 
-        private string GetMD5(string s)
-        {
-            MD5 md5 = new MD5CryptoServiceProvider();
-            byte[] t = md5.ComputeHash(Encoding.GetEncoding("utf-8").GetBytes(s));
-            StringBuilder sb = new StringBuilder(32);
-            for (int i = 0; i < t.Length; i++)
-            {
-                sb.Append(t[i].ToString("x").PadLeft(2, '0'));
-            }
-            return sb.ToString();
-        }
+       
     }
 }

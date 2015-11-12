@@ -18,9 +18,11 @@ using KMBit.Util;
 using System.Collections.Generic;
 using KMBit.BL.Admin;
 using KMBit.BL.PayAPI.AliPay;
+using KMBit.Filters;
 namespace KMBit.Controllers
 {
     [Authorize]
+    [AgentFilter(Message = "管理员账户请不要试图访问代理商后台页面")]
     public class AgentController : Controller
     {
         int total = 0;
@@ -606,7 +608,7 @@ namespace KMBit.Controllers
                 return View("Error");
             }
 
-            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), activityId);
+            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(),customerId, activityId);
             ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - 代理价格" + (r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
             ActivityTaocanModel model = new ActivityTaocanModel() { ActivityId= activityId,CustomerId= customerId };
             return View(model);
@@ -669,7 +671,7 @@ namespace KMBit.Controllers
                 finally { }
             }
 
-            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), model.ActivityId);
+            List<BAgentRoute> routes = activityMgr.FindAvailableAgentRoutes(User.Identity.GetUserId<int>(), model.CustomerId, model.ActivityId);
             ViewBag.Routes = new SelectList((from r in routes select new { Id = r.Route.Id, Name = r.Taocan.Taocan2.Name + " - 代理价格" + (r.Taocan.Taocan.Sale_price*r.Route.Discount).ToString("0.00") + "元" }), "Id", "Name");
             return View(model);
         }
