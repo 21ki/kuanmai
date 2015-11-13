@@ -12,6 +12,8 @@ namespace KMBit.Beans
         public string RootDirectory { get; set; }
         public string QRFolder { get; set; }
 
+        public bool PhoneScanEnabled { get; set; }
+
         private static AppSettings settings = null;
         private AppSettings()
         {
@@ -33,6 +35,11 @@ namespace KMBit.Beans
             settings.WebURL = ConfigurationSettings.AppSettings["wwwurl"];
             settings.RootDirectory = ConfigurationSettings.AppSettings["wwwroot"];
             settings.QRFolder = ConfigurationSettings.AppSettings["qrfolder"];
+            string phoneScan= ConfigurationSettings.AppSettings["phonescan"];
+            if(!string.IsNullOrEmpty(phoneScan) && phoneScan.Trim().ToLower()=="yes")
+            {
+                settings.PhoneScanEnabled = true;
+            }
         }
     }
 }

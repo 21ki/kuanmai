@@ -36,7 +36,7 @@ namespace KMBit.BL
 
     public class ChargeService:HttpService
     {
-
+        protected AppSettings settings = AppSettings.GetAppSettings();
         public ChargeService(string svrUrl):base(svrUrl)
         {
 
@@ -191,6 +191,8 @@ namespace KMBit.BL
                             cOrder.Message = result.Message;
                             cOrder.Out_Order_Id = order.OutId;
                             cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                            //remove qrcode picture
+                            RemoveQRCode(cOrder);
                             break;
                         case ChargeStatus.FAILED:
                             cOrder.Out_Order_Id = order.OutId;
@@ -239,5 +241,35 @@ namespace KMBit.BL
                 }
             }
         }        
+
+        protected void RemoveQRCode(Charge_Order order)
+        {
+            if(order.MarketOrderId>0)
+            {
+                chargebitEntities db = null;
+                try
+                {
+                    db = new chargebitEntities();
+                    Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==order.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                    if(mOrder!=null && !string.IsNullOrEmpty(mOrder.CodePath))
+                    {
+                        string tmpPhysicalPath = System.IO.Path.Combine(settings.RootDirectory,mOrder.CodePath.Replace('/','\\'));
+                        if(System.IO.File.Exists(tmpPhysicalPath))
+                        {
+                            System.IO.File.Delete(tmpPhysicalPath);
+                        }
+                    }
+                }catch(Exception ex)
+                {
+                    Logger.Fatal(ex);
+                }finally
+                {
+                    if(db!=null)
+                    {
+                        db.Dispose();
+                    }
+                }
+            }
+        }
     }
 }

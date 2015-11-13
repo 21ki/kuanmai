@@ -217,11 +217,12 @@ namespace KMBit.BL.Charge
                                     if (status == "4")
                                     {
                                         order.Status = 2;
-                                        order.Message ="充值成功，"+ rptCode;
+                                        order.Message ="充值成功:"+ rptCode;
+                                        RemoveQRCode(order);
                                     }
                                     else if (status == "5") {
                                         order.Status = 3;
-                                        order.Message = "充值失败，" + rptCode;
+                                        order.Message = "充值失败:" + rptCode;
                                         if(order.Agent_Id>0)
                                         {
                                             if(order.MarketOrderId<=0)
@@ -232,9 +233,10 @@ namespace KMBit.BL.Charge
                                                     agency.Remaining_amount += order.Purchase_price;
                                                     order.Refound = true;
                                                 }
-                                            }else
+                                            }
+                                            else
                                             {
-                                                order.Message = "充值失败" + ",二维码可以重复扫码使用直到充值成功";
+                                                order.Message =string.Format("充值失败:{0},二维码可以重复扫码使用直到充值成功", rptCode) ;
                                                 order.Refound = false;
                                                 Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id == order.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
                                                 if (mOrder != null)
@@ -258,7 +260,7 @@ namespace KMBit.BL.Charge
             }
             catch (KMBitException kex)
             {
-                Logger.Error(kex);
+                Logger.Warn(kex);
             }catch(Exception ex)
             {
                 Logger.Fatal(ex);
@@ -408,8 +410,6 @@ namespace KMBit.BL.Charge
                     db.Dispose();
                 }
             }
-        }
-
-       
+        }       
     }
 }

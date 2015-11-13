@@ -41,7 +41,7 @@ namespace KMBit.Controllers.api
             }
             return message;
         }
-
+        //just for weichat public account
         [AcceptVerbs("post","get")]
         public HttpResponseMessage GetCodeDirect()
         {

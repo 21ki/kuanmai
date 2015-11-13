@@ -311,13 +311,13 @@ namespace KMBit.BL
                 ps["activityId"] = activity.Id.ToString();
                
                 StringBuilder pstr = new StringBuilder();
-                int count = 0;
+                int count = 1;
                 foreach (KeyValuePair<string, string> p in ps)
                 {
                     pstr.Append(p.Key);
                     pstr.Append("=");
                     pstr.Append(p.Value);
-                    if (count == 0)
+                    if (count <ps.Count)
                     {
                         pstr.Append("&");
                     }
@@ -512,7 +512,7 @@ namespace KMBit.BL
 
                 if (rTaocans.Count == 0)
                 {
-                    throw new KMBitException(string.Format("此次活动{0}的手机号码不能扫码充流量,请联系活动方",spName));
+                    throw new KMBitException(string.Format("此次活动{0}的手机号码不能扫码充流量,如有疑问请联系活动举办方",spName));
                 }
                 Marketing_Activity_Taocan mTaocan = rTaocans[0];
                 Marketing_Orders returnOrder = null;
@@ -522,12 +522,12 @@ namespace KMBit.BL
                     returnOrder = existedOrders[0];
                     if(!returnOrder.Used && returnOrder.Sent)
                     {
-                        logger.Info("Already sent but not used, sent again");                      
+                        logger.Info("Already sent but not used, sent again");                       
                         return settings.WebURL + "/" + settings.QRFolder + "/" + returnOrder.CodePath;
                     }else
                     {
-                        logger.Info("Already sent but and used");
-                        throw new KMBitException(string.Format("微信号{0}已经获取过二维码，并且已经扫码使用过二维码，不能重复获取",openId));
+                        logger.Info("Already sent and used");
+                        throw new KMBitException(string.Format("此微信号已经获取过二维码，并且已经扫码使用过二维码（一次活动一个微信号只能获取一个二维码）"));
                     }
                 }
 
@@ -537,7 +537,7 @@ namespace KMBit.BL
 
                 if(returnOrder==null)
                 {
-                    throw new KMBitException(string.Format("本次活动的二维码全部送完"));
+                    throw new KMBitException(string.Format("本次活动的二维码全部送完，尽情期待下次活动，感谢您的关注"));
                 }
 
                 returnOrder.OpenId = openId;
@@ -560,6 +560,18 @@ namespace KMBit.BL
                 {
                     foreach(Marketing_Orders order in orders)
                     {
+                        if(order.Used)
+                        {
+                            continue;
+                        }
+                        if(!string.IsNullOrEmpty(order.CodePath))
+                        {
+                            string tmpPhysicalPath = Path.Combine(settings.RootDirectory,order.CodePath.Replace('/','\\'));
+                            if(File.Exists(tmpPhysicalPath))
+                            {
+                                continue;
+                            }
+                        }
                         if(activity==null)
                         {
                             activity = (from a in db.Marketing_Activities where a.Id==order.ActivityId select a).FirstOrDefault<Marketing_Activities>();
@@ -584,13 +596,13 @@ namespace KMBit.BL
                         ps["activityId"] = activity.Id.ToString();
                         ps["activityOrderId"] = order.Id.ToString();
                         StringBuilder pstr = new StringBuilder();
-                        int count = 0;                      
+                        int count = 1;                      
                         foreach(KeyValuePair<string,string> p in ps)
                         {
                             pstr.Append(p.Key);
                             pstr.Append("=");
                             pstr.Append(p.Value);
-                            if(count==0)
+                            if(count<ps.Count)
                             {
                                 pstr.Append("&");
                             }                            

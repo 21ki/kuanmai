@@ -99,7 +99,7 @@ namespace KMBit.Controllers
             return View();
         }
 
-        //[IsPhoneFilter(Message = "只能通过手机访问")]
+        [IsPhoneFilter(Message = "只能通过手机访问")]
         [HttpPost]
         public ActionResult DoSaoMa()
         {
@@ -108,7 +108,7 @@ namespace KMBit.Controllers
             string spName = Request["SPName"];
             string province= Request["Province"];
             string city = Request["City"];
-            Dictionary<string, string> paras = new Dictionary<string, string>();           
+           
             if (string.IsNullOrEmpty(p))
             {
                 ViewBag.Message = "参数错误，请正确扫码，输入手机号码点充值";
@@ -132,13 +132,13 @@ namespace KMBit.Controllers
                     System.Text.StringBuilder pBuilder = new System.Text.StringBuilder();
                     if(pvs.Count>0)
                     {
-                        int count = 0;
+                        int count = 1;
                         foreach(KeyValuePair<string,string> pair in pvs)
                         {
                             pBuilder.Append(pair.Key);
                             pBuilder.Append("=");
                             pBuilder.Append(pair.Value);
-                            if(count==0)
+                            if(count<pvs.Count)
                             {
                                 pBuilder.Append("&");
                             }
@@ -172,11 +172,8 @@ namespace KMBit.Controllers
                         string sign = UrlSignUtil.GetMD5(pBuilder.ToString());
                         if(sign!=signature)
                         {
-                            if (total <= 0 || total > 1)
-                            {
-                                ViewBag.Message = "URL参数不正确，请重新扫码";
-                                return View("SaoMa");
-                            }
+                            ViewBag.Message = "URL参数不正确，请重新扫码";
+                            return View("SaoMa");
                         }
                         ActivityManagement activityMgr = new ActivityManagement(0);
                         BMarketOrderCharge order = new BMarketOrderCharge()
@@ -193,11 +190,11 @@ namespace KMBit.Controllers
                         };
                         KMBit.BL.Charge.ChargeResult result = activityMgr.MarketingCharge(order);
                         ViewBag.Message = result.Message;
-                        if(result.Status == ChargeStatus.FAILED)
-                        {
-                            ViewBag.Paras = paras;
-                            //paras.Add("p", p);
-                        }
+                        //if(result.Status == ChargeStatus.FAILED)
+                        //{
+                        //    ViewBag.Paras = pvs;
+                        //    //paras.Add("p", p);
+                        //}
                     }
                 }else
                 {
