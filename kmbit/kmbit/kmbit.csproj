@@ -208,6 +208,7 @@
     <Compile Include="Controllers\api\ResourceController.cs" />
     <Compile Include="Controllers\api\SaoMaController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\km\AccountController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
