@@ -30,6 +30,8 @@ namespace KMBit.Beans
         public bool IsMarket { get; set; }
 
         public string MacAddress { get; set; }
+
+        public string CallbackUrl { get; set; }
     }
 
     public class ChargeOrder: ChargeBaseOrder

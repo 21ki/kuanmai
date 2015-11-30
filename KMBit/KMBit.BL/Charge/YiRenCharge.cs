@@ -249,6 +249,11 @@ namespace KMBit.BL.Charge
                                         }
                                     }                                    
                                 }
+
+                                //send back status to agent api calling
+                                if (!string.IsNullOrEmpty(order.CallBackUrl)) {
+                                    this.SendStatusBackToAgentCallback(order);
+                                }
                             }
                             if(charges!=null && charges.Count>0)
                             {

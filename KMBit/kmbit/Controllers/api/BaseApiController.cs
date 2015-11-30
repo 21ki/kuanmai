@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web;
+using System.Text;
 
 namespace KMBit.Controllers.api
 {
@@ -51,6 +52,51 @@ namespace KMBit.Controllers.api
             }
 
             return sArray;
+        }
+
+        public void ParseSigantures(out string sign, out string accesstoken,out string queryStr)
+        {
+            sign = "";
+            accesstoken = "";
+            queryStr = "";
+           
+            SortedDictionary< string, string>  parameters= GetRequestParameters();
+            if(parameters==null || parameters.Count==0)
+            {
+                return;
+            }
+            StringBuilder str = new StringBuilder();          
+            
+            foreach(KeyValuePair<string,string> parameter in parameters)
+            {
+                if (parameter.Key == "Sign")
+                {
+                    sign = parameter.Value;
+                }
+                else if (parameter.Key == "Token")
+                {
+                    accesstoken = parameter.Value;
+                }
+                
+                if(parameter.Key!="Sign")
+                {
+                    if (str.ToString() == "")
+                    {
+                        str.Append(parameter.Key);
+                        str.Append("=");
+                        str.Append(parameter.Value);
+                    }
+                    else
+                    {
+                        str.Append("&");
+                        str.Append(parameter.Key);
+                        str.Append("=");
+                        str.Append(parameter.Value);
+                    }
+                }
+            }
+            queryStr = str.ToString();
+            return ;
         }
     }
 }

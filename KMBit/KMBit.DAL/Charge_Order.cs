@@ -41,5 +41,6 @@ namespace KMBit.DAL
         public bool Refound { get; set; }
         public int MarketOrderId { get; set; }
         public string DeviceMacAddress { get; set; }
+        public string CallBackUrl { get; set; }
     }
 }

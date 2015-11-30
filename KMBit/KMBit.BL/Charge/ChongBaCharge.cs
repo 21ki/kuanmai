@@ -100,6 +100,15 @@ namespace KMBit.BL.Charge
             if (order.Id > 0)
             {
                 ChangeOrderStatus(order, result, true);
+                //sending back status if the invoked by agent api
+                using (chargebitEntities db = new chargebitEntities())
+                {
+                    Charge_Order dbOrder = (from o in db.Charge_Order where o.Id== order.Id select o).FirstOrDefault<Charge_Order>();
+                    if (dbOrder != null && !string.IsNullOrEmpty(dbOrder.CallBackUrl))
+                    {
+                        this.SendStatusBackToAgentCallback(dbOrder);
+                    }
+                }                    
             }
             else
             {

@@ -224,7 +224,7 @@ namespace KMBit.BL
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
                 history.Status = 11;
-
+                history.CallBackUrl = order.CallbackUrl != null ? order.CallbackUrl : null;
                 history.Platform_Sale_Price = taocan.Sale_price;
                 if (taocan.EnableDiscount)
                 {

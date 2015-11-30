@@ -64,6 +64,7 @@ namespace KMBit.BL.Admin
                 appUser.Province_id = dbUser.Province_id;
                 appUser.Regtime = dbUser.Regtime;
                 appUser.Enabled = dbUser.Enabled;
+                appUser.AccessToken =UrlSignUtil.GetMD5(Guid.NewGuid().ToString());
                 if (appUser.Regtime == 0)
                 {
                     appUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);

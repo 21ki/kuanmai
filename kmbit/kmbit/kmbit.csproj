@@ -209,6 +209,7 @@
     <Compile Include="Controllers\api\SaoMaController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\km\AccountController.cs" />
+    <Compile Include="Controllers\km\ChargeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
@@ -233,6 +234,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="api_test.html" />
     <Content Include="Config\AliPayConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

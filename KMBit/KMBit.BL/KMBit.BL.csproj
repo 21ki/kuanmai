@@ -73,6 +73,8 @@
     <Compile Include="Admin\AgentAdminMenagement.cs" />
     <Compile Include="Admin\SiteManagement.cs" />
     <Compile Include="Agent\AgentManagement.cs" />
+    <Compile Include="API\ApiAccessManagement.cs" />
+    <Compile Include="API\ProductManagement.cs" />
     <Compile Include="ChargeBridge.cs" />
     <Compile Include="Charge\ChargeConstant.cs" />
     <Compile Include="Charge\ChongBaCharge.cs" />

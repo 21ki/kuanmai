@@ -190,9 +190,12 @@ namespace KMBit.BL
                     object o = null;
                     Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
                     Type type = assembly.GetType(api.Interface_classname);
-                    o = Activator.CreateInstance(type);
-                    chargeMgr = (IStatus)o;
-                    chargeMgr.GetChargeStatus(api.Resource_id);
+                    o = Activator.CreateInstance(type);                    
+                    chargeMgr = o as IStatus;
+                    if(chargeMgr!=null)
+                    {
+                        chargeMgr.GetChargeStatus(api.Resource_id);
+                    }                   
                 }
             }
             catch (Exception ex)

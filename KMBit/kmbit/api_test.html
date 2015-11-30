@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <script src="/Scripts/jquery-1.10.2.js"></script>
+	<meta charset="utf-8" />
+    <script>
+        $(function(){
+            $('#get_product').find('#btn_getproduct').click(function(){
+                var token= $('#get_product').find('#token').val();
+                $.post(
+                    '/km/Account/Charge',
+                    {'Token':token,'Sign':'482458370f125ad9cb5504e29b773ab9'},
+                    function(data){
+                        alert(data);
+                    }
+                );
+            });
+        });
+    </script>
+    
+</head>
+<body>
+
+    <form id="get_product">
+        Token:<input id="token" type="text" /><input id="btn_getproduct" type="button"  value="获取产品"/>
+
+    </form>
+</body>
+</html>
