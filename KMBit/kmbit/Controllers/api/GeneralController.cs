@@ -81,7 +81,7 @@ namespace KMBit.Controllers.api
             try
             {
                 BaseManagement baseMgt = new BL.BaseManagement(User.Identity.Name);
-                List<PayType> sps = baseMgt.GetPayTypes();
+                List<DAL.PayType> sps = baseMgt.GetPayTypes();
                 message.Status = "OK";
                 message.Message = "成功获取支付方式数据，请使用JSON Item节点数据";
                 message.Item = sps;

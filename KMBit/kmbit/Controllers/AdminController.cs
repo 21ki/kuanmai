@@ -1170,27 +1170,32 @@ namespace KMBit.Controllers
                 if (ModelState.IsValid)
                 {
                     userMgr.DataProtectionProvider = Startup.DataProtectionProvider;
-                    bool ret= await userMgr.SetUserPassword(model.Id, model.NewPassword);                    
+                    bool ret = await userMgr.SetUserPassword(model.Id, model.NewPassword);
                     //var result = await userMgr.AddPasswordAsync(User.Identity.GetUserId<int>(), model.NewPassword);
                     if (!user.IsAdmin)
                     {
                         return RedirectToAction("Agencies");
-                    }else
+                    }
+                    else
                     {
                         return RedirectToAction("Administrators");
                     }
-                    
-                }else
+
+                }
+                else
                 {
-                    
+
                     ViewBag.User = user;
                     return View(model);
                 }
-                
+
             }
-            catch(KMBitException ex)
+            catch (KMBitException ex)
             {
                 ViewBag.Message = ex.Message;
+            }
+            catch (Exception ex)
+            {
             }
 
             return View("Error");

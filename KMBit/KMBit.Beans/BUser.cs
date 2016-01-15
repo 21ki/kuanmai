@@ -16,7 +16,7 @@ namespace KMBit.Beans
         public bool IsAdmin { get; set; }
         public Area Province { get; set; }
         public Area City { get; set; }
-        public PayType PayType { get; set; }
+        public KMBit.DAL.PayType PayType { get; set; }
         public User_type UserType { get; set; }
         public Users CreatedBy { get; set; }
     }

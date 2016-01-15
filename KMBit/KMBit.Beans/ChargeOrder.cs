@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace KMBit.Beans
 {
+    public enum PayType {
+        NONE,
+        WEIXIN,
+        ALIPAY,
+        NETBANK
+    }
     public class ChargeBaseOrder
     {
         public ChargeBaseOrder()

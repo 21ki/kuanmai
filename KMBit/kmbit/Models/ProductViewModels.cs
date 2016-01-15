@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using KMBit.Beans;
 namespace KMBit.Models
 {
     public class ChargeModel
@@ -25,6 +26,8 @@ namespace KMBit.Models
         public int ResourceTaocanId { get; set; }
 
         public int Operator { get; set; }
+
+        public PayType PayType { get; set; }
     }
 
     public class AgentChargeModel:ChargeModel
