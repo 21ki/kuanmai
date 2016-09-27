@@ -124,7 +124,8 @@ namespace KMBit.BL.Charge
             catch(Exception ex)
             {
 
-            }finally
+            }
+            finally
             {
                 if(db!=null)
                 {

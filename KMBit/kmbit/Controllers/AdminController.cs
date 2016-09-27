@@ -1142,8 +1142,8 @@ namespace KMBit.Controllers
               
                 OrderManagement orderMgt = new OrderManagement();
                 order = orderMgt.GenerateOrder(order);               
-                ChargeResult result = cb.Charge(order);
-                ViewBag.Message = result.Message;
+                //ChargeResult result = cb.Charge(order);
+                ViewBag.Message = "成功提交到充值系统，等待充值,可以到流量充值查询里查看充值状态...";
             }
 
             return View();

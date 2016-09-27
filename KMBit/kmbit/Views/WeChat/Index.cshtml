@@ -120,6 +120,17 @@
             }
             $('#ChargeForm').submit();
         })
+
+
+        wx.config({
+            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: $('#ChargeForm').find('#appid').val(), // 必填，公众号的唯一标识
+            timestamp: $('#ChargeForm').find('#timestamp').val(), // 必填，生成签名的时间戳
+            nonceStr: $('#ChargeForm').find('#nancestr').val(), // 必填，生成签名的随机串
+            signature: $('#ChargeForm').find('#signature').val(),// 必填，签名，见附录1
+            jsApiList: [chooseWXPay] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        });
+
     });
 </script>
 
@@ -131,6 +142,10 @@
     @Html.HiddenFor(model => model.Province)
     @Html.HiddenFor(model => model.City)
     @Html.HiddenFor(model => model.OpenId)
+    @Html.HiddenFor(model => model.appid)
+    @Html.HiddenFor(model => model.nancestr)
+    @Html.HiddenFor(model => model.timestamp)
+    @Html.HiddenFor(model => model.signature)
     <div class="form-group">
         @Html.LabelFor(model => model.Mobile, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">

@@ -58,7 +58,7 @@ namespace KMBit.Controllers
                                     {
                                         result = orderMgr.ProcessOrderAfterPaid(paymentId, trade_no, buyerAccount);
                                         result.Status = ChargeStatus.SUCCEED;
-                                        result.Message = "支付成功，正在排队充值流量，请耐心等待";
+                                        result.Message = "支付成功，已经提交到充值系统，请耐心等待...";
                                         return Redirect("/Product/Charge?message=" + result.Message);
                                     }
                                     else if(payment.PayType==1)//代理商用户充值账户

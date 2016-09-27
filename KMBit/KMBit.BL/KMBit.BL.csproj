@@ -85,9 +85,11 @@
     <Compile Include="Charge\YiRenCharge.cs" />
     <Compile Include="CustomerManagement.cs" />
     <Compile Include="HttpService.cs" />
+    <Compile Include="KMLogger.cs" />
     <Compile Include="MobileLocator\IMobileLocator.cs" />
     <Compile Include="MobileLocator\TCMobileLocator.cs" />
     <Compile Include="OrderManagement.cs" />
+    <Compile Include="OrdersProcesser.cs" />
     <Compile Include="PayAPI\AliPay\AlipayConfig.cs" />
     <Compile Include="PayAPI\AliPay\AlipayCore.cs" />
     <Compile Include="PayAPI\AliPay\AlipayNotify.cs" />
