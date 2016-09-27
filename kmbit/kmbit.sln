@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.Beans", "KMBit.Beans\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.Test", "KMBit.Test\KMBit.Test.csproj", "{E13C5C25-B734-49C9-B18B-CA82B1D4A405}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeChat.Adapter", "WeiChat.Payment.Wrapper\WeChat.Adapter.csproj", "{A47ABB57-ECAC-47ED-8657-CBF157C2313C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.ChargeProcess", "KMBit.ChargeProcess\KMBit.ChargeProcess.csproj", "{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{E13C5C25-B734-49C9-B18B-CA82B1D4A405}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E13C5C25-B734-49C9-B18B-CA82B1D4A405}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E13C5C25-B734-49C9-B18B-CA82B1D4A405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A47ABB57-ECAC-47ED-8657-CBF157C2313C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A47ABB57-ECAC-47ED-8657-CBF157C2313C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A47ABB57-ECAC-47ED-8657-CBF157C2313C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A47ABB57-ECAC-47ED-8657-CBF157C2313C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

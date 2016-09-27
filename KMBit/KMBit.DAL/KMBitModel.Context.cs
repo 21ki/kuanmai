@@ -44,13 +44,14 @@ namespace KMBit.DAL
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<Resource> Resource { get; set; }
         public DbSet<Customer_Recharge> Customer_Recharge { get; set; }
-        public DbSet<Resource_taocan> Resource_taocan { get; set; }
         public DbSet<Marketing_Activity_Taocan> Marketing_Activity_Taocan { get; set; }
         public DbSet<Marketing_Activities> Marketing_Activities { get; set; }
         public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
-        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
         public DbSet<Customer> Customer { get; set; }
-        public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Users> Users { get; set; }
+        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
+        public DbSet<Resource_taocan> Resource_taocan { get; set; }
+        public DbSet<Charge_Order> Charge_Order { get; set; }
+        public DbSet<OpenAccountType> OpenAccountType { get; set; }
     }
 }

@@ -30,5 +30,8 @@ namespace KMBit.DAL
         public string Serial { get; set; }
         public float Resource_Discount { get; set; }
         public bool EnableDiscount { get; set; }
+        public int City_id { get; set; }
+        public int NumberProvinceId { get; set; }
+        public int NumberCityId { get; set; }
     }
 }

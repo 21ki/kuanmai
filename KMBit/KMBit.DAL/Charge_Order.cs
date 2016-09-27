@@ -42,5 +42,7 @@ namespace KMBit.DAL
         public int MarketOrderId { get; set; }
         public string DeviceMacAddress { get; set; }
         public string CallBackUrl { get; set; }
+        public string OpenId { get; set; }
+        public Nullable<int> OpenAccountType { get; set; }
     }
 }

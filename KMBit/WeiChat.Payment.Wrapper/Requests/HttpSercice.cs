@@ -1,0 +1,114 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WeChat.Adapter.Requests
+{
+    public enum RequestType
+    {
+        GET,
+        POST
+    }
+    public class HttpSercice
+    {
+        public static string PostHttpRequest(string url, NameValueCollection col, RequestType type, string contentType = null)
+        {
+            string output = null;
+            StreamReader rs = null;
+            try
+            {
+                string json_str = string.Empty;
+
+                var client = new HttpClient();
+                if (!string.IsNullOrEmpty(contentType))
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+                }
+
+                if (type == RequestType.POST)
+                {
+                    var postData = new List<KeyValuePair<string, string>>();
+                    if (col != null && col.Count > 0)
+                    {
+                        IEnumerator myEnumerator = col.GetEnumerator();
+                        foreach (String s in col.AllKeys)
+                        {
+                            postData.Add(new KeyValuePair<string, string>(s, col[s]));
+                        }
+                    }
+
+                    HttpContent content = new FormUrlEncodedContent(postData);
+
+                    var response = client.PostAsync(url, content).Result;
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return null;
+                    }
+
+                    Stream res = response.Content.ReadAsStreamAsync().Result;
+                    res = response.Content.ReadAsStreamAsync().Result;
+                    if (contentType != "multipart/form-data")
+                    {
+                        rs = new StreamReader(res);
+                        output = rs.ReadToEnd();
+                    }
+                }
+                else if (type == RequestType.GET)
+                {
+                    StringBuilder urlParms = new StringBuilder();
+                    if (col != null)
+                    {
+                        IEnumerator myEnumerator = col.GetEnumerator();
+                        int count = 1;
+                        foreach (String s in col.AllKeys)
+                        {
+                            urlParms.Append(s);
+                            urlParms.Append("=");
+                            urlParms.Append(col[s]);
+                            if (count < (col.Count))
+                            {
+                                urlParms.Append("&");
+                            }
+
+                            count++;
+                        }
+                    }
+                    string getUrl = url;
+                    if (!string.IsNullOrEmpty(urlParms.ToString()))
+                    {
+                        getUrl += "?" + urlParms.ToString();
+                    }
+                    var response = client.GetAsync(getUrl).Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Stream res = response.Content.ReadAsStreamAsync().Result;
+                        rs = new StreamReader(res);
+                        output = rs.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+            finally
+            {
+                if (rs != null)
+                {
+                    rs.Close();
+                }
+            }
+
+            return output;
+        }
+    }
+}

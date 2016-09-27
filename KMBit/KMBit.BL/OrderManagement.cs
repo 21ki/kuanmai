@@ -209,7 +209,9 @@ namespace KMBit.BL
                     }
                 }                
 
-                Charge_Order history = new Charge_Order();                
+                Charge_Order history = new Charge_Order();
+                history.OpenId = order.OpenId;
+                history.OpenAccountType = order.OpenAccountType;            
                 history.Agent_Id = order.AgencyId;               
                 history.Completed_Time = 0;
                 history.Created_time = order.CreatedTime > 0 ? order.CreatedTime : DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -432,6 +434,7 @@ namespace KMBit.BL
                             from llopr in lopr.DefaultIfEmpty()
                             join tcc in db.Taocan on t.Taocan_id equals tcc.Id into ltcc
                             from lltcc in ltcc.DefaultIfEmpty()
+                           
                             select new BOrder
                             {
                                 AgentName = llagency != null ? llagency.Name : null,
@@ -460,7 +463,9 @@ namespace KMBit.BL
                                 Refound=o.Refound,
                                 Revenue=o.Revenue,
                                 ChargeType= o.Charge_type,
-                                MarketOrderId=o.MarketOrderId
+                                MarketOrderId=o.MarketOrderId,
+                                MobileProvince=o.Province,
+                                MobileCity=o.City
                             };
 
                 if(orderId>0)

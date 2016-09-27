@@ -12,6 +12,9 @@ namespace KMBit.Beans
         public Resource_taocan Taocan { get; set; }
         public Sp SP { get; set; }       
         public Area Province { get; set; }
+        public Area City { get; set; }
+        public Area NumberProvince { get; set; }
+        public Area NumberCity { get; set; }
         public Users CreatedBy { get; set; }
         public Users UpdatedBy { get; set; }
         public BResource Resource { get; set; }

@@ -303,8 +303,14 @@ namespace KMBit.BL.Admin
                           from llcu in lcu.DefaultIfEmpty()
                           join uu in db.Users on rta.UpdatedBy equals uu.Id into luu
                           from lluu in luu.DefaultIfEmpty()
-                          join city in db.Area on rta.Area_id equals city.Id into lcity
+                          join province in db.Area on rta.Area_id equals province.Id into lprovince
+                          from llprovince in lprovince.DefaultIfEmpty()
+                          join city in db.Area on rta.City_id equals city.Id into lcity
                           from llcity in lcity.DefaultIfEmpty()
+                          join nprovince in db.Area on rta.NumberProvinceId equals nprovince.Id into lnprovince
+                          from llnprovince in lnprovince.DefaultIfEmpty()
+                          join ncity in db.Area on rta.NumberCityId equals ncity.Id into lncity
+                          from llncity in lncity.DefaultIfEmpty()
                           join sp in db.Sp on rta.Sp_id equals sp.Id into lsp
                           from llsp in lsp.DefaultIfEmpty()
                           join tt in db.Taocan on rta.Taocan_id equals tt.Id
@@ -315,7 +321,10 @@ namespace KMBit.BL.Admin
                               Taocan2 = tt,
                               CreatedBy = llcu,
                               UpdatedBy = lluu,
-                              Province = llcity,
+                              Province = llprovince,
+                              City=llcity,
+                              NumberCity=llncity,
+                              NumberProvince=llnprovince,
                               SP = llsp,
                               Resource = new BResource() { Resource = r }
                           };
@@ -504,6 +513,8 @@ namespace KMBit.BL.Admin
                     oapi.Username = api.Username;
                     oapi.Userpassword = api.Userpassword;
                     oapi.ProductApiUrl = api.ProductApiUrl;
+                    oapi.AppKey = api.AppKey;
+                    oapi.AppSecret = api.AppSecret;
                 }
 
                 db.SaveChanges();

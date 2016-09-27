@@ -41,18 +41,18 @@
                 return;
             }
             if ($('#ChargeForm').find('#SPName').val() != '') {
-                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(),'global');
             } else {
                 GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
                     if (data == null) {
                         alert("请输入正确的手机号码");
                         return;
                     } else {
+                       
                         $('#ChargeForm').find('#SPName').val(data.sp);
                         $('#ChargeForm').find('#Province').val(data.province);
                         $('#ChargeForm').find('#City').val(data.city);
-                        $('#ChargeForm').find('#SPName').val(data.sp);
-                        requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                        requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(), 'global');
                     }
                 });
             }                      
@@ -65,7 +65,7 @@
             }
 
             if ($('#ChargeForm').find('#SPName').val() != '') {
-                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(),'local');
             } else {
                 GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
                     if (data == null) {
@@ -75,7 +75,6 @@
                         $('#ChargeForm').find('#SPName').val(data.sp);
                         $('#ChargeForm').find('#Province').val(data.province);
                         $('#ChargeForm').find('#City').val(data.city);
-                        $('#ChargeForm').find('#SPName').val(data.sp);
                         requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val());
                     }
                 });
@@ -83,10 +82,10 @@
             
         });
 
-        function requestTaocan(sp, province) {
+        function requestTaocan(sp, province,scope) {
             $.post(
                         BASE_URL + "api/Agent/SearchDirectChargeTaocans",
-                        { sp: sp, province: province },
+                        { sp: sp, province: province, scope: scope },
                         function (data) {
                             $('#taocan_container').html("");
                             var ul = $('<ul style="padding-left:0px;"></ul>');                           

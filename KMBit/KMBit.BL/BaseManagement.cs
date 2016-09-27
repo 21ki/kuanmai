@@ -214,7 +214,14 @@ namespace KMBit.BL
             return taocans;
         }
 
-        public List<BResourceTaocan> SearchResourceTaocans(string spName, string province)
+        /// <summary>
+        /// Return the available packages for the gaving mobile phone number
+        /// </summary>
+        /// <param name="spName">SP Name</param>
+        /// <param name="province">The Province the mobile number belongs to</param>
+        /// <param name="scope">Global or local bit</param>
+        /// <returns></returns>
+        public List<BResourceTaocan> SearchResourceTaocans(string spName, string province,BitScope scope)
         {
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             using (chargebitEntities db = new chargebitEntities())
@@ -261,13 +268,20 @@ namespace KMBit.BL
                     tmp = tmp.Where(t => t.Taocan.Sp_id == 0);
                 }
 
-                if (provinceId > 0)
+                //全国还是本地流量
+                if(scope== BitScope.Local)
                 {
                     tmp = tmp.Where(t => t.Taocan.Area_id == provinceId);
                 }
                 else
                 {
                     tmp = tmp.Where(t => t.Taocan.Area_id == 0);
+                }
+
+                //限制号码归属地
+                if (provinceId > 0)
+                {
+                    tmp = tmp.Where(t => (t.Taocan.NumberProvinceId == provinceId || t.Taocan.NumberProvinceId==0));
                 }
 
                 List<BResourceTaocan> tmpTaocans = tmp.OrderBy(t=>t.Taocan.Quantity).ToList<BResourceTaocan>();

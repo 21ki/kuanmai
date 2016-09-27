@@ -30,6 +30,10 @@ namespace KMBit.Models
         public PayType PayType { get; set; }
     }
 
+    public class WeChatChargeModel: ChargeModel
+    {
+        public string OpenId { get; set; }
+    }
     public class AgentChargeModel:ChargeModel
     {
         [Display(Name = "路由编号")]

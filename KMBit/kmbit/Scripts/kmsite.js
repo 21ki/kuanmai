@@ -1,4 +1,4 @@
-﻿var mLocatorApi = "http://v.showji.com/Locating/showji.com20150416273007.aspx";
+﻿var mLocatorApi = "http://v.showji.com/Locating/showji.com2016234999234.aspx";
 function GetMobileLocationBack(obj) {    
     if (GetMobileLocationBack.CallBack && typeof (GetMobileLocationBack.CallBack) == "function") {
         var location = null;

@@ -158,6 +158,8 @@
     columns.Add(c => c.ReseouceName).Titled("资源").Filterable(true).SetWidth("15%");
     columns.Add(c => c.AgentName).Titled("代理商").Filterable(true).SetWidth("10%").RenderValueAs(o => o.AgentName != null ? o.AgentName : "");
     columns.Add(c => c.MobilePhone).Titled("手机号").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.MobileProvince).Titled("省份").Filterable(true).SetWidth("5%");
+    columns.Add(c => c.MobileCity).Titled("城市").Filterable(true).SetWidth("5%");
     columns.Add(c => c.PlatformCostPrice).Titled("成本价").Filterable(true).SetWidth("8%");
     columns.Add(c => c.PlatformSalePrice).Titled("售价").Filterable(true).SetWidth("5%");
     columns.Add(c => c.PurchasePrice).Titled("代理价").Filterable(true).SetWidth("8%");

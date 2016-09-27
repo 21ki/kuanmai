@@ -49,14 +49,18 @@ namespace KMBit.Models
         [Required]
         [Display(Name = "资源编号")]
         public int ResoucedId { get; set; }
-
-        [Required]
+       
         [Display(Name = "用户名")]
         public string UserName { get; set; }
-
-        [Required]
+        
         [Display(Name = "密码")]
         public string Password { get; set; }
+
+        [Display(Name = "AppKey")]
+        public string AppKey { get; set; }
+
+        [Display(Name = "AppSecret")]
+        public string AppSecret { get; set; }
 
         [Required]
         [Display(Name = "充值接口URL")]
@@ -87,6 +91,9 @@ namespace KMBit.Models
         [Display(Name = "资源编号")]
         public int ResoucedId { get; set; }
 
+       
+        public string Package { get; set; }
+
         [Display(Name = "运营商")]
         public int? SP { get; set; }
 
@@ -95,11 +102,17 @@ namespace KMBit.Models
         [Range(1, int.MaxValue, ErrorMessage = "流量大小必须为整数，单位为M")]
         public int Quantity { get; set; }
 
-        [Display(Name = "省份")]
+        [Display(Name = "流量归属省份")]
         public int? Province { get; set; }
 
-        [Display(Name = "城市")]
+        [Display(Name = "流量归属城市")]
         public int? City { get; set; }
+
+        [Display(Name = "号码归属省份")]
+        public int? NumberProvince { get; set; }
+
+        [Display(Name = "号码归属城市")]
+        public int? NumberCity { get; set; }
 
         [Display(Name = "售价")]
         [Required]
@@ -124,6 +137,8 @@ namespace KMBit.Models
         [Required]
         public bool Enabled { get; set; }
 
+        [Display(Name = "资源包编号")]
+        [Required(ErrorMessage ="落地资源流量包编号必须填写")]
         public string Serial { get; set; }
     }
     public class ResourceModel

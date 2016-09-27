@@ -18,6 +18,8 @@ namespace KMBit.Util
             _key = "kuanmai";
         }
 
+        
+
         public static string GetMD5(string s)
         {
             MD5 md5 = new MD5CryptoServiceProvider();

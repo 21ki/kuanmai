@@ -25,7 +25,7 @@ namespace KMBit.BL.Agent
 
         }
 
-        public List<BAgentRoute> FindTaocans(int agencyId, string sp, string province,bool? enable=null)
+        public List<BAgentRoute> FindTaocans(int agencyId, string sp, string province, BitScope scope, bool? enable = null)
         {
             if (agencyId <= 0)
             {
@@ -35,9 +35,12 @@ namespace KMBit.BL.Agent
                 }
             }
             AgentAdminMenagement agentAdminMgt = new AgentAdminMenagement(this.CurrentLoginUser);
-            
+
             int total = 0;
             List<BAgentRoute> routes = agentAdminMgt.FindRoutes(0, agencyId, 0, 0, out total, enable);
+            //根据资源对号码归属省的限制
+            routes = (from r in routes where r.Taocan.NumberProvince == null || (r.Taocan.NumberProvince.Name.Contains(province)) select r).ToList<BAgentRoute>();
+
             List<BAgentRoute> globalRoutes = (from r in routes where r.Taocan.SP == null select r).ToList<BAgentRoute>();
             List<BAgentRoute> spRoutes = new List<BAgentRoute>();
             List<BAgentRoute> returnRoutes = new List<BAgentRoute>();
@@ -47,11 +50,17 @@ namespace KMBit.BL.Agent
             }
             globalRoutes = globalRoutes.Concat<BAgentRoute>(spRoutes).ToList<BAgentRoute>();
             returnRoutes = globalRoutes;
-            if (!string.IsNullOrEmpty(province))
+            if (scope == BitScope.Local)
             {
-                returnRoutes = (from r in globalRoutes where r.Taocan.Province!=null && r.Taocan.Province.Name.Contains(province) select r).ToList<BAgentRoute>();
+                //本地流量              
+                returnRoutes = (from r in globalRoutes
+                                where
+                                 (r.Taocan.Province != null && r.Taocan.Province.Name.Contains(province))
+                                 //||
+                                 //(r.Taocan.NumberProvince != null && r.Taocan.NumberProvince.Name.Contains(province))
+                                select r).ToList<BAgentRoute>();
             }
-            
+
             return returnRoutes;
         }
 

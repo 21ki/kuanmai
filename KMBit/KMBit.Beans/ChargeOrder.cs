@@ -44,5 +44,7 @@ namespace KMBit.Beans
     {
         public int AgencyId { get; set; }
         public int RouteId { get; set; }
+        public string OpenId { get; set; }
+        public int OpenAccountType { get; set; }
     }
 }

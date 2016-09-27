@@ -67,13 +67,17 @@
     <Compile Include="ChartReport.cs" />
     <Compile Include="CustomerReChargeHistory.cs" />
     <Compile Include="DictionaryTemplate.cs" />
+    <Compile Include="Enum.cs" />
+    <Compile Include="JSAPIConfig.cs" />
     <Compile Include="KMBitException.cs" />
     <Compile Include="KMBitMessages.cs" />
     <Compile Include="PageItemsResult.cs" />
     <Compile Include="PermissionCategory.cs" />
     <Compile Include="Permissions.cs" />
+    <Compile Include="PersistentValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserAdminAction.cs" />
+    <Compile Include="WeChatOrder.cs" />
     <Compile Include="WeiChatMessage.cs" />
   </ItemGroup>
   <ItemGroup>

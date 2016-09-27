@@ -225,8 +225,10 @@ namespace KMBit.BL.Admin
                             from lluu in luu.DefaultIfEmpty()
                             join re in db.Resource on r.Resource_Id equals re.Id
                             join tc in db.Resource_taocan on r.Resource_taocan_id equals tc.Id
-                            join city in db.Area on tc.Area_id equals city.Id into lcity
-                            from llcity in lcity.DefaultIfEmpty()
+                            join prvince in db.Area on tc.Area_id equals prvince.Id into lprvince
+                            from llprvince in lprvince.DefaultIfEmpty()
+                            join nprovince in db.Area on tc.NumberProvinceId equals nprovince.Id into lnprovince
+                            from llnprovince in lnprovince.DefaultIfEmpty()
                             join sp in db.Sp on tc.Sp_id equals sp.Id into lsp
                             from llsp in lsp.DefaultIfEmpty()
                             join tcc in db.Taocan on tc.Taocan_id equals tcc.Id into ltc
@@ -240,7 +242,8 @@ namespace KMBit.BL.Admin
                                 {
                                     Taocan = tc,
                                     Resource = new BResource { Resource = re },
-                                    Province = llcity,
+                                    Province = llprvince,
+                                    NumberProvince=llnprovince,
                                     SP = llsp,
                                     Taocan2=lltc
                                 }

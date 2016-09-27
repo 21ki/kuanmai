@@ -21,7 +21,29 @@ namespace KMBit.Controllers.api
             this.IniRequest();
             ApiMessage message = new ApiMessage();
             AgentManagement baseMgt = new AgentManagement(User.Identity.Name);
-            List<BAgentRoute> tcs = baseMgt.FindTaocans(0,request["sp"],request["province"],true);
+            if(request["scope"]==null || (request["scope"].ToLower()!="global" && request["scope"].ToLower()!="local"))
+            {
+                message.Status = "ERROR";
+                message.Message = "scope must be global or local and in lower case.";
+                return message;
+            }
+            if (request["sp"] == null || string.IsNullOrEmpty(request["sp"]))
+            {
+                message.Status = "ERROR";
+                message.Message = "Unknow mobile phone sp name";
+                return message;
+            }
+            if (request["province"] == null || string.IsNullOrEmpty(request["province"]))
+            {
+                message.Status = "ERROR";
+                message.Message = "Unknow mobile phone province name";
+                return message;
+            }
+            BitScope scope = BitScope.Global;
+            if (request["scope"].Trim().ToLower() == "local") {
+                scope = BitScope.Local;
+            }
+            List<BAgentRoute> tcs = baseMgt.FindTaocans(0,request["sp"],request["province"], scope, true);
             message.Status = "OK";
             message.Item = tcs;
             return message;

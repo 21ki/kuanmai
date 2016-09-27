@@ -108,6 +108,9 @@
     <Compile Include="Marketing_Orders.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="OpenAccountType.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Payment_history.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>

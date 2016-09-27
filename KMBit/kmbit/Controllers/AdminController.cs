@@ -179,6 +179,8 @@ namespace KMBit.Controllers
                     model.ApiUrl = api.APIURL;
                     model.CallBack = api.CallBackUrl;
                     model.ProductFetchUrl = api.ProductApiUrl;
+                    model.AppSecret = api.AppSecret;
+                    model.AppKey = api.AppKey;
                 }
             }
             catch (KMBitException ex)
@@ -198,7 +200,19 @@ namespace KMBit.Controllers
             {
                 resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
                 Resrouce_interface api = new Resrouce_interface()
-                { Id=model.Id,Resource_id=model.ResoucedId, APIURL=model.ApiUrl, ProductApiUrl=model.ProductFetchUrl, CallBackUrl=model.CallBack, Interface_classname= model.InterfaceName, Interface_assemblyname=model.InterfaceAssemblyName, Username=model.UserName,Userpassword=model.Password };
+                {
+                    Id = model.Id,
+                    Resource_id = model.ResoucedId,
+                    APIURL = model.ApiUrl,
+                    ProductApiUrl = model.ProductFetchUrl,
+                    CallBackUrl = model.CallBack,
+                    Interface_classname = model.InterfaceName,
+                    Interface_assemblyname = model.InterfaceAssemblyName,
+                    Username = model.UserName,
+                    Userpassword = model.Password,
+                    AppKey=model.AppKey,
+                    AppSecret=model.AppSecret
+                };
 
                 if(resourceMgt.UpdateResrouceInterface(api))
                 {
@@ -375,6 +389,7 @@ namespace KMBit.Controllers
             sps = resourceMgt.GetSps();
             ViewBag.Provinces = new SelectList(provinces, "Id", "Name");
             ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            ViewBag.NCities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             ViewBag.Resource = resource;
             mode.Enabled = true;
@@ -405,13 +420,25 @@ namespace KMBit.Controllers
                 return View("Error");
             }
             BResourceTaocan bTaocan = resourceTaocans[0];
-            ResourceTaocanModel model = new ResourceTaocanModel() { Serial=bTaocan.Taocan.Serial, City= bTaocan.Taocan.Area_id, Enabled=bTaocan.Taocan.Enabled, Id=bTaocan.Taocan.Id, Province=0, PurchasePrice=bTaocan.Taocan.Purchase_price, Quantity=bTaocan.Taocan.Quantity,
-            ResoucedId=bTaocan.Taocan.Resource_id, SalePrice=bTaocan.Taocan.Sale_price, SP= bTaocan.Taocan.Sp_id,Discount=bTaocan.Taocan.Resource_Discount,EnabledDiscount=bTaocan.Taocan.EnableDiscount};
-            if(bTaocan.Province!=null && bTaocan.Province.Id>0)
+            ResourceTaocanModel model = new ResourceTaocanModel()
             {
-                model.Province = bTaocan.Province.Upid;
-            }           
-
+                Id = bTaocan.Taocan.Id,
+                Serial = bTaocan.Taocan.Serial,
+                Province = bTaocan.Taocan.Area_id,
+                City = bTaocan.Taocan.City_id,
+                NumberProvince=bTaocan.Taocan.NumberProvinceId,
+                NumberCity=bTaocan.Taocan.NumberCityId,
+                Enabled = bTaocan.Taocan.Enabled,
+                PurchasePrice = bTaocan.Taocan.Purchase_price,
+                Quantity = bTaocan.Taocan.Quantity,
+                ResoucedId = bTaocan.Taocan.Resource_id,
+                SalePrice = bTaocan.Taocan.Sale_price,
+                SP = bTaocan.Taocan.Sp_id,
+                Discount = bTaocan.Taocan.Resource_Discount,
+                EnabledDiscount = bTaocan.Taocan.EnableDiscount,
+                
+            };
+          
             List<KMBit.DAL.Area> provinces = null;
             List<KMBit.DAL.Sp> sps = null;
             provinces = resourceMgt.GetAreas(0);
@@ -425,7 +452,13 @@ namespace KMBit.Controllers
             {
                 ViewBag.Cities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
             }
-            
+            if(model.NumberCity>0)
+            {
+                ViewBag.NCities = new SelectList(resourceMgt.GetAreas((int)model.NumberProvince), "Id", "Name");
+            }else
+            {
+                ViewBag.NCities = new SelectList(new List<KMBit.DAL.Area>(), "Id", "Name");
+            }
             ViewBag.SPs = new SelectList(sps, "Id", "Name");
             ViewBag.Resource = bTaocan.Resource;
             return View("CreateResourceTaocan",model);
@@ -464,8 +497,11 @@ namespace KMBit.Controllers
                     taocan.Quantity = model.Quantity;
                     taocan.Resource_id = model.ResoucedId;
                 }
-                
-                taocan.Area_id = model.Province != null ? (int)model.Province : 0;                            
+                taocan.Serial = model.Serial;
+                taocan.Area_id = model.Province != null ? (int)model.Province : 0;
+                taocan.City_id = model.City!=null ?(int)model.City:0;
+                taocan.NumberProvinceId = model.NumberProvince != null ? (int)model.NumberProvince : 0;
+                taocan.NumberCityId = model.NumberCity != null ? (int)model.NumberCity : 0;
                 taocan.Enabled = model.Enabled;
                 taocan.Purchase_price = model.PurchasePrice;
                 taocan.EnableDiscount = model.EnabledDiscount;
