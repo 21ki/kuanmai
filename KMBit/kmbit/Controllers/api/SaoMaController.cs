@@ -41,7 +41,7 @@ namespace KMBit.Controllers.api
             }
             return message;
         }
-
+        //just for weichat public account
         [AcceptVerbs("post","get")]
         public HttpResponseMessage GetCodeDirect()
         {
@@ -104,9 +104,18 @@ namespace KMBit.Controllers.api
                 WeiChatReceivedContentMessage weiChatMessage = WeiChatMessageUtil.ParseWeichatXML(strXML,logger);
                 if (weiChatMessage != null)
                 {
-                    spName = weiChatMessage.Content.Trim();
-                    openId = weiChatMessage.FromUserName;
-                    openPublic = weiChatMessage.ToUserName;
+                    if(weiChatMessage.Content!= null)
+                    {
+                        spName = weiChatMessage.Content.Trim();
+                    }                    
+                    if(weiChatMessage.FromUserName!=null)
+                    {
+                        openId = weiChatMessage.FromUserName;
+                    }                    
+                    if(weiChatMessage.ToUserName!=null)
+                    {
+                        openPublic = weiChatMessage.ToUserName;
+                    }                    
                 }
                 if(string.IsNullOrEmpty(spName))
                 {
@@ -126,7 +135,7 @@ namespace KMBit.Controllers.api
             }
             catch (KMBitException kex)
             {
-                logger.Debug(kex);
+                logger.Warn(kex);
                 message.Message = kex.Message;
                 message.Status = "ERROR";
             }
@@ -141,6 +150,7 @@ namespace KMBit.Controllers.api
             string returnXml = "";
             if (message.Status == "OK")
             {
+                logger.Info("二维码获取成功，准备推送二维码到微信");
                 WeiChatNewsMessage news = new WeiChatNewsMessage();
                 news.ToUserName = openId;
                 news.FromUserName = openPublic;
@@ -159,6 +169,7 @@ namespace KMBit.Controllers.api
             }
             else
             {
+                logger.Info("二维码获取失败");
                 WeiChatContentMessage msg = new WeiChatContentMessage()
                 {
                     Content = message.Message,

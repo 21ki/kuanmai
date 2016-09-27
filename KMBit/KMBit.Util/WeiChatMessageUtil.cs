@@ -29,6 +29,13 @@ namespace KMBit.Util
                 {
                     message.ToUserName = toUserNode.InnerText.Trim();                    
                 }
+
+                XmlNode msgType = xmlDoc.SelectSingleNode("/xml/MsgType");
+                if (msgType != null && !string.IsNullOrEmpty(msgType.InnerText))
+                {
+                    message.MsgType = msgType.InnerText.Trim();
+                }              
+
                 XmlNode fromUserNode = xmlDoc.SelectSingleNode("/xml/FromUserName");
                 if (fromUserNode != null && !string.IsNullOrEmpty(fromUserNode.InnerText))
                 {
@@ -46,8 +53,7 @@ namespace KMBit.Util
                     long.TryParse( createTimeNode.InnerText, out time);
                     message.CreateTime = time;
                 }
-                xmlDoc = null;
-                logger.Info("Finished ParseWeichatXML");
+                xmlDoc = null;                
             }
             catch(Exception ex)
             {
@@ -57,6 +63,7 @@ namespace KMBit.Util
                 }
             }finally
             {
+                logger.Info("Finished ParseWeichatXML");
             }
             return message;
         }

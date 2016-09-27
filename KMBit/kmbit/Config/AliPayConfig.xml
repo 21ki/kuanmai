@@ -7,6 +7,6 @@
   <GateUrl>https://mapi.alipay.com/gateway.do?</GateUrl>
   <VerifyUrl>https://mapi.alipay.com/gateway.do?service=notify_verify</VerifyUrl>
   <ReturnUrl>http://www.kxcall.com/Payment/AlipayBack</ReturnUrl> 
-  <NotifyUrl>http://www.kxcall.com//Payment/AlipayBack</NotifyUrl>
+  <NotifyUrl>http://www.kxcall.com/Payment/AlipayBack</NotifyUrl>
   <Email>372864472@qq.com</Email>
 </AliPayConfig>

@@ -100,6 +100,15 @@ namespace KMBit.BL.Charge
             if (order.Id > 0)
             {
                 ChangeOrderStatus(order, result, true);
+                //sending back status if the invoked by agent api
+                using (chargebitEntities db = new chargebitEntities())
+                {
+                    Charge_Order dbOrder = (from o in db.Charge_Order where o.Id== order.Id select o).FirstOrDefault<Charge_Order>();
+                    if (dbOrder != null && !string.IsNullOrEmpty(dbOrder.CallBackUrl))
+                    {
+                        this.SendStatusBackToAgentCallback(dbOrder);
+                    }
+                }                    
             }
             else
             {
@@ -212,7 +221,7 @@ namespace KMBit.BL.Charge
                 KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == resourceId select ri).FirstOrDefault<Resrouce_interface>();
                 ServerUri = new Uri(rInterface.ProductApiUrl);
                 parmeters.Add(new WebRequestParameters("appKey", rInterface.Username, false));
-                parmeters.Add(new WebRequestParameters("appSecret", rInterface.Userpassword, false));
+                parmeters.Add(new WebRequestParameters("appSecret",KMAes.DecryptStringAES(rInterface.Userpassword), false));
                 SendRequest(parmeters, false, out succeed);
                 if(succeed)
                 {
@@ -301,6 +310,7 @@ namespace KMBit.BL.Charge
                                     taocan.Purchase_price = float.Parse(products[i]["iprice"].ToString());
                                     taocan.UpdatedBy = operate_user;
                                     taocan.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                    db.SaveChanges();
                                 }  
                             }
 

@@ -22,9 +22,9 @@
             var encryptedPassword = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(str), key, { keySize: 128 / 8, iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });           
             $('#EncryptedEmail').val(encryptedEmail);
             $('#EncryptedPassword').val(encryptedPassword);
-            $('#Email').val('kuanmaibit@kxcall.com');
-            $('#Password').val('kuanmaibit')
-            $('#Salt').val("");
+            //$('#Email').val('kuanmaibit@kxcall.com');
+            $('#Password').val('bitcharge')
+            $('#Salt').val("bitcharge");
             $('#LoginForm').submit();
         });
     });
@@ -65,7 +65,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
-                        <input id="btn_Login" name="btn_Login" type="button" value="登录" class="btn btn-default" />
+                        <input id="btn_Login" name="btn_Login" type="button" value="登录" class="btn btn-default btn-primary" />
                     </div>
                 </div>
                 <!--

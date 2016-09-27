@@ -8,6 +8,7 @@ using KMBit.BL;
 using KMBit.BL.Admin;
 using KMBit.Beans;
 using KMBit.BL.MobileLocator;
+using log4net;
 namespace KMBitAdm
 {
     public interface Itest
@@ -23,8 +24,11 @@ namespace KMBitAdm
     }
     class Program
     {
+        static ILog Logger = null;
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
+            Logger = log4net.LogManager.GetLogger("Main...");
             if (args.Length==0)
             {
                 Console.WriteLine("Please provide the command.");
@@ -32,16 +36,25 @@ namespace KMBitAdm
             }
 
             string command = args[0];
-
-            switch(command)
+            Logger.Info("command:"+command);
+            switch (command)
             {
                 case "syncpermissions":
                     PermissionManagement pgt = new PermissionManagement(3);
                     pgt.SyncPermissionsWithDB();
                     break;
+                case "getstatus":                    
+                    GetStatus();
+                    break;
                 default:
                     break;
             }
+        }
+
+        static void GetStatus()
+        {
+            ChargeBridge bridge = new ChargeBridge();
+            bridge.SyncChargeStatus();
         }
 
         static void test()

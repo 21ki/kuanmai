@@ -294,7 +294,8 @@ namespace KMBit.BL
                 {
                     throw new KMBitException(string.Format("编号为{0}的活动不属于编号为{1}的代理的客户的活动", activityId, agendId));
                 }
-              
+
+                Customer customer = (from c in db.Customer where c.Id==customerId select c).FirstOrDefault<Customer>();
                 codePath = agendId + "\\"+customerId;
                 string fileName = Guid.NewGuid().ToString() + ".png";                
                 string absPath = agendId + "/" + customerId + "/" + fileName;
@@ -303,7 +304,29 @@ namespace KMBit.BL
                 {
                     return activity.CodePath;
                 }
-                string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}", agendId, customerId, activityId);
+                string parameter = string.Empty;// string.Format("agentId={0}&customerId={1}&activityId={2}", agendId, customerId, activityId);               
+                SortedDictionary<string, string> ps = new SortedDictionary<string, string>();
+                ps["agentId"] = activity.AgentId.ToString();
+                ps["customerId"] = activity.CustomerId.ToString();
+                ps["activityId"] = activity.Id.ToString();
+               
+                StringBuilder pstr = new StringBuilder();
+                int count = 1;
+                foreach (KeyValuePair<string, string> p in ps)
+                {
+                    pstr.Append(p.Key);
+                    pstr.Append("=");
+                    pstr.Append(p.Value);
+                    if (count <ps.Count)
+                    {
+                        pstr.Append("&");
+                    }
+                    count++;
+                }
+                parameter = pstr.ToString();
+                pstr.Append("&key=");
+                pstr.Append(customer.Token);
+                parameter = parameter + "&signature=" + UrlSignUtil.GetMD5(pstr.ToString());   
                 parameter = KMEncoder.Encode(parameter);                
                 string codeContent = string.Format("{0}/Product/SaoMa?p={1}",settings.WebURL, parameter);                
                 QRCodeUtil.CreateQRCode(fullDirectory,fileName, codeContent);
@@ -489,7 +512,7 @@ namespace KMBit.BL
 
                 if (rTaocans.Count == 0)
                 {
-                    throw new KMBitException(string.Format("此次活动{0}的手机号码不能扫码充流量,请联系活动方",spName));
+                    throw new KMBitException(string.Format("此次活动{0}的手机号码不能扫码充流量,如有疑问请联系活动举办方",spName));
                 }
                 Marketing_Activity_Taocan mTaocan = rTaocans[0];
                 Marketing_Orders returnOrder = null;
@@ -499,12 +522,12 @@ namespace KMBit.BL
                     returnOrder = existedOrders[0];
                     if(!returnOrder.Used && returnOrder.Sent)
                     {
-                        logger.Info("Already sent but not used, sent again");                      
+                        logger.Info("Already sent but not used, sent again");                       
                         return settings.WebURL + "/" + settings.QRFolder + "/" + returnOrder.CodePath;
                     }else
                     {
-                        logger.Info("Already sent but and used");
-                        throw new KMBitException(string.Format("微信号{0}已经获取过二维码，并且已经扫码使用过二维码，不能重复获取",openId));
+                        logger.Info("Already sent and used");
+                        throw new KMBitException(string.Format("此微信号已经获取过二维码，并且已经扫码使用过二维码（一次活动一个微信号只能获取一个二维码）"));
                     }
                 }
 
@@ -514,7 +537,7 @@ namespace KMBit.BL
 
                 if(returnOrder==null)
                 {
-                    throw new KMBitException(string.Format("本次活动的二维码全部送完"));
+                    throw new KMBitException(string.Format("本次活动的二维码全部送完，尽情期待下次活动，感谢您的关注"));
                 }
 
                 returnOrder.OpenId = openId;
@@ -531,11 +554,24 @@ namespace KMBit.BL
             using (chargebitEntities db = new chargebitEntities())
             {
                 Marketing_Activities activity = null;
+                Customer customer = null;
                 List<Marketing_Orders> orders = (from o in db.Marketing_Orders where o.ActivityTaocanId == activityTaocanId select o).ToList<Marketing_Orders>();
                 if(orders.Count>0)
                 {
                     foreach(Marketing_Orders order in orders)
                     {
+                        if(order.Used)
+                        {
+                            continue;
+                        }
+                        if(!string.IsNullOrEmpty(order.CodePath))
+                        {
+                            string tmpPhysicalPath = Path.Combine(settings.RootDirectory,order.CodePath.Replace('/','\\'));
+                            if(File.Exists(tmpPhysicalPath))
+                            {
+                                continue;
+                            }
+                        }
                         if(activity==null)
                         {
                             activity = (from a in db.Marketing_Activities where a.Id==order.ActivityId select a).FirstOrDefault<Marketing_Activities>();
@@ -543,11 +579,39 @@ namespace KMBit.BL
                             {
                                 continue;
                             }
+
+                            if (customer == null)
+                            {
+                                customer = (from c in db.Customer where c.Id==activity.CustomerId select c).FirstOrDefault<Customer>();                                
+                            }
                         }
+                        
                         string midPhysicalPath = string.Format("{0}\\{1}",activity.AgentId,activity.CustomerId);
                         string fileName = Guid.NewGuid().ToString() + ".png";
                         string urlAbsPath= string.Format("{0}/{1}/{2}", activity.AgentId, activity.CustomerId, fileName);
-                        string parameter = string.Format("agentId={0}&customerId={1}&activityId={2}&activityOrderId={3}", activity.AgentId, activity.CustomerId,activity.Id,order.Id);
+                        string parameter = string.Empty; //string.Format("agentId={0}&customerId={1}&activityId={2}&activityOrderId={3}", activity.AgentId, activity.CustomerId,activity.Id,order.Id);
+                        SortedDictionary<string, string> ps = new SortedDictionary<string, string>();
+                        ps["agentId"] = activity.AgentId.ToString();
+                        ps["customerId"] = activity.CustomerId.ToString();
+                        ps["activityId"] = activity.Id.ToString();
+                        ps["activityOrderId"] = order.Id.ToString();
+                        StringBuilder pstr = new StringBuilder();
+                        int count = 1;                      
+                        foreach(KeyValuePair<string,string> p in ps)
+                        {
+                            pstr.Append(p.Key);
+                            pstr.Append("=");
+                            pstr.Append(p.Value);
+                            if(count<ps.Count)
+                            {
+                                pstr.Append("&");
+                            }                            
+                            count++;
+                        }
+                        parameter = pstr.ToString();
+                        pstr.Append("&key=");
+                        pstr.Append(customer.Token);
+                        parameter= parameter+"&signature=" + UrlSignUtil.GetMD5(pstr.ToString());
                         parameter = KMEncoder.Encode(parameter);
                         string codeContent = string.Format("{0}/Product/SaoMa?p={1}", settings.WebURL, parameter);
                         string fullFolder = Path.Combine(qrfolder, midPhysicalPath);
@@ -665,9 +729,17 @@ namespace KMBit.BL
                     throw new KMBitException("客户账户没有足够的余额");
                 }
 
-                db.Marketing_Activity_Taocan.Add(taocan);
-                db.SaveChanges();
-                if(taocan.Id>0)
+                Marketing_Activity_Taocan dbmTaocan = (from mt in db.Marketing_Activity_Taocan where mt.ResourceTaocanId == taocan.ResourceTaocanId && mt.ActivityId==taocan.ActivityId select mt).FirstOrDefault<Marketing_Activity_Taocan>();
+                if(dbmTaocan==null)
+                {
+                    db.Marketing_Activity_Taocan.Add(taocan);                   
+                }else
+                {
+                    dbmTaocan.Quantity += taocan.Quantity;
+                    taocan.Id = dbmTaocan.Id;
+                }
+                db.SaveChanges();               
+                if (taocan.Id>0)
                 {
                     agency.Remaining_amount -= taocan.Quantity * (route.Taocan.Taocan.Sale_price * route.Route.Discount);
                     customer.RemainingAmount-= taocan.Quantity * taocan.Price;
@@ -752,8 +824,8 @@ namespace KMBit.BL
                             {
                                 ATaocan = at,
                                 Route = new BAgentRoute() { Route = route, Taocan = new BResourceTaocan() { Taocan = taocan, Taocan2 = taocan2 } },
-                                UsedCount = (from ao in db.Marketing_Orders where ao.ActivityId== activity.Id && ao.Used==true select ao.Id).Count(),
-                                SentOutCount = (from ao in db.Marketing_Orders where ao.ActivityId == activity.Id && ao.Sent == true select ao.Id).Count(),
+                                UsedCount = (from ao in db.Marketing_Orders where ao.ActivityId== activity.Id && ao.Used==true && ao.ActivityTaocanId==at.Id select ao.Id).Count(),
+                                SentOutCount = (from ao in db.Marketing_Orders where ao.ActivityId == activity.Id && ao.Sent == true && ao.ActivityTaocanId == at.Id select ao.Id).Count(),
                             };
 
 
@@ -762,7 +834,7 @@ namespace KMBit.BL
             return taocans;
         }
 
-        public List<BAgentRoute> FindAvailableAgentRoutes(int agentId=0,int activityId=0)
+        public List<BAgentRoute> FindAvailableAgentRoutes(int agentId=0,int customerId=0,int activityId=0)
         {
             agentId = agentId > 0 ? agentId : CurrentLoginUser.User.Id;
             AgentManagement agentMgr = new AgentManagement(CurrentLoginUser);
@@ -775,13 +847,15 @@ namespace KMBit.BL
             {
                 using (chargebitEntities db = new chargebitEntities())
                 {
+                    //List<Resource_taocan> rtaocans = (from t in db.Resource_taocan
+                    //                                  join mt in db.Marketing_Activity_Taocan on t.Id equals mt.ResourceTaocanId
+                    //                                  where mt.ActivityId == activityId
+                    //                                  select t).ToList<Resource_taocan>();
 
-                    List<Resource_taocan> rtaocans = (from t in db.Resource_taocan
-                                                     join mt in db.Marketing_Activity_Taocan on t.Id equals mt.ResourceTaocanId
-                                                     where mt.ActivityId==activityId select t).ToList<Resource_taocan>();
+                    List<BActivityTaocan> aTaocans = FindActivityTaocans(activityId, customerId, agentId);
 
-                    int[] rts = (from rt in rtaocans select rt.Id).ToArray<int>();
-                    int[] spIds = (from rt in rtaocans select rt.Sp_id).ToArray<int>();
+                    int[] rts = (from rt in aTaocans where rt.UsedCount<rt.ATaocan.Quantity select rt.ATaocan.ResourceTaocanId).ToArray<int>();
+                    int[] spIds = (from rt in aTaocans where rt.UsedCount < rt.ATaocan.Quantity select rt.Route.Taocan.Taocan.Sp_id).ToArray<int>();
                     tmp = (from t in routes where !rts.Contains(t.Taocan.Taocan.Id) && !spIds.Contains(t.Taocan.Taocan.Sp_id) select t).ToList<BAgentRoute>();
                 }
             }           

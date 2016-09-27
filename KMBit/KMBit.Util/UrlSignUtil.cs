@@ -18,6 +18,20 @@ namespace KMBit.Util
             _key = "kuanmai";
         }
 
+        
+
+        public static string GetMD5(string s)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] t = md5.ComputeHash(Encoding.GetEncoding("utf-8").GetBytes(s));
+            StringBuilder sb = new StringBuilder(32);
+            for (int i = 0; i < t.Length; i++)
+            {
+                sb.Append(t[i].ToString("x").PadLeft(2, '0'));
+            }
+            return sb.ToString();
+        }
+
         /// <summary>
         /// 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
         /// </summary>

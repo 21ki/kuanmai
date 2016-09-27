@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace KMBit.Beans
 {
+    public enum PayType {
+        NONE,
+        WEIXIN,
+        ALIPAY,
+        NETBANK
+    }
     public class ChargeBaseOrder
     {
         public ChargeBaseOrder()
@@ -30,11 +36,15 @@ namespace KMBit.Beans
         public bool IsMarket { get; set; }
 
         public string MacAddress { get; set; }
+
+        public string CallbackUrl { get; set; }
     }
 
     public class ChargeOrder: ChargeBaseOrder
     {
         public int AgencyId { get; set; }
         public int RouteId { get; set; }
+        public string OpenId { get; set; }
+        public int OpenAccountType { get; set; }
     }
 }

@@ -73,11 +73,16 @@
     <Compile Include="Admin\AgentAdminMenagement.cs" />
     <Compile Include="Admin\SiteManagement.cs" />
     <Compile Include="Agent\AgentManagement.cs" />
+    <Compile Include="API\ApiAccessManagement.cs" />
+    <Compile Include="API\ProductManagement.cs" />
     <Compile Include="ChargeBridge.cs" />
     <Compile Include="Charge\ChargeConstant.cs" />
     <Compile Include="Charge\ChongBaCharge.cs" />
     <Compile Include="ChargeService.cs" />
+    <Compile Include="Charge\HeNanUnionComCharge.cs" />
     <Compile Include="Charge\ICharge.cs" />
+    <Compile Include="Charge\IStatus.cs" />
+    <Compile Include="Charge\YiRenCharge.cs" />
     <Compile Include="CustomerManagement.cs" />
     <Compile Include="HttpService.cs" />
     <Compile Include="MobileLocator\IMobileLocator.cs" />
@@ -89,6 +94,7 @@
     <Compile Include="PayAPI\AliPay\AlipaySubmit.cs" />
     <Compile Include="PayAPI\AliPay\MD5.cs" />
     <Compile Include="PaymentManagement.cs" />
+    <Compile Include="PersistentValueManager.cs" />
     <Compile Include="StaticDictionary.cs" />
     <Compile Include="UserManagement.cs" />
     <Compile Include="BaseManagement.cs" />
@@ -109,6 +115,10 @@
     <ProjectReference Include="..\KMBit.Util\KMBit.Util.csproj">
       <Project>{5492d2d8-54c7-4f0f-8032-e77bf30ad8f1}</Project>
       <Name>KMBit.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WeiChat.Payment.Wrapper\WeChat.Adapter.csproj">
+      <Project>{a47abb57-ecac-47ed-8657-cbf157c2313c}</Project>
+      <Name>WeChat.Adapter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

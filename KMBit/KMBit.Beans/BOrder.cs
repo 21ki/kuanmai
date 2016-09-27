@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using KMBit.DAL;
 namespace KMBit.Beans
 {
     public class BOrder
@@ -66,5 +67,9 @@ namespace KMBit.Beans
         public float Revenue { get; set; }
 
         public int MarketOrderId { get; set; }
+        public string MobileProvince { get; set; }
+        public string MobileCity { get; set; }
+        public string OpenID { get; set; }
+        public OpenAccountType OpenAccountType { get; set; }
     }
 }

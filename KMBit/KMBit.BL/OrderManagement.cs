@@ -202,13 +202,16 @@ namespace KMBit.BL
                     {
                         throw new KMBitException("当前代理商没有此路由");
                     }
-                }
-                if(!route.Enabled)
-                {
-                    throw new KMBitException(string.Format("编号为{0}代理商路由已被管理员停用",route.Id));
-                }
 
-                Charge_Order history = new Charge_Order();                
+                    if (!route.Enabled)
+                    {
+                        throw new KMBitException(string.Format("编号为{0}代理商路由已被管理员停用", route.Id));
+                    }
+                }                
+
+                Charge_Order history = new Charge_Order();
+                history.OpenId = order.OpenId;
+                history.OpenAccountType = order.OpenAccountType;            
                 history.Agent_Id = order.AgencyId;               
                 history.Completed_Time = 0;
                 history.Created_time = order.CreatedTime > 0 ? order.CreatedTime : DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -223,7 +226,7 @@ namespace KMBit.BL
                 history.Resource_taocan_id = order.ResourceTaocanId;
                 history.RuoteId = order.RouteId;
                 history.Status = 11;
-
+                history.CallBackUrl = order.CallbackUrl != null ? order.CallbackUrl : null;
                 history.Platform_Sale_Price = taocan.Sale_price;
                 if (taocan.EnableDiscount)
                 {
@@ -431,6 +434,7 @@ namespace KMBit.BL
                             from llopr in lopr.DefaultIfEmpty()
                             join tcc in db.Taocan on t.Taocan_id equals tcc.Id into ltcc
                             from lltcc in ltcc.DefaultIfEmpty()
+                           
                             select new BOrder
                             {
                                 AgentName = llagency != null ? llagency.Name : null,
@@ -459,7 +463,9 @@ namespace KMBit.BL
                                 Refound=o.Refound,
                                 Revenue=o.Revenue,
                                 ChargeType= o.Charge_type,
-                                MarketOrderId=o.MarketOrderId
+                                MarketOrderId=o.MarketOrderId,
+                                MobileProvince=o.Province,
+                                MobileCity=o.City
                             };
 
                 if(orderId>0)

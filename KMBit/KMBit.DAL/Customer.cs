@@ -27,5 +27,6 @@ namespace KMBit.DAL
         public string Description { get; set; }
         public float RemainingAmount { get; set; }
         public float CreditAmount { get; set; }
+        public string Token { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace KMBit.QueueSvr
     {
         static void Main(string[] args)
         {
+
         }
     }
 }

@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.BL.Charge;
+using KMBit.Util;
+using log4net;
 namespace KMBit.BL
 {
     public class WebRequestParameters
@@ -19,7 +21,7 @@ namespace KMBit.BL
 
         public string Value { get; set; }
 
-        public bool URLEncodeParameter { get; set; }
+        public bool URLEncodeParameter { get; set; }        
 
         public WebRequestParameters()
         {
@@ -35,13 +37,91 @@ namespace KMBit.BL
 
     public class ChargeService:HttpService
     {
+        protected AppSettings settings = AppSettings.GetAppSettings();
         public ChargeService(string svrUrl):base(svrUrl)
         {
-
+            this.Logger= log4net.LogManager.GetLogger(this.GetType());
         }
         public ChargeService()
         {
-        }      
+            this.Logger = log4net.LogManager.GetLogger(this.GetType());
+        }
+
+        protected void SendStatusBackToAgentCallback(Charge_Order order)
+        {
+            Logger.Info("SendStatusBackToAgentCallback");
+            if(order==null || order.Agent_Id<=0 || string.IsNullOrEmpty(order.CallBackUrl))
+            {
+                return;
+            }
+            Logger.Info(string.Format("Order Id {0}",order.Id.ToString()));
+            Logger.Info(string.Format("Order Status {0}", order.Status.ToString()));
+            Logger.Info(string.Format("Order Message {0}", order.Message!=null?order.Message:""));
+            chargebitEntities db = new chargebitEntities();
+            try
+            {
+                List<WebRequestParameters> parmeters = new List<WebRequestParameters>();
+                SortedDictionary<string, string> paras = new SortedDictionary<string, string>();
+                string orderId = order.Id.ToString();
+                string status = order.Status.ToString();
+                string message= order.Message != null ? order.Message : "";               
+                Users agent = (from u in db.Users where u.Id==order.Agent_Id select u).FirstOrDefault<Users>();
+                Logger.Info(string.Format("Agent {0}",agent.Email));
+                if (agent == null)
+                {
+                    status = "3";
+                    message = "代理商账户没有找到";
+                }
+                string token = agent.SecurityStamp;
+                paras["OrderId"] = orderId;
+                paras["Status"] = status;
+                paras["Message"] = message;
+                string signStr = "";
+                foreach (KeyValuePair<string, string> p in paras)
+                {
+                    if (signStr == string.Empty)
+                    {
+                        signStr += p.Key.ToLower() + "=" + p.Value;
+                    }
+                    else
+                    {
+                        signStr += "&" + p.Key.ToLower() + "=" + p.Value;
+                    }
+                }
+                signStr += "&key=" + token;
+                Logger.Info(string.Format("Sign String {0}", signStr));
+                Logger.Info(string.Format("Signature {0}", UrlSignUtil.GetMD5(signStr)));
+                paras["Signature"] = UrlSignUtil.GetMD5(signStr);
+                foreach (KeyValuePair<string, string> p in paras)
+                {
+                    parmeters.Add(new WebRequestParameters(p.Key, p.Value, false));
+                }
+                ServerUri = new Uri(order.CallBackUrl);
+                bool succeed = false;
+                SendRequest(parmeters, false, out succeed);
+                if (succeed)
+                {
+                    Logger.Info("Successfully sent back status to anegt callback API");
+                }
+                else
+                {
+                    Logger.Info("Failed sent back status to anegt callback API");
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }finally
+            {
+                if (db != null)
+                {
+                    db.Dispose();
+                }
+
+                Logger.Info("Leaving SendStatusBackToAgentCallback");
+            }
+          
+        }
 
         public virtual void ProceedOrder(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
         {
@@ -189,6 +269,8 @@ namespace KMBit.BL
                             cOrder.Message = result.Message;
                             cOrder.Out_Order_Id = order.OutId;
                             cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                            //remove qrcode picture
+                            RemoveQRCode(cOrder);
                             break;
                         case ChargeStatus.FAILED:
                             cOrder.Out_Order_Id = order.OutId;
@@ -206,7 +288,9 @@ namespace KMBit.BL
                                         cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
                                         agency.Remaining_amount += cOrder.Purchase_price;
                                         cOrder.Refound = true;
-                                    }else
+                                        db.SaveChanges();
+                                    }
+                                    else
                                     {
                                         //no need to refound for scanning
                                         cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
@@ -237,5 +321,35 @@ namespace KMBit.BL
                 }
             }
         }        
+
+        protected void RemoveQRCode(Charge_Order order)
+        {
+            if(order.MarketOrderId>0)
+            {
+                chargebitEntities db = null;
+                try
+                {
+                    db = new chargebitEntities();
+                    Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==order.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                    if(mOrder!=null && !string.IsNullOrEmpty(mOrder.CodePath))
+                    {
+                        string tmpPhysicalPath = System.IO.Path.Combine(settings.RootDirectory,mOrder.CodePath.Replace('/','\\'));
+                        if(System.IO.File.Exists(tmpPhysicalPath))
+                        {
+                            System.IO.File.Delete(tmpPhysicalPath);
+                        }
+                    }
+                }catch(Exception ex)
+                {
+                    Logger.Fatal(ex);
+                }finally
+                {
+                    if(db!=null)
+                    {
+                        db.Dispose();
+                    }
+                }
+            }
+        }
     }
 }

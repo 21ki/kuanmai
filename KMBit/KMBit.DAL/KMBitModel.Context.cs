@@ -36,21 +36,22 @@ namespace KMBit.DAL
         public DbSet<UserLogins> UserLogins { get; set; }
         public DbSet<UserRoles> UserRoles { get; set; }
         public DbSet<PayType> PayType { get; set; }
-        public DbSet<Users> Users { get; set; }
         public DbSet<Agent_route> Agent_route { get; set; }
         public DbSet<Admin_Users_Actions> Admin_Users_Actions { get; set; }
-        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
         public DbSet<Login_Log> Login_Log { get; set; }
         public DbSet<Help_Info> Help_Info { get; set; }
         public DbSet<Sp> Sp { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<Resource> Resource { get; set; }
         public DbSet<Customer_Recharge> Customer_Recharge { get; set; }
-        public DbSet<Customer> Customer { get; set; }
-        public DbSet<Resource_taocan> Resource_taocan { get; set; }
-        public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Marketing_Activity_Taocan> Marketing_Activity_Taocan { get; set; }
         public DbSet<Marketing_Activities> Marketing_Activities { get; set; }
         public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
+        public DbSet<Customer> Customer { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
+        public DbSet<Resource_taocan> Resource_taocan { get; set; }
+        public DbSet<Charge_Order> Charge_Order { get; set; }
+        public DbSet<OpenAccountType> OpenAccountType { get; set; }
     }
 }

@@ -7,13 +7,17 @@ using Microsoft.Owin.Security.Google;
 using Owin;
 using KMBit.DAL;
 using KMBit.BL;
+using Microsoft.Owin.Security.DataProtection;
+
 namespace KMBit
 {
     public partial class Startup
     {
+        public static IDataProtectionProvider DataProtectionProvider;
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
+            DataProtectionProvider = app.GetDataProtectionProvider();
             // Configure the db context, user manager and signin manager to use a single instance per request
             //app.CreatePerOwinContext(ApplicationDbContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.BL.Charge;
+using log4net;
 namespace KMBit.BL
 {
     public enum RequestType
@@ -21,6 +22,7 @@ namespace KMBit.BL
 
     public class HttpService
     {
+        public ILog Logger { get; protected set; }
         public HttpStatusCode StatusCode { get; private set; }
         public string Response { get; private set; }
 
@@ -99,27 +101,28 @@ namespace KMBit.BL
                 }
 
                 request = (HttpWebRequest)WebRequest.Create(this.ServerUri);
-                request.PreAuthenticate = true;
+                //request.PreAuthenticate = true;
                 //request.Credentials = new NetworkCredential(this.UserName, this.Password);
-                request.AllowAutoRedirect = false;
+                //request.AllowAutoRedirect = false;
                 request.Accept = "*/*";
                 request.KeepAlive = true;
                 request.Timeout = 10000 * 6 * 15;
                 request.Method = requestType.ToString();
                 request.ContentType = "application/x-www-form-urlencoded";
-                string cookieheader = string.Empty;
-                CookieContainer cookieCon = new CookieContainer();
-                request.CookieContainer = cookieCon;
-                request.UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+                
+                //string cookieheader = string.Empty;
+                //CookieContainer cookieCon = new CookieContainer();
+                //request.CookieContainer = cookieCon;
+                //request.UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
 
-                if (cookieheader.Equals(string.Empty))
-                {
-                    cookieheader = request.CookieContainer.GetCookieHeader(this.ServerUri);
-                }
-                else
-                {
-                    request.CookieContainer.SetCookies(this.ServerUri, cookieheader);
-                }
+                //if (cookieheader.Equals(string.Empty))
+                //{
+                //    cookieheader = request.CookieContainer.GetCookieHeader(this.ServerUri);
+                //}
+                //else
+                //{
+                //    request.CookieContainer.SetCookies(this.ServerUri, cookieheader);
+                //}
 
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
 
@@ -132,7 +135,8 @@ namespace KMBit.BL
                         System.IO.StreamWriter sw = new System.IO.StreamWriter(request.GetRequestStream(), new UTF8Encoding(false));
                         sw.Write(postData);
                         sw.Close();
-                    }                   
+                    }
+                                    
                 }
                 else
                 {
@@ -150,7 +154,7 @@ namespace KMBit.BL
                 {
                     this.StatusCode = response.StatusCode;
                     Encoding res_encoding = Encoding.GetEncoding(response.CharacterSet);
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    if (response.StatusCode == HttpStatusCode.OK && response.GetResponseStream()!=null)
                     {
                         System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8"));
                         Response = sr.ReadToEnd();
@@ -170,11 +174,18 @@ namespace KMBit.BL
                 if (wex.Response != null)
                 {
                     response = (HttpWebResponse)wex.Response;
+                    if(response!=null && response.GetResponseStream()!=null)
+                    {
+                        System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8"));
+                        Response = sr.ReadToEnd();
+                        succeed = true;
+                        sr.Close();
+                    }                    
                 }
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
             }
             finally
             {

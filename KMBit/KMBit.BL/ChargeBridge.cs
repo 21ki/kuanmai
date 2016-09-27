@@ -10,10 +10,17 @@ using KMBit.BL;
 using KMBit.BL.Charge;
 using KMBit.DAL;
 using KMBit.Util;
+using log4net;
 namespace KMBit.BL
 {
     public class ChargeBridge
     {
+        public ILog Logger { get; }
+        public ChargeBridge()
+        {
+            Logger = log4net.LogManager.GetLogger(this.GetType());
+        }
+
         public ChargeResult Charge(ChargeOrder order)
         {
             ChargeResult result = null;
@@ -170,5 +177,38 @@ namespace KMBit.BL
             }
             return result;
         }        
+
+        public void SyncChargeStatus()
+        {
+            chargebitEntities db = new chargebitEntities();
+            try
+            {
+                IStatus chargeMgr = null;
+                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
+                foreach(Resrouce_interface api in apis)
+                {
+                    object o = null;
+                    Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    Type type = assembly.GetType(api.Interface_classname);
+                    o = Activator.CreateInstance(type);                    
+                    chargeMgr = o as IStatus;
+                    if(chargeMgr!=null)
+                    {
+                        chargeMgr.GetChargeStatus(api.Resource_id);
+                    }                   
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Fatal(ex);
+            }
+            finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
+            }
+        }
     }
 }

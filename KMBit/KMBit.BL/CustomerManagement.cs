@@ -86,12 +86,12 @@ namespace KMBit.BL
             using (chargebitEntities db = new chargebitEntities())
             {
                 Customer dbCus = null;
-                if (customer.Id>0)
+                if (customer.Id > 0)
                 {
-                    dbCus = (from c in db.Customer where c.Id==customer.Id  select c).FirstOrDefault<Customer>();
-                    if(dbCus==null)
+                    dbCus = (from c in db.Customer where c.Id == customer.Id select c).FirstOrDefault<Customer>();
+                    if (dbCus == null)
                     {
-                        throw new KMBitException(string.Format("编号为{0}的客户不存在",customer.Id));
+                        throw new KMBitException(string.Format("编号为{0}的客户不存在", customer.Id));
                     }
 
                     dbCus.Description = customer.Description != null ? dbCus.Description : dbCus.Description;
@@ -99,23 +99,28 @@ namespace KMBit.BL
                     dbCus.ContactAddress = customer.ContactAddress;
                     dbCus.ContactPeople = customer.ContactPeople;
                     dbCus.ContactPhone = customer.ContactPhone;
+                    if (string.IsNullOrEmpty(dbCus.Token))
+                    {
+                        dbCus.Token = Guid.NewGuid().ToString();
+                    }
+
                 }
                 else
                 {
-                    if(string.IsNullOrEmpty(customer.Name))
+                    if (string.IsNullOrEmpty(customer.Name))
                     {
                         throw new KMBitException("客户名称不能为空");
                     }
 
-                    Customer existed = (from c in db.Customer where c.Name==customer.Name select c).FirstOrDefault<Customer>();
-                    if(existed!=null)
+                    Customer existed = (from c in db.Customer where c.Name == customer.Name select c).FirstOrDefault<Customer>();
+                    if (existed != null)
                     {
-                        throw new KMBitException(string.Format("名称为:{0}的客户已经存在",customer.Name));
+                        throw new KMBitException(string.Format("名称为:{0}的客户已经存在", customer.Name));
                     }
                     dbCus = new Customer()
                     {
                         AgentId = customer.AgentId,
-                        ContactEmail=customer.ContactEmail,
+                        ContactEmail = customer.ContactEmail,
                         ContactAddress = customer.ContactAddress,
                         ContactPeople = customer.ContactPeople,
                         ContactPhone = customer.ContactPhone,
@@ -125,9 +130,10 @@ namespace KMBit.BL
                         Name = customer.Name,
                         OpenId = customer.OpenId,
                         OpenType = customer.OpenType,
-                        RemainingAmount = customer.RemainingAmount
+                        RemainingAmount = customer.RemainingAmount,
+                        Token = Guid.NewGuid().ToString()
                     };
-                    db.Customer.Add(dbCus);                   
+                    db.Customer.Add(dbCus);
                 }
                 db.SaveChanges();
                 ret = true;
@@ -165,6 +171,8 @@ namespace KMBit.BL
             }
         }
 
+
+
         public List<BCustomer> FindCustomers(int agentId,int customerId,out int total,bool paging=false,int page=1,int pageSize=20)
         {
             total = 0;
@@ -177,21 +185,21 @@ namespace KMBit.BL
                             from llag in lag.DefaultIfEmpty()
                             select new BCustomer
                             {
-                                 Agent= llag,
-                                 AgentId=cs.AgentId,
-                                 ContactAddress=cs.ContactAddress,
-                                 ContactPeople=cs.ContactPeople,
-                                 ContactPhone=cs.ContactPhone,
-                                 ContactEmail=cs.ContactEmail,
-                                 CreatedTime=cs.CreatedTime,
-                                 CreditAmount=cs.CreditAmount,
-                                 Description=cs.Description,
-                                 Id=cs.Id,
-                                 Name=cs.Name,
-                                 OpenId=cs.OpenId,
-                                 OpenType=cs.OpenType,
-                                 RemainingAmount=cs.RemainingAmount   
-                                 
+                                Agent = llag,
+                                AgentId = cs.AgentId,
+                                ContactAddress = cs.ContactAddress,
+                                ContactPeople = cs.ContactPeople,
+                                ContactPhone = cs.ContactPhone,
+                                ContactEmail = cs.ContactEmail,
+                                CreatedTime = cs.CreatedTime,
+                                CreditAmount = cs.CreditAmount,
+                                Description = cs.Description,
+                                Id = cs.Id,
+                                Name = cs.Name,
+                                OpenId = cs.OpenId,
+                                OpenType = cs.OpenType,
+                                RemainingAmount = cs.RemainingAmount,
+                                Token = cs.Token
                             };
 
                 if(agentId>0)

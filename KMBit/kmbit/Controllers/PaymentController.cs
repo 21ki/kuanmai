@@ -109,7 +109,10 @@ namespace KMBit.Controllers
             return Redirect("/Product/Charge?message=" + result.Message);
         }
 
-
+        public JsonResult WeiChatPayBack()
+        {
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
 
         /// <summary>
         /// 获取支付宝GET过来通知消息，并以“参数名=参数值”的形式组成数组

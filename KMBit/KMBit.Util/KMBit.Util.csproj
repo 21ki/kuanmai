@@ -56,6 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UrlSignUtil.cs" />
     <Compile Include="WeiChatMessageUtil.cs" />
+    <Compile Include="XMLUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KMBit.Beans\KMBit.Beans.csproj">

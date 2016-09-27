@@ -37,5 +37,6 @@ namespace KMBit.DAL
         public int AccessFailedCount { get; set; }
         public int CreatedBy { get; set; }
         public bool Enabled { get; set; }
+        public string AccessToken { get; set; }
     }
 }

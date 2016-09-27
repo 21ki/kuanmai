@@ -59,6 +59,20 @@
         </dd>
 
         <dt>
+            @Html.DisplayName("AccessToken")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.AccessToken)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("SecurityToken")
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.User.SecurityStamp)
+        </dd>
+
+        <dt>
             @Html.DisplayName("创建日期")
         </dt>
         <dd>

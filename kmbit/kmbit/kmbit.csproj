@@ -207,10 +207,14 @@
     <Compile Include="Controllers\api\ProductController.cs" />
     <Compile Include="Controllers\api\ResourceController.cs" />
     <Compile Include="Controllers\api\SaoMaController.cs" />
+    <Compile Include="Controllers\api\WeChatController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\km\AccountController.cs" />
+    <Compile Include="Controllers\km\ChargeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
+    <Compile Include="Controllers\WeChatController.cs" />
     <Compile Include="Extensions\HtmlExtensions.cs" />
     <Compile Include="Filters\AdminFilter.cs" />
     <Compile Include="Filters\AgentFilter.cs" />
@@ -232,6 +236,25 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="api_test.html" />
+    <Content Include="bin\Config\WeChatAccessToken.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="bin\Config\WeChatJSAPITicket.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="bin\Config\WeChatPayConfig.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\WeChatJSAPITicket.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\WeChatAccessToken.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\WeChatPayConfig.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Config\AliPayConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -815,6 +838,9 @@
     <Content Include="Views\Product\Error.cshtml" />
     <Content Include="Views\Agent\GetActivityCode.cshtml" />
     <Content Include="Views\Home\Test.cshtml" />
+    <Content Include="Views\WeChat\Index.cshtml" />
+    <Content Include="Views\Shared\weChatHead.cshtml" />
+    <Content Include="Views\Shared\_weChatLayout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -845,6 +871,10 @@
     <ProjectReference Include="..\KMBit.Util\KMBit.Util.csproj">
       <Project>{5492d2d8-54c7-4f0f-8032-e77bf30ad8f1}</Project>
       <Name>KMBit.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WeiChat.Payment.Wrapper\WeChat.Adapter.csproj">
+      <Project>{a47abb57-ecac-47ed-8657-cbf157c2313c}</Project>
+      <Name>WeChat.Adapter</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

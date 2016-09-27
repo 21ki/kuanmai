@@ -150,12 +150,12 @@ namespace KMBit.BL
             return spList;
         }
 
-        public List<PayType> GetPayTypes()
+        public List<DAL.PayType> GetPayTypes()
         {
-            List<PayType> types = null;
+            List<DAL.PayType> types = null;
             using (chargebitEntities db = new chargebitEntities())
             {
-                types = (from t in db.PayType orderby t.Id select t).ToList<PayType>();
+                types = (from t in db.PayType orderby t.Id select t).ToList();
             }
             return types;
         }
@@ -214,7 +214,14 @@ namespace KMBit.BL
             return taocans;
         }
 
-        public List<BResourceTaocan> SearchResourceTaocans(string spName, string province)
+        /// <summary>
+        /// Return the available packages for the gaving mobile phone number
+        /// </summary>
+        /// <param name="spName">SP Name</param>
+        /// <param name="province">The Province the mobile number belongs to</param>
+        /// <param name="scope">Global or local bit</param>
+        /// <returns></returns>
+        public List<BResourceTaocan> SearchResourceTaocans(string spName, string province,BitScope scope)
         {
             List<BResourceTaocan> taocans = new List<BResourceTaocan>();
             using (chargebitEntities db = new chargebitEntities())
@@ -261,7 +268,8 @@ namespace KMBit.BL
                     tmp = tmp.Where(t => t.Taocan.Sp_id == 0);
                 }
 
-                if (provinceId > 0)
+                //全国还是本地流量
+                if(scope== BitScope.Local)
                 {
                     tmp = tmp.Where(t => t.Taocan.Area_id == provinceId);
                 }
@@ -270,14 +278,20 @@ namespace KMBit.BL
                     tmp = tmp.Where(t => t.Taocan.Area_id == 0);
                 }
 
+                //限制号码归属地
+                if (provinceId > 0)
+                {
+                    tmp = tmp.Where(t => (t.Taocan.NumberProvinceId == provinceId || t.Taocan.NumberProvinceId==0));
+                }
+
                 List<BResourceTaocan> tmpTaocans = tmp.OrderBy(t=>t.Taocan.Quantity).ToList<BResourceTaocan>();
                 List<int> ts = (from t in tmpTaocans select t.Taocan.Quantity).Distinct<int>().ToList<int>();
                 List<BResourceTaocan> globalTaocans = (from t in tmpTaocans where t.Taocan.Area_id == 0 select t).ToList<BResourceTaocan>();
                 List<BResourceTaocan> localTaocans = (from t in tmpTaocans where t.Taocan.Area_id > 0 select t).ToList<BResourceTaocan>();
                 foreach (int t in ts)
                 {
-                    BResourceTaocan st = (from tc in globalTaocans where tc.Taocan.Quantity==t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
-                    BResourceTaocan st2 = (from tc in localTaocans where tc.Taocan.Quantity == t orderby tc.Taocan.Sale_price ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    BResourceTaocan st = (from tc in globalTaocans where tc.Taocan.Quantity==t orderby tc.Taocan.Resource_Discount ascending select tc).FirstOrDefault<BResourceTaocan>();
+                    BResourceTaocan st2 = (from tc in localTaocans where tc.Taocan.Quantity == t orderby tc.Taocan.Resource_Discount ascending select tc).FirstOrDefault<BResourceTaocan>();
                     if (st != null)
                     {
                         taocans.Add(st);
