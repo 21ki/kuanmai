@@ -234,12 +234,12 @@ namespace KMBit.Controllers
                 try
                 {
                     ChargeBridge cb = new ChargeBridge();
-                    ChargeOrder order = new ChargeOrder() { Payed = false, OperateUserId = 0, AgencyId = User.Identity.GetUserId<int>(), Id = 0, Province = model.Province, City = model.City, MobileSP =model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = model.RouteId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                    ChargeOrder order = new ChargeOrder() { Payed = false, OperateUserId = 0, AgencyId = User.Identity.GetUserId<int>(), Id = 0, Province = model.Province, City = model.City, MobileSP =model.SPName, MobileNumber = model.Mobile, OutOrderId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = model.RouteId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
 
                     OrderManagement orderMgt = new OrderManagement();
                     order = orderMgt.GenerateOrder(order);
-                    ChargeResult result = cb.Charge(order);
-                    ViewBag.Message = result.Message;                    
+                    //ChargeResult result = cb.Charge(order);
+                    ViewBag.Message = "成功提交到充值系统，等待充值,可以到流量充值查询里查看充值状态...";                    
                 }
                 catch (KMBitException ex)
                 {

@@ -19,6 +19,10 @@ namespace WeChat.Adapter.Requests
         public string notify_url { get; private set; }
         public TradeType trade_type { get; set; }
         public string out_trade_no { get; set; }
+        public string attach { get; set; }
+        public string openid { get; set; }
+        public string detail { get; set; }
+        public string device_info { get; set; }
         public PreOrderRequest(WeChatPayConfig config):base(config)
         {           
             this.notify_url = config.NotifyUrl;
@@ -75,7 +79,7 @@ namespace WeChat.Adapter.Requests
             {
                 col.Add(param.Key, param.Value!=null?param.Value.ToString():"");
             }
-            string str = HttpSercice.PostHttpRequest(this.url, col, RequestType.POST, null);
+            string str = HttpSercice.PostHttpRequest(this.url, col, RequestType.POST,"text/xml");
             response = ParseXML(str);
             return response;
         }

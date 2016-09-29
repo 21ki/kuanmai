@@ -17,5 +17,6 @@ namespace WeChat.Adapter
         public string NotifyUrl { get; set; }
         public string PaymentQueryUrl { get; set; }
         public string GetTokenUrl { get; set; }
+        public string GetJsTicketUrl { get; set; }
     }
 }

@@ -849,6 +849,70 @@ namespace KMBit.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public ActionResult ChargeAccount(int agencyId)
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            if (!agentAdminMgt.CurrentLoginUser.Permission.UPDATE_USER)
+            {
+                ViewBag.Message = "您没有充值代理商账户的权限";
+                return View("Error");
+            }
+            if (agencyId<=0)
+            {
+                ViewBag.Message = "参数错误";
+                return View("Error");
+            }
+
+            BUser user = agentAdminMgt.GetUserInfo(agencyId);
+            if(user==null)
+            {
+                ViewBag.Message = "代理商不存在";
+                return View("Error");
+            }
+            AdminChargeAccountModel model = new AdminChargeAccountModel()
+            {
+                UserId = agencyId,
+                Name=user.User.Name,
+                Amount = 0,
+                Remaining = user.User.Remaining_amount
+            };
+            return View(model);
+        }
+
+        [HttpPost]        
+        public ActionResult ChargeAccount(AdminChargeAccountModel model)
+        {
+            if (agentAdminMgt == null)
+                agentAdminMgt = new AgentAdminMenagement(User.Identity.GetUserId<int>());
+            if (!agentAdminMgt.CurrentLoginUser.Permission.UPDATE_USER)
+            {
+                ViewBag.Message = "您没有充值代理商账户的权限";
+                return View("Error");
+            }
+            if(!ModelState.IsValid)
+            {
+                ViewBag.Message = "输入信息错误";
+                return View("Error");
+            }
+            try
+            {
+                bool result = agentAdminMgt.ChargeAgencyAccount(model.UserId, model.Amount);
+                if(!result)
+                {
+                    ViewBag.Message = "您没有充值代理商账户的权限";
+                    return View("Error");
+                }
+                return Redirect("/Admin/Agencies");
+            }
+            catch(KMBitException ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View("Error");
+            }            
+        }
+
         public async Task<ActionResult> UpdateAgency(CreateAgencyModel model)
         {
             if (agentAdminMgt == null)
@@ -882,7 +946,6 @@ namespace KMBit.Controllers
                         dbUser.CreatedBy = User.Identity.GetUserId<int>();
                         dbUser.Regtime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                         result = await agentAdminMgt.CreateAgency(dbUser);
-                        //Task.Run(()=> agentAdminMgt.CreateAgency(dbUser));
                     }
 
                     if(result)
@@ -1138,12 +1201,12 @@ namespace KMBit.Controllers
             if (ModelState.IsValid)
             {
                 ChargeBridge cb = new ChargeBridge();
-                ChargeOrder order = new ChargeOrder() { ChargeType=2, Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
+                ChargeOrder order = new ChargeOrder() { ChargeType=2, Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutOrderId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
               
                 OrderManagement orderMgt = new OrderManagement();
                 order = orderMgt.GenerateOrder(order);               
-                ChargeResult result = cb.Charge(order);
-                ViewBag.Message = result.Message;
+                //ChargeResult result = cb.Charge(order);
+                ViewBag.Message = "成功提交到充值系统，等待充值,可以到流量充值查询里查看充值状态...";
             }
 
             return View();

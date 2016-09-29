@@ -18,7 +18,59 @@ namespace KMBit.Util
             _key = "kuanmai";
         }
 
-        
+        public static string SHA1_Hash(string str_sha1_in)
+        {
+            SHA1 sha1 = new SHA1CryptoServiceProvider();
+            byte[] bytes_sha1_in = UTF8Encoding.Default.GetBytes(str_sha1_in);
+            byte[] bytes_sha1_out = sha1.ComputeHash(bytes_sha1_in);
+            string str_sha1_out = BitConverter.ToString(bytes_sha1_out);
+            str_sha1_out = str_sha1_out.Replace("-", "").ToLower();
+            return str_sha1_out;
+        }
+
+        public static string SHA1_Hash(SortedDictionary<string, string> paras)
+        {
+            if (paras != null)
+            {
+                string signStr = string.Empty;
+                foreach (KeyValuePair<string, string> parameter in paras)
+                {
+                    if (signStr == string.Empty)
+                    {
+                        signStr = parameter.Key + "=" + parameter.Value != null ? parameter.Value : "";
+                    }
+                    else
+                    {
+                        signStr += "&" + parameter.Key + "=" + parameter.Value != null ? parameter.Value : "";
+                    }
+                }
+
+                return SHA1_Hash(signStr);
+            }
+            return null;
+        }
+
+        public static string GetMD5(SortedDictionary<string, string> paras)
+        {
+            if (paras != null)
+            {
+                string signStr = string.Empty;
+                foreach (KeyValuePair<string, string> parameter in paras)
+                {
+                    if (signStr == string.Empty)
+                    {
+                        signStr = parameter.Key + "=" + parameter.Value != null ? parameter.Value : "";
+                    }
+                    else
+                    {
+                        signStr += "&" + parameter.Key + "=" + parameter.Value != null ? parameter.Value : "";
+                    }
+                }
+
+                return GetMD5(signStr);
+            }
+            return null;
+        }
 
         public static string GetMD5(string s)
         {

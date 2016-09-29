@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using log4net;
 using KMBit.Beans;
 using KMBit.Beans.API;
 using KMBit.BL.Charge;
@@ -14,17 +14,24 @@ namespace KMBit.BL.API
 {
     public class ProductManagement
     {
-        public APIChargeResult Charge(int agendId,int routeId,string mobile,string province,string city,string callBackUrl)
+        ILog logger = KMLogger.GetLogger();
+        public APIChargeResult Charge(int agendId,int routeId,string mobile,string province,string city,string callBackUrl,string client_order_id)
         {
             ChargeResult result = null;
             ChargeBridge cb = new ChargeBridge();
-            ChargeOrder order = new ChargeOrder() { Payed = false, OperateUserId = 0, AgencyId = agendId, Id = 0, Province = province, City = city, MobileNumber = mobile, OutId = "", ResourceId = 0, ResourceTaocanId = 0, RouteId = routeId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), CallbackUrl=callBackUrl };
+            ChargeOrder order = new ChargeOrder() { ClientOrderId= client_order_id, Payed = false, OperateUserId = 0, AgencyId = agendId, Id = 0, Province = province, City = city, MobileNumber = mobile, OutOrderId = "", ResourceId = 0, ResourceTaocanId = 0, RouteId = routeId, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), CallbackUrl=callBackUrl };
 
             OrderManagement orderMgt = new OrderManagement();
             try
             {
                 order = orderMgt.GenerateOrder(order);
-                result = cb.Charge(order);
+                //result = cb.Charge(order);
+                if(order.Id>0)
+                {
+                    result = new ChargeResult();
+                    result.Status = ChargeStatus.SUCCEED;
+                    result.Message = "充值信息已提交到充值系统";
+                }
             }
             catch(KMBitException kex)
             {
@@ -33,27 +40,29 @@ namespace KMBit.BL.API
                 result.Message = kex.Message;
             }catch(Exception ex)
             {
+                logger.Error(ex);
                 result = new ChargeResult();
                 result.Status = ChargeStatus.FAILED;
                 result.Message = "未知错误，请联系平台管理员";
             }
 
             APIChargeResult apiResult = new APIChargeResult();
-            apiResult.Message = result.Message;
+            //apiResult.Message = result.Message;
             apiResult.OrderId = order.Id;
             switch (result.Status)
             {
-                case ChargeStatus.SUCCEED:                    
-                    apiResult.Status = 2;
+                case ChargeStatus.SUCCEED:
+                    apiResult.Status = ChargeStatus.SUCCEED.ToString();
+                    apiResult.Message = result.Message;
                     break;
                 case ChargeStatus.FAILED:
-                    apiResult.Status = 2;
+                    apiResult.Status = ChargeStatus.FAILED.ToString();
                     break;
                 case ChargeStatus.ONPROGRESS:
-                    apiResult.Status = 1;
+                    apiResult.Status = ChargeStatus.SUCCEED.ToString();
                     break;
                 case ChargeStatus.PENDIND:
-                    apiResult.Status = 10;
+                    apiResult.Status = ChargeStatus.SUCCEED.ToString();
                     break;
             }
 

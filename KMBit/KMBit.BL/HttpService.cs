@@ -22,7 +22,7 @@ namespace KMBit.BL
 
     public class HttpService
     {
-        public ILog Logger { get; protected set; }
+        public ILog Logger { get; set; }
         public HttpStatusCode StatusCode { get; private set; }
         public string Response { get; private set; }
 

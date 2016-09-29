@@ -36,8 +36,10 @@ namespace KMBit.BL
     }
 
     public class ChargeService:HttpService
-    {
-        protected AppSettings settings = AppSettings.GetAppSettings();
+    {        
+        public static object o = new object();
+        protected AppSettings settings = AppSettings.GetAppSettings();       
+
         public ChargeService(string svrUrl):base(svrUrl)
         {
             this.Logger= log4net.LogManager.GetLogger(this.GetType());
@@ -110,7 +112,7 @@ namespace KMBit.BL
             }
             catch(Exception ex)
             {
-
+                Logger.Error(ex);
             }finally
             {
                 if (db != null)
@@ -125,199 +127,214 @@ namespace KMBit.BL
 
         public virtual void ProceedOrder(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
         {
-            result = new ChargeResult();
-            using (chargebitEntities db = new chargebitEntities())
+            lock(o)
             {
-                if (!isSOAPAPI)
+                result = new ChargeResult();
+                using (chargebitEntities db = new chargebitEntities())
                 {
-                    KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == order.ResourceId select ri).FirstOrDefault<Resrouce_interface>();
-                    if (rInterface == null)
+                    if (!isSOAPAPI)
                     {
-                        result.Status = ChargeStatus.FAILED;
-                        result.Message = ChargeConstant.RESOURCE_INTERFACE_NOT_CONFIGURED;
-                        return;
-                    }
-
-                    if (string.IsNullOrEmpty(rInterface.APIURL))
-                    {
-                        result.Status = ChargeStatus.FAILED;
-                        result.Message = ChargeConstant.RESOURCE_INTERFACE_APIURL_EMPTY;
-                        return;
-                    }
-                }
-                Charge_Order cOrder = (from o in db.Charge_Order where o.Id==order.Id select o).FirstOrDefault<Charge_Order>();
-                if(cOrder==null)
-                {
-                    result.Status = ChargeStatus.FAILED;
-                    result.Message = ChargeConstant.ORDER_NOT_EXIST;
-                    return;
-                }
-                cOrder.Process_time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                Resource_taocan taocan = (from t in db.Resource_taocan where t.Id==order.ResourceTaocanId select t).FirstOrDefault<Resource_taocan>();
-                if (order.AgencyId == 0)
-                {
-                    cOrder.Payed = order.Payed;
-                    //cOrder.Sale_price = taocan.Sale_price;
-                    //cOrder.Purchase_price = taocan.Sale_price;
-                    //cOrder.Platform_Cost_Price = taocan.Purchase_price;
-                    //cOrder.Platform_Sale_Price = taocan.Sale_price;                    
-                    //cOrder.Revenue = taocan.Sale_price- taocan.Purchase_price;
-                    cOrder.Status = 10;//等待充值
-                    result.Status = ChargeStatus.SUCCEED;
-                    db.SaveChanges();
-                    return;
-                }                
-
-                Users agency = (from u in db.Users where u.Id == order.AgencyId select u).FirstOrDefault<Users>();
-                Agent_route ruote = (from au in db.Agent_route where au.Id == order.RouteId select au).FirstOrDefault<Agent_route>();
-                if (ruote != null)
-                {   
-                    //no need to verify agent remaining amount or credit amount if the charge is marketing order 
-                    if(cOrder.MarketOrderId<=0)
-                    {
-                        float price = taocan.Sale_price * ruote.Discount;
-                        if (agency.Pay_type == 1)
+                        KMBit.DAL.Resrouce_interface rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == order.ResourceId select ri).FirstOrDefault<Resrouce_interface>();
+                        if (rInterface == null)
                         {
-                            if (agency.Remaining_amount < price)
-                            {
-                                result.Message = ChargeConstant.AGENT_NOT_ENOUGH_MONEY;
-                                result.Status = ChargeStatus.FAILED;
-                                db.Charge_Order.Remove(cOrder);
-                                db.SaveChanges();
-                                return;
-                            }
-                            else
-                            {
-                                agency.Remaining_amount = agency.Remaining_amount - price;
-                                result.Status = ChargeStatus.SUCCEED;
-                            }
+                            result.Status = ChargeStatus.FAILED;
+                            result.Message = ChargeConstant.RESOURCE_INTERFACE_NOT_CONFIGURED;
+                            return;
                         }
-                        else if (agency.Pay_type == 2)
+
+                        if (string.IsNullOrEmpty(rInterface.APIURL))
                         {
-                            if (agency.Remaining_amount < price)
+                            result.Status = ChargeStatus.FAILED;
+                            result.Message = ChargeConstant.RESOURCE_INTERFACE_APIURL_EMPTY;
+                            return;
+                        }
+                    }
+                    Charge_Order cOrder = (from o in db.Charge_Order where o.Id == order.Id select o).FirstOrDefault<Charge_Order>();
+                    if (cOrder == null)
+                    {
+                        result.Status = ChargeStatus.FAILED;
+                        result.Message = ChargeConstant.ORDER_NOT_EXIST;
+                        return;
+                    }
+                    cOrder.Process_time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                    Resource_taocan taocan = (from t in db.Resource_taocan where t.Id == order.ResourceTaocanId select t).FirstOrDefault<Resource_taocan>();
+                    if (order.AgencyId == 0)
+                    {
+                        cOrder.Payed = order.Payed;
+                        //cOrder.Sale_price = taocan.Sale_price;
+                        //cOrder.Purchase_price = taocan.Sale_price;
+                        //cOrder.Platform_Cost_Price = taocan.Purchase_price;
+                        //cOrder.Platform_Sale_Price = taocan.Sale_price;                    
+                        //cOrder.Revenue = taocan.Sale_price- taocan.Purchase_price;
+                        cOrder.Status = 10;//等待充值
+                        result.Status = ChargeStatus.SUCCEED;
+                        db.SaveChanges();
+                        return;
+                    }
+
+                    Users agency = (from u in db.Users where u.Id == order.AgencyId select u).FirstOrDefault<Users>();
+                    Agent_route ruote = (from au in db.Agent_route where au.Id == order.RouteId select au).FirstOrDefault<Agent_route>();
+                    if (ruote != null)
+                    {
+                        //no need to verify agent remaining amount or credit amount if the charge is marketing order 
+                        if (cOrder.MarketOrderId <= 0)
+                        {
+                            float price = taocan.Sale_price * ruote.Discount;
+                            if (agency.Pay_type == 1)
                             {
-                                if (agency.Remaining_amount + agency.Credit_amount < price)
+                                if (agency.Remaining_amount < price)
                                 {
-                                    result.Message = ChargeConstant.AGENT_NOT_ENOUGH_CREDIT;
+                                    result.Message = ChargeConstant.AGENT_NOT_ENOUGH_MONEY;
                                     result.Status = ChargeStatus.FAILED;
-                                    db.Charge_Order.Remove(cOrder);
+                                    cOrder.Status = 3;//failed
+                                    cOrder.Message = result.Message;
+                                    cOrder.Completed_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                    //db.Charge_Order.Remove(cOrder);
                                     db.SaveChanges();
                                     return;
                                 }
                                 else
                                 {
                                     agency.Remaining_amount = agency.Remaining_amount - price;
-                                    agency.Credit_amount = agency.Credit_amount - (price - agency.Remaining_amount);
                                     result.Status = ChargeStatus.SUCCEED;
                                 }
                             }
-                            else
+                            else if (agency.Pay_type == 2)
                             {
-                                agency.Remaining_amount = agency.Remaining_amount - price;
-                                result.Status = ChargeStatus.SUCCEED;
+                                if (agency.Remaining_amount < price)
+                                {
+                                    if (agency.Remaining_amount + agency.Credit_amount < price)
+                                    {
+                                        result.Message = ChargeConstant.AGENT_NOT_ENOUGH_CREDIT;
+                                        result.Status = ChargeStatus.FAILED;
+                                        cOrder.Status = 3;//failed
+                                        cOrder.Message = result.Message;
+                                        cOrder.Completed_Time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                        //db.Charge_Order.Remove(cOrder);
+                                        db.SaveChanges();
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        agency.Remaining_amount = agency.Remaining_amount - price;
+                                        agency.Credit_amount = agency.Credit_amount - (price - agency.Remaining_amount);
+                                        result.Status = ChargeStatus.SUCCEED;
+                                    }
+                                }
+                                else
+                                {
+                                    agency.Remaining_amount = agency.Remaining_amount - price;
+                                    result.Status = ChargeStatus.SUCCEED;
+                                }
                             }
                         }
-                    }             
-                   
-                    cOrder.Status = 10;
-                    cOrder.Payed = true;
-                    //cOrder.Sale_price = ruote.Sale_price;
-                    //cOrder.Purchase_price = price;
-                    //cOrder.Platform_Cost_Price = taocan.Purchase_price;
-                    //cOrder.Platform_Sale_Price = taocan.Sale_price;
-                    //cOrder.Revenue = price - taocan.Purchase_price;
-                }
-                if(result.Status== ChargeStatus.FAILED)
-                {
-                    db.Charge_Order.Remove(cOrder);
-                }else
-                {
-                    if(cOrder.MarketOrderId>0)
+
+                        cOrder.Status = 10;
+                        cOrder.Payed = false;
+                        //cOrder.Sale_price = ruote.Sale_price;
+                        //cOrder.Purchase_price = price;
+                        //cOrder.Platform_Cost_Price = taocan.Purchase_price;
+                        //cOrder.Platform_Sale_Price = taocan.Sale_price;
+                        //cOrder.Revenue = price - taocan.Purchase_price;
+                    }
+                    if (result.Status == ChargeStatus.FAILED)
                     {
-                        Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
-                        if(mOrder!=null)
+                        //db.Charge_Order.Remove(cOrder);
+                    }
+                    else
+                    {
+                        if (cOrder.MarketOrderId > 0)
                         {
-                            mOrder.Used = true;
-                            mOrder.Sent = true;
-                            mOrder.UsedTime = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            mOrder.PhoneNumber = cOrder.Phone_number;
-                            mOrder.OpenId = cOrder.DeviceMacAddress;
+                            Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id == cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                            if (mOrder != null)
+                            {
+                                mOrder.Used = true;
+                                mOrder.Sent = true;
+                                mOrder.UsedTime = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                mOrder.PhoneNumber = cOrder.Phone_number;
+                                mOrder.OpenId = cOrder.DeviceMacAddress;
+                            }
                         }
                     }
+                    db.SaveChanges();
                 }
-                db.SaveChanges();
             }
         }
 
         public virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool isCallBack=false)
         {
-            using (chargebitEntities db = new chargebitEntities())
+            lock(o)
             {
-                Charge_Order cOrder = (from o in db.Charge_Order where o.Id== order.Id select o).FirstOrDefault<Charge_Order>();
-                if(cOrder!=null)
+                using (chargebitEntities db = new chargebitEntities())
                 {
-                    switch(result.Status)
+                    Charge_Order cOrder = (from o in db.Charge_Order where o.Id == order.Id select o).FirstOrDefault<Charge_Order>();
+                    if (cOrder != null)
                     {
-                        case ChargeStatus.ONPROGRESS:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 1;
-                            cOrder.Message = result.Message;
-                            break;
-                        case ChargeStatus.SUCCEED:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 2;
-                            cOrder.Message = result.Message;
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            //remove qrcode picture
-                            RemoveQRCode(cOrder);
-                            break;
-                        case ChargeStatus.FAILED:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 3;                           
-                            cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            //Refound the money
-                            if(cOrder.Agent_Id>0)
-                            {
-                                Users agency = (from u in db.Users where u.Id == cOrder.Agent_Id select u).FirstOrDefault<Users>();
-                                if (agency != null)
+                        switch (result.Status)
+                        {
+                            case ChargeStatus.ONPROGRESS:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 1;
+                                cOrder.Message = result.Message;
+                                break;
+                            case ChargeStatus.SUCCEED:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 2;
+                                cOrder.Message = result.Message;
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                //remove qrcode picture
+                                RemoveQRCode(cOrder);
+                                break;
+                            case ChargeStatus.FAILED:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 3;
+                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                //Refound the money
+                                if (cOrder.Agent_Id > 0)
                                 {
-                                    //marketing scan, no need to refound, just re-enable the scan
-                                    if(cOrder.MarketOrderId==0)
+                                    Users agency = (from u in db.Users where u.Id == cOrder.Agent_Id select u).FirstOrDefault<Users>();
+                                    if (agency != null)
                                     {
-                                        cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
-                                        agency.Remaining_amount += cOrder.Purchase_price;
-                                        cOrder.Refound = true;
-                                        db.SaveChanges();
+                                        //marketing scan, no need to refound, just re-enable the scan
+                                        if (cOrder.MarketOrderId == 0)
+                                        {
+                                            cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
+                                            agency.Remaining_amount += cOrder.Purchase_price;
+                                            cOrder.Refound = true;
+                                            db.SaveChanges();
+                                        }
+                                        else
+                                        {
+                                            //no need to refound for scanning
+                                            cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
+                                            cOrder.Refound = false;
+                                            Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id == cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                                            if (mOrder != null)
+                                            {
+                                                mOrder.Used = false;
+                                                db.SaveChanges();
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (cOrder.Operate_User > 0)
+                                    {
+                                        cOrder.Message = result.Message + ",管理员后台充值，无需退款";
                                     }
                                     else
                                     {
-                                        //no need to refound for scanning
-                                        cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
-                                        cOrder.Refound = false;
-                                        Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
-                                        if(mOrder!=null)
-                                        {
-                                            mOrder.Used = false;
-                                            db.SaveChanges();
-                                        }
-                                    }                                  
+                                        cOrder.Message = result.Message + ",用户前台直充失败，需要手动退款给用户";
+                                    }
                                 }
-                            }else
-                            {
-                                if(cOrder.Operate_User>0)
-                                {
-                                    cOrder.Message = result.Message + ",管理员后台充值，无需退款";
-                                }else
-                                {
-                                    cOrder.Message = result.Message + ",用户前台直充失败，需要手动退款给用户";
-                                }
-                            }
-                            
-                            break;                        
+
+                                break;
+                        }
+
+                        db.SaveChanges();
                     }
-                    
-                    db.SaveChanges();
                 }
             }
         }        

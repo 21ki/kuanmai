@@ -8,7 +8,7 @@ namespace KMBit.Beans.API
 {
     public class APIChargeResult
     {
-        public int Status { get; set; }
+        public string  Status { get; set; }
         public int OrderId { get; set; }
         public string Message { get; set; }
     }

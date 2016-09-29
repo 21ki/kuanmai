@@ -20,6 +20,18 @@ namespace KMBit.BL
         {
             Logger = log4net.LogManager.GetLogger(this.GetType());
         }
+        public ChargeBridge(ILog logger)
+        {
+            if (logger == null)
+            {
+                Logger = log4net.LogManager.GetLogger(this.GetType());
+            }
+            else
+            {
+                Logger = logger;
+            }
+            
+        }
 
         public ChargeResult Charge(ChargeOrder order)
         {
@@ -83,6 +95,7 @@ namespace KMBit.BL
             }
             catch(Exception ex)
             {
+                Logger.Error(ex);
                 if(cOrder!=null)
                 {
                     db.Charge_Order.Remove(cOrder);

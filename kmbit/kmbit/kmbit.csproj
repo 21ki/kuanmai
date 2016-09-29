@@ -237,15 +237,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="api_test.html" />
-    <Content Include="bin\Config\WeChatAccessToken.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bin\Config\WeChatJSAPITicket.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bin\Config\WeChatPayConfig.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Config\WeChatJSAPITicket.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -256,6 +247,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\AliPayConfig.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\WeChatPayConfigTest.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\bootstrap-datepicker.css" />
@@ -841,6 +835,7 @@
     <Content Include="Views\WeChat\Index.cshtml" />
     <Content Include="Views\Shared\weChatHead.cshtml" />
     <Content Include="Views\Shared\_weChatLayout.cshtml" />
+    <Content Include="Views\Admin\ChargeAccount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

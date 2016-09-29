@@ -180,6 +180,21 @@ namespace KMBit.Models
         public bool Enabled { get; set; }
     }
 
+    public class AdminChargeAccountModel
+    {
+        public int UserId { get; set; }
+
+        [Required(ErrorMessage = "代理商名称不能为空")]
+        [Display(Name = "代理商")]
+        public string Name { get; set; }
+        [Display(Name = "账户余额")]
+        public float Remaining { get; set; }
+
+        [Required(ErrorMessage = "充值金额不能为空")]
+        [Display(Name = "充值金额")]
+        [Range(0,20000,ErrorMessage ="充值金额必须在0-20000之间")]
+        public float Amount { get; set; }
+    }
     public class CreateAgencyModel
     {        
         public int Id { get; set; }
@@ -219,7 +234,7 @@ namespace KMBit.Models
         public string Phone { get; set; }
        
         [Display(Name = "启用")]
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; }       
 
         [Display(Name = "备注")]
         public string Description { get; set; }

@@ -14,7 +14,7 @@ namespace WeChat.Adapter.Requests
         public AccessToken Access_Token { get; set; }
         public JSAPITicketRequest(WeChatPayConfig config):base(config)
         {
-            
+            this.url = config.GetJsTicketUrl;
         }
 
         /// <summary>
@@ -40,9 +40,8 @@ namespace WeChat.Adapter.Requests
             }
             DateTime now = DateTime.Now;
             NameValueCollection col = new NameValueCollection();
-            col.Add("grant_type", "client_credential");
-            col.Add("appid", this.appid);
-            col.Add("secret", this.secret);
+            col.Add("access_token", this.Access_Token.Access_Token);
+            col.Add("type", "jsapi");
             string res = HttpSercice.PostHttpRequest(this.url, col, RequestType.GET, null);
             if (!string.IsNullOrEmpty(res))
             {

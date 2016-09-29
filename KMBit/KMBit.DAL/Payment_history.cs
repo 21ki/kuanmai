@@ -24,5 +24,7 @@ namespace KMBit.DAL
         public int PayType { get; set; }
         public long CreatedTime { get; set; }
         public string PaymentTradeId { get; set; }
+        public int OperUserId { get; set; }
+        public int Status { get; set; }
     }
 }

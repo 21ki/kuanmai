@@ -21,7 +21,6 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Login_Log" Width="1.5" PointX="4.75" PointY="7.125" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Help_Info" Width="1.5" PointX="8.5" PointY="8.5" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Sp" Width="1.5" PointX="11.375" PointY="6.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="2.75" PointY="8.5" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource" Width="1.5" PointX="4.625" PointY="9.625" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Customer_Recharge" Width="1.5" PointX="13.375" PointY="4.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Activity_Taocan" Width="1.5" PointX="7.375" PointY="13.75" />
@@ -31,8 +30,9 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="15.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="0.75" PointY="12.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="9.375" PointY="11.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.OpenAccountType" Width="1.5" PointX="15.375" PointY="7.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="9.375" PointY="11.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="15.375" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

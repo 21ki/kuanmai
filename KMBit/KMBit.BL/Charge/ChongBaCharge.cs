@@ -34,7 +34,7 @@ namespace KMBit.BL.Charge
                 switch(param.Name)
                 {
                     case "orderId":
-                        order.OutId = param.Value;
+                        order.OutOrderId = param.Value;
                         break;
                     case "respCode":
                         res = param.Value;
@@ -152,7 +152,7 @@ namespace KMBit.BL.Charge
                 if (!string.IsNullOrEmpty(Response))
                 {
                     JObject jsonResult = JObject.Parse(Response);
-                    order.OutId = jsonResult["orderId"]!=null? jsonResult["orderId"].ToString():"";
+                    order.OutOrderId = jsonResult["orderId"]!=null? jsonResult["orderId"].ToString():"";
                     string res = jsonResult["respCode"]!=null?jsonResult["respCode"].ToString():"";
                     string resMsg = jsonResult["respMsg"]!=null?jsonResult["respMsg"].ToString():"";
                     switch (res.ToLower())

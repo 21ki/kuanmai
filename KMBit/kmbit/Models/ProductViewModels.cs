@@ -33,6 +33,12 @@ namespace KMBit.Models
     public class WeChatChargeModel: ChargeModel
     {
         public string OpenId { get; set; }
+        public string timestamp { get; set; }
+        public string nancestr { get; set; }
+        public string appid { get; set; }
+        public string signature { get; set; }
+        public string prepay_id { get; set; }
+        public string paySign { get; set; }
     }
     public class AgentChargeModel:ChargeModel
     {

@@ -45,7 +45,7 @@ namespace KMBit.BL
         {
             if (this.logger == null)
             {
-                this.logger = log4net.LogManager.GetLogger(this.GetType());
+                this.logger = KMLogger.GetLogger();
             }
         }
 

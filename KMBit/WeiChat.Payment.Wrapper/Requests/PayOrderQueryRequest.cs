@@ -13,11 +13,11 @@ namespace WeChat.Adapter.Requests
     public class PayOrderQueryRequest:BaseRequest
     {
         public string out_trade_no { get; set; }
-
+       
         public PayOrderQueryRequest(WeChatPayConfig config):base(config)
         {
             //this.url = "https://api.mch.weixin.qq.com/pay/orderquery";  
-            this.url = config.PaymentQueryUrl;        
+            this.url = config.PaymentQueryUrl;
         }
         public override BaseResponse Execute()
         {
@@ -58,7 +58,7 @@ namespace WeChat.Adapter.Requests
             {
                 col.Add(param.Key, param.Value != null ? param.Value.ToString() : "");
             }
-            string str = HttpSercice.PostHttpRequest(this.url, col, RequestType.POST, null);
+            string str = HttpSercice.PostHttpRequest(this.url, col, RequestType.POST, "xml");
             response = ParseXML(str);
             return response;
         }
