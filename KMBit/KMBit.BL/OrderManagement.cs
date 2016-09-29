@@ -78,7 +78,7 @@ namespace KMBit.BL
                     corder.Message = "充值订单已成功提交到充值系统，请耐性等待充值...";
                     db.SaveChanges();
                     result.Status = ChargeStatus.SUCCEED;
-                    result.Message = "充值订单已成功提交到充值系统，请耐性等待充值...";
+                    result.Message = corder.Message;
                     //ChargeOrder order = new ChargeOrder()
                     //{ Payed=true, ChargeType = corder.Charge_type, AgencyId = corder.Agent_Id, Id = corder.Id, Province = corder.Province, City = corder.City, MobileSP = corder.MobileSP, MobileNumber = corder.Phone_number, OutId = "", ResourceId = 0, ResourceTaocanId = corder.Resource_taocan_id, RouteId = corder.RuoteId, CreatedTime = corder.Created_time };
                     //ChargeBridge cb = new ChargeBridge();
@@ -259,6 +259,7 @@ namespace KMBit.BL
                         if (order.AgencyId > 0)
                         {
                             //代理商充值
+                            history.Client_Order_Id = order.ClientOrderId;
                             history.Charge_type = 1;
                             history.Purchase_price = taocan.Sale_price * route.Discount;
                             history.Sale_price = route.Sale_price;

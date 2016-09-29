@@ -81,6 +81,10 @@
       <Project>{31f94f8d-96ba-4b7f-b92f-db01f251ba08}</Project>
       <Name>KMBit.DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WeiChat.Payment.Wrapper\WeChat.Adapter.csproj">
+      <Project>{a47abb57-ecac-47ed-8657-cbf157c2313c}</Project>
+      <Name>WeChat.Adapter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

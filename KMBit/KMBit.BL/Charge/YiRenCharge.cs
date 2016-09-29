@@ -78,7 +78,7 @@ namespace KMBit.BL.Charge
                 if (!string.IsNullOrEmpty(Response))
                 {
                     JObject jsonResult = JObject.Parse(Response);
-                    order.OutId = jsonResult["TaskID"] != null ? jsonResult["TaskID"].ToString() : "";
+                    order.OutOrderId = jsonResult["TaskID"] != null ? jsonResult["TaskID"].ToString() : "";
                     string code= jsonResult["Code"] != null ? jsonResult["Code"].ToString() : "";
                     string message= jsonResult["Message"] != null ? jsonResult["Message"].ToString() : "";
                     result.Message = message;

@@ -18,7 +18,37 @@ namespace WeChat.Adapter.Requests
     }
     public class HttpSercice
     {
-        public static string PostHttpRequest(string url, NameValueCollection col, RequestType type, string contentType = null)
+        public static string getXMLInput(NameValueCollection col,Encoding coder)
+        {
+            if(col==null || col.Count==0)
+            {
+                return "<xml></xml>";
+            }
+            StringBuilder cBuilder = new StringBuilder();
+            cBuilder.Append("<xml>");
+            foreach (String s in col.AllKeys)
+            {
+                cBuilder.Append("<" + s + ">");
+                cBuilder.Append(col[s]);
+                cBuilder.Append("</" + s + ">");
+            }
+            cBuilder.Append("</xml>");
+            string content = cBuilder.ToString();
+            byte[] byteArray = Encoding.UTF8.GetBytes(content);
+            string return_string = coder.GetString(byteArray);
+            return return_string;
+        }
+        public static string PostXmlToUrl(string url, NameValueCollection col, RequestType type)
+        {
+            string returnmsg = "";
+            string inputXML = getXMLInput(col, Encoding.UTF8);
+            using (System.Net.WebClient wc = new System.Net.WebClient())
+            {
+                returnmsg = wc.UploadString(url, type.ToString(), inputXML);
+            }
+            return returnmsg;
+        }
+        public static string PostHttpRequest(string url, NameValueCollection col, RequestType type, string contentType)
         {
             string output = null;
             StreamReader rs = null;
@@ -34,18 +64,35 @@ namespace WeChat.Adapter.Requests
 
                 if (type == RequestType.POST)
                 {
+                    HttpContent content = null;
                     var postData = new List<KeyValuePair<string, string>>();
                     if (col != null && col.Count > 0)
                     {
                         IEnumerator myEnumerator = col.GetEnumerator();
-                        foreach (String s in col.AllKeys)
+                       
+                        if (contentType != null && contentType.ToLower() == "text/xml")
                         {
-                            postData.Add(new KeyValuePair<string, string>(s, col[s]));
-                        }
+                            StringBuilder cBuilder = new StringBuilder();
+                            cBuilder.Append("<xml>");
+                            foreach (String s in col.AllKeys)
+                            {
+                                cBuilder.Append("<" + s + ">");
+                                cBuilder.Append(col[s]);
+                                cBuilder.Append("</" + s + ">");
+                            }
+                            cBuilder.Append("</xml>");
+                            content = new StringContent(cBuilder.ToString());
+                        }else
+                        {
+                            foreach (String s in col.AllKeys)
+                            {
+                                postData.Add(new KeyValuePair<string, string>(s, col[s]));
+                            }
+
+                            content = new FormUrlEncodedContent(postData);
+                        }                        
                     }
-
-                    HttpContent content = new FormUrlEncodedContent(postData);
-
+                    
                     var response = client.PostAsync(url, content).Result;
 
                     if (!response.IsSuccessStatusCode)
@@ -54,7 +101,7 @@ namespace WeChat.Adapter.Requests
                     }
 
                     Stream res = response.Content.ReadAsStreamAsync().Result;
-                    res = response.Content.ReadAsStreamAsync().Result;
+                    //res = response.Content.ReadAsStreamAsync().Result;
                     if (contentType != "multipart/form-data")
                     {
                         rs = new StreamReader(res);

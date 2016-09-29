@@ -6,7 +6,7 @@
   <SignType>MD5</SignType>
   <CharSet>utf-8</CharSet>
   <CreateOrderUrl>https://api.mch.weixin.qq.com/pay/unifiedorder</CreateOrderUrl>
-  <NotifyUrl>http://120.27.247.50/Payment/AlipayBack</NotifyUrl>
+  <NotifyUrl>http://120.27.247.50/Payment/WeChatPayBack</NotifyUrl>
   <PaymentQueryUrl>https://api.mch.weixin.qq.com/pay/orderquery</PaymentQueryUrl>
   <GetTokenUrl>https://api.weixin.qq.com/cgi-bin/token</GetTokenUrl>
   <GetJsTicketUrl>https://api.weixin.qq.com/cgi-bin/ticket/getticket</GetJsTicketUrl>

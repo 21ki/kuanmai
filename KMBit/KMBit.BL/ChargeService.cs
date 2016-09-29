@@ -112,7 +112,7 @@ namespace KMBit.BL
             }
             catch(Exception ex)
             {
-
+                Logger.Error(ex);
             }finally
             {
                 if (db != null)
@@ -263,73 +263,78 @@ namespace KMBit.BL
 
         public virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool isCallBack=false)
         {
-            using (chargebitEntities db = new chargebitEntities())
+            lock(o)
             {
-                Charge_Order cOrder = (from o in db.Charge_Order where o.Id== order.Id select o).FirstOrDefault<Charge_Order>();
-                if(cOrder!=null)
+                using (chargebitEntities db = new chargebitEntities())
                 {
-                    switch(result.Status)
+                    Charge_Order cOrder = (from o in db.Charge_Order where o.Id == order.Id select o).FirstOrDefault<Charge_Order>();
+                    if (cOrder != null)
                     {
-                        case ChargeStatus.ONPROGRESS:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 1;
-                            cOrder.Message = result.Message;
-                            break;
-                        case ChargeStatus.SUCCEED:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 2;
-                            cOrder.Message = result.Message;
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            //remove qrcode picture
-                            RemoveQRCode(cOrder);
-                            break;
-                        case ChargeStatus.FAILED:
-                            cOrder.Out_Order_Id = order.OutId;
-                            cOrder.Status = 3;                           
-                            cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                            //Refound the money
-                            if(cOrder.Agent_Id>0)
-                            {
-                                Users agency = (from u in db.Users where u.Id == cOrder.Agent_Id select u).FirstOrDefault<Users>();
-                                if (agency != null)
+                        switch (result.Status)
+                        {
+                            case ChargeStatus.ONPROGRESS:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 1;
+                                cOrder.Message = result.Message;
+                                break;
+                            case ChargeStatus.SUCCEED:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 2;
+                                cOrder.Message = result.Message;
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                //remove qrcode picture
+                                RemoveQRCode(cOrder);
+                                break;
+                            case ChargeStatus.FAILED:
+                                cOrder.Out_Order_Id = order.OutOrderId;
+                                cOrder.Status = 3;
+                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                //Refound the money
+                                if (cOrder.Agent_Id > 0)
                                 {
-                                    //marketing scan, no need to refound, just re-enable the scan
-                                    if(cOrder.MarketOrderId==0)
+                                    Users agency = (from u in db.Users where u.Id == cOrder.Agent_Id select u).FirstOrDefault<Users>();
+                                    if (agency != null)
                                     {
-                                        cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
-                                        agency.Remaining_amount += cOrder.Purchase_price;
-                                        cOrder.Refound = true;
-                                        db.SaveChanges();
+                                        //marketing scan, no need to refound, just re-enable the scan
+                                        if (cOrder.MarketOrderId == 0)
+                                        {
+                                            cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
+                                            agency.Remaining_amount += cOrder.Purchase_price;
+                                            cOrder.Refound = true;
+                                            db.SaveChanges();
+                                        }
+                                        else
+                                        {
+                                            //no need to refound for scanning
+                                            cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
+                                            cOrder.Refound = false;
+                                            Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id == cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
+                                            if (mOrder != null)
+                                            {
+                                                mOrder.Used = false;
+                                                db.SaveChanges();
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (cOrder.Operate_User > 0)
+                                    {
+                                        cOrder.Message = result.Message + ",管理员后台充值，无需退款";
                                     }
                                     else
                                     {
-                                        //no need to refound for scanning
-                                        cOrder.Message = result.Message + ",二维码可以重复扫码使用直到充值成功";
-                                        cOrder.Refound = false;
-                                        Marketing_Orders mOrder = (from mo in db.Marketing_Orders where mo.Id==cOrder.MarketOrderId select mo).FirstOrDefault<Marketing_Orders>();
-                                        if(mOrder!=null)
-                                        {
-                                            mOrder.Used = false;
-                                            db.SaveChanges();
-                                        }
-                                    }                                  
+                                        cOrder.Message = result.Message + ",用户前台直充失败，需要手动退款给用户";
+                                    }
                                 }
-                            }else
-                            {
-                                if(cOrder.Operate_User>0)
-                                {
-                                    cOrder.Message = result.Message + ",管理员后台充值，无需退款";
-                                }else
-                                {
-                                    cOrder.Message = result.Message + ",用户前台直充失败，需要手动退款给用户";
-                                }
-                            }
-                            
-                            break;                        
+
+                                break;
+                        }
+
+                        db.SaveChanges();
                     }
-                    
-                    db.SaveChanges();
                 }
             }
         }        

@@ -25,7 +25,11 @@ namespace WeChat.Adapter.Requests
             this.secret = config.Secret;
             this.mch_id = config.ShopID;
             this.signType = config.SignType.ToLower();
-            this.nonce_str = Guid.NewGuid().ToString();
+            this.nonce_str = Guid.NewGuid().ToString().Replace("-","");
+            if(nonce_str.Length>32)
+            {
+                nonce_str = nonce_str.Substring(0,32);
+            }
             ConfigVerification();
         }
 

@@ -26,6 +26,7 @@ namespace KMBit.ChargeProcess
             if(initialized)
             {
                 OrdersProcesser.ProcessOrders();
+                OrdersProcesser.ProcessAgentAccountChargePayments();
                 initialized = false;
                 last = DateTime.Now.AddMinutes(5);
             }
@@ -34,6 +35,7 @@ namespace KMBit.ChargeProcess
                 if(last<=DateTime.Now)
                 {
                     OrdersProcesser.ProcessOrders();
+                    OrdersProcesser.ProcessAgentAccountChargePayments();
                     last = DateTime.Now.AddMinutes(5);
                 }
             }

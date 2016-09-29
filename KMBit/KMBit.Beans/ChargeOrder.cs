@@ -25,7 +25,7 @@ namespace KMBit.Beans
         public string MobileNumber { get; set; }
         public int ResourceId { get; set; }
         public int ResourceTaocanId { get; set; }
-        public string OutId { get; set; }
+        public string OutOrderId { get; set; }//落地平台的订单ID
         public int OperateUserId { get; set; }
         public long CreatedTime { get; set; }
         public int ChargeType { get; set; }
@@ -46,5 +46,6 @@ namespace KMBit.Beans
         public int RouteId { get; set; }
         public string OpenId { get; set; }
         public int OpenAccountType { get; set; }
+        public string ClientOrderId { get; set; }//客户系统的订单ID
     }
 }

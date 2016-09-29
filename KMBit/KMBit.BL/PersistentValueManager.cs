@@ -19,6 +19,9 @@ namespace KMBit.BL
         private static JSAPITicket WeChatJsApiTicket;
         static PersistentValueManager()
         {
+            KMLogger.GetLogger().Info(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatPayConfig.xml"));
+            KMLogger.GetLogger().Info(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatAccessToken.xml"));
+            KMLogger.GetLogger().Info(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatJSAPITicket.xml"));
             config = XMLUtil.DeserializeXML<WeChatPayConfig>(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatPayConfig.xml"));
             WeChatAccessToken = XMLUtil.DeserializeXML<AccessToken>(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatAccessToken.xml"));
             WeChatJsApiTicket= XMLUtil.DeserializeXML<JSAPITicket>(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Config\\WeChatJSAPITicket.xml"));

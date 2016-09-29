@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using log4net;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.Util;
@@ -351,6 +351,15 @@ namespace KMBit.BL.Admin
             bool ret = false;
             using (chargebitEntities db = new chargebitEntities())
             {
+                Resource_taocan taocan = (from t in db.Resource_taocan where t.Resource_id== route.Resource_Id && t.Id==route.Resource_taocan_id select t).FirstOrDefault<Resource_taocan>();
+                if(taocan==null || !taocan.Enabled)
+                {
+                    return ret;
+                }
+                if(route.Sale_price==0)
+                {
+                    route.Sale_price = taocan.Sale_price;
+                }
                 db.Agent_route.Add(route);
                 db.SaveChanges();
                 ret = true;
@@ -397,6 +406,61 @@ namespace KMBit.BL.Admin
             return routes;
         }
 
-        
+        public bool ChargeAgencyAccount(int agencyId,float amount)
+        {
+            bool ret = false;
+            if (!CurrentLoginUser.Permission.UPDATE_USER)
+            {
+                throw new KMBitException("没有权限更新用户信息");
+            }
+            chargebitEntities db = null;
+            try
+            {
+                db = new chargebitEntities();
+                Users dbUser = (from u in db.Users where u.Id==agencyId && u.Enabled==true select u).FirstOrDefault<Users>();
+                if(dbUser==null)
+                {
+                    throw new KMBitException(string.Format("编号为{0}的代理商不存在",agencyId));
+                }
+
+                Payment_history payment = new Payment_history()
+                {
+                    OperUserId = CurrentLoginUser.User.Id,
+                    Amount = amount,
+                    User_id = agencyId,
+                    Status = 1,
+                    PayType = 2,
+                    Pay_time = 0,
+                    ChargeOrderId = 0,
+                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    PaymentAccount = "",
+                    PaymentTradeId = "",
+                    Tranfser_Type = 0
+                };
+
+                db.Payment_history.Add(payment);
+                db.SaveChanges();
+                ret = true;
+            }
+            catch(KMBitException kex)
+            {
+                logger.Error(kex);
+                throw kex;
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
+                throw ex;
+            }
+            finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
+            }
+            return ret;
+        }            
+
     }
 }

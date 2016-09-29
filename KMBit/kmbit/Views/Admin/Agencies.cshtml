@@ -34,7 +34,7 @@
               .Sanitized(false)
               .SetWidth("5%")
               .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/EditAgency',{agencyId:" + o.User.Id + "})\">编辑</a>"));
-              //.RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
+            //.RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
         }
 
 
@@ -47,7 +47,17 @@
            .RenderValueAs(o => Html.ActionLink("路由", "AgentRoutes", new { agencyId = o.User.Id }));
         }
 
-        if(currentUser.Permission.UPDATE_USER_PASSWORD)
+        if (currentUser.Permission.UPDATE_USER)
+        {
+            columns.Add()
+              .Encoded(false)
+              .Sanitized(false)
+              .SetWidth("5%")
+              .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"openModalDialog('/Admin/ChargeAccount',{agencyId:" + o.User.Id + "})\">充值</a>"));
+            //.RenderValueAs(o => Html.ActionLink("编辑", "EditAgency", new { agencyId = o.User.Id }));
+        }
+
+        if (currentUser.Permission.UPDATE_USER_PASSWORD)
         {
             columns.Add()
            .Encoded(false)

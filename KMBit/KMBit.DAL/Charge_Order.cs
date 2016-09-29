@@ -44,5 +44,6 @@ namespace KMBit.DAL
         public string CallBackUrl { get; set; }
         public string OpenId { get; set; }
         public Nullable<int> OpenAccountType { get; set; }
+        public string Client_Order_Id { get; set; }
     }
 }

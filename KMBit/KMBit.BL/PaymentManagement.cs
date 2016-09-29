@@ -30,7 +30,17 @@ namespace KMBit.BL
             BPaymentHistory payment = null;
             using (chargebitEntities db = new chargebitEntities())
             {
-                Payment_history p = new Payment_history() { Amount = amount, ChargeOrderId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now), Tranfser_Type = tranfserType, User_id = userId,PayType=1 };
+                Payment_history p = new Payment_history()
+                {
+                    Amount = amount,
+                    ChargeOrderId = 0,
+                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                    Tranfser_Type = tranfserType,
+                    User_id = userId,
+                    PayType = 1,
+                    Status=0,
+                    OperUserId=0
+                };
                 db.Payment_history.Add(p);
                 db.SaveChanges();
                 payment = new BPaymentHistory()
@@ -44,7 +54,10 @@ namespace KMBit.BL
                     PayType = p.PayType,
                     Pay_time = p.Pay_time,
                     Tranfser_Type = p.Tranfser_Type,
-                    User_id = p.User_id
+                    User_id = p.User_id,
+                    OperUserId = p.OperUserId,
+                    Status=p.Status,
+
                 };
             }
             return payment;
@@ -76,7 +89,13 @@ namespace KMBit.BL
                     throw new KMBitException(string.Format("没有找到ID为{0}的用户",payment.User_id));
                 }
 
-                user.Remaining_amount += payment.Amount;
+                Payment_history dbpayment = (from p in db.Payment_history where p.User_id == user.Id && p.Id == payment.Id && p.Status==0 && p.PayType==1 select p).FirstOrDefault<Payment_history>();
+                if(dbpayment!=null)
+                {
+                    //it's ready for chargeprocess to sync this amount to user Remaining_amount
+                    dbpayment.Status = 1;
+                }
+                ///user.Remaining_amount += payment.Amount;
                 db.SaveChanges();
                 result = true;
             }

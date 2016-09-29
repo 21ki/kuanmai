@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<PersistentValue>
-  <ExpiredTime>0</ExpiredTime>
-  <Value></Value>
-</PersistentValue>
-
+﻿<?xml version="1.0"?>
+<AccessToken xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Access_Token>AO4CkX-RI2s3cWXhpk5CWIgPDHS_uY7J2F654pszGm_tBU6olerOy4tbEo5FUwNZUqSyjAMqmLQ_U9m1PrygjAt9Qdv0XbHKlKasPbgok4OC9iqUuUBEY0-osqiyjTBuRAAfACAMVV</Access_Token>
+  <ExpiresIn>7200</ExpiresIn>
+  <ExpiresTime>2016-09-28T18:07:48.5168825+08:00</ExpiresTime>
+</AccessToken>

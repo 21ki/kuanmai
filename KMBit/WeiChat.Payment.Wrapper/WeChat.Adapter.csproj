@@ -54,6 +54,7 @@
     <Compile Include="Requests\HttpSercice.cs" />
     <Compile Include="Requests\PayOrderQueryRequest.cs" />
     <Compile Include="Responses\JSAPITicketResponse.cs" />
+    <Compile Include="Responses\PaymentNotifyResponse.cs" />
     <Compile Include="Responses\PayOrderQueryResponse.cs" />
     <Compile Include="Requests\PreOrderRequest.cs" />
     <Compile Include="Responses\PreOrderResponse.cs" />

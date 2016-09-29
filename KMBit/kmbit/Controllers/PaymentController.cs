@@ -4,14 +4,22 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using log4net;
 using KMBit.BL.PayAPI.AliPay;
 using KMBit.Beans;
 using KMBit.BL;
+using KMBit.Util;
 using KMBit.BL.Charge;
+using WeChat.Adapter;
+using WeChat.Adapter.Responses;
 namespace KMBit.Controllers
 {
     public class PaymentController : Controller
     {
+        ILog logger = KMLogger.GetLogger();
         // GET: PayBack此方法仅供直冲用户支付宝支付完成回调以及支付宝充值账户回调
         public ActionResult AlipayBack()
         {
@@ -109,9 +117,98 @@ namespace KMBit.Controllers
             return Redirect("/Product/Charge?message=" + result.Message);
         }
 
-        public JsonResult WeiChatPayBack()
+        public HttpResponseMessage WeChatPayBack()
         {
-            return Json("", JsonRequestBehavior.AllowGet);
+            var resp = new HttpResponseMessage(HttpStatusCode.OK);
+            string returnXML = null;
+            logger.Info("PaymentController.WeChatPayBack is being called by Wechat payment notify service...");
+            Stream stream = Request.InputStream;
+            if(stream!=null)
+            {
+                StreamReader rs = null;
+                try
+                {
+                    rs = new StreamReader(stream);
+                    string result = rs.ReadToEnd();
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        logger.Info("Below is the data posted by wechat payment service");
+                        logger.Info(result);
+                        string paraValues = WeChatPaymentWrapper.ParsePaymentNotifySignParas(result);
+                        logger.Info(string.Format("{0} needs to be signed",paraValues));
+                        BaseResponse res = WeChatPaymentWrapper.ParsePaymentNotify(result);
+                        logger.Info(string.Format("{Signature sent by wechat is {0}}",res.sign));
+                        WeChatPayConfig config = PersistentValueManager.config;
+                        paraValues += "&key=" + config.Secret;
+                        string sign = UrlSignUtil.GetMD5(paraValues);
+                        logger.Info(string.Format("{Signature caculated by localsystem is {0}}", sign));
+                        if (sign!=res.sign)
+                        {
+                            logger.Error("Two signatures are different, the request was not sent by wechat payment system.");
+                            returnXML = "<xml><return_code>FAIL</return_code><return_msg>签名不正确</return_msg></xml>";
+                            resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
+                        }
+
+                        OrderManagement orderMgr = new OrderManagement(0);
+                        PaymentManagement payMgr = new PaymentManagement(0);
+                        int paymentId = 0;
+                        PaymentNotifyResponse response = (PaymentNotifyResponse)res;
+                        int.TryParse(response.out_trade_no,out paymentId);
+                        if(paymentId>0)
+                        {
+                            ChargeResult cResult = null;
+                            try
+                            {
+                                BPaymentHistory payment = null;
+                                int total = 0;
+                                List<BPaymentHistory> payments = payMgr.FindPayments(paymentId, 0, 0, out total);
+                                if (payments != null && payments.Count == 1)
+                                {
+                                    payment = payments[0];
+                                    if (payment.PayType == 0)//直冲用户支付
+                                    {
+                                        cResult = orderMgr.ProcessOrderAfterPaid(paymentId, response.transaction_id, response.openid);
+                                        if(cResult.Status== ChargeStatus.SUCCEED)
+                                        {
+                                            logger.Info("The payment status has been successfully synced to local system.");
+                                            returnXML = "<xml><return_code>SUCCESS</return_code><return_msg>OK</return_msg></xml>";
+                                            resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
+                                            return resp;
+                                        }
+                                        else
+                                        {
+                                            logger.Error(cResult.Message);
+                                            returnXML = "<xml><return_code>FAIL</return_code><return_msg>cResult.Message</return_msg></xml>";
+                                            resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
+                                            return resp;
+                                        }
+                                    }                                   
+                                }
+                                else
+                                {
+                                    
+                                }
+
+                            }
+                            catch (KMBitException e)
+                            {
+                                logger.Error(e);   
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Fatal(ex);
+                            }
+                        }
+                    }
+                    
+                }
+                catch(Exception ex)
+                {
+                    logger.Error(ex);
+                }
+               
+            }
+            return resp;
         }
 
         /// <summary>

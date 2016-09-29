@@ -8,13 +8,15 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web;
 using System.Text;
-
+using log4net;
 namespace KMBit.Controllers.api
 {
     public class BaseApiController : ApiController
     {
         protected HttpContextBase context { get; private set; }
         protected HttpRequestBase request { get; private set; }
+
+        protected ILog logger = KMBit.BL.KMLogger.GetLogger();
         public BaseApiController()
         {
            
@@ -30,25 +32,32 @@ namespace KMBit.Controllers.api
         {
             int i = 0;
             SortedDictionary<string, string> sArray = new SortedDictionary<string, string>();
-            NameValueCollection coll;
-            //Load Form variables into NameValueCollection variable.
-            coll = request.QueryString;
-
-            // Get names of all forms into a string array.
-            String[] requestItem = coll.AllKeys;
-
-            for (i = 0; i < requestItem.Length; i++)
+            try
             {
-                sArray.Add(requestItem[i], request[requestItem[i]]);
-            }
+                NameValueCollection coll;
+                //Load Form variables into NameValueCollection variable.
+                coll = request.QueryString;
 
-            string[] formKeys = request.Form.AllKeys;
-            if(formKeys!=null)
-            {
-                for(int j=0;j<formKeys.Length;j++)
+                // Get names of all forms into a string array.
+                String[] requestItem = coll.AllKeys;
+
+                for (i = 0; i < requestItem.Length; i++)
                 {
-                    sArray.Add(formKeys[j], request[formKeys[j]]);
+                    sArray.Add(requestItem[i], request[requestItem[i]]);
                 }
+
+                string[] formKeys = request.Form.AllKeys;
+                if (formKeys != null)
+                {
+                    for (int j = 0; j < formKeys.Length; j++)
+                    {
+                        sArray.Add(formKeys[j], request[formKeys[j]]);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex);
             }
 
             return sArray;
@@ -69,16 +78,17 @@ namespace KMBit.Controllers.api
             
             foreach(KeyValuePair<string,string> parameter in parameters)
             {
-                if (parameter.Key == "Sign")
+                logger.Info("Parameter:"+parameter.Key);
+                if (parameter.Key.ToLower() == "sign")
                 {
                     sign = parameter.Value;
                 }
-                else if (parameter.Key == "Token")
+                else if (parameter.Key.ToLower() == "token")
                 {
                     accesstoken = parameter.Value;
                 }
                 
-                if(parameter.Key!="Sign")
+                if(parameter.Key.ToLower()!="sign")
                 {
                     if (str.ToString() == "")
                     {
@@ -95,6 +105,7 @@ namespace KMBit.Controllers.api
                     }
                 }
             }
+            logger.Info("Parameters have been handled.");
             queryStr = str.ToString();
             return ;
         }
