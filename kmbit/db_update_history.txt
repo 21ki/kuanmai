@@ -1,3 +1,0 @@
-2015-10-26 Add new field SourceId to Charge_Order Table, update comments for field Charge_Type field
-New tables Customer,Marketing,Marketing_Activities
-Add new field CreditAmount for Resource table
