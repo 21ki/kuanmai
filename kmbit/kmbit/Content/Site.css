@@ -16,14 +16,18 @@
     white-space: normal;
 }
 
+.container{ 
+  max-width:1450px; 
+  width:100%; 
+}
+
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
 textarea {
     max-width: 280px;
 }
-.container {width:1250px;
-}
+
 .agentContainer {
     width:100%;
     overflow:hidden;

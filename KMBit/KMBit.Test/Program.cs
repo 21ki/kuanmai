@@ -17,8 +17,8 @@ namespace KMBit.Test
     {
         static void Main(string[] args)
         {
-            //charge()
-            products();
+            charge();
+            //products();
         }
         static void products()
         {
@@ -35,15 +35,18 @@ namespace KMBit.Test
             }
             col.Add("Sign", sign);
             string res = WeChat.Adapter.Requests.HttpSercice.PostHttpRequest(url + "Products", col, WeChat.Adapter.Requests.RequestType.POST, null);
+            Console.WriteLine(res);
         }
         static void charge()
         {
             SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
             parameters["Token"] = "19291b66e20365ff00e85e4e960fe0d4";
             parameters["Id"] = "49";
+            //parameters["Id"] = "48";
             parameters["Province"] = "河南";
             parameters["City"] = "许昌";
             parameters["Mobile"] = "15603888388";
+            parameters["MobileSP"] = "中国联通";
             //parameters["Client_order_id"] = "102365";
             parameters["CallBackUrl"] = "http://localhost:8000/";
             string sectoken = "a3d1ece2-bdf0-4889-92fc-db46ba9878d7";

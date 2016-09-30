@@ -484,17 +484,7 @@ namespace KMBit.Controllers
         }
 
         private ActionResult RedirectToLocal(string loginEmail,string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-
-            if(string.IsNullOrEmpty(loginEmail))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            
+        { 
             UserManagement umgt=new UserManagement(loginEmail);
             if (umgt.CurrentLoginUser != null)
             {
@@ -519,6 +509,17 @@ namespace KMBit.Controllers
                     return RedirectToAction("Index", "Agent");
                 }                
             }
+
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            if (string.IsNullOrEmpty(loginEmail))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return RedirectToAction("Index", "Home");
         }
 

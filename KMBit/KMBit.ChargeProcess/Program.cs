@@ -23,22 +23,29 @@ namespace KMBit.ChargeProcess
 
         static void ProcessOrders()
         {
-            if(initialized)
-            {
-                OrdersProcesser.ProcessOrders();
-                OrdersProcesser.ProcessAgentAccountChargePayments();
-                initialized = false;
-                last = DateTime.Now.AddMinutes(5);
-            }
-            else
-            {
-                if(last<=DateTime.Now)
-                {
-                    OrdersProcesser.ProcessOrders();
-                    OrdersProcesser.ProcessAgentAccountChargePayments();
-                    last = DateTime.Now.AddMinutes(5);
-                }
-            }
+            OrdersProcesser.ProcessOrders();
+            OrdersProcesser.ProcessAgentAccountChargePayments();
+            initialized = false;
+            Thread.Sleep(5 * 60 * 1000);
+
+            //if (initialized)
+            //{
+            //    OrdersProcesser.ProcessOrders();
+            //    OrdersProcesser.ProcessAgentAccountChargePayments();
+            //    initialized = false;
+            //    //last = DateTime.Now.AddMinutes(5);
+            //    Thread.Sleep(5*60*1000);
+            //}
+            //else
+            //{
+            //    if(last<=DateTime.Now)
+            //    {
+            //        OrdersProcesser.ProcessOrders();
+            //        OrdersProcesser.ProcessAgentAccountChargePayments();
+            //        last = DateTime.Now.AddMinutes(5);
+            //        //Thread.Sleep(5 * 60 * 1000);
+            //    }
+            //}
         }
 
         static void Process()

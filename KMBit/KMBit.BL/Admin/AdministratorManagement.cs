@@ -64,6 +64,7 @@ namespace KMBit.BL.Admin
                 appUser.Enabled = dbUser.Enabled;
                 appUser.Type = 1;
                 appUser.Update_time = appUser.Regtime;
+                appUser.AccessToken = UrlSignUtil.GetMD5(Guid.NewGuid().ToString());
                 var result = await manager.CreateAsync(appUser, dbUser.PasswordHash);
                 if (result.Succeeded)
                 {

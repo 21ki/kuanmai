@@ -197,6 +197,7 @@ namespace KMBit.BL
                                 {
                                     agency.Remaining_amount = agency.Remaining_amount - price;
                                     result.Status = ChargeStatus.SUCCEED;
+                                    cOrder.Payed = true;
                                 }
                             }
                             else if (agency.Pay_type == 2)
@@ -216,6 +217,7 @@ namespace KMBit.BL
                                     }
                                     else
                                     {
+                                        cOrder.Payed = true;
                                         agency.Remaining_amount = agency.Remaining_amount - price;
                                         agency.Credit_amount = agency.Credit_amount - (price - agency.Remaining_amount);
                                         result.Status = ChargeStatus.SUCCEED;
@@ -225,12 +227,12 @@ namespace KMBit.BL
                                 {
                                     agency.Remaining_amount = agency.Remaining_amount - price;
                                     result.Status = ChargeStatus.SUCCEED;
+                                    cOrder.Payed = true;
                                 }
                             }
                         }
 
                         cOrder.Status = 10;
-                        cOrder.Payed = false;
                         //cOrder.Sale_price = ruote.Sale_price;
                         //cOrder.Purchase_price = price;
                         //cOrder.Platform_Cost_Price = taocan.Purchase_price;

@@ -75,6 +75,7 @@ namespace KMBit.Controllers.km
                 string city = request["City"] != null ? request["City"] : "";
                 string mobile = request["Mobile"] != null ? request["Mobile"] : "";
                 string clientOrderId = request["Client_order_id"];
+                string spName= request["MobileSP"];
                 int.TryParse(request["Id"], out routeId);
                 if (string.IsNullOrEmpty(mobile) || mobile.Trim().Length != 11)
                 {
@@ -86,15 +87,31 @@ namespace KMBit.Controllers.km
                 if (string.IsNullOrEmpty(province))
                 {
                     message.Status = "FAILED";
-                    message.Message = "手机归属省份不能为空";
+                    message.Message = "手机归属省份（参数Province）不能为空";
                     return message;
                 }
 
                 if (string.IsNullOrEmpty(city))
                 {
                     message.Status = "FAILED";
-                    message.Message = "手机归属城市不能为空";
+                    message.Message = "手机归属城市（参数City）不能为空";
                     return message;
+                }
+
+                if (string.IsNullOrEmpty(spName))
+                {
+                    message.Status = "FAILED";
+                    message.Message = "手机归属运营商（参数MobileSP）不能为空";
+                    return message;
+                }
+                else
+                {
+                    if(spName!="中国移动" && spName!="中国联通" && spName!="中国电信")
+                    {
+                        message.Status = "FAILED";
+                        message.Message = "手机归属运营商（参数MobileSP）值必须为 中国移动，中国联通或者中国电信";
+                        return message;
+                    }
                 }
 
                 if (routeId <= 0)
@@ -103,12 +120,9 @@ namespace KMBit.Controllers.km
                     message.Message = "产品Id不正确";
                     return message;
                 }
-                if(!string.IsNullOrEmpty(clientOrderId))
-                {
-
-                }
+                
                 ProductManagement pdtMger = new ProductManagement();
-                message = pdtMger.Charge(user.User.Id, routeId, mobile, province, city, callbackUrl, clientOrderId);
+                message = pdtMger.Charge(user.User.Id, routeId, mobile,spName, province, city, callbackUrl, clientOrderId);
                 logger.Info(message.Status);
                 logger.Info(message.Message);
             }
