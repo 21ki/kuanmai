@@ -121,7 +121,7 @@ namespace KMBit.Controllers
         {
             var resp = new HttpResponseMessage(HttpStatusCode.OK);
             string returnXML = null;
-            logger.Info("PaymentController.WeChatPayBack is being called by Wechat payment notify service...");
+            logger.Info("PaymentController.WeChatPayBack is being called by Wechat payment notify service.........................");
             Stream stream = Request.InputStream;
             if(stream!=null)
             {
@@ -136,38 +136,47 @@ namespace KMBit.Controllers
                         logger.Info(result);
                         string paraValues = WeChatPaymentWrapper.ParsePaymentNotifySignParas(result);
                         logger.Info(string.Format("{0} needs to be signed",paraValues));
-                        BaseResponse res = WeChatPaymentWrapper.ParsePaymentNotify(result);
-                        logger.Info(string.Format("{Signature sent by wechat is {0}}",res.sign));
+                        BaseResponse baseresponse = WeChatPaymentWrapper.ParsePaymentNotify(result);
+                        PaymentNotifyResponse response = null;
+                        if (baseresponse != null)
+                        {
+                            response = (PaymentNotifyResponse)baseresponse;
+                        }
+                        logger.Info(string.Format("Signature sent by wechat is {0}", response.sign));
                         WeChatPayConfig config = PersistentValueManager.config;
-                        paraValues += "&key=" + config.Secret;
-                        string sign = UrlSignUtil.GetMD5(paraValues);
-                        logger.Info(string.Format("{Signature caculated by localsystem is {0}}", sign));
-                        if (sign!=res.sign)
+                        paraValues += "&key=" + config.ShopSecret;
+                        string sign = UrlSignUtil.GetMD5(paraValues).ToUpper();
+                        logger.Info(string.Format("Signature caculated by localsystem is {0}", sign));
+                        if (sign!= response.sign)
                         {
                             logger.Error("Two signatures are different, the request was not sent by wechat payment system.");
                             returnXML = "<xml><return_code>FAIL</return_code><return_msg>签名不正确</return_msg></xml>";
                             resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
                         }
-
+                        logger.Info("Sign verification passed");
                         OrderManagement orderMgr = new OrderManagement(0);
                         PaymentManagement payMgr = new PaymentManagement(0);
-                        int paymentId = 0;
-                        PaymentNotifyResponse response = (PaymentNotifyResponse)res;
+                        int paymentId = 0;                        
                         int.TryParse(response.out_trade_no,out paymentId);
                         if(paymentId>0)
                         {
+                            logger.Info("Going to process payment id"+paymentId);
                             ChargeResult cResult = null;
                             try
                             {
                                 BPaymentHistory payment = null;
                                 int total = 0;
-                                List<BPaymentHistory> payments = payMgr.FindPayments(paymentId, 0, 0, out total);
+                                List<BPaymentHistory> payments = payMgr.FindUnProcessedOnLinePayments(paymentId, 0, 0, out total);
                                 if (payments != null && payments.Count == 1)
                                 {
                                     payment = payments[0];
                                     if (payment.PayType == 0)//直冲用户支付
                                     {
+                                        logger.Info("OpenId:"+response.openid);
+                                        logger.Info("OpenTradeNo:" + response.transaction_id);
                                         cResult = orderMgr.ProcessOrderAfterPaid(paymentId, response.transaction_id, response.openid);
+                                        logger.Info(cResult.Status.ToString());
+                                        logger.Info(cResult.Message);
                                         if(cResult.Status== ChargeStatus.SUCCEED)
                                         {
                                             logger.Info("The payment status has been successfully synced to local system.");
@@ -178,7 +187,7 @@ namespace KMBit.Controllers
                                         else
                                         {
                                             logger.Error(cResult.Message);
-                                            returnXML = "<xml><return_code>FAIL</return_code><return_msg>cResult.Message</return_msg></xml>";
+                                            returnXML = "<xml><return_code>FAIL</return_code><return_msg>unexpected error</return_msg></xml>";
                                             resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
                                             return resp;
                                         }
@@ -186,16 +195,22 @@ namespace KMBit.Controllers
                                 }
                                 else
                                 {
-                                    
+                                    logger.Warn("Didn't find payment by id:"+paymentId);
+                                    returnXML = "<xml><return_code>FAIL</return_code><return_msg>out_trade_no is wrong</return_msg></xml>";
+                                    resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
                                 }
 
                             }
                             catch (KMBitException e)
                             {
+                                returnXML = "<xml><return_code>FAIL</return_code><return_msg>unexpected error</return_msg></xml>";
+                                resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
                                 logger.Error(e);   
                             }
                             catch (Exception ex)
                             {
+                                returnXML = "<xml><return_code>FAIL</return_code><return_msg>unexpected error</return_msg></xml>";
+                                resp.Content = new StringContent(returnXML, System.Text.Encoding.UTF8, "text/plain");
                                 logger.Fatal(ex);
                             }
                         }
@@ -208,6 +223,7 @@ namespace KMBit.Controllers
                 }
                
             }
+            logger.Info("Done...................");
             return resp;
         }
 

@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "流量充值";
     Layout = "~/Views/Shared/_weChatLayout.cshtml";
-
+   
 }
 
 @using GridMvc.Html
@@ -116,7 +116,7 @@
             $('#ChargeForm').find('#submit_charge').attr("disabled", "disabled");
             $('#ChargeForm').find('#submit_charge').val("正在提交...");
             $.post(
-                BASE_URL + "WeChat/PreCharge",
+                BASE_URL + "WeChatTest/PreCharge",
                 {
                     SPName: $('#ChargeForm').find('#SPName').val(),
                     Province: $('#ChargeForm').find('#Province').val(),
@@ -128,7 +128,7 @@
                     ResourceTaocanId: $('#ChargeForm').find('#ResourceTaocanId').val(),
                 },
                 function (data) {
-                    if (data != 'undefined' && typeof (data) == 'object') {
+                    if (data != 'undefined' && typeof (data) == 'object') {                        
                         if (data.Status == "OK") {
                             //alert(data.Item.timestamp + "|" + data.Item.nancestr + "|" + data.Item.prepay_id);
                             if (data.Item.prepay_id == 'undefined' || data.Item.prepay_id == null || data.Item.prepay_id == '') {
@@ -142,18 +142,18 @@
 
                             wx.ready(function () {
                                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
-
+                               
                                 wx.chooseWXPay({
                                     timestamp: data.Item.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
                                     nonceStr: data.Item.nancestr, // 支付签名随机串，不长于 32 位
                                     package: 'prepay_id=' + data.Item.prepay_id, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
                                     signType: 'MD5', // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
                                     paySign: data.Item.paySign, // 支付签名
-                                    success: function (res) {
+                                    success: function (res) {                                        
                                         $('#ChargeForm').find('#submit_message_success').find('#message').html("成功提交，一般5分钟后充值成功");
                                         $('#ChargeForm').find('#submit_message_success').show();
                                     },
-                                    fail: function (res) {
+                                    fail: function (res) {                                       
                                         $('#ChargeForm').find('#submit_message_warn').find('#message').html("充值失败");
                                         $('#ChargeForm').find('#submit_message_warn').show();
                                     },
@@ -169,7 +169,7 @@
                                 });
                             });
 
-
+                           
                         } else {
                             //alert(data.Message);
                             $('#ChargeForm').find('#submit_message_warn').find('#message').html(data.Message);
@@ -190,17 +190,17 @@
             signature: $('#ChargeForm').find('#signature').val(),// 必填，签名，见附录1
             jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
         });
-
+       
         wx.error(function (res) {
             // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
-
+            
         });
     });
 </script>
 
 <h2>欢迎使用自助流量充值</h2>
 
-@using (Html.BeginForm("PreCharge", "WeChat", FormMethod.Post, new { role = "form", @id = "ChargeForm" }))
+@using (Html.BeginForm("PreCharge", "WeChatTest", FormMethod.Post, new {role = "form", @id = "ChargeForm" }))
 {
     @Html.HiddenFor(model => model.SPName)
     @Html.HiddenFor(model => model.Province)
@@ -235,9 +235,9 @@
     </div>
 
     <div class="form-group" id="submit_message_warn" style="display:none;">
-        <div class="col-md-offset-2 col-md-10 alert alert-danger fade in" style="margin-left:15px;margin-right:15px;">
-            <p class="" id="message"></p>
-        </div>
+            <div class="col-md-offset-2 col-md-10 alert alert-danger fade in" style="margin-left:15px;margin-right:15px;">
+                <p class="" id="message"></p>
+            </div>
     </div>
     <div class="form-group" id="submit_message_success" style="display:none;">
         <div class="col-md-offset-2 col-md-10 alert alert-success fade in" style="margin-left:15px;margin-right:15px;">

@@ -8,12 +8,13 @@ using System.Reflection;
 using System.Collections.Specialized;
 using System.Xml;
 
+using log4net;
 using WeChat.Adapter;
 using WeChat.Adapter.Responses;
 namespace WeChat.Adapter.Requests
 {   
     public class PreOrderRequest : BaseRequest
-    {
+    {        
         public int total_fee { get; set; }
         public string spbill_create_ip { get; set; }
         public string notify_url { get; private set; }
@@ -26,21 +27,25 @@ namespace WeChat.Adapter.Requests
         public PreOrderRequest(WeChatPayConfig config):base(config)
         {           
             this.notify_url = config.NotifyUrl;
-            //this.url = "https://api.mch.weixin.qq.com/pay/unifiedorde";
             this.url = config.CreateOrderUrl;
         }
         public override BaseResponse Execute()
         {
+            logger.Info(this.GetType().FullName+"................");
+            logger.Info("url:"+this.url);
             if(string.IsNullOrEmpty(out_trade_no))
             {
+                logger.Info("out_trade_no cannot be empty");
                 throw new Exception("out_trade_no cannot be empty");
             }
             if (string.IsNullOrEmpty(notify_url))
             {
+                logger.Info("notify_url cannot be empty");
                 throw new Exception("notify_url cannot be empty");
             }
             if (string.IsNullOrEmpty(spbill_create_ip))
             {
+                logger.Info("spbill_create_ip cannot be empty");
                 throw new Exception("spbill_create_ip cannot be empty");
             }
             PreOrderResponse response = null;
@@ -59,28 +64,40 @@ namespace WeChat.Adapter.Requests
             string paraUrl = string.Empty;
             foreach(KeyValuePair<string,object> param in paras)
             {
-                if(paraUrl==string.Empty)
+                if (param.Value != null && !string.IsNullOrEmpty(param.Value.ToString()))
                 {
-                    paraUrl = param.Key + "=" + (param.Value != null ? param.Value.ToString() : "");
-                }else
-                {
-                    paraUrl +="&"+ param.Key + "=" + (param.Value != null ? param.Value.ToString() : "");
+                    if (paraUrl == string.Empty)
+                    {
+                        paraUrl = param.Key + "=" + (param.Value != null ? param.Value.ToString() : "");
+                    }
+                    else
+                    {
+                        paraUrl += "&" + param.Key + "=" + (param.Value != null ? param.Value.ToString() : "");
+                    }
                 }
             }
-            paraUrl += "&key=" + this.secret;
+            paraUrl += "&key=" + this.shop_secret;
+            logger.Info("parameters:"+paraUrl);
             string sign = null;
             if(signType.Trim().ToLower()=="md5")
             {
                 sign = HashWrapper.MD5_Hash(paraUrl);
             }
+            sign = sign.ToUpper();
+            logger.Info("sign:" + sign);
             paras.Add("sign",sign);
             NameValueCollection col = new NameValueCollection();
             foreach (KeyValuePair<string, object> param in paras)
             {
-                col.Add(param.Key, param.Value!=null?param.Value.ToString():"");
+                if(param.Value!=null && !string.IsNullOrEmpty(param.Value.ToString()))
+                {
+                    col.Add(param.Key,  param.Value.ToString());
+                }                
             }
             string str = HttpSercice.PostHttpRequest(this.url, col, RequestType.POST,"text/xml");
+            logger.Info("response:"+str);
             response = ParseXML(str);
+            logger.Info("Done.");
             return response;
         }
 

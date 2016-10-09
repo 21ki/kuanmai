@@ -13,5 +13,7 @@ namespace WeChat.Adapter
         public int ExpiresIn { get; set; }
         public DateTime ExpiresTime { get; set; }
         public string Refresh_Token { get; set; }
+        public string OpenId { get; set; }
+        public string Scope { get; set; }
     }
 }

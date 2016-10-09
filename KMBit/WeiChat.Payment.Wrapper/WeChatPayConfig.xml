@@ -9,4 +9,5 @@
   <NotifyUrl></NotifyUrl>
   <PaymentQueryUrl>https://api.mch.weixin.qq.com/pay/orderquery</PaymentQueryUrl>
   <GetTokenUrl>https://api.weixin.qq.com/cgi-bin/token</GetTokenUrl>
+  <GetAccessTokenUrl>https://api.weixin.qq.com/sns/oauth2/access_token</GetAccessTokenUrl>
 </WeChatPayConfig>

@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
+using log4net;
 using WeChat.Adapter.Responses;
 using WeChat.Adapter.Requests;
 namespace WeChat.Adapter
 {
     public class WeChatPaymentWrapper
     {
+        static ILog logger = WeChatLogger.GetLogger();
         public static AccessToken GetWeChatToken(WeChatPayConfig config, AccessToken oldToken,out bool changed)
         {
             changed = false;
@@ -82,6 +84,7 @@ namespace WeChat.Adapter
         }
         public static BaseResponse ParsePaymentNotify(string xml)
         {
+            logger.Info("ParsePaymentNotify.............");
             PaymentNotifyResponse res = null;
             XmlDocument doc = null;
             try
@@ -94,9 +97,9 @@ namespace WeChat.Adapter
                     XmlNode return_code = doc.SelectSingleNode("/xml/return_code");
                     if (return_code != null)
                     {
+                        logger.Info(return_code.InnerText);
                         res.return_code = BaseRequest.ParseResuleState(return_code.InnerText);
                     }
-
                     XmlNode return_msg = doc.SelectSingleNode("/xml/return_msg");
                     if (return_msg != null)
                     {
@@ -107,7 +110,21 @@ namespace WeChat.Adapter
                     {
                         return res;
                     }
-
+                    XmlNode sign = doc.SelectSingleNode("/xml/sign");
+                    if (sign != null)
+                    {
+                        res.sign = sign.InnerText.Trim();
+                    }
+                    XmlNode transaction_id = doc.SelectSingleNode("/xml/transaction_id");
+                    if (transaction_id != null)
+                    {
+                        res.transaction_id = transaction_id.InnerText.Trim();
+                    }
+                    XmlNode out_trade_no = doc.SelectSingleNode("/xml/out_trade_no");
+                    if (out_trade_no != null)
+                    {
+                        res.out_trade_no = out_trade_no.InnerText.Trim();
+                    }
                     XmlNode result_code = doc.SelectSingleNode("/xml/result_code");
                     if (result_code != null)
                     {
@@ -117,6 +134,7 @@ namespace WeChat.Adapter
                     XmlNode appid = doc.SelectSingleNode("/xml/appid");
                     if (appid != null)
                     {
+                        logger.Info(appid.InnerText);
                         res.appid = appid.InnerText.Trim();
                     }
 
@@ -127,9 +145,15 @@ namespace WeChat.Adapter
                     }
 
                     XmlNode sub_mch_id = doc.SelectSingleNode("/xml/sub_mch_id");
-                    if (mch_id != null)
+                    if (sub_mch_id != null)
                     {
                         res.sub_mch_id = sub_mch_id.InnerText.Trim();
+                    }
+
+                    XmlNode is_subscribe = doc.SelectSingleNode("/xml/is_subscribe");
+                    if (is_subscribe != null)
+                    {
+                        res.is_subscribe = is_subscribe.InnerText.Trim();
                     }
 
                     XmlNode nonce_str = doc.SelectSingleNode("/xml/nonce_str");
@@ -142,12 +166,6 @@ namespace WeChat.Adapter
                     if (openid != null)
                     {
                         res.openid = openid.InnerText.Trim();
-                    }
-
-                    XmlNode sign = doc.SelectSingleNode("/xml/sign");
-                    if (sign != null)
-                    {
-                        res.sign = sign.InnerText.Trim();
                     }
 
                     XmlNode err_code = doc.SelectSingleNode("/xml/err_code");
@@ -179,21 +197,18 @@ namespace WeChat.Adapter
                         res.total_fee = int.Parse(total_fee.InnerText.Trim());
                     }
 
+                    XmlNode cash_fee = doc.SelectSingleNode("/xml/cash_fee");
+                    if (cash_fee != null)
+                    {
+                        res.cash_fee = int.Parse(cash_fee.InnerText.Trim());
+                    }
+
                     XmlNode fee_type = doc.SelectSingleNode("/xml/fee_type");
                     if (total_fee != null)
                     {
                         res.fee_type = fee_type.InnerText.Trim();
                     }
-                    XmlNode transaction_id = doc.SelectSingleNode("/xml/transaction_id");
-                    if (transaction_id != null)
-                    {
-                        res.fee_type = transaction_id.InnerText.Trim();
-                    }
-                    XmlNode out_trade_no = doc.SelectSingleNode("/xml/out_trade_no");
-                    if (out_trade_no != null)
-                    {
-                        res.out_trade_no = out_trade_no.InnerText.Trim();
-                    }
+                  
                     XmlNode attach = doc.SelectSingleNode("/xml/attach");
                     if (attach != null)
                     {
@@ -204,15 +219,14 @@ namespace WeChat.Adapter
                     {
                         res.time_end = time_end.InnerText.Trim();
                     }
-
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                logger.Error(ex);
             }
-           
-          
+
+            logger.Info("Done ParsePaymentNotify.............");
             return res;
         }
         public static string ParsePaymentNotifySignParas(string xml)
@@ -266,6 +280,7 @@ namespace WeChat.Adapter
             request.trade_type = type;
             request.body = body;
             request.detail = "";
+            request.openid = openId;
             response = request.Execute();
             if(response!=null)
             {

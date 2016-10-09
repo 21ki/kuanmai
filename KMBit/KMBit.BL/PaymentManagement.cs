@@ -154,5 +154,58 @@ namespace KMBit.BL
             }
             return payments;
         }
+
+        public List<BPaymentHistory> FindUnProcessedOnLinePayments(int paymentId, int userId, int orderId, out int total, bool paging = false, int pageSize = 30, int page = 1)
+        {
+            total = 0;
+            List<BPaymentHistory> payments = null;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                var query = from p in db.Payment_history
+                            join u in db.Users on p.User_id equals u.Id into lu
+                            from llu in lu.DefaultIfEmpty()
+                            where string.IsNullOrEmpty(p.PaymentTradeId)
+                            select new BPaymentHistory
+                            {
+                                Amount = p.Amount,
+                                ChargeOrderId = p.ChargeOrderId,
+                                CreatedTime = p.CreatedTime,
+                                Id = p.Id,
+                                PaymentAccount = p.PaymentAccount,
+                                PaymentTradeId = p.PaymentTradeId,
+                                PayType = p.PayType,
+                                Pay_time = p.Pay_time,
+                                Tranfser_Type = p.Tranfser_Type,
+                                UserName = llu != null ? llu.Name : "",
+                                User_id = p.User_id
+                            };
+
+                if (paymentId > 0)
+                {
+                    query = query.Where(p => p.Id == paymentId);
+                }
+                if (userId > 0)
+                {
+                    query = query.Where(p => p.User_id == userId);
+                }
+                if (orderId > 0)
+                {
+                    query = query.Where(p => p.ChargeOrderId == orderId);
+                }
+
+                query = query.OrderByDescending(p => p.CreatedTime);
+                total = query.Count();
+
+                if (paging)
+                {
+                    page = page > 0 ? page : 1;
+                    pageSize = pageSize > 0 ? pageSize : 30;
+                    query = query.Skip((page - 1) * pageSize).Take(pageSize);
+                }
+
+                payments = query.ToList<BPaymentHistory>();
+            }
+            return payments;
+        }
     }
 }

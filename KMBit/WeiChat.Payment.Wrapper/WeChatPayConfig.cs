@@ -11,6 +11,7 @@ namespace WeChat.Adapter
         public string APPID { get; set; }
         public string Secret { get; set; }
         public string ShopID { get; set; }
+        public string ShopSecret { get; set; }
         public string SignType { get; set; }
         public string CharSet { get; set; }
         public string CreateOrderUrl { get; set; }
@@ -18,5 +19,6 @@ namespace WeChat.Adapter
         public string PaymentQueryUrl { get; set; }
         public string GetTokenUrl { get; set; }
         public string GetJsTicketUrl { get; set; }
+        public string GetAccessTokenUrl { get; set; }
     }
 }

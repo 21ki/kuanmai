@@ -215,6 +215,7 @@
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\WeChatController.cs" />
+    <Compile Include="Controllers\WeChatTestController.cs" />
     <Compile Include="Extensions\HtmlExtensions.cs" />
     <Compile Include="Filters\AdminFilter.cs" />
     <Compile Include="Filters\AgentFilter.cs" />
@@ -836,6 +837,7 @@
     <Content Include="Views\Shared\weChatHead.cshtml" />
     <Content Include="Views\Shared\_weChatLayout.cshtml" />
     <Content Include="Views\Admin\ChargeAccount.cshtml" />
+    <Content Include="Views\WeChatTest\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

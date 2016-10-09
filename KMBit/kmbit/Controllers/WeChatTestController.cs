@@ -15,15 +15,16 @@ using WeChat.Adapter.Requests;
 using WeChat.Adapter;
 using WeChat.Adapter.Authorization;
 using log4net;
+
 namespace KMBit.Controllers
 {
-    public class WeChatController : Controller
+    public class WeChatTestController : Controller
     {
         ILog logger = KMLogger.GetLogger();
         // GET: WeChat
         public ActionResult Index()
         {
-            logger.Info(this.GetType().FullName+" - Index....");
+            logger.Info(this.GetType().FullName + " - Index....");
             WeChatChargeModel model = new WeChatChargeModel();
             //get weichat account openid from redirect URL parameters
             if (!string.IsNullOrEmpty(Request["openid"]))
@@ -33,7 +34,7 @@ namespace KMBit.Controllers
             }
             else
             {
-                if(Session["wechat_openid"]!=null)
+                if (Session["wechat_openid"] != null)
                 {
                     logger.Info("already has wechat openid stored.");
                     model.OpenId = Session["wechat_openid"] != null ? Session["wechat_openid"].ToString() : "";
@@ -43,9 +44,9 @@ namespace KMBit.Controllers
                     string code = Request["code"];
                     if (!string.IsNullOrEmpty(code))
                     {
-                        logger.Info("new request from wechat public account, code is "+code);
+                        logger.Info("new request from wechat public account, code is " + code);
                         AccessToken weChatAccessToken = AuthHelper.GetAccessToken(PersistentValueManager.config, code);
-                        if(weChatAccessToken!=null)
+                        if (weChatAccessToken != null)
                         {
                             logger.Info("get wechat account openid by code " + code);
                             model.OpenId = weChatAccessToken.OpenId;
@@ -56,16 +57,16 @@ namespace KMBit.Controllers
             }
             if (!string.IsNullOrEmpty(model.OpenId))
             {
-                logger.Info("Wechat OpenId:"+model.OpenId);
+                logger.Info("Wechat OpenId:" + model.OpenId);
             }
             else
             {
                 logger.Error("Wechat OpenId is empty, cannot processing any more.");
             }
-            model.nancestr = Guid.NewGuid().ToString().Replace("-","");
-            if(model.nancestr.Length>32)
+            model.nancestr = Guid.NewGuid().ToString().Replace("-", "");
+            if (model.nancestr.Length > 32)
             {
-                model.nancestr = model.nancestr.Substring(0,32);
+                model.nancestr = model.nancestr.Substring(0, 32);
             }
             model.appid = PersistentValueManager.config.APPID;
             model.timestamp = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now).ToString();
@@ -74,7 +75,7 @@ namespace KMBit.Controllers
             if (ticket != null)
             {
                 param.Add("jsapi_ticket", ticket.Ticket);
-                logger.Info("jsapi_ticket:"+ticket.Ticket);
+                logger.Info("jsapi_ticket:" + ticket.Ticket);
             }
             //param.Add("appId", model.appid);
             param.Add("timestamp", model.timestamp);
@@ -91,6 +92,7 @@ namespace KMBit.Controllers
         [HttpPost]
         public JsonResult PreCharge(WeChatChargeModel model)
         {
+           
             logger.Info("WeChatController.PreCharge......................................................");
             ApiMessage message = new ApiMessage();
             if (ModelState.IsValid)
@@ -101,7 +103,7 @@ namespace KMBit.Controllers
                     message.Message = "请从公众号菜单打开此页面";
                     return Json(message, JsonRequestBehavior.AllowGet);
                 }
-                //ChargeBridge cb = new ChargeBridge();
+                
                 ChargeOrder order = new ChargeOrder()
                 {
                     ChargeType = 0,
@@ -132,18 +134,18 @@ namespace KMBit.Controllers
                     message.Status = "ERROR";
                     return Json(message, JsonRequestBehavior.AllowGet);
                 }
-                logger.Info(string.Format("Order is generated, Id - {0}, mobile - {1}",order.Id,order.MobileNumber));
+                logger.Info(string.Format("Order is generated, Id - {0}, mobile - {1}", order.Id, order.MobileNumber));
                 BResourceTaocan taocan = taocans[0];
                 message.Status = "OK";
                 message.Message = "预充值订单已经生成";
                 message.Item = null;
                 //
                 string ip = Request.ServerVariables["REMOTE_ADDR"];
-                if(ip!=null && ip.IndexOf("::")>-1)
+                if (ip != null && ip.IndexOf("::") > -1)
                 {
                     ip = "127.0.0.1";
                 }
-                string prepayId = WeChatPaymentWrapper.GetPrepayId(PersistentValueManager.config, Session["wechat_openid"]!=null? Session["wechat_openid"].ToString():"", order.PaymentId.ToString(),"TEST WECHATPAY",ip, (int)taocan.Taocan.Sale_price * 100, TradeType.JSAPI);
+                string prepayId = WeChatPaymentWrapper.GetPrepayId(PersistentValueManager.config, Session["wechat_openid"] != null ? Session["wechat_openid"].ToString() : "", order.PaymentId.ToString(), "TEST WECHATPAY", ip, (int)taocan.Taocan.Sale_price * 100, TradeType.JSAPI);
                 logger.Info(string.Format("Prepay Id - {0}", prepayId));
                 WeChatOrder weOrder = new WeChatOrder();
                 weOrder.Order = new ChargeOrder { Id = order.Id, Payed = order.Payed, PaymentId = order.PaymentId, MobileNumber = order.MobileNumber, MobileSP = order.MobileSP, Province = order.Province };
@@ -155,28 +157,28 @@ namespace KMBit.Controllers
                 JSAPITicket ticket = PersistentValueManager.GetWeChatJsApiTicket();
                 SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
                 parameters.Add("appId", PersistentValueManager.config.APPID);
-                parameters.Add("timeStamp",model.timestamp);
+                parameters.Add("timeStamp", model.timestamp);
                 parameters.Add("nonceStr", model.nancestr);
-                parameters.Add("package", "prepay_id="+prepayId);
+                parameters.Add("package", "prepay_id=" + prepayId);
                 parameters.Add("signType", "MD5");
-                
-                logger.Info(string.Format("timeStamp:{0}",model.timestamp));
+
+                logger.Info(string.Format("timeStamp:{0}", model.timestamp));
                 logger.Info(string.Format("nonceStr:{0}", model.nancestr));
                 logger.Info(string.Format("package:{0}", "prepay_id=" + prepayId));
 
                 string querystr = null;
-                foreach(KeyValuePair<string,string> para in parameters)
+                foreach (KeyValuePair<string, string> para in parameters)
                 {
-                    if(querystr==null)
+                    if (querystr == null)
                     {
                         querystr = para.Key + "=" + para.Value;
                     }
                     else
                     {
-                        querystr += "&"+para.Key + "=" + para.Value;
+                        querystr += "&" + para.Key + "=" + para.Value;
                     }
                 }
-                querystr += "&key="+  PersistentValueManager.config.ShopSecret;
+                querystr += "&key=" + PersistentValueManager.config.ShopSecret;
                 logger.Info(querystr);
                 string sign = UrlSignUtil.GetMD5(querystr);
                 model.paySign = sign.ToUpper();

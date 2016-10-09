@@ -47,14 +47,29 @@ namespace KMBit.BL
         /// <param name="orderId"></param>
         public ChargeResult ProcessOrderAfterPaid(int paymentId,string tradeNo,string buyerAccount)
         {
+            logger.Info(this.GetType().FullName+ ".ProcessOrderAfterPaid..........................");
             ChargeResult result = new ChargeResult();
             using (chargebitEntities db = new chargebitEntities())
             {
                 Payment_history payment = (from p in db.Payment_history where p.Id==paymentId select p).FirstOrDefault<Payment_history>();
                 if(payment==null)
                 {
-                    result.Status = ChargeStatus.FAILED;
+                    result.Status = ChargeStatus.SUCCEED;
                     result.Message = string.Format("编号为:{0}的支付编号不存在", paymentId);
+                    return result;
+                }
+                if(payment.PayType==3)
+                {
+                    //管理员后台充值，不是网络支付
+                    result.Status = ChargeStatus.SUCCEED;
+                    result.Message = "不是网络支付，不能同步";
+                    return result;
+                }
+                if(!string.IsNullOrEmpty(payment.PaymentTradeId))
+                {
+                    result.Status = ChargeStatus.SUCCEED;
+                    result.Message = "已经处理过，不能再次处理";
+                    logger.Info(result.Message);
                     return result;
                 }
                 payment.Pay_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
@@ -66,16 +81,32 @@ namespace KMBit.BL
                 {
                     if(payment.ChargeOrderId<=0)
                     {
-                        result.Status = ChargeStatus.FAILED;
+                        result.Status = ChargeStatus.SUCCEED;
                         result.Message = string.Format("编号为:{0}的支付编号没有相关充值订单", paymentId);
+                        logger.Info(result.Message);
                         return result;
                     }
 
                     //status 10 means the order is payed and ready for charge process.
                     Charge_Order corder = (from o in db.Charge_Order where o.Id==payment.ChargeOrderId select o).FirstOrDefault<Charge_Order>();
+                    if(corder==null)
+                    {
+                        result.Status = ChargeStatus.SUCCEED;
+                        result.Message = string.Format("编号为:{0}充值订单不存在", payment.ChargeOrderId);
+                        logger.Info(result.Message);
+                        return result;
+                    }
+                    if(corder.Payed)
+                    {
+                        result.Status = ChargeStatus.SUCCEED;
+                        result.Message = string.Format("编号为:{0}充值订单已经处理过", payment.ChargeOrderId);
+                        logger.Info(result.Message);
+                        return result;
+                    }
                     corder.Payed = true;
                     corder.Status = 10;
                     corder.Message = "充值订单已成功提交到充值系统，请耐性等待充值...";
+                    logger.Info(corder.Message);
                     db.SaveChanges();
                     result.Status = ChargeStatus.SUCCEED;
                     result.Message = corder.Message;
@@ -85,7 +116,7 @@ namespace KMBit.BL
                     //result = cb.Charge(order);                   
                 }
             }
-
+            logger.Info("Done ProcessOrderAfterPaid..........................");
             return result;
         }
 

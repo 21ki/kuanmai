@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <WeChatPayConfig>
   <APPID>wx1435d87f4ac9dc6d</APPID>
-  <Secret>fbfa762a9f56b836763e2bfbd7ff7ad4 </Secret>
+  <Secret>fbfa762a9f56b836763e2bfbd7ff7ad4</Secret>
   <ShopID>1264216901</ShopID>
+  <ShopSecret>dfsadfsadfa2343fsdfsa35345435sdf</ShopSecret>
   <SignType>MD5</SignType>
   <CharSet>utf-8</CharSet>
   <CreateOrderUrl>https://api.mch.weixin.qq.com/pay/unifiedorder</CreateOrderUrl>
-  <NotifyUrl>http://120.27.247.50/Payment/AlipayBack</NotifyUrl>
+  <NotifyUrl>http://yfll.eruifo.com/Payment/WeChatPayBack</NotifyUrl>
   <PaymentQueryUrl>https://api.mch.weixin.qq.com/pay/orderquery</PaymentQueryUrl>
   <GetTokenUrl>https://api.weixin.qq.com/cgi-bin/token</GetTokenUrl>
   <GetJsTicketUrl>https://api.weixin.qq.com/cgi-bin/ticket/getticket</GetJsTicketUrl>
+  <GetAccessTokenUrl>https://api.weixin.qq.com/sns/oauth2/access_token</GetAccessTokenUrl>
 </WeChatPayConfig>
 

@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-
+using WeChat.Adapter;
 namespace WeChat.Adapter.Requests
 {
     public enum RequestType
@@ -50,6 +50,7 @@ namespace WeChat.Adapter.Requests
         }
         public static string PostHttpRequest(string url, NameValueCollection col, RequestType type, string contentType)
         {
+            WeChatLogger.GetLogger().Info("PostHttpRequest.........");
             string output = null;
             StreamReader rs = null;
             try
@@ -68,10 +69,10 @@ namespace WeChat.Adapter.Requests
                     var postData = new List<KeyValuePair<string, string>>();
                     if (col != null && col.Count > 0)
                     {
-                        IEnumerator myEnumerator = col.GetEnumerator();
-                       
+                        IEnumerator myEnumerator = col.GetEnumerator();                       
                         if (contentType != null && contentType.ToLower() == "text/xml")
                         {
+                            WeChatLogger.GetLogger().Info("post xml data...");
                             StringBuilder cBuilder = new StringBuilder();
                             cBuilder.Append("<xml>");
                             foreach (String s in col.AllKeys)
@@ -81,14 +82,16 @@ namespace WeChat.Adapter.Requests
                                 cBuilder.Append("</" + s + ">");
                             }
                             cBuilder.Append("</xml>");
+                            WeChatLogger.GetLogger().Info(cBuilder.ToString());
                             content = new StringContent(cBuilder.ToString());
+                           
                         }else
                         {
                             foreach (String s in col.AllKeys)
                             {
                                 postData.Add(new KeyValuePair<string, string>(s, col[s]));
                             }
-
+                            
                             content = new FormUrlEncodedContent(postData);
                         }                        
                     }
@@ -144,6 +147,7 @@ namespace WeChat.Adapter.Requests
             }
             catch (Exception ex)
             {
+                WeChatLogger.GetLogger().Error(ex);
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
@@ -154,7 +158,7 @@ namespace WeChat.Adapter.Requests
                     rs.Close();
                 }
             }
-
+            WeChatLogger.GetLogger().Info("Post request done.");
             return output;
         }
     }

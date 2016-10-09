@@ -22,5 +22,6 @@ namespace WeChat.Adapter.Responses
         public string time_end { get; set; }
         public string attach { get; set; }
         public string sub_mch_id { get; set; }
+        public string is_subscribe { get; set; }
     }
 }

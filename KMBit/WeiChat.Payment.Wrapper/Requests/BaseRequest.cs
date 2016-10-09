@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WeChat.Adapter;
 using WeChat.Adapter.Responses;
+using log4net;
 namespace WeChat.Adapter.Requests
 {
    
@@ -13,16 +14,19 @@ namespace WeChat.Adapter.Requests
         protected string url = null;
         protected string signType = "md5";
         protected string secret = null;
+        protected string shop_secret = null;
         public string appid { get; protected set; }        
         public string mch_id { get; protected set; }
         public string nonce_str { get; protected set; }
         public string body { get; set; }
-        
+        protected ILog logger = null;
 
         public BaseRequest(WeChatPayConfig config)
-        {            
+        {
+            logger = WeChatLogger.GetLogger();
             this.appid = config.APPID;
             this.secret = config.Secret;
+            this.shop_secret = config.ShopSecret;
             this.mch_id = config.ShopID;
             this.signType = config.SignType.ToLower();
             this.nonce_str = Guid.NewGuid().ToString().Replace("-","");
