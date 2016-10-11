@@ -49,6 +49,8 @@
     <Compile Include="Authorization\AuthHelper.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="JSAPITicket.cs" />
+    <Compile Include="Requests\UserInfoRequest.cs" />
+    <Compile Include="Responses\UserInfoResponse.cs" />
     <Compile Include="WeChatLogger.cs" />
     <Compile Include="Requests\AuthAccessTokenRequest.cs" />
     <Compile Include="Requests\BaseRequest.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="WeChatPayConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WeChatPaymentWrapper.cs" />
+    <Compile Include="WeChatUserInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="WeChatPayConfig.xml">
