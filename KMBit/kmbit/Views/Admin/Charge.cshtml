@@ -41,7 +41,7 @@
                 return;
             }
             if ($('#ChargeForm').find('#SPName').val() != '') {
-                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(), 'global');
             } else {
                 GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
                     if (data == null) {
@@ -52,7 +52,7 @@
                         $('#ChargeForm').find('#Province').val(data.province);
                         $('#ChargeForm').find('#City').val(data.city);
                         $('#ChargeForm').find('#SPName').val(data.sp);
-                        requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                        requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(), 'global');
                     }
                 });
             }
@@ -65,7 +65,7 @@
             }
 
             if ($('#ChargeForm').find('#SPName').val() != '') {
-                requestTaocan($('#ChargeForm').find('#SPName').val(), "");
+                requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(), 'local');
             } else {
                 GetMobileLocation($('#ChargeForm').find('#Mobile').val(), function (data) {
                     if (data == null) {
@@ -76,7 +76,7 @@
                         $('#ChargeForm').find('#Province').val(data.province);
                         $('#ChargeForm').find('#City').val(data.city);
                         $('#ChargeForm').find('#SPName').val(data.sp);
-                        requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val());
+                        requestTaocan($('#ChargeForm').find('#SPName').val(), $('#ChargeForm').find('#Province').val(),'local');
                     }
                 });
             }
@@ -84,10 +84,10 @@
         });
 
 
-        function requestTaocan(sp, province) {
+        function requestTaocan(sp, province,scope) {
             $.post(
                         BASE_URL + "api/Product/SearchDirectChargeTaocans",
-                        { sp: sp, province: province },
+                        { sp: sp, province: province, scope: scope },
                         function (data) {
                             $('#taocan_container').html("");
                             var ul = $('<ul style="padding-left:0px;"></ul>');
@@ -97,7 +97,7 @@
                                     var chkDiv = $("<div style=\"float:left;width:5%;\"></div>").appendTo(li);
                                     $('<input type="radio" id="ResourceTaocanId" name="ResourceTaocanId" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
                                     $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html(item.Resource.Resource.Name);
-                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html(item.Taocan2.Name);                                    
+                                    $("<div style=\"float:left;width:15%;\"></div>").appendTo(li).html(item.Taocan2.Name);
                                     $("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Sale_price+ "元");
                                 });
                             }

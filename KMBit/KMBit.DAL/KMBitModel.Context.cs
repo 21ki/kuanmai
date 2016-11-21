@@ -18,6 +18,7 @@ namespace KMBit.DAL
         public chargebitEntities()
             : base("name=chargebitEntities")
         {
+            //((IObjectContextAdapter)this).ObjectContext.CommandTimeout = 60 * 60;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

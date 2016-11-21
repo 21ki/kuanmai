@@ -52,10 +52,10 @@
                 $('#CreateResourceTaocanForm').submit();
             }
             
-            if (parseFloat(pPrice) > sPrice) {
-                alert("售价必须大于或等于成本价");
-                return;
-            }
+            //if (parseFloat(pPrice) > sPrice) {
+            //    alert("售价必须大于或等于成本价");
+            //    return;
+            //}
 
             $('#CreateResourceTaocanForm').submit();
         });
@@ -66,8 +66,7 @@
 
 @using (Html.BeginForm("CreateResourceTaocan", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form", @id = "CreateResourceTaocanForm" }))
 {
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(model=>model.Serial)
+    @Html.AntiForgeryToken()   
     @Html.HiddenFor(model => model.EnabledDiscount)
     <div class="form-horizontal">       
         <hr />
@@ -92,12 +91,13 @@
             @Html.LabelFor(model => model.Serial, htmlAttributes: new { @class = "control-label col-md-3" })
             <div class="col-md-8">
                 @Html.EditorFor(model => model.Serial, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Serial, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="form-group">
             @Html.LabelFor(model => model.SP, htmlAttributes: new { @class = "control-label col-md-3" })
             <div class="col-md-8">
-                @Html.DropDownListFor(model => model.SP, (SelectList)ViewBag.SPs, "--全网充--", new {@class = "form-control" } )
+                @Html.DropDownListFor(model => model.SP, (SelectList)ViewBag.SPs, null, new {@class = "form-control" } )
                 @Html.ValidationMessageFor(model => model.SP, "", new { @class = "text-danger" })
             </div>
         </div>

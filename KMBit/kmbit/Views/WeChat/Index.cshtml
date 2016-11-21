@@ -19,10 +19,15 @@
         $('#ChargeForm').find('#submit_message_success').hide();
     }
     $(function () {
+        $("#ChargeForm").find('#Mobile').bind("input propertychange", function () {
+            HideMessages();
+        });
         $('#ChargeForm').find('#global_byte').click(function () {
             var mobileNumber = $('#ChargeForm').find('#Mobile').val();
             if ($.trim(mobileNumber) == '') {
-                $('#ChargeForm').submit();
+                //$('#ChargeForm').submit();
+                $('#ChargeForm').find('#submit_message_warn').find('#message').html("请输入正确的手机号码");
+                $('#ChargeForm').find('#submit_message_warn').show();
                 return;
             }
             if ($('#ChargeForm').find('#SPName').val() != '') {
@@ -47,7 +52,9 @@
         $('#ChargeForm').find('#local_byte').click(function () {
             var mobileNumber = $('#ChargeForm').find('#Mobile').val();
             if ($.trim(mobileNumber) == '') {
-                $('#ChargeForm').submit();
+                //$('#ChargeForm').submit();
+                $('#ChargeForm').find('#submit_message_warn').find('#message').html("请输入正确的手机号码");
+                $('#ChargeForm').find('#submit_message_warn').show();
                 return;
             }
 
@@ -76,7 +83,7 @@
         function requestTaocan(sp, province, scope) {
             HideMessages();
             $('#ChargeForm').find('#submit_charge').attr("disabled", "disabled");
-            $('#ChargeForm').find('#submit_charge').val("搜索可用套餐...");
+            $('#ChargeForm').find('#submit_charge').val("搜索套餐...");
             $.post(
                         BASE_URL + "api/Product/SearchDirectChargeTaocans",
                         { sp: sp, province: province, scope: scope },
@@ -85,15 +92,24 @@
                             $('#ChargeForm').find('#submit_charge').val("充值");
                             $('#taocan_container').html("");
                             var ul = $('<ul style="padding-left:0px;"></ul>');
-                            if (data.Status == "OK" && data.Item.length > 0) {
-                                $(data.Item).each(function (index, item) {
-                                    var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
-                                    var chkDiv = $("<div style=\"float:left;\"></div>").appendTo(li);
-                                    $('<input type="radio" id="ResourceTaocanId" name="ResourceTaocanId" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
-                                    $("<div style=\"float:left;padding-left:10px;padding-right:10px;\"></div>").appendTo(li).html(item.SP.Name+" "+item.Taocan2.Name);
-                                    //$("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity);
-                                    $("<div style=\"float:left;\"></div>").appendTo(li).html(item.Taocan.Sale_price+"元");
-                                });
+                            if (data.Status == "OK") {
+                                if (data.Item.length > 0) {
+                                    $(data.Item).each(function (index, item) {
+                                        var li = $("<li style=\"overflow:hidden;display:block;\"></li>").appendTo(ul);
+                                        var chkDiv = $("<div style=\"float:left;\"></div>").appendTo(li);
+                                        $('<input type="radio" id="ResourceTaocanId" name="ResourceTaocanId" value="' + item.Taocan.Id + '"/>').appendTo(chkDiv);
+                                        $("<div style=\"float:left;padding-left:10px;padding-right:10px;\"></div>").appendTo(li).html(item.SP.Name + " " + item.Taocan.Quantity + "M");
+                                        //$("<div style=\"float:left;width:10%;\"></div>").appendTo(li).html(item.Taocan.Quantity);
+                                        $("<div style=\"float:left;\"></div>").appendTo(li).html(item.Taocan.Sale_price + "元");
+                                    });
+                                }else {
+                                    $('#ChargeForm').find('#submit_message_warn').find('#message').html("没有找到适合您手机的套餐");
+                                    $('#ChargeForm').find('#submit_message_warn').show();
+                                }
+                                
+                            }else {
+                                $('#ChargeForm').find('#submit_message_warn').find('#message').html(data.Message);
+                                $('#ChargeForm').find('#submit_message_warn').show();
                             }
                             $(ul).appendTo($('#taocan_container'))
                         }
@@ -104,7 +120,9 @@
             HideMessages();
             var mobileNumber = $('#ChargeForm').find('#Mobile').val();
             if ($.trim(mobileNumber) == '') {
-                $('#ChargeForm').submit();
+                //$('#ChargeForm').submit();
+                $('#ChargeForm').find('#submit_message_warn').find('#message').html("请输入正确的手机号码");
+                $('#ChargeForm').find('#submit_message_warn').show();
                 return;
             }
             var taocanId = $('#ChargeForm').find('#taocan_container').find('input[name="ResourceTaocanId"]:checked').val();
@@ -246,8 +264,16 @@
     </div>
 
     <div class="form-group">
-        <div class="col-md-offset-2 col-md-10 btn">
+        <div class="col-md-offset-2 col-md-10">
             <input id="submit_charge" type="button" value="充值" class="btn btn-primary" />
         </div>
     </div>
-}
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10" style="text-align:left;">
+            <div>1.目前只开通了河南联通用户的充值</div>
+            <div>2.充值的流量为全国流量</div>
+            <div>3.微信支付完毕后会在10分钟以内充值到账</div>
+        </div>
+    </div>
+   
+ }

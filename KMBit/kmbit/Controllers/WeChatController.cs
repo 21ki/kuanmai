@@ -93,97 +93,127 @@ namespace KMBit.Controllers
         {
             logger.Info("WeChatController.PreCharge......................................................");
             ApiMessage message = new ApiMessage();
+            ChargeOrder order = null;
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.OpenId))
+                try
                 {
-                    message.Status = "ERROR";
-                    message.Message = "请从公众号菜单打开此页面";
-                    return Json(message, JsonRequestBehavior.AllowGet);
-                }
-                //ChargeBridge cb = new ChargeBridge();
-                ChargeOrder order = new ChargeOrder()
-                {
-                    ChargeType = 0,
-                    AgencyId = 0,
-                    Id = 0,
-                    Province = model.Province,
-                    City = model.City,
-                    MobileSP = model.SPName,
-                    MobileNumber = model.Mobile,
-                    OutOrderId = "",
-                    ResourceId = 0,
-                    ResourceTaocanId = model.ResourceTaocanId,
-                    RouteId = 0,
-                    CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
-                    Payed = false,
-                    OpenId = model.OpenId,
-                    OpenAccountType = 1
-                };
-                //
-                OrderManagement orderMgt = new OrderManagement();
-                ResourceManagement resourceMgr = new ResourceManagement(0);
-                order = orderMgt.GenerateOrder(order);
-                int total = 0;
-                List<BResourceTaocan> taocans = resourceMgr.FindResourceTaocans(order.ResourceTaocanId, 0, 0, out total);
-                if (taocans == null || taocans.Count == 0)
-                {
-                    message.Message = "当前套餐不可用";
-                    message.Status = "ERROR";
-                    return Json(message, JsonRequestBehavior.AllowGet);
-                }
-                logger.Info(string.Format("Order is generated, Id - {0}, mobile - {1}",order.Id,order.MobileNumber));
-                BResourceTaocan taocan = taocans[0];
-                message.Status = "OK";
-                message.Message = "预充值订单已经生成";
-                message.Item = null;
-                //
-                string ip = Request.ServerVariables["REMOTE_ADDR"];
-                if(ip!=null && ip.IndexOf("::")>-1)
-                {
-                    ip = "127.0.0.1";
-                }
-                string prepayId = WeChatPaymentWrapper.GetPrepayId(PersistentValueManager.config, Session["wechat_openid"]!=null? Session["wechat_openid"].ToString():"", order.PaymentId.ToString(),"TEST WECHATPAY",ip, (int)taocan.Taocan.Sale_price * 100, TradeType.JSAPI);
-                logger.Info(string.Format("Prepay Id - {0}", prepayId));
-                WeChatOrder weOrder = new WeChatOrder();
-                weOrder.Order = new ChargeOrder { Id = order.Id, Payed = order.Payed, PaymentId = order.PaymentId, MobileNumber = order.MobileNumber, MobileSP = order.MobileSP, Province = order.Province };
-                weOrder.PrepayId = prepayId;
-                weOrder.PaySign = "";
-                message.Item = weOrder;
-
-                AccessToken token = PersistentValueManager.GetWeChatAccessToken();
-                JSAPITicket ticket = PersistentValueManager.GetWeChatJsApiTicket();
-                SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
-                parameters.Add("appId", PersistentValueManager.config.APPID);
-                parameters.Add("timeStamp",model.timestamp);
-                parameters.Add("nonceStr", model.nancestr);
-                parameters.Add("package", "prepay_id="+prepayId);
-                parameters.Add("signType", "MD5");
-                
-                logger.Info(string.Format("timeStamp:{0}",model.timestamp));
-                logger.Info(string.Format("nonceStr:{0}", model.nancestr));
-                logger.Info(string.Format("package:{0}", "prepay_id=" + prepayId));
-
-                string querystr = null;
-                foreach(KeyValuePair<string,string> para in parameters)
-                {
-                    if(querystr==null)
+                    if (string.IsNullOrEmpty(model.OpenId))
                     {
-                        querystr = para.Key + "=" + para.Value;
+                        message.Status = "ERROR";
+                        message.Message = "请从公众号菜单打开此页面";
+                        return Json(message, JsonRequestBehavior.AllowGet);
                     }
-                    else
+                    //ChargeBridge cb = new ChargeBridge();
+                    order = new ChargeOrder()
                     {
-                        querystr += "&"+para.Key + "=" + para.Value;
+                        ChargeType = 0,
+                        AgencyId = 0,
+                        Id = 0,
+                        Province = model.Province,
+                        City = model.City,
+                        MobileSP = model.SPName,
+                        MobileNumber = model.Mobile,
+                        OutOrderId = "",
+                        ResourceId = 0,
+                        ResourceTaocanId = model.ResourceTaocanId,
+                        RouteId = 0,
+                        CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now),
+                        Payed = false,
+                        OpenId = model.OpenId,
+                        OpenAccountType = 1
+                    };
+                    //
+                    OrderManagement orderMgt = new OrderManagement();
+                    ResourceManagement resourceMgr = new ResourceManagement(0);
+
+                    string msg = string.Empty;
+                    if (orderMgt.IsThisMonthCharged(order.MobileNumber, order.ResourceTaocanId, out msg))
+                    {
+                        message.Status = "ERROR";
+                        message.Message = msg;
+                        return Json(message, JsonRequestBehavior.AllowGet);
                     }
+
+                    order = orderMgt.GenerateOrder(order);
+                    int total = 0;
+                    List<BResourceTaocan> taocans = resourceMgr.FindResourceTaocans(order.ResourceTaocanId, 0, 0, out total);
+                    if (taocans == null || taocans.Count == 0)
+                    {
+                        message.Message = "当前套餐不可用";
+                        message.Status = "ERROR";
+                        return Json(message, JsonRequestBehavior.AllowGet);
+                    }
+                    logger.Info(string.Format("Order is generated, Id - {0}, mobile - {1}", order.Id, order.MobileNumber));
+                    BResourceTaocan taocan = taocans[0];
+                    message.Status = "OK";
+                    message.Message = "预充值订单已经生成";
+                    message.Item = null;
+                    //
+                    string ip = Request.ServerVariables["REMOTE_ADDR"];
+                    if (ip != null && ip.IndexOf("::") > -1)
+                    {
+                        ip = "127.0.0.1";
+                    }
+                    string prepayId = WeChatPaymentWrapper.GetPrepayId(PersistentValueManager.config, Session["wechat_openid"] != null ? Session["wechat_openid"].ToString() : "", order.PaymentId.ToString(), "TEST WECHATPAY", ip, (int)taocan.Taocan.Sale_price * 100, TradeType.JSAPI);
+                    logger.Info(string.Format("Prepay Id - {0}", prepayId));
+                    WeChatOrder weOrder = new WeChatOrder();
+                    weOrder.Order = new ChargeOrder { Id = order.Id, Payed = order.Payed, PaymentId = order.PaymentId, MobileNumber = order.MobileNumber, MobileSP = order.MobileSP, Province = order.Province };
+                    weOrder.PrepayId = prepayId;
+                    weOrder.PaySign = "";
+                    message.Item = weOrder;
+
+                    AccessToken token = PersistentValueManager.GetWeChatAccessToken();
+                    JSAPITicket ticket = PersistentValueManager.GetWeChatJsApiTicket();
+                    SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
+                    parameters.Add("appId", PersistentValueManager.config.APPID);
+                    parameters.Add("timeStamp", model.timestamp);
+                    parameters.Add("nonceStr", model.nancestr);
+                    parameters.Add("package", "prepay_id=" + prepayId);
+                    parameters.Add("signType", "MD5");
+
+                    logger.Info(string.Format("timeStamp:{0}", model.timestamp));
+                    logger.Info(string.Format("nonceStr:{0}", model.nancestr));
+                    logger.Info(string.Format("package:{0}", "prepay_id=" + prepayId));
+
+                    string querystr = null;
+                    foreach (KeyValuePair<string, string> para in parameters)
+                    {
+                        if (querystr == null)
+                        {
+                            querystr = para.Key + "=" + para.Value;
+                        }
+                        else
+                        {
+                            querystr += "&" + para.Key + "=" + para.Value;
+                        }
+                    }
+                    querystr += "&key=" + PersistentValueManager.config.ShopSecret;
+                    logger.Info(querystr);
+                    string sign = UrlSignUtil.GetMD5(querystr);
+                    model.paySign = sign.ToUpper();
+                    model.prepay_id = prepayId;
+                    logger.Info(string.Format("paySign:{0}", sign.ToUpper()));
+                    message.Item = model;
                 }
-                querystr += "&key="+  PersistentValueManager.config.ShopSecret;
-                logger.Info(querystr);
-                string sign = UrlSignUtil.GetMD5(querystr);
-                model.paySign = sign.ToUpper();
-                model.prepay_id = prepayId;
-                logger.Info(string.Format("paySign:{0}", sign.ToUpper()));
-                message.Item = model;
+                catch(KMBitException kex)
+                {
+                    logger.Error(kex);
+                    message.Message = kex.Message;
+                    message.Status = "ERROR";
+                }
+                catch(Exception ex)
+                {
+                    message.Message = "未知错误，请联系我们";
+                    message.Status = "ERROR";
+                    logger.Fatal(ex);
+                }
+                finally
+                {
+
+                }
             }
+
             logger.Info("Done.");
             return Json(message, JsonRequestBehavior.AllowGet);
         }

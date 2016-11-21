@@ -18,6 +18,7 @@ namespace KMBit.BL.Charge
 
         public ChargeResult Charge(ChargeOrder order)
         {
+            Logger.Info("Charging...");
             ChargeResult result = new ChargeResult() { Status = ChargeStatus.FAILED };
             chargebitEntities db = null;
             ProceedOrder(order, out result);
@@ -132,6 +133,7 @@ namespace KMBit.BL.Charge
                     db.Dispose();
                 }
             }
+            Logger.Info("Charging done！");
             return result;
         }
 

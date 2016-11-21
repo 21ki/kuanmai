@@ -7,9 +7,12 @@ using KMBit.Beans;
 using KMBit.DAL;
 namespace KMBit.Beans
 {
-    public class BPaymentHistory:Payment_history
+    public class BPaymentHistory : Payment_history
     {
-       public string UserName { get; set; }
-
+        public string UserName { get; set; }
+        public string OprUser { get; set; }
+        public string PayTypeText { get; set; }
+        public string TranfserTypeText { get; set; }
+        public string StatusText { get; set; }
     }
 }

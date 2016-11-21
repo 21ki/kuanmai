@@ -15,19 +15,28 @@ namespace KMBit.Test
 {
     class Program
     {
+        static string url = "http://yfll.eruifo.com/km/Account/";
         static void Main(string[] args)
         {
             charge();
             //products();
+            //string x = "CallBackUrl=http://113.31.21.238:8200/flux/callbackservice/yifengcb.ws&City=商丘&Client_order_id=68919_0&Id=20&Mobile=15649939049&Province=河南&Token=0ce9445505baa521ed1a2b0a34853164&key=0a483117-4e4d-4d97-aad4-d6576c2ffdec";
+            //string sign = Md5(x);
         }
+
+        static string Md5(string s)
+        {
+            return UrlSignUtil.GetMD5(s);
+        }
+
         static void products()
         {
             SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
-            parameters["Token"] = "19291b66e20365ff00e85e4e960fe0d4";
-            string sectoken = "a3d1ece2-bdf0-4889-92fc-db46ba9878d7";
-            string query = "Token=19291b66e20365ff00e85e4e960fe0d4";
+            parameters["Token"] = "0ce9445505baa521ed1a2b0a34853164";
+            string sectoken = "0a483117-4e4d-4d97-aad4-d6576c2ffdec";
+            string query = "Token=0ce9445505baa521ed1a2b0a34853164";
             string sign = UrlSignUtil.GetMD5(query + "&key=" + sectoken);
-            string url = "http://localhost:8000/km/Account/";
+            
             NameValueCollection col = new NameValueCollection();
             foreach (KeyValuePair<string, string> p in parameters)
             {
@@ -40,16 +49,16 @@ namespace KMBit.Test
         static void charge()
         {
             SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
-            parameters["Token"] = "19291b66e20365ff00e85e4e960fe0d4";
-            parameters["Id"] = "49";
+            parameters["Token"] = "0ce9445505baa521ed1a2b0a34853164";
+            parameters["Id"] = "57";
             //parameters["Id"] = "48";
             parameters["Province"] = "河南";
-            parameters["City"] = "许昌";
-            parameters["Mobile"] = "15603888388";
+            parameters["City"] = "商丘";
+            parameters["Mobile"] = "15649939049";
             parameters["MobileSP"] = "中国联通";
             //parameters["Client_order_id"] = "102365";
-            parameters["CallBackUrl"] = "http://localhost:8000/";
-            string sectoken = "a3d1ece2-bdf0-4889-92fc-db46ba9878d7";
+            parameters["CallBackUrl"] = "http://113.31.21.238:8200/flux/callbackservice/yifengcb.ws";
+            string sectoken = "0a483117-4e4d-4d97-aad4-d6576c2ffdec";
 
             StringBuilder query = new StringBuilder();
             foreach (KeyValuePair<string, string> p in parameters)
@@ -68,9 +77,9 @@ namespace KMBit.Test
                     query.Append(p.Value != null ? p.Value : "");
                 }
             }
-
-            string sign = UrlSignUtil.GetMD5(query.ToString() + "&key=" + sectoken);
-            string url = "http://localhost:8000/km/Account/";
+            string urlStr = query.ToString() + "&key=" + sectoken;
+            string sign = UrlSignUtil.GetMD5(urlStr);
+           
             NameValueCollection col = new NameValueCollection();
             foreach (KeyValuePair<string, string> p in parameters)
             {

@@ -126,9 +126,11 @@ namespace KMBit.BL
         }
 
         public virtual void ProceedOrder(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
-        {
-            lock(o)
+        {            
+            lock (o)
             {
+                Logger.Info("Processing order...");
+                Logger.Info("OrderId:" + order.Id);
                 result = new ChargeResult();
                 using (chargebitEntities db = new chargebitEntities())
                 {
@@ -198,6 +200,9 @@ namespace KMBit.BL
                                     agency.Remaining_amount = agency.Remaining_amount - price;
                                     result.Status = ChargeStatus.SUCCEED;
                                     cOrder.Payed = true;
+                                    Logger.Info("Payment:"+price);
+                                    Logger.Info("Payment has been executed on agent remaining amount.");
+                                    db.SaveChanges();
                                 }
                             }
                             else if (agency.Pay_type == 2)
@@ -220,6 +225,9 @@ namespace KMBit.BL
                                         cOrder.Payed = true;
                                         agency.Remaining_amount = agency.Remaining_amount - price;
                                         agency.Credit_amount = agency.Credit_amount - (price - agency.Remaining_amount);
+                                        Logger.Info("Payment:" + price);
+                                        Logger.Info("Payment has been executed on agent Credit_amount amount.");
+                                        db.SaveChanges();
                                         result.Status = ChargeStatus.SUCCEED;
                                     }
                                 }
@@ -227,6 +235,9 @@ namespace KMBit.BL
                                 {
                                     agency.Remaining_amount = agency.Remaining_amount - price;
                                     result.Status = ChargeStatus.SUCCEED;
+                                    Logger.Info("Payment:" + price);
+                                    Logger.Info("Payment has been executed on agent remaining amount.");
+                                    db.SaveChanges();
                                     cOrder.Payed = true;
                                 }
                             }
@@ -238,6 +249,7 @@ namespace KMBit.BL
                         //cOrder.Platform_Cost_Price = taocan.Purchase_price;
                         //cOrder.Platform_Sale_Price = taocan.Sale_price;
                         //cOrder.Revenue = price - taocan.Purchase_price;
+                        db.SaveChanges();
                     }
                     if (result.Status == ChargeStatus.FAILED)
                     {
@@ -260,6 +272,7 @@ namespace KMBit.BL
                     }
                     db.SaveChanges();
                 }
+                Logger.Info("ProceedOrder Done！");
             }
         }
 
@@ -301,7 +314,7 @@ namespace KMBit.BL
                                         //marketing scan, no need to refound, just re-enable the scan
                                         if (cOrder.MarketOrderId == 0)
                                         {
-                                            cOrder.Message = result.Message + ",充值订单金额已经退回代理商账户";
+                                            cOrder.Message = result.Message + ",充值订单金额:"+ cOrder.Purchase_price + "已经退回代理商账户";
                                             agency.Remaining_amount += cOrder.Purchase_price;
                                             cOrder.Refound = true;
                                             db.SaveChanges();

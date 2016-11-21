@@ -41,6 +41,50 @@ namespace KMBit.BL
             }
         }
 
+        public bool IsThisMonthCharged(string mobile,int resourceTaocanId,out string message)
+        {
+            bool ret = false;
+            message = null;
+            if (string.IsNullOrEmpty(mobile))
+            {
+                throw new KMBitException("手机号码不能为空");
+            }
+            if (resourceTaocanId <= 0)
+            {
+                throw new KMBitException("Recource TaocanId不能为0");
+            }
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                Resource_taocan taocan = (from t in db.Resource_taocan where t.Id == resourceTaocanId select t).FirstOrDefault<Resource_taocan>();
+                if(taocan==null)
+                {
+                    throw new KMBitException("套餐不存在");
+                }
+                if(!taocan.Enabled)
+                {
+                    throw new KMBitException("此套餐暂时不能充值");
+                }
+                DateTime firstDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1, 1, 0, 0);               
+                DateTime lastDate = DateTimeUtil.GetLastDayOfMonth(DateTime.Now);
+                long startTime = DateTimeUtil.ConvertDateTimeToInt(firstDate);
+                long endTime = DateTimeUtil.ConvertDateTimeToInt(lastDate);
+                List<Charge_Order> finishedorders = (from o in db.Charge_Order where o.Phone_number==mobile.Trim() && o.Status==2 && o.Created_time>=startTime && o.Created_time<=endTime select o).ToList<Charge_Order>();
+                if(finishedorders.Count>0)
+                {
+                    message = "这个月已经充值过，不能再次充值";
+                    return true;
+                }
+                List<Charge_Order> pendingorders = (from o in db.Charge_Order where o.Phone_number == mobile.Trim() && o.Status == 10 && o.Created_time >= startTime && o.Created_time <= endTime select o).ToList<Charge_Order>();
+                if (pendingorders.Count > 0)
+                {
+                    message = "有等待充值的订单，如果超过半小时没有到账，请联系我们";
+                    return true;
+                }
+
+            }
+            return ret;
+        }
+
         /// <summary>
         /// This method is only applied to platform direct charge
         /// </summary>
@@ -401,7 +445,7 @@ namespace KMBit.BL
         {
             ChartReport report = new ChartReport();
             int total = 0;
-            List<BOrder> orders = FindOrders(0, 0, 0, 0, 0, null, null, null, startTime, endTime, out total);
+            List<BOrder> orders = FindOrders(0, 0, 0, 0, 0, null, null, new int[] { 2}, startTime, endTime, out total);
             List<ReportTemplate> resourceReport = new List<ReportTemplate>();
             List<ReportTemplate> agentReport = new List<ReportTemplate>();
             var rp = from order in orders
@@ -556,7 +600,7 @@ namespace KMBit.BL
                 {
                     query = query.Where(o => o.CreatedTime <= endTime);
                 }
-                query = query.OrderByDescending(o=>o.CreatedTime);
+                query = query.OrderByDescending(o=>o.Id);
                 total = query.Count();
                 if(paging)
                 {

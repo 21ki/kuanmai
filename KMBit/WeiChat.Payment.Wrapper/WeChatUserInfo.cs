@@ -8,6 +8,7 @@ namespace WeChat.Adapter
 {
     public class WeChatUserInfo
     {
+        public string UnionId { get; set; }
         public string Name { get; set; }
         public string Country { get; set; }
         public string Province { get; set; }

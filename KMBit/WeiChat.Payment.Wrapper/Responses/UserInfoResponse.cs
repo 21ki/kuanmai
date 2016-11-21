@@ -26,6 +26,7 @@ namespace WeChat.Adapter.Responses
                 this.UserInfo = new WeChatUserInfo();
             }
             IDictionary<string, JToken> userAsDictionary = this.Json;
+            UserInfo.UnionId = PropertyValueIfExists("unionid", userAsDictionary);
             UserInfo.Name = PropertyValueIfExists("nickname", userAsDictionary);
             UserInfo.City = PropertyValueIfExists("city", userAsDictionary);
             UserInfo.Province = PropertyValueIfExists("province", userAsDictionary);

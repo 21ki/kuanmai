@@ -42,10 +42,13 @@
                               || actionName == "EditAgency" || actionName == "UpdateAgency" || actionName=="CreateAgentRoute" || actionName=="AgentRoutes" || actionName == "EditAgentRuote" ))
                             { @Html.Raw("active"); }
                             }">代理商管理</a>
+                        <a href="/Admin/AccountChargeHistory" class="list-group-item @{if(controllerName=="Admin" && actionName== "AccountChargeHistory")
+                            { @Html.Raw("active"); }
+                            }">代理商账户充值记录</a>
                         <a href="/Admin/Charge" class="list-group-item @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName=="Charge")){ @Html.Raw("active"); }
                             }">手工充值流量</a>
                         <a href="/Admin/ChargeOrders" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "ChargeOrders" || actionName=="OrderDetail")){ @Html.Raw("active"); }
-                            }">充值记录查询</a>
+                            }">流量充值记录查询</a>
 
                         <a href="/Admin/Reports" class="list-group-item  @{if(controllerName=="Admin" && (string.IsNullOrEmpty(actionName) || actionName== "Reports")){ @Html.Raw("active"); }
                             }">流量充值报表</a>

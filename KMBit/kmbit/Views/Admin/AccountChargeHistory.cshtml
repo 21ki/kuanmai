@@ -1,0 +1,75 @@
+﻿@model KMBit.Models.BigPaymentSearchModel
+@using GridMvc.Html
+@{
+    ViewBag.Title = "代理商账户充值记录";
+    Layout = "~/Views/Shared/_Layout_Admin.cshtml";
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<h2>代理商账户充值记录</h2>
+<hr />
+
+@using (Html.BeginForm("AccountChargeHistory", "Admin", FormMethod.Get, new { @class = "form-horizontal", role = "form", @id = "SearchPaymentForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div style="overflow:hidden;">
+            <div style="width:50%;float:left;">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SearchModel.AgentId, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.SearchModel.AgentId, (SelectList)ViewBag.Agencies, "--代理商--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.SearchModel.AgentId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SearchModel.PayType, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.SearchModel.PayType, (SelectList)ViewBag.PayTypes, "--类型--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.SearchModel.PayType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SearchModel.TranfserType, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.SearchModel.TranfserType, (SelectList)ViewBag.TranfserTypes, "--支付类型--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.SearchModel.TranfserType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SearchModel.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.SearchModel.Status, (SelectList)ViewBag.StatusList, "--状态--", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.SearchModel.Status, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-8">
+                        <input type="submit" value="搜索" class="btn btn-default btn-primary" />
+                    </div>
+                </div>
+            </div>
+            <div style="width:50%;float:left;">
+                
+            </div>
+        </div>
+    </div>
+}
+<div>
+    @Html.Grid(Model.Grid).Columns(columns =>
+{
+    columns.Add(c => c.Id).Titled("编号").Filterable(true).SetWidth("8%");
+    columns.Add(c => c.UserName).Titled("代理商").Filterable(true).SetWidth("15%").RenderValueAs(o => o.UserName != null ? o.UserName : "");
+    columns.Add(c => c.PayTypeText).Titled("类型").Filterable(true).SetWidth("10%").RenderValueAs(o => o.PayTypeText != null ? o.PayTypeText : "");
+    columns.Add(c => c.TranfserTypeText).Titled("支付类型").Filterable(true).SetWidth("10%").RenderValueAs(o => o.TranfserTypeText != null ? o.TranfserTypeText : "");
+    columns.Add(c => c.Amount).Titled("金额").Filterable(true).SetWidth("10%");
+    columns.Add(c => c.CreatedTime).Titled("时间").Filterable(true).SetWidth("13%").RenderValueAs(o => o.CreatedTime > 0 ? KMBit.Util.DateTimeUtil.ConvertToDateTime(o.CreatedTime).ToString("yyyy-MM-dd HH:mm") : "");
+    columns.Add(c => c.StatusText).Titled("状态").Filterable(true).SetWidth("10%").RenderValueAs(o => o.StatusText != null ? o.StatusText : "");
+    columns.Add(c => c.OprUser).Titled("操作者").Filterable(true).SetWidth("10%").RenderValueAs(o => o.OprUser != null ? o.OprUser : "");
+
+}).Sortable(true)
+</div>
+

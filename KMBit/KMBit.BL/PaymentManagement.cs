@@ -102,6 +102,83 @@ namespace KMBit.BL
             return result;
         }
 
+        public List<BPaymentHistory> FindAgentPayments(int paymentId, int agentId, int orderId,int? payType, int tranfserType,int oprUserId,int? status, out int total, bool paging = false, int pageSize = 30, int page = 1)
+        {
+            total = 0;
+            List<BPaymentHistory> payments = null;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                var query = from p in db.Payment_history
+                            join u in db.Users on p.User_id equals u.Id into lu
+                            from llu in lu.DefaultIfEmpty()
+                            join u1 in db.Users on p.OperUserId equals u1.Id into lu1
+                            from llu1 in lu1.DefaultIfEmpty()
+                            where p.PayType!=0                          
+                            select new BPaymentHistory
+                            {
+                                Amount = p.Amount,
+                                ChargeOrderId = p.ChargeOrderId,
+                                CreatedTime = p.CreatedTime,
+                                Id = p.Id,
+                                PaymentAccount = p.PaymentAccount,
+                                PaymentTradeId = p.PaymentTradeId,
+                                PayType = p.PayType,
+                                Pay_time = p.Pay_time,
+                                Status=p.Status,
+                                Tranfser_Type = p.Tranfser_Type,
+                                UserName = llu != null ? llu.Name : "",
+                                User_id = p.User_id,
+                                OperUserId = p.OperUserId,
+                                OprUser = llu1 != null ? llu1.Email : "",
+                                StatusText= p.Status==0 ? "未支付":p.Status==1 ? "未处理":p.Status==2 ? "已处理":"",
+                                PayTypeText = p.PayType == 0 ? "前台用户支付" : p.PayType == 1 ? "代理商自主充值" : p.PayType == 2 ? "管理员后台充值" : "",
+                                TranfserTypeText = p.Tranfser_Type == 0 ? "": p.Tranfser_Type == 1 ? "支付宝" : p.Tranfser_Type == 2 ? "网银" : ""
+                            };
+
+                if (paymentId > 0)
+                {
+                    query = query.Where(p => p.Id == paymentId);
+                }
+                if (agentId > 0)
+                {
+                    query = query.Where(p => p.User_id == agentId);
+                }
+                if (orderId > 0)
+                {
+                    query = query.Where(p => p.ChargeOrderId == orderId);
+                }
+                if (oprUserId > 0)
+                {
+                    query = query.Where(p => p.OperUserId == oprUserId);
+                }
+                if (payType !=null)
+                {
+                    query = query.Where(p => p.PayType == (int)payType);
+                }
+                if (tranfserType > 0)
+                {
+                    query = query.Where(p => p.Tranfser_Type == tranfserType);
+                }
+                if (status !=null)
+                {
+                    query = query.Where(p => p.Status == (int)status);
+                }
+
+                query = query.OrderByDescending(p => p.CreatedTime);
+                total = query.Count();
+
+                if (paging)
+                {
+                    page = page > 0 ? page : 1;
+                    pageSize = pageSize > 0 ? pageSize : 30;
+                    query = query.Skip((page - 1) * pageSize).Take(pageSize);
+                }
+
+                payments = query.ToList<BPaymentHistory>();
+            }
+            return payments;
+        }
+
         public List<BPaymentHistory> FindPayments(int paymentId,int userId, int orderId,out int total,bool paging=false,int pageSize=30,int page=1)
         {
             total = 0;

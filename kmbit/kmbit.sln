@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeChat.Adapter", "WeiChat.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMBit.ChargeProcess", "KMBit.ChargeProcess\KMBit.ChargeProcess.csproj", "{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridMvc", "GridMvc\GridMvc\GridMvc.csproj", "{742CA5DD-16DB-464A-A267-A1F4E422733B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A4C607C-0EE9-4184-953C-D6B8F7DCBFAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742CA5DD-16DB-464A-A267-A1F4E422733B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CA5DD-16DB-464A-A267-A1F4E422733B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CA5DD-16DB-464A-A267-A1F4E422733B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CA5DD-16DB-464A-A267-A1F4E422733B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

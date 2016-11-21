@@ -23,10 +23,17 @@ namespace KMBit.ChargeProcess
 
         static void ProcessOrders()
         {
-            OrdersProcesser.ProcessOrders();
+            for(int i=0;i<=4;i++)
+            {
+                Thread t = new Thread(new ThreadStart(OrdersProcesser.ProcessOrders));
+                t.Name = "OrderProcesser"+i;
+                t.Start();
+                Console.WriteLine("Thread "+t.Name+" is started.");
+            }
+            //OrdersProcesser.ProcessOrders();
             OrdersProcesser.ProcessAgentAccountChargePayments();
             initialized = false;
-            Thread.Sleep(5 * 60 * 1000);
+            Thread.Sleep(1 * 8 * 1000);
 
             //if (initialized)
             //{

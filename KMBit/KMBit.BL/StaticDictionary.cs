@@ -30,6 +30,30 @@ namespace KMBit.BL
             return list;
         }
 
+        public static List<DictionaryTemplate> GetPaymentTypeList()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+            list.Add(new DictionaryTemplate() { Id = 0, Value = "前台用户支付" });
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "代理商自助充值" });
+            list.Add(new DictionaryTemplate() { Id = 2, Value = "管理员后台充值" });
+            return list;
+        }
+        public static List<DictionaryTemplate> GetPaymentTypeList2()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+           
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "代理商自助充值" });
+            list.Add(new DictionaryTemplate() { Id = 2, Value = "管理员后台充值" });
+            return list;
+        }
+        public static List<DictionaryTemplate> GetPaymentStatusList()
+        {
+            List<DictionaryTemplate> list = new List<DictionaryTemplate>();
+            list.Add(new DictionaryTemplate() { Id = 0, Value = "未支付" });
+            list.Add(new DictionaryTemplate() { Id = 1, Value = "未处理" });
+            list.Add(new DictionaryTemplate() { Id = 2, Value = "已处理" });
+            return list;
+        }
         public static List<DictionaryTemplate> GetTranfserTypeList()
         {
             List<DictionaryTemplate> list = new List<DictionaryTemplate>();

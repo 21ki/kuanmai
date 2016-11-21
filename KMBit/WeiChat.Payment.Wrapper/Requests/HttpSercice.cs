@@ -89,7 +89,10 @@ namespace WeChat.Adapter.Requests
                         {
                             foreach (String s in col.AllKeys)
                             {
-                                postData.Add(new KeyValuePair<string, string>(s, col[s]));
+                                if(s!=null && col[s]!=null)
+                                {
+                                    postData.Add(new KeyValuePair<string, string>(s, col[s]));
+                                }                                
                             }
                             
                             content = new FormUrlEncodedContent(postData);

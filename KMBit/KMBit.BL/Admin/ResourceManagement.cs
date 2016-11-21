@@ -266,17 +266,22 @@ namespace KMBit.BL.Admin
             }
             using (chargebitEntities db = new chargebitEntities())
             {
-                Taocan ntaocan = (from t in db.Taocan where t.Sp_id == taocan.Sp_id && t.Quantity == taocan.Quantity select t).FirstOrDefault<Taocan>();
+                string taocanName = taocan.Area_id > 0 ? "省内 " + taocan.Quantity.ToString() + "M" : "全国 " + taocan.Quantity.ToString() + "M";
+                Taocan ntaocan = (from t in db.Taocan where t.Sp_id == taocan.Sp_id && t.Quantity == taocan.Quantity && t.Name== taocanName select t).FirstOrDefault<Taocan>();
                 Sp sp = (from s in db.Sp where s.Id == taocan.Sp_id select s).FirstOrDefault<Sp>();
                 if (ntaocan == null)
-                {
-                    string taocanName = sp != null ? sp.Name + " " + taocan.Quantity.ToString() + "M" : "全网 " + taocan.Quantity.ToString() + "M";
+                { 
                     ntaocan = new Taocan() { Created_time = taocan.Created_time, Description = taocanName, Name = taocanName, Sp_id = taocan.Sp_id, Quantity = taocan.Quantity, Updated_time = taocan.Updated_time };
                     db.Taocan.Add(ntaocan);
                     db.SaveChanges();
                 }
                 if (ntaocan.Id > 0)
                 {
+                    Resource_taocan t = (from r in db.Resource_taocan where r.Serial.Trim() == taocan.Serial.Trim() && r.Resource_id==taocan.Resource_id select r).FirstOrDefault<Resource_taocan>();
+                    if(t!=null)
+                    {
+                        throw new KMBitException(string.Format("套餐编号为 {0} 的套餐已经存在", taocan.Serial));
+                    }
                     taocan.Taocan_id = ntaocan.Id;
                     db.Resource_taocan.Add(taocan);
                     db.SaveChanges();

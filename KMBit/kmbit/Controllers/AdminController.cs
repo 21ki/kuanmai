@@ -398,9 +398,10 @@ namespace KMBit.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+       
         public ActionResult CreateResourceTaocan(ResourceTaocanModel model)
         {
+            bool state = ModelState.IsValid;
             return UpdateResourceTaocan(model);
         }
 
@@ -510,18 +511,46 @@ namespace KMBit.Controllers
                 taocan.Sp_id = model.SP != null ? (int)model.SP : 0;               
                 taocan.UpdatedBy = User.Identity.GetUserId<int>();
                 taocan.Updated_time = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
-                if (model.Id <= 0)
+                try
                 {
-                    ret = resourceMgt.CreateResourceTaocan(taocan);
-                }else
-                {
-                    ret = resourceMgt.UpdateResourceTaocan(taocan);
+                    if (model.Id <= 0)
+                    {
+                        ret = resourceMgt.CreateResourceTaocan(taocan);
+                    }
+                    else
+                    {
+                        ret = resourceMgt.UpdateResourceTaocan(taocan);
+                    }
                 }
-                
+                catch(KMBitException kex)
+                {
+                    KMLogger.GetLogger().Error(kex);
+                    ViewBag.Message = kex.Message;
+                    return View("Error");
+                }                
+                catch(Exception ex)
+                {
+                    KMLogger.GetLogger().Fatal(ex);
+                    ViewBag.Message = "未知错误，请联系系统管理员";
+                    return View("Error");
+                }
                 if (ret)
                 {
                     return Redirect("/Admin/ViewResourceTaoCan?resourceId=" + model.ResoucedId);
                 }
+                else
+                {
+                    ViewBag.Message = "未知错误，请联系系统管理员";
+                    return View("Error");
+                }
+            }else
+            {
+                var errors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .Select(x => new { x.Key, x.Value.Errors })
+                .ToArray();
+                ViewBag.Message = "资源套餐创建失败";
+                return View("Error");
             }
             List<KMBit.DAL.Area> provinces = null;
             List<KMBit.DAL.Sp> sps = null;
@@ -891,26 +920,31 @@ namespace KMBit.Controllers
                 ViewBag.Message = "您没有充值代理商账户的权限";
                 return View("Error");
             }
-            if(!ModelState.IsValid)
+            //if(!ModelState.IsValid)
+            //{
+            //    ViewBag.Message = "输入信息错误";
+            //    return View("Error");
+            //}
+            if(ModelState.IsValid)
             {
-                ViewBag.Message = "输入信息错误";
-                return View("Error");
-            }
-            try
-            {
-                bool result = agentAdminMgt.ChargeAgencyAccount(model.UserId, model.Amount);
-                if(!result)
+                try
                 {
-                    ViewBag.Message = "您没有充值代理商账户的权限";
+                    bool result = agentAdminMgt.ChargeAgencyAccount(model.UserId, model.Amount);
+                    if (!result)
+                    {
+                        ViewBag.Message = "您没有充值代理商账户的权限";
+                        return View("Error");
+                    }
+                    return Redirect("/Admin/Agencies");
+                }
+                catch (KMBitException ex)
+                {
+                    ViewBag.Message = ex.Message;
                     return View("Error");
                 }
-                return Redirect("/Admin/Agencies");
             }
-            catch(KMBitException ex)
-            {
-                ViewBag.Message = ex.Message;
-                return View("Error");
-            }            
+
+            return View(model);
         }
 
         public async Task<ActionResult> UpdateAgency(CreateAgencyModel model)
@@ -999,6 +1033,30 @@ namespace KMBit.Controllers
         }
 
         [HttpGet]
+        public ActionResult AccountChargeHistory(PaymentHistoryModel searchModel)
+        {
+            PaymentManagement paymentMgt = new PaymentManagement(User.Identity.GetUserId<int>());
+            agentAdminMgt = new AgentAdminMenagement(paymentMgt.CurrentLoginUser);
+            int pageSize = 30;
+            int page = 1;
+            if (Request["page"] != null)
+            {
+                int.TryParse(Request["page"], out page);
+            }
+            searchModel.Page = page;
+            List<BPaymentHistory> records = paymentMgt.FindAgentPayments(0, searchModel.AgentId!=null?(int)searchModel.AgentId:0, 0, searchModel.PayType, searchModel.TranfserType!=null?(int)searchModel.TranfserType:0, searchModel.OprUser, searchModel.Status, out total, true,pageSize,page);
+            PageItemsResult<BPaymentHistory> result = new PageItemsResult<BPaymentHistory>() { CurrentPage = page, Items = records, PageSize = pageSize, TotalRecords = total, EnablePaging = true };
+            KMBit.Grids.KMGrid<BPaymentHistory> grid = new Grids.KMGrid<BPaymentHistory>(result);
+            BigPaymentSearchModel bidModel = new BigPaymentSearchModel() { SearchModel = searchModel, Grid = grid };
+            List<KMBit.Beans.BUser> agencies = agentAdminMgt.FindAgencies(0, null, null, 0, 0, out total, 0, 0, false, null);
+            ViewBag.Agencies = new SelectList((from a in agencies select a.User).ToList<Users>(), "Id", "Name");
+            ViewBag.PayTypes = new SelectList((from s in StaticDictionary.GetPaymentTypeList2() select new { Id = s.Id, Name = s.Value }), "Id", "Name");
+            ViewBag.StatusList = new SelectList((from s in StaticDictionary.GetPaymentStatusList() select new { Id = s.Id, Name = s.Value }), "Id", "Name");
+            ViewBag.TranfserTypes = new SelectList((from s in StaticDictionary.GetTranfserTypeList() select new { Id = s.Id, Name = s.Value }), "Id", "Name");
+            return View(bidModel);
+        }
+
+        [HttpGet]
         public ActionResult ChargeOrders(OrderSearchModel searchModel)
         {
             OrderManagement orderMgt = new OrderManagement(User.Identity.GetUserId<int>());
@@ -1009,7 +1067,7 @@ namespace KMBit.Controllers
                 ViewBag.Message = "没有权限查看流量充值记录";
                 return View("Error");
             }
-            int pageSize = 30;
+            int pageSize = 50;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
             if(!string.IsNullOrEmpty(searchModel.StartTime))
@@ -1307,6 +1365,8 @@ namespace KMBit.Controllers
             Help_Info info = siteMgr.GetHelpInfo();
             return View(info);
         }
+
+       
 
         [HttpGet]
         public ActionResult SiteInfo()

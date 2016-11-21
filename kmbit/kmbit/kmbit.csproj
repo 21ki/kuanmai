@@ -55,10 +55,6 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GridMvc, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Grid.Mvc.3.0.0\lib\net40\GridMvc.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -838,6 +834,7 @@
     <Content Include="Views\Shared\_weChatLayout.cshtml" />
     <Content Include="Views\Admin\ChargeAccount.cshtml" />
     <Content Include="Views\WeChatTest\Index.cshtml" />
+    <Content Include="Views\Admin\AccountChargeHistory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -853,6 +850,10 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GridMvc\GridMvc\GridMvc.csproj">
+      <Project>{742ca5dd-16db-464a-a267-a1f4e422733b}</Project>
+      <Name>GridMvc</Name>
+    </ProjectReference>
     <ProjectReference Include="..\KMBit.Beans\KMBit.Beans.csproj">
       <Project>{416e6a8e-ade7-4475-b675-95c88f1f1c7f}</Project>
       <Name>KMBit.Beans</Name>

@@ -15,18 +15,30 @@ namespace KMBit.BL
     public class OrdersProcesser
     {      
         static ILog logger = KMLogger.GetLogger();
+        static int lastOrderId = 0;
+        static object o = new object();
+        static ChargeBridge cb = new ChargeBridge(logger);
         public static void ProcessOrders()
         {            
             logger.Info("Going to process orders...");
             chargebitEntities db = null;
             try
-            {
+            {                
+                List<Charge_Order> orders = null;
                 db = new chargebitEntities();
-                List<Charge_Order> orders = (from o in db.Charge_Order where (o.Payed==true && o.Charge_type==0 && o.Status==10) || (o.Charge_type==1 && o.Status!=3 && o.Status!=2) || (o.Charge_type == 2 && o.Status != 3 && o.Status != 2)  orderby o.Charge_type ascending select o).ToList<Charge_Order>();
-                logger.Info(string.Format("Get {0} unprocessed orders", orders.Count));
-                if (orders.Count==0)
+                lock (o)
                 {
-                    return;
+                    logger.Info("Last Max Order Id:" + lastOrderId);
+                    orders = (from o in db.Charge_Order where o.Id > lastOrderId && ((o.Payed == true && o.Charge_type == 0 && o.Status == 10) || (o.Charge_type == 1 && o.Status != 3 && o.Status != 2) || (o.Charge_type == 2 && o.Status != 3 && o.Status != 2)) orderby o.Charge_type ascending orderby o.Id ascending select o).ToList<Charge_Order>();
+                    logger.Info(string.Format("Get {0} unprocessed orders", orders.Count));
+                    if (orders.Count == 0)
+                    {
+                        logger.Info("No unprocessed orders, thread will exit!");
+                        return;
+                    }
+
+                    lastOrderId = (from o in orders select o.Id).Max();
+                    logger.Info("Max Order Id updated to:"+lastOrderId);
                 }
 
                 List<int> agentIds = (from o in orders where o.Agent_Id > 0 select o.Agent_Id).ToList<int>();
@@ -39,9 +51,9 @@ namespace KMBit.BL
                 List<Charge_Order> frontEndOrders = (from o in orders where o.Payed == true && o.Charge_type == 0 && o.Status == 10 select o).ToList<Charge_Order>();
                 List<Charge_Order> agentOrders = (from o in orders where o.Charge_type == 1 && o.Status != 3 && o.Status != 2 select o).ToList<Charge_Order>();
                 List<Charge_Order> backendOrders = (from o in orders where o.Charge_type == 2 && o.Status != 3 && o.Status != 2 select o).ToList<Charge_Order>();
-                logger.Info(string.Format("{0} unprocessed frontend orders", frontEndOrders.Count));
-                logger.Info(string.Format("{0} unprocessed agent orders", agentOrders.Count));
-                logger.Info(string.Format("{0} unprocessed backend orders", backendOrders.Count));
+                //logger.Info(string.Format("{0} unprocessed frontend orders", frontEndOrders.Count));
+                //logger.Info(string.Format("{0} unprocessed agent orders", agentOrders.Count));
+                //logger.Info(string.Format("{0} unprocessed backend orders", backendOrders.Count));
                 ChargeResult result = null;
                 logger.Info("");
                 foreach (Charge_Order corder in orders)
@@ -64,7 +76,7 @@ namespace KMBit.BL
                         RouteId = corder.RuoteId,
                         CreatedTime = corder.Created_time
                     };
-                    ChargeBridge cb = new ChargeBridge(logger);
+
                     result = cb.Charge(order);
                     Users agent = (from u in agents where corder.Agent_Id>0 && corder.Agent_Id==u.Id select u).FirstOrDefault<Users>();
                     if(!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 && agent!=null)
@@ -94,10 +106,10 @@ namespace KMBit.BL
                         querystr += "&key=" + agent.SecurityStamp;
                         string sign = UrlSignUtil.GetMD5(querystr);
                         col.Add("Sign",sign);
-                        logger.Info("sign=" + sign);
+                        //logger.Info("sign=" + sign);
                         HttpSercice.PostHttpRequest(corder.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
                     }
-                    logger.Info(string.Format("{0} - {1}",result.Status,result.Message));
+                    logger.Info(string.Format("Order ID:{2} - {0} - {1}",result.Status,result.Message,corder.Id));
                     logger.Info("");
                 }
             }

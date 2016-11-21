@@ -12,6 +12,34 @@ namespace KMBit.Models
         public KMBit.Grids.KMGrid<BOrder> OrderGrid { get; set; }
     }
 
+    public class BigPaymentSearchModel
+    {
+        public PaymentHistoryModel SearchModel { get; set; }
+        public KMBit.Grids.KMGrid<BPaymentHistory> Grid { get; set; }
+    }
+
+    public class PaymentHistoryModel
+    {
+        [Display(Name = "代理商")]
+        public int? AgentId { get; set; }
+
+        [Display(Name = "类型")]
+        public int? PayType { get; set; }
+
+        [Display(Name = "支付状态")]
+        public int? Status { get; set; }
+
+        [Display(Name = "订单编号")]
+        public int? OrderId { get; set; }
+
+        [Display(Name = "支付类型")]
+        public int? TranfserType { get; set; }
+
+        [Display(Name = "操作人")]
+        public int OprUser { get; set; }
+        public int Page { get; set; }
+    }
+
     public class OrderSearchModel
     {
         [Display(Name = "订单号")]
@@ -91,8 +119,9 @@ namespace KMBit.Models
         [Display(Name = "资源编号")]
         public int ResoucedId { get; set; }
 
-       
-        public string Package { get; set; }
+        [Display(Name = "套餐编号")]
+        [Required(ErrorMessage = "落地资源套餐编号必须填写")]
+        public string Serial { get; set; }
 
         [Display(Name = "运营商")]
         public int? SP { get; set; }
@@ -137,9 +166,7 @@ namespace KMBit.Models
         [Required]
         public bool Enabled { get; set; }
 
-        [Display(Name = "资源包编号")]
-        [Required(ErrorMessage ="落地资源流量包编号必须填写")]
-        public string Serial { get; set; }
+     
     }
     public class ResourceModel
     {       
@@ -192,7 +219,7 @@ namespace KMBit.Models
 
         [Required(ErrorMessage = "充值金额不能为空")]
         [Display(Name = "充值金额")]
-        [Range(0,20000,ErrorMessage ="充值金额必须在0-20000之间")]
+        [Range(1,100000,ErrorMessage ="充值金额必须在1-100000之间")]
         public float Amount { get; set; }
     }
     public class CreateAgencyModel

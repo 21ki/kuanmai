@@ -46,11 +46,30 @@ namespace KMBitAdm
                 case "getstatus":                    
                     GetStatus();
                     break;
+                case "qr":                    
+                    if(args.Length<=1 || string.IsNullOrEmpty(args[1]))
+                    {
+                        Console.WriteLine("Content cannot be empty when trying to generate qr file.");
+                        return;
+                    }
+                    GenerateQRFile(args[1]);
+                    break;
                 default:
                     break;
             }
         }
-
+        static void GenerateQRFile(string content)
+        {
+            string folder = System.AppDomain.CurrentDomain.BaseDirectory;
+            string qrFolder = System.IO.Path.Combine(folder,"QRFolder");
+            if(!System.IO.Directory.Exists(qrFolder))
+            {
+                System.IO.Directory.CreateDirectory(qrFolder);
+            }
+            string fileName = Guid.NewGuid().ToString()+".png";            
+            KMBit.Util.QRCodeUtil.CreateQRCode(qrFolder, fileName, content);
+            Console.WriteLine(System.IO.Path.Combine(qrFolder, fileName) + " has been successfully generated.");
+        }
         static void GetStatus()
         {
             ChargeBridge bridge = new ChargeBridge();
