@@ -20,7 +20,7 @@ namespace KMBit.Grids
         private readonly HttpContext _context;
         private readonly CustomQueryStringBuilder _queryBuilder;
         private int _currentPage;
-
+        private bool _allDataFetched = false;
         private int _itemsCount;
         private int _maxDisplayedPages;
         private int _pageSize;
@@ -58,6 +58,19 @@ namespace KMBit.Grids
             {
                 _pageSize = value;
                 RecalculatePages();
+            }
+        }
+
+        public bool AllDataFetched
+        {
+            get
+            {
+                return _allDataFetched;
+            }
+
+            set
+            {
+                _allDataFetched = value;
             }
         }
 
@@ -145,6 +158,8 @@ namespace KMBit.Grids
         public int StartDisplayedPage { get; protected set; }
         public int EndDisplayedPage { get; protected set; }
         public string TemplateName { get; set; }
+
+       
 
         public virtual string GetLinkForPage(int pageIndex)
         {

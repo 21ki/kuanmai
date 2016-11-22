@@ -20,7 +20,7 @@ namespace GridMvc.Pagination
         private readonly HttpContext _context;
         private readonly CustomQueryStringBuilder _queryBuilder;
         private int _currentPage;
-
+        private bool _allDataFetched;
         private int _itemsCount;
         private int _maxDisplayedPages;
         private int _pageSize;
@@ -145,6 +145,19 @@ namespace GridMvc.Pagination
         public int StartDisplayedPage { get; protected set; }
         public int EndDisplayedPage { get; protected set; }
         public string TemplateName { get; set; }
+
+        public bool AllDataFetched
+        {
+            get
+            {
+                return _allDataFetched;
+            }
+
+            set
+            {
+                _allDataFetched = value;
+            }
+        }
 
         public virtual string GetLinkForPage(int pageIndex)
         {

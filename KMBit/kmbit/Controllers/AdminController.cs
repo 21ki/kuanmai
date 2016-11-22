@@ -1067,7 +1067,7 @@ namespace KMBit.Controllers
                 ViewBag.Message = "没有权限查看流量充值记录";
                 return View("Error");
             }
-            int pageSize = 50;
+            int pageSize = 40;
             DateTime sDate = DateTime.MinValue;
             DateTime eDate = DateTime.MinValue;
             if(!string.IsNullOrEmpty(searchModel.StartTime))

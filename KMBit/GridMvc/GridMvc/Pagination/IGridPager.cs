@@ -14,6 +14,8 @@ namespace GridMvc.Pagination
         /// </summary>
         int CurrentPage { get; }
 
+        bool AllDataFetched { get; set; }
+
         /// <summary>
         ///     Partial view name to render the pager
         /// </summary>

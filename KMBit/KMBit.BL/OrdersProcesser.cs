@@ -126,6 +126,11 @@ namespace KMBit.BL
             }
         }
 
+        public static void ProcessAgentAccountChargePaymentsNew()
+        {
+            ChargeService.ProcessAgentAccountChargePayments();
+        }
+
         public static void ProcessAgentAccountChargePayments()
         {
             logger.Info("ProcessAgentAccountChargePayments...");
