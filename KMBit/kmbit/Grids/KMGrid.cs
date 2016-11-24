@@ -10,10 +10,10 @@ namespace KMBit.Grids
     public class KMGrid<K>:GridMvc.Grid<K> where K:class
     {
         public KMGrid(PageItemsResult<K> result):base(result.Items.AsQueryable())
-        {            
-            IGridPager p = new KMGridPager<K>(result);
-            Pager = p;
+        {           
+            Pager = new KMGridPager<K>(result);
             EnablePaging = true;
+            Pager= new KMGridPager<K>(result);
         }
 
         protected override IEnumerable<K> GetItemsToDisplay()

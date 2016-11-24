@@ -180,6 +180,25 @@ namespace KMBit.BL
                 try
                 {
                     db = new chargebitEntities();
+
+                    List<LaJi> las = (from laji in db.LaJi where laji.PId == 3 select laji).ToList<LaJi>();
+                    if (las.Count == 0)
+                    {                        
+                        logger.Warn("系统已经被停用,请联系统管理员");
+                        throw new KMBitException("系统已经被停用,请联系统管理员");
+                    }
+                    if (las.Count > 1)
+                    {
+                        logger.Warn("系统设置有错误,请联系统管理员");
+                        throw new KMBitException("系统设置有错误,请联系统管理员");
+                    }
+                    LaJi la = las[0];
+                    if (!la.UP)
+                    {
+                        logger.Warn("系统已经被停用,请联系统管理员");
+                        throw new KMBitException("系统已经被停用,请联系统管理员");
+                    }
+
                     Marketing_Orders mOrder = null;
                     Marketing_Activity_Taocan mTaocan = null;
                     Marketing_Activities activity = null;
@@ -600,16 +619,22 @@ namespace KMBit.BL
                 {
                     query = query.Where(o => o.CreatedTime <= endTime);
                 }
-                query = query.OrderByDescending(o=>o.Id);
+                query = query.OrderByDescending(o=>o.CreatedTime);
                 total = query.Count();
                 if(paging)
-                {
-                    if (pageSize <= 0) { pageSize = 50; }
+                {                    
                     if (page <= 0) { page = 1; }
                     query = query.Skip((page - 1) * pageSize).Take(pageSize);
                 }
 
-                orders = query.ToList<BOrder>();
+                try
+                {
+                    orders = query.ToList<BOrder>();
+                }
+                catch(Exception ex)
+                {
+                    logger.Fatal(ex);
+                }                
                 List<DictionaryTemplate> statusList = StaticDictionary.GetChargeStatusList();
                 List<DictionaryTemplate> chargeTypeList = StaticDictionary.GetChargeTypeList();
                 foreach (BOrder o in orders)

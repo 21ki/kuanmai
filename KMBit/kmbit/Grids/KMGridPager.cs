@@ -12,12 +12,13 @@ namespace KMBit.Grids
         {
             if(result!=null)
             {
+                CurrentPage = result.CurrentPage;
+                PageSize = result.PageSize;
                 ItemsCount = result.TotalRecords;
-            }
-            
-            PageSize = result.PageSize;
+            }           
+           
             ParameterName = result.PageQueryParameterName;
-            CurrentPage = result.CurrentPage;                 
+            CurrentPage = result.CurrentPage;
         }
     }
 }

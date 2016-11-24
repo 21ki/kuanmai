@@ -41,7 +41,21 @@ namespace KMBit.Controllers
                 //
                 OrderManagement orderMgt = new OrderManagement();
                 ResourceManagement resourceMgr = new ResourceManagement(0);
-                order = orderMgt.GenerateOrder(order);
+                try
+                {
+                    order = orderMgt.GenerateOrder(order);
+                }
+                catch(KMBitException kex)
+                {
+                    ViewBag.Message = kex.Message;
+                    return View();
+                }
+                catch(Exception ex)
+                {
+                    ViewBag.Message = "未知错误请联系系统管理员";
+                    return View();
+                }
+                
                 int total = 0;
                 List<BResourceTaocan> taocans = resourceMgr.FindResourceTaocans(order.ResourceTaocanId, 0, 0, out total);
                 if (taocans == null || taocans.Count == 0)

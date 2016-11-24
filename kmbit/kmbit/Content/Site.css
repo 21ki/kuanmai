@@ -2,6 +2,7 @@
     padding-top: 50px;
     padding-bottom: 20px;
 }
+.datepicker { z-index: 1151 !important;  }
 
 /* Set padding to keep content from hitting the edges */
 .body-content {

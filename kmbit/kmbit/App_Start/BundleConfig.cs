@@ -25,7 +25,11 @@ namespace KMBit
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js",                      
                       "~/Scripts/respond.js",
-                      "~/Scripts/bootstrap-datepicker.min.js"));
+                      "~/Scripts/bootstrap-datepicker.min.js",
+                       "~/Scripts/datetimepicker/bootstrap-datetimepicker.js"
+                      //"~/Scripts/moment.min.js",
+                      //"~/Scripts/bootstrap-datetimepicker.js"
+                      ));
 
             bundles.Add(new ScriptBundle("~/bundles/sitejs").Include(
                        "~/Scripts/kmsite.js",                       
@@ -34,6 +38,7 @@ namespace KMBit
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/bootstrap-datepicker.min.css",
+                      "~/Content/datetimepicker/bootstrap-datetimepicker.css",
                       "~/Scripts/jqPlot/jquery.jqplot.min.css",
                       "~/Scripts/jquery-ui-1.11.4.custom/jquery-ui.min.css",
                       //"~/Scripts/kindeditor/themes/default/default.css",

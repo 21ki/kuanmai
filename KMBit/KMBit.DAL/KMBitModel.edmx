@@ -146,6 +146,14 @@
           <Property Name="IsCurrent" Type="bool" Nullable="false" />
           <Property Name="UpdateTime" Type="uint" Nullable="false" />
         </EntityType>
+        <EntityType Name="LaJi">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PId" Type="int" Nullable="false" />
+          <Property Name="UP" Type="bool" Nullable="false" />
+        </EntityType>
         <EntityType Name="Login_Log">
           <Key>
             <PropertyRef Name="Id" />
@@ -402,6 +410,7 @@
           <EntitySet Name="Customer" EntityType="Self.Customer" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Customer_Recharge" EntityType="Self.Customer_Recharge" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Help_Info" EntityType="Self.Help_Info" Schema="chargebit" store:Type="Tables" />
+          <EntitySet Name="LaJi" EntityType="Self.LaJi" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Login_Log" EntityType="Self.Login_Log" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Marketing_Activities" EntityType="Self.Marketing_Activities" Schema="chargebit" store:Type="Tables" />
           <EntitySet Name="Marketing_Activity_Taocan" EntityType="Self.Marketing_Activity_Taocan" Schema="chargebit" store:Type="Tables" />
@@ -454,6 +463,7 @@
           <EntitySet Name="OpenAccountType" EntityType="KMBitDBContextModel.OpenAccountType" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
+          <EntitySet Name="LaJi" EntityType="KMBitDBContextModel.LaJi" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -840,6 +850,14 @@
           <Property Name="PaymentTradeId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="OperUserId" Type="Int32" Nullable="false" />
           <Property Name="Status" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LaJi">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PId" Type="Int32" Nullable="false" />
+          <Property Name="UP" Type="Boolean" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1253,6 +1271,15 @@
                 <ScalarProperty Name="User_id" ColumnName="User_id" />
                 <ScalarProperty Name="Pay_time" ColumnName="Pay_time" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LaJi">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.LaJi">
+              <MappingFragment StoreEntitySet="LaJi">
+                <ScalarProperty Name="UP" ColumnName="UP" />
+                <ScalarProperty Name="PId" ColumnName="PId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

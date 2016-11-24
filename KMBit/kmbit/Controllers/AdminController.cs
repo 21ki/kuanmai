@@ -1262,9 +1262,22 @@ namespace KMBit.Controllers
                 ChargeOrder order = new ChargeOrder() { ChargeType=2, Payed=true, OperateUserId=User.Identity.GetUserId<int>(), AgencyId = 0, Id = 0, Province=model.Province,City=model.City, MobileSP = model.SPName, MobileNumber = model.Mobile, OutOrderId = "", ResourceId = 0, ResourceTaocanId = model.ResourceTaocanId, RouteId = 0, CreatedTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) };
               
                 OrderManagement orderMgt = new OrderManagement();
-                order = orderMgt.GenerateOrder(order);               
+                try
+                {
+                    order = orderMgt.GenerateOrder(order);
+                    ViewBag.Message = "成功提交到充值系统，等待充值,可以到流量充值查询里查看充值状态...";
+                }
+                catch(KMBitException kex)
+                {
+                    ViewBag.Message = kex.Message;
+                }
+                catch(Exception ex)
+                {
+                    ViewBag.Message = ex.Message;
+                }
+                           
                 //ChargeResult result = cb.Charge(order);
-                ViewBag.Message = "成功提交到充值系统，等待充值,可以到流量充值查询里查看充值状态...";
+                
             }
 
             return View();

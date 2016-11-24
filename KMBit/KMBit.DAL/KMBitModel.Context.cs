@@ -18,7 +18,6 @@ namespace KMBit.DAL
         public chargebitEntities()
             : base("name=chargebitEntities")
         {
-            //((IObjectContextAdapter)this).ObjectContext.CommandTimeout = 60 * 60;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -54,5 +53,6 @@ namespace KMBit.DAL
         public DbSet<OpenAccountType> OpenAccountType { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
+        public DbSet<LaJi> LaJi { get; set; }
     }
 }

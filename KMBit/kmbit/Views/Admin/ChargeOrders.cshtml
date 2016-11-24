@@ -54,11 +54,38 @@
             );
         });
 
-        $('#SearchOrderForm').find('#SearchModel_StartTime').datepicker({
-            format: 'yyyy-mm-dd',
+        $('#SearchOrderForm').find('#SearchModel_StartTime').datetimepicker({
+           
         });
-        $('#SearchOrderForm').find('#SearchModel_EndTime').datepicker({
-            format: 'yyyy-mm-dd',
+        $('#SearchOrderForm').find('#SearchModel_EndTime').datetimepicker({
+           
+        });
+
+        $('#SearchOrderForm').find('#export_orders').click(function () {
+            $('#progressbar').modal({ backdrop: 'static', keyboard: false });
+            var orderId = $('#SearchOrderForm').find('#SearchModel_OrderId').val();
+            $.post(
+                 BASE_URL + 'api/Admin/ExportOrders',
+                 {
+                     OrderId: $('#SearchOrderForm').find('#SearchModel_OrderId').val(),
+                     AgencyId: $('#SearchOrderForm').find('#SearchModel_AgencyId').val(),
+                     ResourceId: $('#SearchOrderForm').find('#SearchModel_ResourceId').val(),
+                     ResourceTaocanId: $('#SearchOrderForm').find('#SearchModel_ResourceTaocanId').val(),
+                     Status: $('#SearchOrderForm').find('#SearchModel_Status').val(),
+                     MobileNumber: $('#SearchOrderForm').find('#SearchModel_MobileNumber').val(),
+                     StartTime: $('#SearchOrderForm').find('#SearchModel_StartTime').val(),
+                     EndTime: $('#SearchOrderForm').find('#SearchModel_EndTime').val(),
+                 },
+                 function (res) {
+                     $('#progressbar').modal('hide');
+                     if (res.Status == "OK") {
+                         //alert(res.Item);
+                         window.open(res.Item);
+                     } else {
+                         alert(res.Message);
+                     }
+                 }
+            );
         });
     });
 </script>
@@ -139,7 +166,12 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-offset-3 col-md-8">
-                            <input type="submit" value="搜索" class="btn btn-default btn-primary" />
+                            <input type="submit" value="搜索" class="btn btn-default btn-primary" /><input id="export_orders" type="button" value="导出报表" class="btn btn-default btn-primary" style="margin-left:5px;" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-3 col-md-8">
+                            
                         </div>
                     </div>
                 </div>
@@ -152,7 +184,7 @@
         </div>
     }
 
-<div>
+<div style="z-index:1;background-color: transparent;">
 @Html.Grid(Model.OrderGrid).Columns(columns =>
 {
     columns.Add(c => c.Id).Titled("编号").SetWidth("8%");
@@ -172,7 +204,7 @@
   .Sanitized(false)
   .SetWidth("5%")
   .RenderValueAs(o => Html.Raw("<a href=\"javascript:void(0);\" onclick=\"orderDetail(" + o.Id + ")\">明细</a>"));
-}).WithPaging(50)
+})
 </div>
 
 <div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -184,6 +216,19 @@
             </div>
 
         </div>
+    </div>
+</div>
+
+<div id="progressbar" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">           
+            <div class="modal-body">
+                <p>请耐心等待,正在执行...</p>
+            </div>          
+        </div>
+
     </div>
 </div>
 

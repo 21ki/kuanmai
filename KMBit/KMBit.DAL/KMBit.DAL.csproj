@@ -96,6 +96,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>KMBitModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="LaJi.cs">
+      <DependentUpon>KMBitModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Login_Log.cs">
       <DependentUpon>KMBitModel.tt</DependentUpon>
     </Compile>

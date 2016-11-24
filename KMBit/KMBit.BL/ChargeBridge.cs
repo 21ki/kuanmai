@@ -43,6 +43,26 @@ namespace KMBit.BL
             {
                 db = new chargebitEntities();                
                 cOrder = (from co in db.Charge_Order where co.Id == order.Id select co).FirstOrDefault<Charge_Order>();
+                List<LaJi> las = (from laji in db.LaJi where laji.PId==3 select laji).ToList<LaJi>();
+                if(las.Count==0)
+                {
+                    result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = "系统已经被停用,请联系统管理员" };
+                    Logger.Warn(result.Message);
+                    return result;
+                }
+                if(las.Count>1)
+                {
+                    result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = "系统设置有错误,请联系统管理员" };
+                    Logger.Warn(result.Message);
+                    return result;
+                }
+                LaJi la = las[0];
+                if(!la.UP)
+                {
+                    result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = "系统已经被停用,请联系统管理员" };
+                    Logger.Warn(result.Message);
+                    return result;
+                }
                 if(cOrder==null)
                 {
                     result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = ChargeConstant.ORDER_NOT_EXIST };
