@@ -39,6 +39,67 @@ namespace KMBit.BL
             userManager = new ApplicationUserManager(new ApplicationUserStore(new KMBit.DAL.chargebitEntities()));
         }
 
+        public SystemStatus GetLaji()
+        {
+            SystemStatus laji;
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<LaJi> lajis = (from l in db.LaJi where l.PId == 3 orderby l.UP descending select l).ToList<LaJi>();
+                if (lajis.Count > 1)
+                {
+                    db.Database.SqlQuery<int>("delete * from LaJi");
+                    LaJi tmp = new LaJi() { PId = 3, UP = true };
+                    db.LaJi.Add(tmp);
+                    db.SaveChanges();
+                    laji = SystemStatus.RUNNING;                    
+                }
+                else
+                {
+                    if(lajis[0].UP)
+                    {
+                        laji = SystemStatus.RUNNING;
+                    }
+                    else
+                    {
+                        laji = SystemStatus.DOWN;
+                    }
+                }
+            }
+            return laji;
+        }
+
+        public void ShutDownSystem()
+        {
+            if(!CurrentLoginUser.IsWebMaster)
+            {
+                throw new KMBitException("你不是系统管理员（站长），没有权限软关闭系统");
+            }
+
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<LaJi> lajis = (from l in db.LaJi where l.PId == 3 orderby l.UP descending select l).ToList<LaJi>();
+                LaJi lj = lajis[0];
+                lj.UP = false;
+                db.SaveChanges();
+            }
+        }
+
+        public void StartSystem()
+        {
+            if (!CurrentLoginUser.IsWebMaster)
+            {
+                throw new KMBitException("你不是系统管理员（站长），没有权限软开启系统");
+            }
+
+            using (chargebitEntities db = new chargebitEntities())
+            {
+                List<LaJi> lajis = (from l in db.LaJi where l.PId == 3 orderby l.UP descending select l).ToList<LaJi>();
+                LaJi lj = lajis[0];
+                lj.UP = true;
+                db.SaveChanges();
+            }
+        }
+
         public async Task<bool> CreateNewUserAsync(ApplicationUser user)
         {
             if(!CurrentLoginUser.Permission.CREATE_USER)

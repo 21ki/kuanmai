@@ -8,6 +8,7 @@ using KMBit.BL;
 using KMBit.BL.Admin;
 using KMBit.Beans;
 using KMBit.BL.MobileLocator;
+using System.Threading;
 using log4net;
 namespace KMBitAdm
 {
@@ -29,6 +30,7 @@ namespace KMBitAdm
         {
             log4net.Config.XmlConfigurator.Configure();
             Logger = log4net.LogManager.GetLogger("Main...");
+            args = new string[] { "getstatus" };
             if (args.Length==0)
             {
                 Console.WriteLine("Please provide the command.");
@@ -43,7 +45,7 @@ namespace KMBitAdm
                     PermissionManagement pgt = new PermissionManagement(3);
                     pgt.SyncPermissionsWithDB();
                     break;
-                case "getstatus":                    
+                case "getstatus":
                     GetStatus();
                     break;
                 case "qr":                    
@@ -72,8 +74,19 @@ namespace KMBitAdm
         }
         static void GetStatus()
         {
+            Console.WriteLine("Six threads will be started in every 8 seconds to query order status...");
             ChargeBridge bridge = new ChargeBridge();
-            bridge.SyncChargeStatus();
+            while (true)
+            {
+                for (int i = 0; i <= 5; i++)
+                {
+                    Thread thred = new Thread(bridge.SyncChargeStatus);
+                    thred.Name = "thread" + i;
+                    Console.WriteLine(thred.Name + " is started.");
+                    thred.Start();
+                }
+                Thread.Sleep(1 * 8 * 1000);
+            }
         }
 
         static void test()

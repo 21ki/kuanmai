@@ -94,6 +94,12 @@ namespace KMBit.Models
         [Display(Name = "充值接口URL")]
         public string ApiUrl { get; set; }
 
+        [Display(Name = "获取令牌URL")]
+        public string GetTokenURL { get; set; }
+
+        [Display(Name = "查询状态URL")]
+        public string QueryStatusURL { get; set; }
+
         [Display(Name = "产品接口URL")]
         public string ProductFetchUrl { get; set; }
 

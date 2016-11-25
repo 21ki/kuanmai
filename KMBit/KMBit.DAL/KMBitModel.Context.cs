@@ -48,11 +48,11 @@ namespace KMBit.DAL
         public DbSet<Marketing_Orders> Marketing_Orders { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Users> Users { get; set; }
-        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
         public DbSet<Resource_taocan> Resource_taocan { get; set; }
         public DbSet<OpenAccountType> OpenAccountType { get; set; }
         public DbSet<Charge_Order> Charge_Order { get; set; }
         public DbSet<Payment_history> Payment_history { get; set; }
         public DbSet<LaJi> LaJi { get; set; }
+        public DbSet<Resrouce_interface> Resrouce_interface { get; set; }
     }
 }

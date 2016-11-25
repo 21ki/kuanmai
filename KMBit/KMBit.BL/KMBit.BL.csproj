@@ -79,6 +79,7 @@
     <Compile Include="Charge\ChargeConstant.cs" />
     <Compile Include="Charge\ChongBaCharge.cs" />
     <Compile Include="ChargeService.cs" />
+    <Compile Include="Charge\FeiHongTelCom.cs" />
     <Compile Include="Charge\HeNanUnionComCharge.cs" />
     <Compile Include="Charge\ICharge.cs" />
     <Compile Include="Charge\IStatus.cs" />

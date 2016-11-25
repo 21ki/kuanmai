@@ -25,5 +25,7 @@ namespace KMBit.DAL
         public string ProductApiUrl { get; set; }
         public string AppKey { get; set; }
         public string AppSecret { get; set; }
+        public string GetTokenUrl { get; set; }
+        public string QueryStatusUrl { get; set; }
     }
 }

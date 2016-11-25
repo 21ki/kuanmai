@@ -12,7 +12,36 @@
 <h2>@ViewBag.Title</h2>
 <hr />
 <div>
-    <dl class="dl-horizontal">
+    <dl class="dl-horizontal">       
+        <dt>
+            @Html.DisplayName("系统状态")
+        </dt>
+        <dd>
+           @{
+               if (ViewBag.sysstatus != null)
+               {
+                   KMBit.Beans.SystemStatus status = (KMBit.Beans.SystemStatus)ViewBag.sysstatus;
+                   if (status == KMBit.Beans.SystemStatus.DOWN)
+                   {
+                       @Html.DisplayName("系统运行异常，目前不能提交充值订单，后台充值进程不能对订单进行处理，请联络系统管理员");
+                       if (Model.IsWebMaster)
+                       {
+                           @Html.Raw("<a href=\"/Admin/StartSystem\">启动系统</a>");
+                       }
+                   }
+                   else
+                   {
+                       @Html.DisplayName("目前系统运行正常")
+                       if (Model.IsWebMaster)
+                       {
+                           @Html.Raw("<a href=\"/Admin/ShutdownSystem\">关闭系统</a>");
+                       }
+                   }
+               }
+
+        }
+        </dd>
+
         <dt>
             @Html.DisplayName("名称")
         </dt>
@@ -33,7 +62,7 @@
         <dd>
             @if (Model.IsWebMaster)
             {
-                @Html.Raw("站长")
+                @Html.Raw("站长");
             }
             else if (Model.IsSuperAdmin)
             {

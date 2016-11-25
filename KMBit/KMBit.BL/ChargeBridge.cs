@@ -217,7 +217,7 @@ namespace KMBit.BL
             try
             {
                 IStatus chargeMgr = null;
-                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
+                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
                 foreach(Resrouce_interface api in apis)
                 {
                     object o = null;
@@ -227,7 +227,7 @@ namespace KMBit.BL
                     chargeMgr = o as IStatus;
                     if(chargeMgr!=null)
                     {
-                        chargeMgr.GetChargeStatus(api.Resource_id);
+                        chargeMgr.GetChargeStatus(api.Resource_id,api);
                     }                   
                 }
             }

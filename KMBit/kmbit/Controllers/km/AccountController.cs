@@ -55,8 +55,6 @@ namespace KMBit.Controllers.km
                     message.Message = "token不正确";
                     return message;
                 }
-
-
                 logger.Info(string.Format("Client system post data:{0}", queryStr));
                 logger.Info(string.Format("Signature:{0}", siganture != null ? siganture : ""));
                 logger.Info(string.Format("Agent - {0}", user != null ? user.User.Name : ""));
@@ -117,7 +115,7 @@ namespace KMBit.Controllers.km
                 if (routeId <= 0)
                 {
                     message.Status = "FAILED";
-                    message.Message = "产品Id不正确";
+                    message.Message = "非法路由产品编号(ID)";
                     return message;
                 }
                 

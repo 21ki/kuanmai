@@ -65,7 +65,7 @@ namespace KMBit.BL.API
                 }
                 if(!agent.Enabled)
                 {
-                    throw new KMBitException(string.Format("代理商{0}被禁用",agent.Name));
+                    throw new KMBitException(string.Format("代理商{0}已经被关闭禁用",agent.Name));
                 }
                 //verify mobile sp
                 Agent_route route = (from r in db.Agent_route where r.Id == routeId && r.User_id == agentId select r).FirstOrDefault<Agent_route>();
@@ -75,7 +75,7 @@ namespace KMBit.BL.API
                 }
                 if(!route.Enabled)
                 {
-                    throw new KMBitException(string.Format("代理商 {1} 编号为{0}的路由被禁用", routeId, agent.Name));
+                    throw new KMBitException(string.Format("代理商 {1} 编号为{0}的路由已经被关闭", routeId, agent.Name));
                 }
                 Resource_taocan taocan = (from t in db.Resource_taocan where t.Id==route.Resource_taocan_id select t).FirstOrDefault<Resource_taocan>();
                 int spId = (from sp in db.Sp where sp.Name.Contains(spname.Trim()) select sp.Id).FirstOrDefault<int>();

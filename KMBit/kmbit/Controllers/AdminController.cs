@@ -65,10 +65,52 @@ namespace KMBit.Controllers
         public ActionResult Index()
         {
             UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
-            //ViewBag.LoginUser = userMgr.CurrentLoginUser;   
+            //ViewBag.LoginUser = userMgr.CurrentLoginUser;  
+            SystemStatus status = userMgr.GetLaji();
+            ViewBag.sysstatus = status;
             return View(userMgr.CurrentLoginUser);
         }
-               
+
+        public ActionResult StartSystem()
+        {
+            UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                userMgr.StartSystem();
+                SystemStatus status = userMgr.GetLaji();
+                ViewBag.sysstatus = status;
+            }
+            catch(KMBitException kex)
+            {
+                ViewBag.msg = kex.Message;
+            }
+            catch
+            {
+                ViewBag.msg = "未知错误";
+            }
+            return View("Index", userMgr.CurrentLoginUser);
+        }
+
+        public ActionResult ShutdownSystem()
+        {
+            UserManagement userMgr = new UserManagement(User.Identity.GetUserId<int>());
+            try
+            {
+                userMgr.ShutDownSystem();
+                SystemStatus status = userMgr.GetLaji();
+                ViewBag.sysstatus = status;
+            }
+            catch (KMBitException kex)
+            {
+                ViewBag.msg = kex.Message;
+            }
+            catch
+            {
+                ViewBag.msg = "未知错误";
+            }
+            return View("Index", userMgr.CurrentLoginUser);
+        }
+
         public ActionResult ChangePassword()
         {
             return View();
@@ -181,6 +223,8 @@ namespace KMBit.Controllers
                     model.ProductFetchUrl = api.ProductApiUrl;
                     model.AppSecret = api.AppSecret;
                     model.AppKey = api.AppKey;
+                    model.GetTokenURL = api.GetTokenUrl;
+                    model.QueryStatusURL = api.QueryStatusUrl;
                 }
             }
             catch (KMBitException ex)
@@ -211,7 +255,9 @@ namespace KMBit.Controllers
                     Username = model.UserName,
                     Userpassword = model.Password,
                     AppKey=model.AppKey,
-                    AppSecret=model.AppSecret
+                    AppSecret=model.AppSecret,
+                    GetTokenUrl=model.GetTokenURL,
+                    QueryStatusUrl=model.QueryStatusURL
                 };
 
                 if(resourceMgt.UpdateResrouceInterface(api))

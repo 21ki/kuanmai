@@ -43,7 +43,7 @@ namespace KMBit.BL
         private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
         {
             return true;
-        }
+        }      
         public void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed, RequestType requestType= RequestType.POST)
         {
             if(string.IsNullOrEmpty(this.ApiUrl))

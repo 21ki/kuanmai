@@ -28,12 +28,12 @@
         <EntityTypeShape EntityType="KMBitDBContextModel.Marketing_Orders" Width="1.5" PointX="13.375" PointY="11.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Customer" Width="1.5" PointX="3.375" PointY="14.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Users" Width="1.5" PointX="15.375" PointY="0.75" />
-        <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Resource_taocan" Width="1.5" PointX="0.75" PointY="12.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.OpenAccountType" Width="1.5" PointX="15.375" PointY="7.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Charge_Order" Width="1.5" PointX="9.375" PointY="11.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.Payment_history" Width="1.5" PointX="15.375" PointY="10.75" />
         <EntityTypeShape EntityType="KMBitDBContextModel.LaJi" Width="1.5" PointX="0.75" PointY="9.75" />
+        <EntityTypeShape EntityType="KMBitDBContextModel.Resrouce_interface" Width="1.5" PointX="15.375" PointY="14.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

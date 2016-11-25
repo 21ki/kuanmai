@@ -11,4 +11,10 @@ namespace KMBit.Beans
         Global,
         Local
     }
+
+    public enum SystemStatus
+    {
+        DOWN,
+        RUNNING
+    }
 }

@@ -8,11 +8,15 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Threading.Tasks;
+using System.Threading;
 using KMBit.DAL;
 using KMBit.Beans;
 using KMBit.BL.Charge;
 using KMBit.Util;
 using log4net;
+using WeChat.Adapter.Requests;
+using System.Collections.Specialized;
+
 namespace KMBit.BL
 {
     public class WebRequestParameters
@@ -49,20 +53,41 @@ namespace KMBit.BL
             this.Logger = log4net.LogManager.GetLogger(this.GetType());
         }
 
-        protected void SendStatusBackToAgentCallback(Charge_Order order)
+        protected void SendStatusBackToAgentCallback(object oorder)
         {
-            Logger.Info("SendStatusBackToAgentCallback");
-            if(order==null || order.Agent_Id<=0 || string.IsNullOrEmpty(order.CallBackUrl))
+            if(oorder.GetType()!= typeof(Charge_Order))
             {
                 return;
             }
+            Charge_Order order = oorder as Charge_Order;
+            Logger.Info("SendStatusBackToAgentCallback...");
+            if(order==null || order.Agent_Id<=0 || string.IsNullOrEmpty(order.CallBackUrl))
+            {
+                Logger.Info("Not an agent order, no need to proceed anymore.");
+                return;
+            }
             Logger.Info(string.Format("Order Id {0}",order.Id.ToString()));
+            if(!string.IsNullOrEmpty(order.Client_Order_Id))
+            {
+                Logger.Info(string.Format("Client OrderId {0}", order.Client_Order_Id.ToString()));
+            }
+            if (!string.IsNullOrEmpty(order.Out_Order_Id))
+            {
+                Logger.Info(string.Format("Out Order Id {0}", order.Out_Order_Id.ToString()));
+            }
             Logger.Info(string.Format("Order Status {0}", order.Status.ToString()));
             Logger.Info(string.Format("Order Message {0}", order.Message!=null?order.Message:""));
-            chargebitEntities db = new chargebitEntities();
+            chargebitEntities db = null;
             try
             {
+                if(string.IsNullOrEmpty(order.CallBackUrl))
+                {
+                    Logger.Info("Order callback URL is empty.");
+                    return;
+                }
+                db = new chargebitEntities();
                 List<WebRequestParameters> parmeters = new List<WebRequestParameters>();
+                NameValueCollection col = new NameValueCollection();
                 SortedDictionary<string, string> paras = new SortedDictionary<string, string>();
                 string orderId = order.Id.ToString();
                 string status = order.Status.ToString();
@@ -77,6 +102,7 @@ namespace KMBit.BL
                 string token = agent.SecurityStamp;
                 paras["OrderId"] = orderId;
                 paras["Status"] = status;
+                paras["ClientOrderId"] = order.Client_Order_Id!=null? order.Client_Order_Id:"";
                 paras["Message"] = message;
                 string signStr = "";
                 foreach (KeyValuePair<string, string> p in paras)
@@ -90,25 +116,20 @@ namespace KMBit.BL
                         signStr += "&" + p.Key.ToLower() + "=" + p.Value;
                     }
                 }
+                Logger.Info(string.Format("Post data {1} to {0}", order.CallBackUrl, signStr));
                 signStr += "&key=" + token;
                 Logger.Info(string.Format("Sign String {0}", signStr));
                 Logger.Info(string.Format("Signature {0}", UrlSignUtil.GetMD5(signStr)));
                 paras["Signature"] = UrlSignUtil.GetMD5(signStr);
                 foreach (KeyValuePair<string, string> p in paras)
                 {
+                    col[p.Key] = p.Value;
                     parmeters.Add(new WebRequestParameters(p.Key, p.Value, false));
-                }
-                ServerUri = new Uri(order.CallBackUrl);
+                }                
                 bool succeed = false;
+                string resStr = HttpSercice.PostHttpRequest(order.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
                 SendRequest(parmeters, false, out succeed);
-                if (succeed)
-                {
-                    Logger.Info("Successfully sent back status to anegt callback API");
-                }
-                else
-                {
-                    Logger.Info("Failed sent back status to anegt callback API");
-                }
+               
             }
             catch(Exception ex)
             {
@@ -120,9 +141,8 @@ namespace KMBit.BL
                     db.Dispose();
                 }
 
-                Logger.Info("Leaving SendStatusBackToAgentCallback");
-            }
-          
+                Logger.Info("Leaving SendStatusBackToAgentCallback...");
+            }          
         }
 
         public virtual void ProceedOrder(ChargeOrder order,out ChargeResult result,bool isSOAPAPI=false)
@@ -276,7 +296,7 @@ namespace KMBit.BL
             }
         }
 
-        public virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool isCallBack=false)
+        public virtual void ChangeOrderStatus(ChargeOrder order,ChargeResult result,bool needCallBack=false)
         {
             lock(o)
             {
@@ -293,16 +313,22 @@ namespace KMBit.BL
                                 cOrder.Message = result.Message;
                                 break;
                             case ChargeStatus.SUCCEED:
-                                cOrder.Out_Order_Id = order.OutOrderId;
+                                if (string.IsNullOrEmpty(cOrder.Out_Order_Id))
+                                {
+                                    cOrder.Out_Order_Id = order.OutOrderId;
+                                }
                                 cOrder.Status = 2;
-                                cOrder.Message = result.Message;
+                                cOrder.Message = result.Message+",落地充值成功";
                                 cOrder.Out_Order_Id = order.OutOrderId;
                                 cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                                 //remove qrcode picture
                                 RemoveQRCode(cOrder);
                                 break;
                             case ChargeStatus.FAILED:
-                                cOrder.Out_Order_Id = order.OutOrderId;
+                                if(string.IsNullOrEmpty(cOrder.Out_Order_Id))
+                                {
+                                    cOrder.Out_Order_Id = order.OutOrderId;
+                                }                                
                                 cOrder.Status = 3;
                                 cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                                 //Refound the money
@@ -349,6 +375,11 @@ namespace KMBit.BL
                         }
 
                         db.SaveChanges();
+                        
+                        if (needCallBack)
+                        {
+                            this.SendStatusBackToAgentCallback(cOrder);                           
+                        }
                     }
                 }
             }

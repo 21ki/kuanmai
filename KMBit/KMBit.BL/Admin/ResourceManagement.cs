@@ -520,6 +520,8 @@ namespace KMBit.BL.Admin
                     oapi.ProductApiUrl = api.ProductApiUrl;
                     oapi.AppKey = api.AppKey;
                     oapi.AppSecret = api.AppSecret;
+                    oapi.GetTokenUrl = api.GetTokenUrl;
+                    oapi.QueryStatusUrl = api.QueryStatusUrl;
                 }
 
                 db.SaveChanges();

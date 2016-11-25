@@ -23,6 +23,8 @@ namespace KMBit.ChargeProcess
 
         static void ProcessOrders()
         {
+            //OrdersProcesser.ProcessOrders();
+            Console.WriteLine("Six threads will be started in every 8 seconds to process orders to gateway...");
             for (int i = 0; i <= 5; i++)
             {
                 Thread t = new Thread(new ThreadStart(OrdersProcesser.ProcessOrders));

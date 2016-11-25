@@ -308,6 +308,8 @@
           <Property Name="ProductApiUrl" Type="varchar" MaxLength="100" />
           <Property Name="AppKey" Type="varchar" MaxLength="45" />
           <Property Name="AppSecret" Type="varchar" MaxLength="45" />
+          <Property Name="GetTokenUrl" Type="varchar" MaxLength="200" />
+          <Property Name="QueryStatusUrl" Type="varchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -458,12 +460,12 @@
           <EntitySet Name="Marketing_Orders" EntityType="KMBitDBContextModel.Marketing_Orders" />
           <EntitySet Name="Customer" EntityType="KMBitDBContextModel.Customer" />
           <EntitySet Name="Users" EntityType="KMBitDBContextModel.Users" />
-          <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
           <EntitySet Name="Resource_taocan" EntityType="KMBitDBContextModel.Resource_taocan" />
           <EntitySet Name="OpenAccountType" EntityType="KMBitDBContextModel.OpenAccountType" />
           <EntitySet Name="Charge_Order" EntityType="KMBitDBContextModel.Charge_Order" />
           <EntitySet Name="Payment_history" EntityType="KMBitDBContextModel.Payment_history" />
           <EntitySet Name="LaJi" EntityType="KMBitDBContextModel.LaJi" />
+          <EntitySet Name="Resrouce_interface" EntityType="KMBitDBContextModel.Resrouce_interface" />
         </EntityContainer>
         <EntityType Name="Admin_Actions">
           <Key>
@@ -750,22 +752,6 @@
           <Property Name="Enabled" Type="Boolean" Nullable="false" />
           <Property Name="AccessToken" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Resrouce_interface">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Resource_id" Type="Int32" Nullable="false" />
-          <Property Name="Username" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="Userpassword" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Interface_classname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Interface_assemblyname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="APIURL" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="CallBackUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="ProductApiUrl" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="AppKey" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-          <Property Name="AppSecret" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="Resource_taocan">
           <Key>
             <PropertyRef Name="Id" />
@@ -858,6 +844,24 @@
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="PId" Type="Int32" Nullable="false" />
           <Property Name="UP" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Resrouce_interface">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Resource_id" Type="Int32" Nullable="false" />
+          <Property Name="Username" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Userpassword" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Interface_classname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Interface_assemblyname" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="APIURL" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="CallBackUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ProductApiUrl" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="AppKey" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="AppSecret" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="GetTokenUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="QueryStatusUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1169,23 +1173,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Resrouce_interface">
-            <EntityTypeMapping TypeName="KMBitDBContextModel.Resrouce_interface">
-              <MappingFragment StoreEntitySet="Resrouce_interface">
-                <ScalarProperty Name="AppSecret" ColumnName="AppSecret" />
-                <ScalarProperty Name="AppKey" ColumnName="AppKey" />
-                <ScalarProperty Name="ProductApiUrl" ColumnName="ProductApiUrl" />
-                <ScalarProperty Name="CallBackUrl" ColumnName="CallBackUrl" />
-                <ScalarProperty Name="APIURL" ColumnName="APIURL" />
-                <ScalarProperty Name="Interface_assemblyname" ColumnName="Interface_assemblyname" />
-                <ScalarProperty Name="Interface_classname" ColumnName="Interface_classname" />
-                <ScalarProperty Name="Userpassword" ColumnName="Userpassword" />
-                <ScalarProperty Name="Username" ColumnName="Username" />
-                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Resource_taocan">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resource_taocan">
               <MappingFragment StoreEntitySet="Resource_taocan">
@@ -1280,6 +1267,25 @@
               <MappingFragment StoreEntitySet="LaJi">
                 <ScalarProperty Name="UP" ColumnName="UP" />
                 <ScalarProperty Name="PId" ColumnName="PId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Resrouce_interface">
+            <EntityTypeMapping TypeName="KMBitDBContextModel.Resrouce_interface">
+              <MappingFragment StoreEntitySet="Resrouce_interface">
+                <ScalarProperty Name="QueryStatusUrl" ColumnName="QueryStatusUrl" />
+                <ScalarProperty Name="GetTokenUrl" ColumnName="GetTokenUrl" />
+                <ScalarProperty Name="AppSecret" ColumnName="AppSecret" />
+                <ScalarProperty Name="AppKey" ColumnName="AppKey" />
+                <ScalarProperty Name="ProductApiUrl" ColumnName="ProductApiUrl" />
+                <ScalarProperty Name="CallBackUrl" ColumnName="CallBackUrl" />
+                <ScalarProperty Name="APIURL" ColumnName="APIURL" />
+                <ScalarProperty Name="Interface_assemblyname" ColumnName="Interface_assemblyname" />
+                <ScalarProperty Name="Interface_classname" ColumnName="Interface_classname" />
+                <ScalarProperty Name="Userpassword" ColumnName="Userpassword" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Resource_id" ColumnName="Resource_id" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
