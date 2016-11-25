@@ -142,7 +142,7 @@ namespace KMBit.BL.Charge
             return result;
         }
 
-        public void GetChargeStatus(int resourceId, Resrouce_interface api)
+        public void GetChargeStatus(int resourceId)
         {
             chargebitEntities db = new chargebitEntities();
             try

@@ -212,24 +212,28 @@ namespace KMBit.BL
         }        
 
         public void SyncChargeStatus()
-        {
+        {            
             chargebitEntities db = new chargebitEntities();
             try
             {
                 IStatus chargeMgr = null;
-                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
-                foreach(Resrouce_interface api in apis)
+                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) && api.Resource_id==10 orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
+
+              
+                foreach (Resrouce_interface api in apis)
                 {
                     object o = null;
-                    Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                    Type type = assembly.GetType(api.Interface_classname);
-                    o = Activator.CreateInstance(type);                    
-                    chargeMgr = o as IStatus;
-                    if(chargeMgr!=null)
+                    //Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    //Type type = assembly.GetType(api.Interface_classname,true);
+                    //o = Activator.CreateInstance(type);
+                    o = Assembly.Load(api.Interface_assemblyname).CreateInstance(api.Interface_classname);
+                    chargeMgr = (IStatus)o;
+                    if (chargeMgr != null)
                     {
-                        chargeMgr.GetChargeStatus(api.Resource_id,api);
-                    }                   
+                        chargeMgr.GetChargeStatus(api.Resource_id);
+                    }
                 }
+                //chargeMgr.GetChargeStatus(10);
             }
             catch (Exception ex)
             {

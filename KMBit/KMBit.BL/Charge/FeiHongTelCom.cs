@@ -18,15 +18,11 @@ namespace KMBit.BL.Charge
     {
         private static string token = null;
         private static long expiredTime = 0;
-        private long expiredInterval = 7 * 60*1000;
+        private static long expiredInterval = 7 * 60*1000;
         private static object telcom = new object();
         private static int lastMaxGetStatusOrderId = 0;
         private static object getStatusObj = new object();
-            
-        public FeiHongTelCom()
-        {
-            Logger = log4net.LogManager.GetLogger(this.GetType());
-        }
+           
 
         public void CallBack(List<WebRequestParameters> data)
         {
@@ -190,7 +186,7 @@ namespace KMBit.BL.Charge
             return result;
         }
 
-        public void GetChargeStatus(int resourceId, Resrouce_interface api)
+        public void GetChargeStatus(int resourceId)
         {
             Logger.Info("GetChargeStatus...");
             chargebitEntities db = null;
@@ -203,6 +199,7 @@ namespace KMBit.BL.Charge
                     orders = (from o in db.Charge_Order where o.Status == 1 && o.Resource_id == resourceId && o.Payed && o.Id > lastMaxGetStatusOrderId orderby o.Id ascending select o).ToList<Charge_Order>();
                     if (orders.Count <= 0)
                     {
+                        Console.WriteLine("No orders need to sync status of resourceId:" + resourceId);
                         Logger.Info("No orders need to sync status of resourceId:" + resourceId);
                         return;
                     }
@@ -213,13 +210,10 @@ namespace KMBit.BL.Charge
                     }
                 }
 
-                KMBit.DAL.Resrouce_interface rInterface = api;
-                if(rInterface==null)
-                {
-                    rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == resourceId select ri).FirstOrDefault<Resrouce_interface>();
-                }
+                KMBit.DAL.Resrouce_interface rInterface = rInterface = (from ri in db.Resrouce_interface where ri.Resource_id == resourceId select ri).FirstOrDefault<Resrouce_interface>();             
                 if(string.IsNullOrEmpty(rInterface.QueryStatusUrl))
                 {
+                    Logger.Warn("QueryStatusUrl is empty.");
                     return;
                 }
                 ServerUri = new Uri(rInterface.QueryStatusUrl);
@@ -304,7 +298,7 @@ namespace KMBit.BL.Charge
                         }
                         else
                         {
-                            Logger.Info(string.Format("No order status returned back by {0}",api.QueryStatusUrl));
+                            Logger.Info(string.Format("No order status returned back by {0}", rInterface.QueryStatusUrl));
                         }
                         
                     }

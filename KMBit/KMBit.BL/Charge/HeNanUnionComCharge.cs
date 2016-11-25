@@ -11,11 +11,6 @@ namespace KMBit.BL.Charge
 {
     public class HeNanUnionComCharge : ChargeService, ICharge, IStatus
     {
-        public HeNanUnionComCharge()
-        {
-            this.Logger = log4net.LogManager.GetLogger(this.GetType());
-        }
-
         public void CallBack(List<WebRequestParameters> data)
         {
             throw new NotImplementedException();
@@ -142,7 +137,7 @@ namespace KMBit.BL.Charge
             return result;
         }
 
-        public void GetChargeStatus(int resourceId,Resrouce_interface api)
+        public void GetChargeStatus(int resourceId)
         {
             throw new NotImplementedException();
         }

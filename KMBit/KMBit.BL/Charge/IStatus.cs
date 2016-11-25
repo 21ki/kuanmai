@@ -8,6 +8,6 @@ namespace KMBit.BL.Charge
 {
     public interface IStatus
     {
-        void GetChargeStatus(int resourceId, Resrouce_interface api);
+        void GetChargeStatus(int resourceId);
     }
 }

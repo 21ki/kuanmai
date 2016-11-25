@@ -131,6 +131,10 @@ namespace KMBit.BL
             ChargeService.ProcessAgentAccountChargePayments();
         }
 
+        public static void SyncStatus()
+        {
+            cb.SyncChargeStatus();
+        }
         public static void ProcessAgentAccountChargePayments()
         {
             logger.Info("ProcessAgentAccountChargePayments...");

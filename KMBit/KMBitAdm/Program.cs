@@ -28,8 +28,7 @@ namespace KMBitAdm
         static ILog Logger = null;
         static void Main(string[] args)
         {
-            log4net.Config.XmlConfigurator.Configure();
-            Logger = log4net.LogManager.GetLogger("Main...");
+            Logger = KMLogger.GetLogger();
             args = new string[] { "getstatus" };
             if (args.Length==0)
             {
@@ -75,16 +74,19 @@ namespace KMBitAdm
         static void GetStatus()
         {
             Console.WriteLine("Six threads will be started in every 8 seconds to query order status...");
-            ChargeBridge bridge = new ChargeBridge();
+            Logger.Info("Six threads will be started in every 8 seconds to query order status...");
+           
             while (true)
             {
                 for (int i = 0; i <= 5; i++)
                 {
-                    Thread thred = new Thread(bridge.SyncChargeStatus);
-                    thred.Name = "thread" + i;
-                    Console.WriteLine(thred.Name + " is started.");
+
+                    Thread thred = new Thread(OrdersProcesser.SyncStatus);
+                    thred.Name = "SyncOrderStatusThread" + i;
                     thred.Start();
+                    Console.WriteLine(thred.Name + " is started.");
                 }
+
                 Thread.Sleep(1 * 8 * 1000);
             }
         }
