@@ -200,7 +200,7 @@ namespace KMBit.Controllers
                 return View("Error");
             }
 
-            ResourceConfigModel model = new ResourceConfigModel() { Id=0,ResoucedId=resourceId, InterfaceAssemblyName= "KMBit.BL.dll" };
+            ResourceConfigModel model = new ResourceConfigModel() { Id=0,ResoucedId=resourceId};
             resourceMgt = new ResourceManagement(User.Identity.GetUserId<int>());
             if(!resourceMgt.CurrentLoginUser.Permission.CONFIGURE_RESOURCE)
             {
@@ -225,6 +225,7 @@ namespace KMBit.Controllers
                     model.AppKey = api.AppKey;
                     model.GetTokenURL = api.GetTokenUrl;
                     model.QueryStatusURL = api.QueryStatusUrl;
+                    model.InterfaceAssemblyName = api.Interface_assemblyname;
                 }
             }
             catch (KMBitException ex)

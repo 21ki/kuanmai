@@ -64,6 +64,22 @@
                     });
 
                     $(ul).appendTo($('#resourcetaocancontainer'));
+                    $('#resourcetaocancontainer').find('#chkAllResouceTaocans').click(function(){
+                        if($('#resourcetaocancontainer').find('#chkAllResouceTaocans').is(':checked')){
+                            $('#resourcetaocancontainer').find('input[type="checkbox"]').each(function(i,chk){
+                                if($(chk).attr('id')!='chkAllResouceTaocans'){                                   
+                                    $(chk).attr('checked',true);
+                                }
+                            });
+
+                        }else{
+                            $('#resourcetaocancontainer').find('input[type="checkbox"]').each(function(i,chk){
+                                if($(chk).attr('id')!='chkAllResouceTaocans'){
+                                    $(chk).attr('checked',false);
+                                }
+                            });
+                        }
+                    });
                 }
             );
         });

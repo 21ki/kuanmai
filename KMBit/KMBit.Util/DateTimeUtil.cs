@@ -30,11 +30,11 @@ namespace KMBit.Util
             {
                 if (month % 2 == 0)
                 {
-                    month = 31;
+                    last = 31;
                 }
                 else
                 {
-                    month = 30;
+                    last = 30;
                 }
             }
 

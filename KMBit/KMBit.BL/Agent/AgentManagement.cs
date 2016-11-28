@@ -55,9 +55,17 @@ namespace KMBit.BL.Agent
                 //本地流量              
                 returnRoutes = (from r in globalRoutes
                                 where
-                                 (r.Taocan.Province != null && r.Taocan.Province.Name.Contains(province))
+                                 (
+                                 r.Taocan.Province != null && r.Taocan.Province.Name.Contains(province))
                                  //||
-                                 //(r.Taocan.NumberProvince != null && r.Taocan.NumberProvince.Name.Contains(province))
+                                 //(r.Taocan.NumberProvince != null && r.Taocan.NumberProvince.Name.Contains(province)))
+                                select r).ToList<BAgentRoute>();
+            }
+            else if (scope == BitScope.Global)
+            {
+                returnRoutes = (from r in globalRoutes
+                                where
+                                 (r.Taocan.Province == null)                                
                                 select r).ToList<BAgentRoute>();
             }
 

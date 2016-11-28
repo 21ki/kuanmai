@@ -22,7 +22,19 @@ namespace KMBit.BL.Charge
         private static object telcom = new object();
         private static int lastMaxGetStatusOrderId = 0;
         private static object getStatusObj = new object();
-           
+         
+        public FeiHongTelCom(log4net.ILog logger)
+        {
+            if(logger!=null)
+            {
+                this.Logger = logger;
+            }            
+        }
+
+        public FeiHongTelCom()
+        {
+
+        }
 
         public void CallBack(List<WebRequestParameters> data)
         {
@@ -33,13 +45,18 @@ namespace KMBit.BL.Charge
         {   
             lock(telcom)
             {
+                Logger.Info("Gettoken...");
                 if (DateTimeUtil.ConvertDateTimeToInt(DateTime.Now) < expiredTime)
                 {
                     return;
                 }
+                //Logger.Info("id:"+api.Username);
+                //Logger.Info("AppSecret:" + api.AppSecret);
+                //Logger.Info("reqToken:" + UrlSignUtil.GetMD5(api.Username + api.AppSecret));
                 NameValueCollection col = new NameValueCollection();
                 col.Add("reqToken", UrlSignUtil.GetMD5(api.Username + api.AppSecret));
-                col.Add("id", api.Username);              
+                col.Add("id", api.Username);
+                Logger.Info("URL:" + api.GetTokenUrl);
                 string resStr=HttpSercice.PostHttpRequest(api.GetTokenUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);                
                 if (!string.IsNullOrEmpty(resStr))
                 {
@@ -49,7 +66,8 @@ namespace KMBit.BL.Charge
                         string result = jsonResult["result"].ToString();
                         string rtoken = jsonResult["token"]!=null? jsonResult["token"].ToString():null;
                         string message = jsonResult["resultMsg"].ToString();
-                        if(!string.IsNullOrEmpty(result) && result.Trim()=="0")
+                        Logger.Info("Request token result:"+ resStr);
+                        if (!string.IsNullOrEmpty(result) && result.Trim()=="0")
                         {
                             token = rtoken;
                             expiredTime = DateTimeUtil.ConvertDateTimeToInt(DateTime.Now)+expiredInterval;
@@ -64,6 +82,12 @@ namespace KMBit.BL.Charge
                         Logger.Fatal(ex);
                     }
                 }
+                else
+                {
+                    Logger.Info("Empty response.");
+                }
+
+                Logger.Info("Gettoken done!");
             }
         }
         public ChargeResult Charge(ChargeOrder order)
@@ -114,6 +138,7 @@ namespace KMBit.BL.Charge
                 if(string.IsNullOrEmpty(token))
                 {
                     result.Status = ChargeStatus.FAILED;
+                    result.Message = "获取令牌失败";
                     Logger.Error("Failed to request token, please contact gatway administrator. The charge order will be marked as fail, refound the currency to agent.");
                     ChangeOrderStatus(order, result);
                     return result;
@@ -199,7 +224,6 @@ namespace KMBit.BL.Charge
                     orders = (from o in db.Charge_Order where o.Status == 1 && o.Resource_id == resourceId && o.Payed && o.Id > lastMaxGetStatusOrderId orderby o.Id ascending select o).ToList<Charge_Order>();
                     if (orders.Count <= 0)
                     {
-                        Console.WriteLine("No orders need to sync status of resourceId:" + resourceId);
                         Logger.Info("No orders need to sync status of resourceId:" + resourceId);
                         return;
                     }
@@ -311,6 +335,7 @@ namespace KMBit.BL.Charge
             }
             catch(Exception ex)
             {
+                Logger.Error("Exception was thrown");
                 Logger.Fatal(ex);
             }
             finally

@@ -104,11 +104,11 @@ namespace KMBit.Models
         public string ProductFetchUrl { get; set; }
 
         [Required]
-        [Display(Name = "平台接口名称")]
+        [Display(Name = "接口类名称")]
         public string InterfaceName { get; set; }
 
         [Required]
-        [Display(Name = "平台接口DLL名称")]
+        [Display(Name = "程序集名称")]
         public string InterfaceAssemblyName { get; set; }
 
        

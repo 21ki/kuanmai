@@ -35,7 +35,6 @@ namespace KMBitAdm
                 Console.WriteLine("Please provide the command.");
                 return;
             }
-
             string command = args[0];
             Logger.Info("command:"+command);
             switch (command)
@@ -45,6 +44,9 @@ namespace KMBitAdm
                     pgt.SyncPermissionsWithDB();
                     break;
                 case "getstatus":
+                    //GetStatus();
+                    Console.WriteLine("Six threads will be started in every 8 seconds to query order status...");
+                    Logger.Info("Six threads will be started in every 8 seconds to query order status...");
                     GetStatus();
                     break;
                 case "qr":                    
@@ -74,8 +76,7 @@ namespace KMBitAdm
         static void GetStatus()
         {
             Console.WriteLine("Six threads will be started in every 8 seconds to query order status...");
-            Logger.Info("Six threads will be started in every 8 seconds to query order status...");
-           
+            Logger.Info("Six threads will be started in every 8 seconds to query order status...");           
             while (true)
             {
                 for (int i = 0; i <= 5; i++)

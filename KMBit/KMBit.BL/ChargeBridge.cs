@@ -106,10 +106,7 @@ namespace KMBit.BL
                     result = new ChargeResult() { Status = ChargeStatus.FAILED, Message = ChargeConstant.RESOURCE_INTERFACE_NOT_CONFIGURED };
                     return result;
                 }
-                object o = null;
-                Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                Type type = assembly.GetType(rInterface.Interface_classname);
-                o = Activator.CreateInstance(type);
+                object o = Assembly.Load(rInterface.Interface_assemblyname).CreateInstance(rInterface.Interface_classname);               
                 chargeMgr = (ICharge)o;
                 result = chargeMgr.Charge(order);
             }
@@ -216,24 +213,17 @@ namespace KMBit.BL
             chargebitEntities db = new chargebitEntities();
             try
             {
-                IStatus chargeMgr = null;
-                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) && api.Resource_id==10 orderby api.CallBackUrl select api).ToList<Resrouce_interface>();
-
-              
+                List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) && api.Resource_id == 10 orderby api.CallBackUrl select api).ToList<Resrouce_interface>();               
                 foreach (Resrouce_interface api in apis)
                 {
+                    Logger.Info("Processing order status for resourceId:"+api.Resource_id);
+                    IStatus chargeMgr = null;
                     object o = null;
-                    //Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                    //Type type = assembly.GetType(api.Interface_classname,true);
-                    //o = Activator.CreateInstance(type);
                     o = Assembly.Load(api.Interface_assemblyname).CreateInstance(api.Interface_classname);
                     chargeMgr = (IStatus)o;
-                    if (chargeMgr != null)
-                    {
-                        chargeMgr.GetChargeStatus(api.Resource_id);
-                    }
+                    chargeMgr.GetChargeStatus(api.Resource_id);
+                    Logger.Info("Done!");
                 }
-                //chargeMgr.GetChargeStatus(10);
             }
             catch (Exception ex)
             {

@@ -15,7 +15,7 @@ namespace KMBit.BL
             list.Add(new DictionaryTemplate() { Id = 1, Value = "充值中" });
             list.Add(new DictionaryTemplate() { Id = 2, Value = "成功" });
             list.Add(new DictionaryTemplate() { Id = 3, Value = "失败" });
-            list.Add(new DictionaryTemplate() { Id = 11, Value = "待处理" });
+            list.Add(new DictionaryTemplate() { Id = 11, Value = "未支付" });
             return list;
         }
 

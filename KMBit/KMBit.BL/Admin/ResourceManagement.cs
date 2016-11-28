@@ -345,16 +345,13 @@ namespace KMBit.BL.Admin
                 if (spId > 0)
                 {
                     tmp = tmp.Where(r => r.Taocan.Sp_id == spId);
-                }
+                }               
+                tmp=tmp.OrderBy(t => t.Taocan.Area_id).ThenBy(t => t.Taocan.Sp_id).ThenBy(t => t.Taocan.Quantity);
                 total = tmp.Count();
                 if (paging)
                 {
-                    tmp = tmp.OrderBy(t => t.Taocan.Sp_id).ThenBy(t=>t.Taocan.Quantity).Skip((page - 1) * pageSize).Take(pageSize);
-                }else
-                {
-                    tmp = tmp.OrderBy(t => t.Taocan.Sp_id).ThenBy(t => t.Taocan.Quantity);
+                    tmp = tmp.Skip((page - 1) * pageSize).Take(pageSize);
                 }
-
                 sTaocans = tmp.ToList<BResourceTaocan>();
                 foreach (BResourceTaocan t in sTaocans)
                 {
@@ -522,6 +519,7 @@ namespace KMBit.BL.Admin
                     oapi.AppSecret = api.AppSecret;
                     oapi.GetTokenUrl = api.GetTokenUrl;
                     oapi.QueryStatusUrl = api.QueryStatusUrl;
+                    oapi.Interface_assemblyname = api.Interface_assemblyname;
                 }
 
                 db.SaveChanges();
