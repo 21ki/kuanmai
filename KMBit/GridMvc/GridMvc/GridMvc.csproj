@@ -71,6 +71,11 @@
     <Compile Include="DataAnnotations\GridColumnAttribute.cs" />
     <Compile Include="DataAnnotations\GridHiddenColumnAttribute.cs" />
     <Compile Include="DataAnnotations\NotMappedColumnAttribute.cs" />
+    <Compile Include="DBGrid\BaseGridPager.cs" />
+    <Compile Include="DBGrid\DBGrid.cs" />
+    <Compile Include="DBGrid\DBGridExtensions.cs" />
+    <Compile Include="DBGrid\DBGridPager.cs" />
+    <Compile Include="DBGrid\PageItemsResult.cs" />
     <Compile Include="Filtering\DefaultColumnFilter.cs" />
     <Compile Include="Filtering\ColumnFilterValue.cs" />
     <Compile Include="Filtering\IFilterColumnCollection.cs" />

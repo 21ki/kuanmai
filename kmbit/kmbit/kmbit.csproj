@@ -220,7 +220,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Grids\BaseGridPager.cs" />
-    <Compile Include="Grids\CustomQueryStringBuilder.cs" />
     <Compile Include="Grids\KMGridExtensions.cs" />
     <Compile Include="Grids\KMGridPager.cs" />
     <Compile Include="Grids\KMGrid.cs" />
