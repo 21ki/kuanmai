@@ -291,7 +291,7 @@ namespace KMBit.Models
 
         [Required(ErrorMessage = "折扣必须填写，并且必须是0-1之间的小数")]
         [Display(Name = "折扣")]
-        [Range(0.5, 1, ErrorMessage = "折扣必须在0.5-1之间")]
+        [Range(0.2, 1, ErrorMessage = "折扣必须在0.5-1之间")]
         public float Discount { get; set; }
 
         [Display(Name = "启用")]

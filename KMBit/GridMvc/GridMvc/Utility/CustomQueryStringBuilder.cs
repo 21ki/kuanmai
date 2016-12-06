@@ -10,7 +10,7 @@ namespace GridMvc.Utility
     /// <summary>
     ///     Class retain the current query string parameters
     /// </summary>
-    internal class CustomQueryStringBuilder : NameValueCollection
+    public class CustomQueryStringBuilder : NameValueCollection
     {
         public CustomQueryStringBuilder(NameValueCollection collection)
             : base(collection)
