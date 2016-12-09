@@ -82,11 +82,10 @@ namespace KMBit.BL
             {
                 if(string.IsNullOrEmpty(order.CallBackUrl))
                 {
-                    Logger.Info("Order callback URL is empty.");
+                    Logger.Info("Order callback URL is empty, no need to callback.");
                     return;
                 }
                 db = new chargebitEntities();
-                List<WebRequestParameters> parmeters = new List<WebRequestParameters>();
                 NameValueCollection col = new NameValueCollection();
                 SortedDictionary<string, string> paras = new SortedDictionary<string, string>();
                 string orderId = order.Id.ToString();
@@ -118,23 +117,21 @@ namespace KMBit.BL
                 }
                 Logger.Info(string.Format("Post data {1} to {0}", order.CallBackUrl, signStr));
                 signStr += "&key=" + token;
-                Logger.Info(string.Format("Sign String {0}", signStr));
-                Logger.Info(string.Format("Signature {0}", UrlSignUtil.GetMD5(signStr)));
-                paras["Signature"] = UrlSignUtil.GetMD5(signStr);
+                Logger.Info(string.Format("String to be signed {0}", signStr));
+                Logger.Info(string.Format("Signature is {0}", UrlSignUtil.GetMD5(signStr)));
+                paras["Sign"] = UrlSignUtil.GetMD5(signStr);
                 foreach (KeyValuePair<string, string> p in paras)
                 {
                     col[p.Key] = p.Value;
-                    parmeters.Add(new WebRequestParameters(p.Key, p.Value, false));
-                }                
-                bool succeed = false;
+                }
+
                 string resStr = HttpSercice.PostHttpRequest(order.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
-                SendRequest(parmeters, false, out succeed);
-               
             }
             catch(Exception ex)
             {
                 Logger.Error(ex);
-            }finally
+            }
+            finally
             {
                 if (db != null)
                 {
@@ -300,6 +297,7 @@ namespace KMBit.BL
         {
             lock(o)
             {
+                int beforeStaus = order.Status;
                 using (chargebitEntities db = new chargebitEntities())
                 {
                     Charge_Order cOrder = (from o in db.Charge_Order where o.Id == order.Id select o).FirstOrDefault<Charge_Order>();
@@ -311,6 +309,7 @@ namespace KMBit.BL
                                 cOrder.Out_Order_Id = order.OutOrderId;
                                 cOrder.Status = 1;
                                 cOrder.Message = result.Message;
+                                order.Status = 1;
                                 break;
                             case ChargeStatus.SUCCEED:
                                 if (string.IsNullOrEmpty(cOrder.Out_Order_Id))
@@ -318,9 +317,10 @@ namespace KMBit.BL
                                     cOrder.Out_Order_Id = order.OutOrderId;
                                 }
                                 cOrder.Status = 2;
+                                order.Status = 2;
                                 cOrder.Message = result.Message+",落地充值成功";
                                 cOrder.Out_Order_Id = order.OutOrderId;
-                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
+                                cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);                                
                                 //remove qrcode picture
                                 RemoveQRCode(cOrder);
                                 break;
@@ -328,7 +328,8 @@ namespace KMBit.BL
                                 if(string.IsNullOrEmpty(cOrder.Out_Order_Id))
                                 {
                                     cOrder.Out_Order_Id = order.OutOrderId;
-                                }                                
+                                }
+                                order.Status = 3;
                                 cOrder.Status = 3;
                                 cOrder.Completed_Time = KMBit.Util.DateTimeUtil.ConvertDateTimeToInt(DateTime.Now);
                                 //Refound the money
@@ -374,9 +375,8 @@ namespace KMBit.BL
                                 break;
                         }
 
-                        db.SaveChanges();
-                        
-                        if (needCallBack)
+                        db.SaveChanges();                        
+                        if (needCallBack && beforeStaus == 1)
                         {
                             this.SendStatusBackToAgentCallback(cOrder);                           
                         }

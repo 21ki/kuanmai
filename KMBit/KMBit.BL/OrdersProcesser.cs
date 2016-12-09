@@ -79,7 +79,12 @@ namespace KMBit.BL
 
                     result = cb.Charge(order);
                     Users agent = (from u in agents where corder.Agent_Id>0 && corder.Agent_Id==u.Id select u).FirstOrDefault<Users>();
-                    if(!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 && agent!=null)
+                    logger.Info("Order status - " +order.Status);
+                    if(order.Status==1)
+                    {
+                        logger.Info("Sync status process will do the callback request.");
+                    }
+                    if(!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 && agent!=null && order.Status!=1)
                     {
                         //send back the status to agent system
                         NameValueCollection col = new NameValueCollection();

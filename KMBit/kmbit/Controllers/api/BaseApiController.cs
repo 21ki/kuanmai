@@ -72,6 +72,7 @@ namespace KMBit.Controllers.api
             SortedDictionary< string, string>  parameters= GetRequestParameters();
             if(parameters==null || parameters.Count==0)
             {
+                logger.Info("No data posted with the API.");
                 return;
             }
             StringBuilder str = new StringBuilder();          

@@ -47,5 +47,6 @@ namespace KMBit.Beans
         public string OpenId { get; set; }
         public int OpenAccountType { get; set; }
         public string ClientOrderId { get; set; }//客户系统的订单ID
+        public int Status { get; set; }
     }
 }

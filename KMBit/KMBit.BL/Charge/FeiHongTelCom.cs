@@ -314,7 +314,7 @@ namespace KMBit.BL.Charge
                                                 result.Message = roMessage != null ? roMessage : "充值失败";
                                             }
                                         }
-                                        ChargeOrder blOrder = new ChargeOrder() { Id= dbOrder.Id,OutOrderId=dbOrder.Out_Order_Id,AgencyId=dbOrder.Agent_Id };
+                                        ChargeOrder blOrder = new ChargeOrder() { Id= dbOrder.Id,OutOrderId=dbOrder.Out_Order_Id,AgencyId=dbOrder.Agent_Id,Status=dbOrder.Status };
                                         ChangeOrderStatus(blOrder,result,true);
                                     }
                                 }

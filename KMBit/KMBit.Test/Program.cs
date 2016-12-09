@@ -18,7 +18,8 @@ namespace KMBit.Test
         static string url = "http://yfll.eruifo.com/km/Account/";
         static void Main(string[] args)
         {
-            charge();
+            CallBack();
+            //charge();
             //products();
             //string x = "CallBackUrl=http://113.31.21.238:8200/flux/callbackservice/yifengcb.ws&City=商丘&Client_order_id=68919_0&Id=20&Mobile=15649939049&Province=河南&Token=0ce9445505baa521ed1a2b0a34853164&key=0a483117-4e4d-4d97-aad4-d6576c2ffdec";
             //string sign = Md5(x);
@@ -45,6 +46,43 @@ namespace KMBit.Test
             col.Add("Sign", sign);
             string res = WeChat.Adapter.Requests.HttpSercice.PostHttpRequest(url + "Products", col, WeChat.Adapter.Requests.RequestType.POST, null);
             Console.WriteLine(res);
+        }
+        static void CallBack()
+        {
+            string url = "http://125.83.166.97:7892/";
+            SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
+            parameters["OrderId"] = "45576";
+            parameters["ClientOrderId"] = "20161207170612920";
+            parameters["Status"] = "FAILED";
+            parameters["Message"] = "充值失败";
+
+            StringBuilder query = new StringBuilder();
+            foreach (KeyValuePair<string, string> p in parameters)
+            {
+                if (query.ToString() == "")
+                {
+                    query.Append(p.Key);
+                    query.Append("=");
+                    query.Append(p.Value);
+                }
+                else
+                {
+                    query.Append("&");
+                    query.Append(p.Key);
+                    query.Append("=");
+                    query.Append(p.Value != null ? p.Value : "");
+                }
+            }
+            string urlStr = query.ToString() + "&key=ce9213e7-b65f-40bf-996f-455078c8430a";
+            string sign = UrlSignUtil.GetMD5(urlStr);
+            NameValueCollection col = new NameValueCollection();
+            col.Add("OrderId", "45576");
+            col.Add("ClientOrderId", "20161207170612920");
+            col.Add("Status", "FAILED");
+            col.Add("Message", "充值失败");
+            col.Add("Sign", sign);
+            
+            string res = WeChat.Adapter.Requests.HttpSercice.PostHttpRequest(url, col, WeChat.Adapter.Requests.RequestType.POST, null);
         }
         static void charge()
         {
