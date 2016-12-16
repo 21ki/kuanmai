@@ -29,10 +29,10 @@ namespace KMBit.BL.API
             {
                 throw new KMBitException("手机号归属省份不能为空");
             }
-            if (string.IsNullOrEmpty(city))
-            {
-                throw new KMBitException("手机号归属城市不能为空");
-            }
+            //if (string.IsNullOrEmpty(city))
+            //{
+            //    throw new KMBitException("手机号归属城市不能为空");
+            //}
             ChargeResult result = null;
             ChargeBridge cb = new ChargeBridge();
             ChargeOrder order = new ChargeOrder()
@@ -43,7 +43,7 @@ namespace KMBit.BL.API
                 AgencyId = agentId,
                 Id = 0,
                 Province = province,
-                City = city,
+                City = city!=null? city:"",
                 MobileNumber = mobile,
                 MobileSP=spname,
                 OutOrderId = "",

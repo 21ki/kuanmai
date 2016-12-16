@@ -89,12 +89,12 @@ namespace KMBit.Controllers.km
                     return message;
                 }
 
-                if (string.IsNullOrEmpty(city))
-                {
-                    message.Status = "FAILED";
-                    message.Message = "手机归属城市（参数City）不能为空";
-                    return message;
-                }
+                //if (string.IsNullOrEmpty(city))
+                //{
+                //    message.Status = "FAILED";
+                //    message.Message = "手机归属城市（参数City）不能为空";
+                //    return message;
+                //}
 
                 if (string.IsNullOrEmpty(spName))
                 {
