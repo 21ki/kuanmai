@@ -18,6 +18,10 @@ namespace KMBit.BL.Charge
         SUCCEED,
         FAILED
     }
+    public enum ResourceType
+    {
+        BeiBeiFlow
+    }
     public interface ICharge
     {
         ChargeResult Charge(ChargeOrder order);

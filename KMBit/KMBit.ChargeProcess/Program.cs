@@ -15,7 +15,10 @@ namespace KMBit.ChargeProcess
         static void Main(string[] args)
         {
             Console.WriteLine("Order Processing service is started");
-            while(true)
+            OrdersProcesser.ProcessOrders();
+            OrdersProcesser.ProcessAgentAccountChargePaymentsNew();
+            return;
+            while (true)
             {
                 ProcessOrders();
             } 

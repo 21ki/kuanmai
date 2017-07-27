@@ -76,6 +76,7 @@
     <Compile Include="API\ApiAccessManagement.cs" />
     <Compile Include="API\ProductManagement.cs" />
     <Compile Include="ChargeBridge.cs" />
+    <Compile Include="Charge\BeiBeiFlowCharge.cs" />
     <Compile Include="Charge\ChargeConstant.cs" />
     <Compile Include="Charge\ChongBaCharge.cs" />
     <Compile Include="ChargeService.cs" />

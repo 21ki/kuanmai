@@ -25,6 +25,13 @@ namespace KMBit.BL.Charge
         public const string RESOURCE_INTERFACE_APIURL_EMPTY = "落地资源接口URL为空，请在Resource_Inteface表里配置";
         public const string RESOURCE_TAOCAN_DISABLED = "此套餐被冻结，目前不能使用此套餐充值流量，请选择其他套餐";
         public const string RESOURCE_TAOCAN_NO_PDTID = "落地资源套餐产品编码不存在（经销商平台里产品唯一识别码）";
+        public const string RESOURCE_API_PARAM_ERROR = "落地资源接口参数错误";
+        public const string RESOURCE_MOBILE_NOT_SUPPORT = "落地资源不支持此手机号码";
+        public const string RESOURCE_ACCOUNT_DISABLED = "落地资源账户被冻结";
+        public const string RESOURCE_API_CLOSED = "落地资源接口关闭";
+        public const string RESOURCE_MAINTANCE = "落地资源系统维护";
+        public const string RESOURCE_AUTH_ERROR = "落地资源账户验证失败";
+        public const string RESOURCE_AUTH_SIGN_ERROR = "落地资源接口签名错误";
         public const string RESOURCE_DISABLED = "落地资源被冻结，不能使用，请联系平台管理员";
         public const string ORDER_NOT_EXIST = "充值订单不存在";
     }

@@ -72,5 +72,25 @@ namespace KMBit.Controllers.api
             return message;
         }
 
+        [AcceptVerbs("POST", "GET")]
+        public HttpResponseMessage BeibeiBack()
+        {
+            var resp = new HttpResponseMessage(HttpStatusCode.OK);
+            string result = "";
+            try
+            {
+                this.IniRequest();
+                SortedDictionary<string, string> sArray = GetRequestParameters();
+                ChargeBridge bridge = new ChargeBridge();
+                result = bridge.ChargeCallBack(sArray, ResourceType.BeiBeiFlow);
+            }            
+            catch
+            {
+                result = "fail";
+            }
+
+            resp.Content = new StringContent(result, System.Text.Encoding.UTF8, "text/plain");
+            return resp;
+        }
     }
 }
