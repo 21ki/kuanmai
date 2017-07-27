@@ -124,8 +124,19 @@ namespace KMBit.BL
                 {
                     col[p.Key] = p.Value;
                 }
-
+                Charge_Order dborder = (from o in db.Charge_Order where o.Id==order.Id select o).FirstOrDefault<Charge_Order>();
                 string resStr = HttpSercice.PostHttpRequest(order.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
+                if(resStr==null)
+                {
+                    dborder.PushedTimes += 1;
+                    dborder.Received = true;
+                }
+                else if (resStr.ToLower() == "fail")
+                {
+                    dborder.PushedTimes += 1;
+                    dborder.Received = false;
+                }
+                db.SaveChanges();
             }
             catch(Exception ex)
             {
@@ -376,9 +387,9 @@ namespace KMBit.BL
                         }
 
                         db.SaveChanges();                        
-                        if (needCallBack && beforeStaus == 1)
+                        if (needCallBack && beforeStaus == 1 && cOrder.Received==false && cOrder.PushedTimes<4)
                         {
-                            this.SendStatusBackToAgentCallback(cOrder);                           
+                            this.SendStatusBackToAgentCallback(cOrder);
                         }
                     }
                 }

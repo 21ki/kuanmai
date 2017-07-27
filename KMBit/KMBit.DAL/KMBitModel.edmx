@@ -103,6 +103,8 @@
           <Property Name="OpenId" Type="varchar" MaxLength="100" />
           <Property Name="OpenAccountType" Type="int" />
           <Property Name="Client_Order_Id" Type="varchar" MaxLength="45" />
+          <Property Name="Received" Type="bool" Nullable="false" />
+          <Property Name="PushedTimes" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -310,6 +312,7 @@
           <Property Name="AppSecret" Type="varchar" MaxLength="45" />
           <Property Name="GetTokenUrl" Type="varchar" MaxLength="200" />
           <Property Name="QueryStatusUrl" Type="varchar" MaxLength="200" />
+          <Property Name="Synchronized" Type="bool" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -819,6 +822,8 @@
           <Property Name="OpenId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="OpenAccountType" Type="Int32" />
           <Property Name="Client_Order_Id" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
+          <Property Name="Received" Type="Boolean" Nullable="false" />
+          <Property Name="PushedTimes" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Payment_history">
           <Key>
@@ -862,6 +867,7 @@
           <Property Name="AppSecret" Type="String" MaxLength="45" FixedLength="false" Unicode="false" />
           <Property Name="GetTokenUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="QueryStatusUrl" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Synchronized" Type="Boolean" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -1210,6 +1216,8 @@
           <EntitySetMapping Name="Charge_Order">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Charge_Order">
               <MappingFragment StoreEntitySet="Charge_Order">
+                <ScalarProperty Name="PushedTimes" ColumnName="PushedTimes" />
+                <ScalarProperty Name="Received" ColumnName="Received" />
                 <ScalarProperty Name="Client_Order_Id" ColumnName="Client_Order_Id" />
                 <ScalarProperty Name="OpenAccountType" ColumnName="OpenAccountType" />
                 <ScalarProperty Name="OpenId" ColumnName="OpenId" />
@@ -1274,6 +1282,7 @@
           <EntitySetMapping Name="Resrouce_interface">
             <EntityTypeMapping TypeName="KMBitDBContextModel.Resrouce_interface">
               <MappingFragment StoreEntitySet="Resrouce_interface">
+                <ScalarProperty Name="Synchronized" ColumnName="Synchronized" />
                 <ScalarProperty Name="QueryStatusUrl" ColumnName="QueryStatusUrl" />
                 <ScalarProperty Name="GetTokenUrl" ColumnName="GetTokenUrl" />
                 <ScalarProperty Name="AppSecret" ColumnName="AppSecret" />

@@ -18,6 +18,8 @@ namespace KMBit.BL
         static int lastOrderId = 0;
         static object o = new object();
         static ChargeBridge cb = new ChargeBridge(logger);
+        static List<Resource> resources = null;
+        static List<Resrouce_interface> resourceAPIs = null;
         public static void ProcessOrders()
         {            
             logger.Info("Going to process orders...");
@@ -26,6 +28,14 @@ namespace KMBit.BL
             {                
                 List<Charge_Order> orders = null;
                 db = new chargebitEntities();
+                if(resources==null)
+                {
+                    resources = (from r in db.Resource where r.Enabled==true select r).ToList<Resource>();
+                }
+                if(resourceAPIs==null)
+                {
+                    resourceAPIs = (from r in db.Resrouce_interface select r).ToList<Resrouce_interface>();
+                }
                 lock (o)
                 {
                     logger.Info("Last Max Order Id:" + lastOrderId);
@@ -58,6 +68,12 @@ namespace KMBit.BL
                 logger.Info("");
                 foreach (Charge_Order corder in orders)
                 {
+                    Resource resource = (from r in resources where r.Id==corder.Resource_id select r).FirstOrDefault<Resource>();
+                    Resrouce_interface resourceAPI = null;
+                    if(resource!=null)
+                    {
+                        resourceAPI = (from api in resourceAPIs where api.Resource_id==corder.Resource_id select api).FirstOrDefault<Resrouce_interface>();
+                    }
                     logger.Info(string.Format("Processing order Id-{0}, Phone-{1}, Agent-{2}, ChargeType-{3}", corder.Id.ToString(),corder.Phone_number,corder.Agent_Id,corder.Charge_type));
                     ChargeOrder order = new ChargeOrder()
                     {
@@ -84,7 +100,12 @@ namespace KMBit.BL
                     {
                         logger.Info("Sync status process will do the callback request.");
                     }
-                    if(!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 && agent!=null && order.Status!=1)
+
+                    //just for Synchronized resources
+                    if (!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 
+                        && agent!=null && order.Status!=1 
+                        && resourceAPI!=null && resourceAPI.Synchronized==true
+                        )
                     {
                         //send back the status to agent system
                         NameValueCollection col = new NameValueCollection();
@@ -112,7 +133,17 @@ namespace KMBit.BL
                         string sign = UrlSignUtil.GetMD5(querystr);
                         col.Add("Sign",sign);
                         //logger.Info("sign=" + sign);
-                        HttpSercice.PostHttpRequest(corder.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
+                        string resStr=HttpSercice.PostHttpRequest(corder.CallBackUrl, col, WeChat.Adapter.Requests.RequestType.POST, null);
+                        if (resStr == null)
+                        {
+                            corder.PushedTimes += 1;
+                            corder.Received = true;
+                        }
+                        else if (resStr.ToLower() == "fail")
+                        {
+                            corder.PushedTimes += 1;
+                            corder.Received = false;
+                        }
                     }
                     logger.Info(string.Format("Order ID:{2} - {0} - {1}",result.Status,result.Message,corder.Id));
                     logger.Info("");
@@ -187,6 +218,44 @@ namespace KMBit.BL
                 }
             }
             logger.Info("Leaving ProcessAgentAccountChargePayments...");
+        }
+        public static void SendBackStatus()
+        {
+            chargebitEntities db = null;
+            try
+            {
+                db = new chargebitEntities();
+                List<Charge_Order> orders = (from o in db.Charge_Order where o.Received==false && o.PushedTimes<4 select o).ToList<Charge_Order>();
+                foreach(Charge_Order order in orders)
+                {
+                    Resource resource = (from r in resources where r.Id == order.Resource_id select r).FirstOrDefault<Resource>();
+                    Resrouce_interface resourceAPI = null;
+                    if (resource != null)
+                    {
+                        resourceAPI = (from api in resourceAPIs where api.Resource_id == order.Resource_id select api).FirstOrDefault<Resrouce_interface>();
+                    }
+                    if(resourceAPI==null)
+                    {
+                        continue;
+                    }
+                    if(string.IsNullOrEmpty(order.CallBackUrl))
+                    {
+                        order.Received = true;
+                        db.SaveChanges();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.Fatal(ex);
+            }
+            finally
+            {
+                if(db!=null)
+                {
+                    db.Dispose();
+                }
+            }
         }
     }
 }

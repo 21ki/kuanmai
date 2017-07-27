@@ -269,13 +269,16 @@ namespace KMBit.BL
                 List<Resrouce_interface> apis = (from api in db.Resrouce_interface where string.IsNullOrEmpty(api.CallBackUrl) && !string.IsNullOrEmpty(api.QueryStatusUrl) && api.Resource_id == 10 orderby api.CallBackUrl select api).ToList<Resrouce_interface>();               
                 foreach (Resrouce_interface api in apis)
                 {
-                    Logger.Info("Processing order status for resourceId:"+api.Resource_id);
-                    IStatus chargeMgr = null;
-                    object o = null;
-                    o = Assembly.Load(api.Interface_assemblyname).CreateInstance(api.Interface_classname);
-                    chargeMgr = (IStatus)o;
-                    chargeMgr.GetChargeStatus(api.Resource_id);
-                    Logger.Info("Done!");
+                    if(api.Synchronized==false && string.IsNullOrEmpty(api.CallBackUrl))
+                    {
+                        Logger.Info("Processing order status for resourceId:" + api.Resource_id);
+                        IStatus chargeMgr = null;
+                        object o = null;
+                        o = Assembly.Load(api.Interface_assemblyname).CreateInstance(api.Interface_classname);
+                        chargeMgr = (IStatus)o;
+                        chargeMgr.GetChargeStatus(api.Resource_id);
+                        Logger.Info("Done!");
+                    }                    
                 }
             }
             catch (Exception ex)

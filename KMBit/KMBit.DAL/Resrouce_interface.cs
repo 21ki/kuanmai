@@ -27,5 +27,6 @@ namespace KMBit.DAL
         public string AppSecret { get; set; }
         public string GetTokenUrl { get; set; }
         public string QueryStatusUrl { get; set; }
+        public bool Synchronized { get; set; }
     }
 }
