@@ -20,8 +20,9 @@ namespace KMBit.BL
         static ChargeBridge cb = new ChargeBridge(logger);
         static List<Resource> resources = null;
         static List<Resrouce_interface> resourceAPIs = null;
+        static ChargeService chargeSvr = new ChargeService();
         public static void ProcessOrders()
-        {            
+        {  
             logger.Info("Going to process orders...");
             chargebitEntities db = null;
             try
@@ -225,7 +226,10 @@ namespace KMBit.BL
             try
             {
                 db = new chargebitEntities();
-                List<Charge_Order> orders = (from o in db.Charge_Order where o.Received==false && o.PushedTimes<4 select o).ToList<Charge_Order>();
+                List<Charge_Order> orders = (from o in db.Charge_Order where
+                                             o.Received==false && o.PushedTimes<4
+                                             && !string.IsNullOrEmpty(o.CallBackUrl)
+                                             select o).ToList<Charge_Order>();
                 foreach(Charge_Order order in orders)
                 {
                     Resource resource = (from r in resources where r.Id == order.Resource_id select r).FirstOrDefault<Resource>();
@@ -238,11 +242,15 @@ namespace KMBit.BL
                     {
                         continue;
                     }
-                    if(string.IsNullOrEmpty(order.CallBackUrl))
+                    if (resourceAPI.Synchronized == false && !string.IsNullOrEmpty(resourceAPI.CallBackUrl))
+                    {
+                        chargeSvr.SendStatusBackToAgentCallback(order);
+                    }  
+                    else
                     {
                         order.Received = true;
                         db.SaveChanges();
-                    }
+                    }                             
                 }
             }
             catch(Exception ex)

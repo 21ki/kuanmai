@@ -111,8 +111,9 @@ namespace KMBit.BL.Charge
                     return result;
                 }
                 ServerUri = new Uri(rInterface.APIURL);
+                Logger.Info("API URL:"+ rInterface.APIURL);
                 string md5Password = UrlSignUtil.GetMD5(KMAes.DecryptStringAES(rInterface.Userpassword));
-                if(!string.IsNullOrEmpty(md5Password) && md5Password.Length>32)
+                if (!string.IsNullOrEmpty(md5Password) && md5Password.Length>32)
                 {
                     md5Password = md5Password.Substring(0, 32).ToLower();
                 }
@@ -144,7 +145,9 @@ namespace KMBit.BL.Charge
                 parmeters.Add(new WebRequestParameters("f", "recharge", false));
                 parmeters.Add(new WebRequestParameters("flowType", "AF", false));
                 parmeters.Add(new WebRequestParameters("businessType", "2", false));
+                Logger.Info("Going to send request");
                 SendRequest(parmeters, false, out succeed);
+                Logger.Info("Request is completed");
                 if (!string.IsNullOrEmpty(Response))
                 {
                     Logger.Info("Response :"+Response);

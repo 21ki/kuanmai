@@ -53,7 +53,7 @@ namespace KMBit.BL
             this.Logger = log4net.LogManager.GetLogger(this.GetType());
         }
 
-        protected void SendStatusBackToAgentCallback(object oorder)
+        public void SendStatusBackToAgentCallback(object oorder)
         {
             if(oorder.GetType()!= typeof(Charge_Order))
             {
