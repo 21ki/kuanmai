@@ -181,10 +181,56 @@ namespace KMBit.BL
             return result;
         }
 
-        public ChargeResult ChargeCallBack(SortedDictionary<string, string> parameters)
+        public string ChargeCallBack(SortedDictionary<string, string> paras, ResourceType type)
         {
             ChargeResult result = new ChargeResult();
-            if(parameters==null)
+            if(paras==null)
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = "回调参数错误";
+                return result.Status.ToString();
+            }
+            ICharge chargeMgr = null;
+            try
+            {
+                switch(type)
+                {
+                    case ResourceType.BeiBeiFlow:
+                        chargeMgr = new BeiBeiFlowCharge();
+                        break;
+                }
+                if(chargeMgr!=null)
+                {
+                    List<WebRequestParameters> paramters = new List<WebRequestParameters>();
+                    if (paras != null)
+                    {
+                        foreach (KeyValuePair<string, string> para in paras)
+                        {
+                            paramters.Add(new WebRequestParameters(para.Key, para.Value, false));
+                        }
+                    }
+                    chargeMgr.CallBack(paramters);
+                    result.Status = ChargeStatus.SUCCEED;
+                    result.Message = "回调成功";
+                }               
+            }
+            catch(KMBitException kex)
+            {
+                result.Status = ChargeStatus.FAILED;
+                result.Message = kex.Message;
+            }
+            catch(Exception ex)
+            {
+                Logger.Fatal(ex);
+            }
+           
+            return result.Status.ToString();
+        }
+
+        public ChargeResult ChargeCallBack(SortedDictionary<string, string> paras)
+        {
+            ChargeResult result = new ChargeResult();
+            if (paras == null)
             {
                 result.Status = ChargeStatus.FAILED;
                 result.Message = "回调参数错误";
@@ -192,21 +238,28 @@ namespace KMBit.BL
             }
 
             string orderStrId = null;
-            if(parameters.ContainsKey("transNo"))
+            if (paras.ContainsKey("transNo"))
             {
-                orderStrId = parameters["transNo"];
+                orderStrId = paras["transNo"];
                 ICharge chargeMgr = new ChongBaCharge();
                 List<WebRequestParameters> paramters = new List<WebRequestParameters>();
-                paramters.Add(new WebRequestParameters("orderId", parameters["orderId"], false));
-                paramters.Add(new WebRequestParameters("respCode", parameters["respCode"], false));
-                paramters.Add(new WebRequestParameters("respMsg", parameters["respMsg"], false));
-                paramters.Add(new WebRequestParameters("transNo", parameters["transNo"], false));
+                //paramters.Add(new WebRequestParameters("orderId", parameters["orderId"], false));
+                //paramters.Add(new WebRequestParameters("respCode", parameters["respCode"], false));
+                //paramters.Add(new WebRequestParameters("respMsg", parameters["respMsg"], false));
+                //paramters.Add(new WebRequestParameters("transNo", parameters["transNo"], false));
+                if (paras != null)
+                {
+                    foreach (KeyValuePair<string, string> para in paras)
+                    {
+                        paramters.Add(new WebRequestParameters(para.Key, para.Value, false));
+                    }
+                }
                 chargeMgr.CallBack(paramters);
                 result.Status = ChargeStatus.SUCCEED;
                 result.Message = "回调成功";
             }
             return result;
-        }        
+        }
 
         public void SyncChargeStatus()
         {            
