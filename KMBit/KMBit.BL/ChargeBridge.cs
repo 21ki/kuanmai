@@ -183,9 +183,11 @@ namespace KMBit.BL
 
         public string ChargeCallBack(SortedDictionary<string, string> paras, ResourceType type)
         {
+            Logger.Info(this.GetType().ToString()+ ".ChargeCallBack......................");
             ChargeResult result = new ChargeResult();
             if(paras==null)
             {
+                Logger.Error("No parameters included in the callback request.");
                 result.Status = ChargeStatus.FAILED;
                 result.Message = "回调参数错误";
                 return result.Status.ToString();
@@ -196,6 +198,7 @@ namespace KMBit.BL
                 switch(type)
                 {
                     case ResourceType.BeiBeiFlow:
+                        Logger.Info("Beibeiflow callback");
                         chargeMgr = new BeiBeiFlowCharge();
                         break;
                 }
@@ -210,6 +213,7 @@ namespace KMBit.BL
                         }
                     }
                     chargeMgr.CallBack(paramters);
+                    Logger.Info("Beibeiflow callback is completed.");
                     result.Status = ChargeStatus.SUCCEED;
                     result.Message = "回调成功";
                 }               
@@ -223,7 +227,7 @@ namespace KMBit.BL
             {
                 Logger.Fatal(ex);
             }
-           
+            Logger.Info(this.GetType().ToString() + ".ChargeCallBack done.");
             return result.Status.ToString();
         }
 

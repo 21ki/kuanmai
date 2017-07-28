@@ -29,6 +29,7 @@ namespace KMBit.BL
             {                
                 List<Charge_Order> orders = null;
                 db = new chargebitEntities();
+                db.Configuration.AutoDetectChangesEnabled = true;
                 if(resources==null)
                 {
                     resources = (from r in db.Resource where r.Enabled==true select r).ToList<Resource>();
@@ -105,6 +106,7 @@ namespace KMBit.BL
                         (resourceAPI.Synchronized==true || result.Status== ChargeStatus.FAILED)
                         )
                     {
+                        logger.Info("Synchronized resource api or failed resource api submission.");
                         //send back the status to agent system
                         NameValueCollection col = new NameValueCollection();
                         SortedDictionary<string, string> param = new SortedDictionary<string, string>();

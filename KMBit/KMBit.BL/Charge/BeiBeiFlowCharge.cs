@@ -17,6 +17,7 @@ namespace KMBit.BL.Charge
     {       
         public void CallBack(List<WebRequestParameters> data)
         {
+            Logger.Info("KMBit.BL.Charge.BeiBeiFlowCharge.CallBack................................");
             if (data == null)
             {
                 return;
@@ -60,12 +61,15 @@ namespace KMBit.BL.Charge
             else
             {
                 //回调没有传入状态，本系统默认失败
+                Logger.Error("没有回调状态数据");
                 result.Message = "没有回调状态数据";
                 result.Status = ChargeStatus.FAILED;
             }
-
+            Logger.Info("Callback order status:"+result.Status.ToString());
+            Logger.Info("Callback order message:" + result.Message);
             if (order.Id > 0)
             {
+                Logger.Info("Callback data is handled, change order status in local system.");
                 ChangeOrderStatus(order, result, true);
                 //sending back status if the invoked by agent api
                 using (chargebitEntities db = new chargebitEntities())
@@ -73,14 +77,18 @@ namespace KMBit.BL.Charge
                     Charge_Order dbOrder = (from o in db.Charge_Order where o.Id == order.Id select o).FirstOrDefault<Charge_Order>();
                     if (dbOrder != null && !string.IsNullOrEmpty(dbOrder.CallBackUrl))
                     {
+                        Logger.Info("Going to send order status to order requester.");
                         this.SendStatusBackToAgentCallback(dbOrder);
                     }
                 }
             }
             else
             {
+                Logger.Error("回调数据中没有本系统的订单号，所以不能更新本系统数据，此次调用为脏数据");
                 throw new KMBitException("回调数据中没有本系统的订单号，所以不能更新本系统数据，此次调用为脏数据");
             }
+
+            Logger.Info("KMBit.BL.Charge.BeiBeiFlowCharge.CallBack done.");
         }
 
         public ChargeResult Charge(ChargeOrder order)
@@ -141,7 +149,6 @@ namespace KMBit.BL.Charge
                 parmeters.Add(new WebRequestParameters("proKey", taocan.Serial, false));
                 parmeters.Add(new WebRequestParameters("bcallbackUrl", rInterface.CallBackUrl, false));
                 parmeters.Add(new WebRequestParameters("sign", sign, false));
-                parmeters.Add(new WebRequestParameters("proKey", taocan.Serial, false));
                 parmeters.Add(new WebRequestParameters("f", "recharge", false));
                 parmeters.Add(new WebRequestParameters("flowType", "AF", false));
                 parmeters.Add(new WebRequestParameters("businessType", "2", false));
@@ -186,6 +193,10 @@ namespace KMBit.BL.Charge
                                 case "122":
                                     result.Status = ChargeStatus.FAILED;
                                     result.Message = ChargeConstant.RESOURCE_MAINTANCE;
+                                    break;
+                                case "125":
+                                    result.Status = ChargeStatus.FAILED;
+                                    result.Message = "重复提交";
                                     break;
                                 case "205":
                                     result.Status = ChargeStatus.FAILED;
