@@ -97,15 +97,12 @@ namespace KMBit.BL
                     result = cb.Charge(order);
                     Users agent = (from u in agents where corder.Agent_Id>0 && corder.Agent_Id==u.Id select u).FirstOrDefault<Users>();
                     logger.Info("Order status - " +order.Status);
-                    if(order.Status==1)
-                    {
-                        logger.Info("Sync status process will do the callback request.");
-                    }
 
                     //just for Synchronized resources
-                    if (!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id>0 
-                        && agent!=null && order.Status!=1 
-                        && resourceAPI!=null && resourceAPI.Synchronized==true
+                    if (!string.IsNullOrEmpty(corder.CallBackUrl) && corder.Agent_Id > 0
+                        && agent != null
+                        && resourceAPI != null &&
+                        (resourceAPI.Synchronized==true || result.Status== ChargeStatus.FAILED)
                         )
                     {
                         //send back the status to agent system
@@ -145,6 +142,7 @@ namespace KMBit.BL
                             corder.PushedTimes += 1;
                             corder.Received = false;
                         }
+                        db.SaveChanges();
                     }
                     logger.Info(string.Format("Order ID:{2} - {0} - {1}",result.Status,result.Message,corder.Id));
                     logger.Info("");

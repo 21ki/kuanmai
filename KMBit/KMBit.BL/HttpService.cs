@@ -46,6 +46,10 @@ namespace KMBit.BL
         }      
         public void SendRequest(List<WebRequestParameters> paras, bool postByByte, out bool succeed, RequestType requestType= RequestType.POST)
         {
+            if(Logger==null)
+            {
+                Logger = log4net.LogManager.GetLogger(this.GetType());
+            }
             if(string.IsNullOrEmpty(this.ApiUrl))
             {
                 throw new Exception("URI 不能为空");
@@ -131,10 +135,13 @@ namespace KMBit.BL
                 {
                     if(requestType== RequestType.POST)
                     {
+                        Logger.Info("Post below data to api:");
+                        Logger.Info(postData);
                         request.ContentLength = Encoding.UTF8.GetByteCount(postData);
                         System.IO.StreamWriter sw = new System.IO.StreamWriter(request.GetRequestStream(), new UTF8Encoding(false));
                         sw.Write(postData);
                         sw.Close();
+                        Logger.Info("Request is done.");
                     }
                                     
                 }
@@ -153,7 +160,6 @@ namespace KMBit.BL
                 if (response != null)
                 {
                     this.StatusCode = response.StatusCode;
-                    Encoding res_encoding = Encoding.GetEncoding(response.CharacterSet);
                     if (response.StatusCode == HttpStatusCode.OK && response.GetResponseStream()!=null)
                     {
                         System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8"));
@@ -169,6 +175,7 @@ namespace KMBit.BL
             }
             catch (WebException wex)
             {
+                Logger.Fatal(wex);
                 HttpStatusCode status = ((HttpWebResponse)wex.Response).StatusCode;
                 this.StatusCode = status;
                 if (wex.Response != null)
@@ -185,7 +192,7 @@ namespace KMBit.BL
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Logger.Fatal(ex);
             }
             finally
             {

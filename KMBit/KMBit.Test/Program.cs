@@ -15,12 +15,12 @@ namespace KMBit.Test
 {
     class Program
     {
-        static string url = "http://yfll.eruifo.com/km/Account/";
+        static string url = "http://123.126.40.75:8080/km/Account/";
         static void Main(string[] args)
         {
-            CallBack();
+            //CallBack();
             //charge();
-            //products();
+            products();
             //string x = "CallBackUrl=http://113.31.21.238:8200/flux/callbackservice/yifengcb.ws&City=商丘&Client_order_id=68919_0&Id=20&Mobile=15649939049&Province=河南&Token=0ce9445505baa521ed1a2b0a34853164&key=0a483117-4e4d-4d97-aad4-d6576c2ffdec";
             //string sign = Md5(x);
         }
@@ -33,9 +33,9 @@ namespace KMBit.Test
         static void products()
         {
             SortedDictionary<string, string> parameters = new SortedDictionary<string, string>();
-            parameters["Token"] = "0ce9445505baa521ed1a2b0a34853164";
-            string sectoken = "0a483117-4e4d-4d97-aad4-d6576c2ffdec";
-            string query = "Token=0ce9445505baa521ed1a2b0a34853164";
+            parameters["Token"] = "fd01e1c7c0e98db26b91d6f81ed20529";
+            string sectoken = "0c16e09b-b822-4b5a-bab4-19e6855b3211";
+            string query = "Token=fd01e1c7c0e98db26b91d6f81ed20529";
             string sign = UrlSignUtil.GetMD5(query + "&key=" + sectoken);
             
             NameValueCollection col = new NameValueCollection();

@@ -203,6 +203,7 @@ namespace KMBit.BL.Charge
             }
             catch (Exception ex)
             {
+                Logger.Error("Failed to send request to resource API.");
                 result.Status = ChargeStatus.FAILED;
                 result.Message = "未知错误";
                 Logger.Fatal(ex);
