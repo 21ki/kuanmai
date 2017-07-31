@@ -145,9 +145,10 @@ namespace KMBit.BL.API
             using (chargebitEntities db = new chargebitEntities())
             {
                 var query = from r in db.Agent_route
-                            join t in db.Resource_taocan on r.Resource_taocan_id equals t.Id
-                            join a in db.Area on t.NumberProvinceId equals a.Id
+                            join t in db.Resource_taocan on r.Resource_taocan_id equals t.Id                            
                             join sp in db.Sp on t.Sp_id equals sp.Id
+                            join a in db.Area on t.NumberProvinceId equals a.Id into la
+                            from lla in la.DefaultIfEmpty()
                             where r.Enabled == true && t.Enabled == true && r.User_id == agentId
                             orderby t.Sp_id descending, t.Quantity ascending
                             select new AgentProduct
@@ -156,7 +157,7 @@ namespace KMBit.BL.API
                                 Size = t.Quantity,
                                 SP = t.Sp_id,  
                                 SPName = sp!=null?sp.Name:"",   
-                                RestrictProvince=a!=null?a.Name:"",
+                                RestrictProvince= (lla!= null? lla.Name:"全国"),
                                 PlatformSalePrice=t.Sale_price,
                                 ClientDiscount=r.Discount,
                                 ClientSalePrice=r.Sale_price
