@@ -65,11 +65,12 @@ namespace KMBit.BL.Charge
                 result.Message = "没有回调状态数据";
                 result.Status = ChargeStatus.FAILED;
             }
-            Logger.Info("Callback order status:"+result.Status.ToString());
-            Logger.Info("Callback order message:" + result.Message);
+           
             if (order.Id > 0)
             {
-                Logger.Info("Callback data is handled, change order status in local system.");
+                Logger.Info("Callback order status:" + result.Status.ToString());
+                Logger.Info("Callback order message:" + result.Message);
+                Logger.Info("Callback data is handled, going to change order status in local system.");
                 ChangeOrderStatus(order, result, true);
                 //sending back status if the invoked by agent api
                 using (chargebitEntities db = new chargebitEntities())
@@ -78,7 +79,7 @@ namespace KMBit.BL.Charge
                     if (dbOrder != null && !string.IsNullOrEmpty(dbOrder.CallBackUrl))
                     {
                         Logger.Info("Going to send order status to order requester.");
-                        this.SendStatusBackToAgentCallback(dbOrder);
+                        SendStatusBackToAgentCallback(dbOrder);
                     }
                 }
             }
